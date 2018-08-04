@@ -1,0 +1,44 @@
+apply plugin: 'java'
+apply plugin: 'checkstyle'
+
+task fatJar(type: Jar) {
+  baseName = project.name + '-all'
+  from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
+  with jar
+}
+
+evaluationDependsOn ':standard-udfs-type-system'
+
+dependencies {
+  compile project(':standard-udfs-api')
+  compile project(':standard-udfs-examples')
+  compile project(':standard-udfs-type-system')
+  compile project(':standard-udfs-utils')
+  compile('org.apache.hadoop:hadoop-common:2.7.4')
+  compileOnly('org.apache.hive:hive-exec:1.2.2') {
+    exclude group: 'org.apache.avro'
+  }
+  testCompile project(path: ':standard-udfs-type-system', configuration: 'tests')
+  testCompile('org.apache.hive:hive-exec:1.2.2') {
+    exclude group: 'org.apache.avro'
+  }
+}
+
+task jarTests(type: Jar, dependsOn: testClasses) {
+  classifier = 'tests'
+  from sourceSets.test.output
+}
+
+configurations {
+  tests {
+    extendsFrom testRuntime
+  }
+}
+
+artifacts {
+  tests jarTests
+}
+
+checkstyle {
+  configFile = file("${rootDir}/gradle/checkstyle/linkedin-checkstyle.xml")
+}

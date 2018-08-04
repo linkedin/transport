@@ -1,0 +1,10 @@
+apply plugin: 'java'
+apply plugin: 'checkstyle'
+
+artifacts {
+  archives jar
+}
+
+checkstyle {
+  configFile = file("${rootDir}/gradle/checkstyle/linkedin-checkstyle.xml")
+}

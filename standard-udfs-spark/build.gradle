@@ -1,0 +1,58 @@
+apply plugin: 'scala'
+apply plugin: 'com.github.johnrengelman.plugin-shadow'
+apply plugin: 'scalaStyle'
+
+buildscript {
+  repositories {
+    jcenter()
+  }
+
+  dependencies {
+    classpath 'org.github.ngbinh.scalastyle:gradle-scalastyle-plugin_2.10:1.0.1'
+  }
+}
+
+shadowJar {
+  //TODO:OSS Check if packages as expected
+  //includeRestrictedDependencies "com.linkedin.hadoop"
+  //includeRestrictedDependencies "commons-logging"
+  //includeRestrictedDependencies "log4j"
+  //includeRestrictedDependencies "org.slf4j"
+  //doNotShade '**/*'
+  mergeServiceFiles()
+}
+
+evaluationDependsOn ':standard-udfs-type-system'
+
+scalaStyle {
+  configLocation = "${projectDir}/config/scalastyle/scalastyle-config.xml"
+}
+
+dependencies {
+  compile project(':standard-udfs-api')
+  compile project(':standard-udfs-examples')
+  compile project(':standard-udfs-type-system')
+  compile project(':standard-udfs-utils')
+  compile('org.scala-lang:scala-library:2.10.6')
+  compileOnly('org.apache.spark:spark-core_2.10:2.1.0')
+  compileOnly('org.apache.spark:spark-sql_2.10:2.1.0')
+  compile('com.databricks:spark-avro_2.10:4.0.0')
+  testCompile('org.apache.spark:spark-core_2.10:2.1.0')
+  testCompile('org.apache.spark:spark-sql_2.10:2.1.0')
+  testCompile project(path: ':standard-udfs-type-system', configuration: 'tests')
+}
+
+task jarTests(type: Jar, dependsOn: testClasses) {
+  classifier = 'tests'
+  from sourceSets.test.output
+}
+
+configurations {
+  tests {
+    extendsFrom testRuntime
+  }
+}
+
+artifacts {
+  tests jarTests
+}

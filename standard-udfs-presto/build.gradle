@@ -1,0 +1,62 @@
+apply plugin: 'java'
+apply plugin: 'distribution'
+apply plugin: 'com.github.johnrengelman.plugin-shadow'
+apply plugin: 'checkstyle'
+
+task fatJar(type: Jar) {
+  baseName = project.name + '-all'
+  from { configurations.compile.collect { it.isDirectory() || !it.name.endsWith('.jar') ? it : zipTree(it) } }
+  with jar
+}
+
+dependencies {
+  compile project(':standard-udfs-api')
+  compile project(':standard-udfs-examples')
+  compile project(':standard-udfs-type-system')
+  compile project(':standard-udfs-utils')
+  compileOnly('com.facebook.presto:presto-main:0.168') {
+    exclude 'group': 'com.google.collections', 'module': 'google-collections'
+  }
+  testCompile('com.facebook.presto:presto-main:0.168') {
+    exclude 'group': 'com.google.collections', 'module': 'google-collections'
+  }
+  testCompile(group: 'com.facebook.presto', name: 'presto-main', version: '0.168', classifier: 'tests') {
+    exclude 'group': 'com.google.collections', 'module': 'google-collections'
+  }
+  compileOnly('com.facebook.presto:presto-spi:0.168')
+  compile('org.apache.hadoop:hadoop-hdfs:2.7.4')
+  compile('org.apache.hadoop:hadoop-common:2.7.4')
+  testCompile('io.airlift:testing:0.142')
+  // The io.airlift.slice dependency below has to match its counterpart  in presto-root's pom.xml file
+  // If not specified, an older version is picked up transitively from another dependency
+  testCompile('io.airlift:slice:0.27')
+}
+
+distributions {
+  main {
+    contents {
+      from jar
+      from project.configurations.runtime
+    }
+  }
+}
+
+shadowJar {
+  //TODO:OSS Check if packages as expected
+  //includeRestrictedDependencies "com.linkedin.hadoop"
+  //includeRestrictedDependencies "commons-logging"
+  //includeRestrictedDependencies "log4j"
+  //includeRestrictedDependencies "org.slf4j"
+  //doNotShade '**/*'
+  mergeServiceFiles()
+}
+
+artifacts {
+  archives jar, distTar
+}
+
+build.dependsOn distTar
+
+checkstyle {
+  configFile = file("${rootDir}/gradle/checkstyle/linkedin-checkstyle.xml")
+}

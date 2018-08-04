@@ -1,0 +1,31 @@
+allprojects {
+  apply plugin: 'idea'
+}
+
+buildscript {
+  repositories {
+    jcenter()
+  }
+  dependencies {
+    classpath 'com.github.jengelman.gradle.plugins:shadow:2.0.4'
+  }
+}
+
+subprojects {
+  repositories {
+    mavenCentral()
+    maven {
+      url "http://conjars.org/repo"
+    }
+  }
+
+  plugins.withType(JavaPlugin) {
+    dependencies {
+      testCompile 'org.testng:testng:6.11'
+    }
+
+    test {
+      useTestNG()
+    }
+  }
+}

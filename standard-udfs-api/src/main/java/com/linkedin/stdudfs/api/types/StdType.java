@@ -1,0 +1,14 @@
+package com.linkedin.stdudfs.api.types;
+
+/**
+ * An interface for all types describing the Standard UDF data types.
+ *
+ * All Standard UDF types (e.g., {@link StdIntegerType}, {@link StdArrayType}, {@link StdMapType}) are its sub-interfaces.
+ * {@link com.linkedin.stdudfs.api.StdFactory#createStdType(String)} can be used to create {@link StdType} objects from
+ * a type signature string.
+ */
+public interface StdType {
+
+  /** Returns the platform-specific schema type for a given {@link StdType}. */
+  Object underlyingType();
+}
