@@ -13,7 +13,7 @@ case class SparkArray(private var _arrayData: ArrayData,
                       private val _arrayType: DataType) extends StdArray with PlatformData {
 
   private val _elementType = _arrayType.asInstanceOf[ArrayType].elementType
-  private var _mutableBuffer: ArrayBuffer[Any] = _
+  private var _mutableBuffer: ArrayBuffer[Any] = if (_arrayData == null) createMutableArray() else null
 
   override def add(e: StdData): Unit = {
     // Once add is called, we cannot use  Spark's readonly ArrayData API
@@ -28,8 +28,13 @@ case class SparkArray(private var _arrayData: ArrayData,
   }
 
   private def createMutableArray(): ArrayBuffer[Any] = {
-    val arrayBuffer = new ArrayBuffer[Any](_arrayData.numElements())
-    _arrayData.foreach(_elementType, (i, e) => arrayBuffer.append(e))
+    var arrayBuffer: ArrayBuffer[Any] = null
+    if (_arrayData == null) {
+      arrayBuffer = new ArrayBuffer[Any]()
+    } else {
+      arrayBuffer = new ArrayBuffer[Any](_arrayData.numElements())
+      _arrayData.foreach(_elementType, (i, e) => arrayBuffer.append(e))
+    }
     arrayBuffer
   }
 

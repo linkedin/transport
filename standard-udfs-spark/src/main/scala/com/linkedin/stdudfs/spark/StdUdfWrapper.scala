@@ -90,14 +90,14 @@ abstract class StdUdfWrapper(_expressions: Seq[Expression]) extends Expression
   }
 
   override def eval(input: InternalRow): Any = {
-    if (containsNullValuedNonNullableArgument(input)) {
+    val wrappedArguments = checkNullsAndWrapArguments(input)
+    // if wrappedArguments is null, it means that null check failed -> return null
+    if (wrappedArguments == null) {
       null
     } else {
       if (!_requiredFilesProcessed) {
         processRequiredFiles()
       }
-
-      val wrappedArguments = wrapArguments(input)
       val stdResult = wrappedArguments.length match {
         case 0 =>
           _stdUdf.asInstanceOf[StdUDF0[StdData]].eval()
@@ -119,12 +119,17 @@ abstract class StdUdfWrapper(_expressions: Seq[Expression]) extends Expression
     }
   }
 
-  private final def containsNullValuedNonNullableArgument(input: InternalRow): Boolean = {
-    _nullableArguments.zip(_expressions).exists({ case (nullable, expression) => !nullable && expression.eval(input) == null })
-  }
-
-  private final def wrapArguments(input: InternalRow): Seq[StdData] = {
-    _expressions.map(expr => SparkWrapper.createStdData(expr.eval(input), expr.dataType))
+  private final def checkNullsAndWrapArguments(input: InternalRow): Array[StdData] = {
+    val wrappedArguments = new Array[StdData](_expressions.length)
+    for (i <- _expressions.indices) {
+      val evaluatedExpression = _expressions(i).eval(input)
+      if(!_nullableArguments(i) && evaluatedExpression == null) {
+        // argument is defined as non nullable and value is null, so return early
+        return null // scalastyle:ignore return
+      }
+      wrappedArguments(i) = SparkWrapper.createStdData(evaluatedExpression, _expressions(i).dataType)
+    }
+    wrappedArguments
   }
 
   private final def processRequiredFiles(): Unit = {

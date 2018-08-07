@@ -1,5 +1,4 @@
 apply plugin: 'java'
-apply plugin: 'checkstyle'
 
 dependencies {
   compile project(':standard-udfs-api')
@@ -21,8 +20,4 @@ configurations {
 artifacts {
   archives jar
   tests jarTests
-}
-
-checkstyle {
-  configFile = file("${rootDir}/gradle/checkstyle/linkedin-checkstyle.xml")
 }

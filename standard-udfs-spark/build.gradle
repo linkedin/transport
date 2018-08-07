@@ -1,33 +1,16 @@
 apply plugin: 'scala'
-apply plugin: 'scalaStyle'
-
-buildscript {
-  repositories {
-    jcenter()
-  }
-
-  dependencies {
-    classpath 'org.github.ngbinh.scalastyle:gradle-scalastyle-plugin_2.10:1.0.1'
-  }
-}
-
-evaluationDependsOn ':standard-udfs-type-system'
-
-scalaStyle {
-  configLocation = "${projectDir}/config/scalastyle/scalastyle-config.xml"
-}
 
 dependencies {
   compile project(':standard-udfs-api')
   compile project(':standard-udfs-examples')
   compile project(':standard-udfs-type-system')
   compile project(':standard-udfs-utils')
-  compile('org.scala-lang:scala-library:2.10.6')
-  compileOnly('org.apache.spark:spark-core_2.10:2.1.0')
-  compileOnly('org.apache.spark:spark-sql_2.10:2.1.0')
-  compile('com.databricks:spark-avro_2.10:4.0.0')
-  testCompile('org.apache.spark:spark-core_2.10:2.1.0')
-  testCompile('org.apache.spark:spark-sql_2.10:2.1.0')
+  compile('org.scala-lang:scala-library:2.11.8')
+  compileOnly('org.apache.spark:spark-core_2.11:2.3.0')
+  compileOnly('org.apache.spark:spark-sql_2.11:2.3.0')
+  compile('com.databricks:spark-avro_2.11:4.0.0')
+  testCompile('org.apache.spark:spark-core_2.11:2.3.0')
+  testCompile('org.apache.spark:spark-sql_2.11:2.3.0')
   testCompile project(path: ':standard-udfs-type-system', configuration: 'tests')
 }
 
@@ -44,4 +27,10 @@ configurations {
 
 artifacts {
   tests jarTests
+}
+
+task fatJar(type: Jar) {
+  baseName = project.name + '-all'
+  from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
+  with jar
 }

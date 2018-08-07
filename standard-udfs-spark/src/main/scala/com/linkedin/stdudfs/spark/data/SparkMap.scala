@@ -7,7 +7,7 @@ import com.linkedin.stdudfs.spark.SparkWrapper
 import org.apache.spark.sql.catalyst.util.{ArrayBasedMapData, MapData}
 import org.apache.spark.sql.types.MapType
 
-import scala.collection.mutable
+import scala.collection.mutable.Map
 
 
 case class SparkMap(private var _mapData: MapData,
@@ -15,7 +15,7 @@ case class SparkMap(private var _mapData: MapData,
 
   private val _keyType = _mapType.keyType
   private val _valueType = _mapType.valueType
-  private var _mutableMap: mutable.Map[Any, Any] = _
+  private var _mutableMap: Map[Any, Any] = if (_mapData == null) createMutableMap() else null
 
   override def put(key: StdData, value: StdData): Unit = {
     // TODO: Does not support inserting nulls. Should we?
@@ -74,9 +74,11 @@ case class SparkMap(private var _mapData: MapData,
     SparkWrapper.createStdData(_mutableMap.get(key.asInstanceOf[PlatformData].getUnderlyingData).orNull, _valueType)
   }
 
-  private def createMutableMap(): mutable.Map[Any, Any] = {
-    val mutableMap = mutable.Map[Any, Any]()
-    _mapData.foreach(_keyType, _valueType, (k, v) => mutableMap.put(k, v))
+  private def createMutableMap(): Map[Any, Any] = {
+    val mutableMap = Map.empty[Any, Any]
+    if (_mapData != null) {
+      _mapData.foreach(_keyType, _valueType, (k, v) => mutableMap.put(k, v))
+    }
     mutableMap
   }
 

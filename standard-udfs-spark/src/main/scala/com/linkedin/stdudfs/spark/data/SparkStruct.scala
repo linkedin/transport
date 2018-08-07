@@ -8,13 +8,13 @@ import org.apache.spark.sql.catalyst.InternalRow
 import org.apache.spark.sql.types.StructType
 
 import scala.collection.JavaConverters._
-import scala.collection.mutable
+import scala.collection.mutable.ArrayBuffer
 
 
 case class SparkStruct(private var _row: InternalRow,
                        private val _structType: StructType) extends StdStruct with PlatformData {
 
-  private var _mutableBuffer: mutable.ArrayBuffer[Any] = _
+  private var _mutableBuffer: ArrayBuffer[Any] = if (_row == null) createMutableStruct() else null
 
   override def getField(name: String): StdData = getField(_structType.fieldIndex(name))
 
@@ -35,15 +35,19 @@ case class SparkStruct(private var _row: InternalRow,
     if (_mutableBuffer == null) {
       _mutableBuffer = createMutableStruct()
     }
-    _mutableBuffer.update(index, value.asInstanceOf[PlatformData].getUnderlyingData)
+    _mutableBuffer(index) = value.asInstanceOf[PlatformData].getUnderlyingData
   }
 
   private def createMutableStruct() = {
-    mutable.ArrayBuffer.apply(_row.toSeq(_structType): _*)
+    if (_row != null) {
+      ArrayBuffer[Any](_row.toSeq(_structType): _*)
+    } else {
+      ArrayBuffer.fill[Any](_structType.length) {null}
+    }
   }
 
   override def fields(): JavaList[StdData] = {
-    _structType.fields.indices.map(getField).asJava
+    _structType.indices.map(getField).asJava
   }
 
   override def getUnderlyingData: AnyRef = {

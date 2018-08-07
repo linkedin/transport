@@ -9,12 +9,8 @@ import com.linkedin.stdudfs.api.types._
 import com.linkedin.stdudfs.spark.data._
 import com.linkedin.stdudfs.spark.typesystem.SparkTypeFactory
 import com.linkedin.stdudfs.typesystem.{AbstractBoundVariables, TypeSignature}
-import org.apache.spark.sql.catalyst.InternalRow
-import org.apache.spark.sql.catalyst.util.{ArrayBasedMapData, ArrayData}
 import org.apache.spark.sql.types._
 import org.apache.spark.unsafe.types.UTF8String
-
-import scala.collection.mutable.HashMap
 
 class SparkFactory(private val _boundVariables: AbstractBoundVariables[DataType]) extends StdFactory {
 
@@ -36,12 +32,12 @@ class SparkFactory(private val _boundVariables: AbstractBoundVariables[DataType]
   // we do not pass size to `new Array()` as the size argument of createArray is supposed to be just a hint about
   // the expected number of entries in the StdArray. `new Array(size)` will create an array with null entries
   override def createArray(stdType: StdType, size: Int): StdArray = SparkArray(
-    ArrayData.toArrayData(new Array(0)), stdType.underlyingType().asInstanceOf[ArrayType]
+    null, stdType.underlyingType().asInstanceOf[ArrayType]
   )
 
   override def createMap(stdType: StdType): StdMap = SparkMap(
     //TODO: make these as separate mutable standard spark types
-    ArrayBasedMapData(HashMap()), stdType.underlyingType().asInstanceOf[MapType]
+    null, stdType.underlyingType().asInstanceOf[MapType]
   )
 
   override def createStruct(fieldTypes: JavaList[StdType]): StdStruct = {
@@ -58,13 +54,13 @@ class SparkFactory(private val _boundVariables: AbstractBoundVariables[DataType]
         )
       }
     })
-    SparkStruct(InternalRow.fromSeq(Array.fill(fieldTypes.size()) {null}), StructType(structFields))
+    SparkStruct(null, StructType(structFields))
   }
 
   override def createStruct(stdType: StdType): StdStruct = {
     //TODO: make these as separate mutable standard spark types
     val structType: StructType = stdType.underlyingType().asInstanceOf[StructType]
-    SparkStruct(InternalRow.fromSeq(Array.fill(structType.length) {null}), structType)
+    SparkStruct(null, structType)
   }
 
   override def createStdType(typeSignature: String): StdType = SparkWrapper.createStdType(

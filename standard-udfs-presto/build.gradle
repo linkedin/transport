@@ -1,6 +1,5 @@
 apply plugin: 'java'
 apply plugin: 'distribution'
-apply plugin: 'checkstyle'
 
 task fatJar(type: Jar) {
   baseName = project.name + '-all'
@@ -45,7 +44,3 @@ artifacts {
 }
 
 build.dependsOn distTar
-
-checkstyle {
-  configFile = file("${rootDir}/gradle/checkstyle/linkedin-checkstyle.xml")
-}

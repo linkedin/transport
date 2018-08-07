@@ -2,6 +2,15 @@ allprojects {
   apply plugin: 'idea'
 }
 
+buildscript {
+  repositories {
+    jcenter()
+  }
+  dependencies {
+    classpath 'com.github.jengelman.gradle.plugins:shadow:2.0.4'
+    classpath 'org.github.ngbinh.scalastyle:gradle-scalastyle-plugin_2.11:1.0.1'
+  }
+}
 
 if (project.hasProperty('overrideBuildEnvironment')) {
   //The property is automatically passed to the Gradle build when the project is built at LinkedIn
@@ -16,6 +25,8 @@ if (project.hasProperty('overrideBuildEnvironment')) {
 
 subprojects {
   plugins.withType(JavaPlugin) {
+    project.apply(plugin: 'checkstyle')
+
     dependencies {
       testCompile 'org.testng:testng:6.11'
     }
@@ -23,5 +34,21 @@ subprojects {
     test {
       useTestNG()
     }
+
+    checkstyle {
+      configFile = file("${rootDir}/gradle/checkstyle/linkedin-checkstyle.xml")
+    }
+  }
+
+  plugins.withType(ScalaPlugin) {
+    project.apply(plugin: 'scalaStyle')
+
+    scalaStyle {
+      configLocation = "${rootDir}/gradle/scalastyle/scalastyle-config.xml"
+      source = sourceSets.main.allScala
+      testSource = sourceSets.test.allScala
+      includeTestSourceDirectory = true
+    }
+    check.dependsOn scalaStyle
   }
 }

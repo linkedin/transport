@@ -1,18 +1,18 @@
 package com.linkedin.stdudfs.spark
 
-import com.linkedin.stdudfs.api.udf.StdUDF
-import org.apache.spark.sql.{Column, StdUDFUtils, functions}
+import org.apache.spark.sql.{Column, SparkSession, StdUDFUtils, functions}
 
-/** A helper used for [[StdUDF]] registrations in Spark */
+/** A helper used for `com.linkedin.stdudfs.api.udf.StdUDF` registrations in Spark */
 object StdUDFRegistration {
 
   /**
-    * Registers a [[StdUDF]] in Spark so that it can be invoked through both the DataFrame API and Spark SQL.
+    * Registers a `com.linkedin.stdudfs.api.udf.StdUDF` in Spark so that it can be invoked through both the DataFrame
+    * API and Spark SQL.
     *
     * For use through the Spark SQL API, invoke using the name passed as the argument to this method. For use through
-    * the DataFrame API, use the [[SparkStdUDF]] object returned by this method or use [[functions.callUDF()]] along
-    * with the name registered. In either case, the input arguments to the UDF will be passed as parameters to the
-    * methods.
+    * the DataFrame API, use the [[SparkStdUDF]] object returned by this method or use
+    * `org.apache.spark.sql.functions.callUDF()` along with the name registered. In either case, the input arguments to
+    * the UDF will be passed as parameters to the methods.
     *
     * ===Examples===
     *
@@ -48,25 +48,45 @@ object StdUDFRegistration {
     * df.withColumn("result", callUDF("my_udf", col("column2"), col("column3")))
     * }}}
     *
-    * @param name               the name for the [[StdUDF]] which will be used to invoke it
-    * @param stdUDFWrapperClass the Spark wrapper class for the [[StdUDF]]
+    * @param name               the name for the `com.linkedin.stdudfs.api.udf.StdUDF` which will be used to invoke it
+    * @param stdUDFWrapperClass the Spark wrapper class for the `com.linkedin.stdudfs.api.udf.StdUDF`
+    *
     * @return a [[SparkStdUDF]] which can be used to invoke the UDF in the DataFrame API
     */
-
   def register(name: String, stdUDFWrapperClass: Class[_ <: StdUdfWrapper]): SparkStdUDF = {
-    StdUDFUtils.register(name, stdUDFWrapperClass)
+    register(name, stdUDFWrapperClass, SparkSession.builder().getOrCreate())
+  }
+
+  /**
+    * Registers a `com.linkedin.stdudfs.api.udf.StdUDF` in a custom `org.apache.spark.sql.SparkSession` so that it can
+    * be invoked through both the DataFrame API and Spark SQL.
+    *
+    * Same as `StdUDFRegistration.register(String,Class[_<:StdUdfWrapper])` but requires the
+    * `org.apache.spark.sql.SparkSession` to be passed as an argument.
+    * See `StdUDFRegistration.register(String,Class[_<:StdUdfWrapper])` for details
+    *
+    * @param name               the name for the `com.linkedin.stdudfs.api.udf.StdUDF` which will be used to invoke it
+    * @param stdUDFWrapperClass the Spark wrapper class for the `com.linkedin.stdudfs.api.udf.StdUDF`
+    * @param sparkSession       a `org.apache.spark.sql.SparkSession` to register the
+    *                           `com.linkedin.stdudfs.api.udf.StdUDF` into
+    *
+    * @return a [[SparkStdUDF]] which can be used to invoke the UDF in the DataFrame API
+    */
+  def register(name: String, stdUDFWrapperClass: Class[_ <: StdUdfWrapper],
+               sparkSession: SparkSession): SparkStdUDF = {
+    StdUDFUtils.register(name, stdUDFWrapperClass, sparkSession)
     SparkStdUDF(name)
   }
 }
 
-/** A helper class to use the registered [[StdUDF]] in the DataFrame API */
+/** A helper class to use the registered `com.linkedin.stdudfs.api.udf.StdUDF` in the DataFrame API */
 case class SparkStdUDF(name: String) {
 
   /**
     * Calls the UDF over the arguments passed
     *
     * @param columns the columns to be passed as arguments to the UDF
-    * @return a [[Column]] containing the result of the UDF evaluation
+    * @return a `org.apache.spark.sql.Column` containing the result of the UDF evaluation
     */
   @scala.annotation.varargs
   def apply(columns: Column*): Column = {
