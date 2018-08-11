@@ -2,16 +2,6 @@ apply plugin: 'java'
 apply plugin: 'distribution'
 apply plugin: 'com.github.johnrengelman.plugin-shadow'
 apply plugin: 'checkstyle'
-if (project.hasProperty('overrideBuildEnvironment')) {
-  //The property is automatically passed to the Gradle build when the project is built at LinkedIn
-  //The property contains the file path to a script plugin that 'adapts' this OS project to LinkedIn
-  //In order to adapt the project, we need to apply this script plugin:
-  apply from: project.overrideBuildEnvironment
-} else {
-  //If the property is not set the project is built outside of LinkedIn
-  //Applying default build logic for an OS build:
-  apply from: "$project.rootDir/defaultEnvironment.gradle"
-}
 
 task fatJar(type: Jar) {
   baseName = project.name + '-all'
