@@ -2,14 +2,6 @@ allprojects {
   apply plugin: 'idea'
 }
 
-buildscript {
-  repositories {
-    jcenter()
-  }
-  dependencies {
-    classpath 'com.github.jengelman.gradle.plugins:shadow:2.0.4'
-  }
-}
 
 if (project.hasProperty('overrideBuildEnvironment')) {
   //The property is automatically passed to the Gradle build when the project is built at LinkedIn

@@ -1,5 +1,4 @@
 apply plugin: 'scala'
-apply plugin: 'com.github.johnrengelman.plugin-shadow'
 apply plugin: 'scalaStyle'
 
 buildscript {
@@ -10,16 +9,6 @@ buildscript {
   dependencies {
     classpath 'org.github.ngbinh.scalastyle:gradle-scalastyle-plugin_2.10:1.0.1'
   }
-}
-
-shadowJar {
-  //TODO:OSS Check if packages as expected
-  //includeRestrictedDependencies "com.linkedin.hadoop"
-  //includeRestrictedDependencies "commons-logging"
-  //includeRestrictedDependencies "log4j"
-  //includeRestrictedDependencies "org.slf4j"
-  //doNotShade '**/*'
-  mergeServiceFiles()
 }
 
 evaluationDependsOn ':standard-udfs-type-system'
