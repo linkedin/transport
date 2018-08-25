@@ -8,6 +8,7 @@ import com.facebook.presto.metadata.SqlScalarFunction;
 import com.facebook.presto.metadata.TypeVariableConstraint;
 import com.facebook.presto.operator.scalar.ScalarFunctionImplementation;
 import com.facebook.presto.spi.classloader.ThreadContextClassLoader;
+import com.facebook.presto.spi.type.IntegerType;
 import com.facebook.presto.spi.type.Type;
 import com.facebook.presto.spi.type.TypeManager;
 import com.facebook.presto.spi.type.TypeSignature;
@@ -26,6 +27,7 @@ import com.linkedin.stdudfs.api.udf.TopLevelStdUDF;
 import com.linkedin.stdudfs.typesystem.GenericTypeSignatureElement;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
+import java.lang.invoke.MethodType;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
@@ -40,7 +42,8 @@ import static com.facebook.presto.metadata.SignatureBinder.applyBoundVariables;
 import static com.facebook.presto.spi.type.TypeSignature.parseTypeSignature;
 import static com.facebook.presto.util.Reflection.methodHandle;
 
-
+// Suppressing argument naming convention for the evalInternal methods
+@SuppressWarnings({"checkstyle:regexpsinglelinejava"})
 public abstract class StdUdfWrapper extends SqlScalarFunction {
 
   private static final int DEFAULT_REFRESH_INTERVAL_DAYS = 1;
@@ -102,40 +105,54 @@ public abstract class StdUdfWrapper extends SqlScalarFunction {
         Math.min(_requiredFilesNextRefreshTime, System.currentTimeMillis() - (new Random()).nextInt(initialJitterInt));
     boolean[] nullableArguments = stdUDF.getAndCheckNullableArguments();
 
-    List<Type> argTypes = getPrestoTypes(stdUDF.getInputParameterSignatures(), typeManager, boundVariables);
+    return new ScalarFunctionImplementation(true, getNullConventionForArguments(nullableArguments),
+        getMethodHandle(stdUDF, typeManager, boundVariables, nullableArguments), isDeterministic());
+  }
+
+  private MethodHandle getMethodHandle(StdUDF stdUDF, TypeManager typeManager, BoundVariables boundVariables,
+      boolean[] nullableArguments) {
+    Type[] inputTypes = getPrestoTypes(stdUDF.getInputParameterSignatures(), typeManager, boundVariables);
     Type outputType = getPrestoType(stdUDF.getOutputParameterSignature(), typeManager, boundVariables);
 
-    Class<?>[] methodHandleParameterTypes = getMethodHandleParameterTypes(argTypes, nullableArguments);
+    // Generic MethodHandle for eval where all arguments are of type Object
+    Class<?>[] genericMethodHandleArgumentTypes = getMethodHandleArgumentTypes(inputTypes, nullableArguments, true);
+    MethodHandle genericMethodHandle =
+        methodHandle(StdUdfWrapper.class, "evalInternal", genericMethodHandleArgumentTypes).bindTo(this);
 
-    MethodHandle methodHandle = methodHandle(getClass(),
-        ((TopLevelStdUDF) stdUDF).getFunctionName() + "_" + getMethodHandleJavaType(outputType, true,
-            0).getSimpleName(), methodHandleParameterTypes).bindTo(this);
-    methodHandle = MethodHandles.insertArguments(methodHandle, 0, stdUDF);
-    methodHandle = MethodHandles.insertArguments(methodHandle, 0, argTypes.toArray());
+    Class<?>[] specificMethodHandleArgumentTypes = getMethodHandleArgumentTypes(inputTypes, nullableArguments, false);
+    Class<?> specificMethodHandleReturnType = getMethodHandleJavaType(outputType, true, 0);
+    MethodType specificMethodType =
+        MethodType.methodType(specificMethodHandleReturnType, specificMethodHandleArgumentTypes);
 
-    List<ScalarFunctionImplementation.ArgumentProperty> argsNullConvention = IntStream.range(0, nullableArguments.length)
+    // Specific MethodHandle required by presto where argument types map to the type signature
+    MethodHandle specificMethodHandle = MethodHandles.explicitCastArguments(genericMethodHandle, specificMethodType);
+    return MethodHandles.insertArguments(specificMethodHandle, 0, stdUDF, inputTypes,
+        outputType instanceof IntegerType);
+  }
+
+  private List<ScalarFunctionImplementation.ArgumentProperty> getNullConventionForArguments(
+      boolean[] nullableArguments) {
+    return IntStream.range(0, nullableArguments.length)
         .mapToObj(idx -> ScalarFunctionImplementation.ArgumentProperty.valueTypeArgumentProperty(
             nullableArguments[idx] ? ScalarFunctionImplementation.NullConvention.USE_BOXED_TYPE
                 : ScalarFunctionImplementation.NullConvention.RETURN_NULL_ON_NULL))
         .collect(Collectors.toList());
-
-    return new ScalarFunctionImplementation(true, argsNullConvention, methodHandle, isDeterministic());
   }
 
-  private StdData[] wrapArguments(StdUDF stdUDF, Object[] arguments) {
+  private StdData[] wrapArguments(StdUDF stdUDF, Type[] types, Object[] arguments) {
     StdFactory stdFactory = stdUDF.getStdFactory();
-    StdData[] stdData = new StdData[arguments.length / 2];
+    StdData[] stdData = new StdData[arguments.length];
     // TODO: Reuse wrapper objects by creating them once upon initialization and reuse them here
     // along the same lines of what we do in Hive implementation.
     // JIRA: https://jira01.corp.linkedin.com:8443/browse/LIHADOOP-34894
     for (int i = 0; i < stdData.length; i++) {
-      stdData[i] = PrestoWrapper.createStdData(arguments[stdData.length + i], (Type) arguments[i], stdFactory);
+      stdData[i] = PrestoWrapper.createStdData(arguments[i], types[i], stdFactory);
     }
     return stdData;
   }
 
-  protected Object eval(StdUDF stdUDF, Object... arguments) {
-    StdData[] args = wrapArguments(stdUDF, arguments);
+  protected Object eval(StdUDF stdUDF, Type[] types, boolean isIntegerReturnType, Object... arguments) {
+    StdData[] args = wrapArguments(stdUDF, types, arguments);
     if (_requiredFilesNextRefreshTime < System.currentTimeMillis()) {
       String[] requiredFiles = getRequiredFiles(stdUDF, args);
       processRequiredFiles(stdUDF, requiredFiles);
@@ -160,7 +177,13 @@ public abstract class StdUdfWrapper extends SqlScalarFunction {
       default:
         throw new RuntimeException("eval not supported yet for StdUDF" + args.length);
     }
-    return result == null ? null : ((PlatformData) result).getUnderlyingData();
+    if (result == null) {
+      return null;
+    } else if (isIntegerReturnType) {
+      return ((Number) ((PlatformData) result).getUnderlyingData()).longValue();
+    } else {
+      return ((PlatformData) result).getUnderlyingData();
+    }
   }
 
   private String[] getRequiredFiles(StdUDF stdUDF, StdData[] args) {
@@ -227,11 +250,9 @@ public abstract class StdUdfWrapper extends SqlScalarFunction {
     return methodHandleJavaType;
   }
 
-  private List<Type> getPrestoTypes(List<String> parameterSignatures, TypeManager typeManager,
+  private Type[] getPrestoTypes(List<String> parameterSignatures, TypeManager typeManager,
       BoundVariables boundVariables) {
-    return parameterSignatures.stream()
-        .map(p -> getPrestoType(p, typeManager, boundVariables))
-        .collect(Collectors.toList());
+    return parameterSignatures.stream().map(p -> getPrestoType(p, typeManager, boundVariables)).toArray(Type[]::new);
   }
 
   private Type getPrestoType(String parameterSignature, TypeManager typeManager, BoundVariables boundVariables) {
@@ -239,16 +260,43 @@ public abstract class StdUdfWrapper extends SqlScalarFunction {
         applyBoundVariables(TypeSignature.parseTypeSignature(parameterSignature), boundVariables));
   }
 
-  private Class<?>[] getMethodHandleParameterTypes(List<Type> argTypes, boolean[] nullableArguments) {
-    Class<?>[] methodHandleParameterTypes = new Class<?>[argTypes.size() * 2 + 1];
-    methodHandleParameterTypes[0] = StdUDF.class;
-    for (int i = 0; i < argTypes.size(); i++) {
-      methodHandleParameterTypes[i + 1] = Type.class;
-      methodHandleParameterTypes[i + 1 + argTypes.size()] =
-          getMethodHandleJavaType(argTypes.get(i), nullableArguments[i], i);
+  private Class<?>[] getMethodHandleArgumentTypes(Type[] argTypes, boolean[] nullableArguments,
+      boolean useObjectForArgumentType) {
+    Class<?>[] methodHandleArgumentTypes = new Class<?>[argTypes.length + 3];
+    methodHandleArgumentTypes[0] = StdUDF.class;
+    methodHandleArgumentTypes[1] = Type[].class;
+    methodHandleArgumentTypes[2] = boolean.class;
+    for (int i = 0; i < argTypes.length; i++) {
+      if (useObjectForArgumentType) {
+        methodHandleArgumentTypes[i + 3] = Object.class;
+      } else {
+        methodHandleArgumentTypes[i + 3] = getMethodHandleJavaType(argTypes[i], nullableArguments[i], i);
+      }
     }
-    return methodHandleParameterTypes;
+    return methodHandleArgumentTypes;
   }
 
   protected abstract StdUDF getStdUDF();
+
+  public Object evalInternal(StdUDF stdUDF, Type[] types, boolean isIntegerReturnType) {
+    return eval(stdUDF, types, isIntegerReturnType);
+  }
+
+  public Object evalInternal(StdUDF stdUDF, Type[] types, boolean isIntegerReturnType, Object arg1) {
+    return eval(stdUDF, types, isIntegerReturnType, arg1);
+  }
+
+  public Object evalInternal(StdUDF stdUDF, Type[] types, boolean isIntegerReturnType, Object arg1, Object arg2) {
+    return eval(stdUDF, types, isIntegerReturnType, arg1, arg2);
+  }
+
+  public Object evalInternal(StdUDF stdUDF, Type[] types, boolean isIntegerReturnType, Object arg1, Object arg2,
+      Object arg3) {
+    return eval(stdUDF, types, isIntegerReturnType, arg1, arg2, arg3);
+  }
+
+  public Object evalInternal(StdUDF stdUDF, Type[] types, boolean isIntegerReturnType, Object arg1, Object arg2,
+      Object arg3, Object arg4) {
+    return eval(stdUDF, types, isIntegerReturnType, arg1, arg2, arg3, arg4);
+  }
 }
