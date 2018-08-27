@@ -7,4 +7,6 @@ subprojects {
   }
   project.ext.setProperty('presto-version', '0.168')
   project.ext.setProperty('airlift-slice-version', '0.28')
+  project.ext.setProperty('spark-group', 'org.apache.spark')
+  project.ext.setProperty('spark-version', '2.3.0')
 }

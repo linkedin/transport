@@ -1,5 +1,4 @@
 apply plugin: 'java'
-apply plugin: 'distribution'
 
 task fatJar(type: Jar) {
   baseName = project.name + '-all'
@@ -29,18 +28,3 @@ dependencies {
   // If not specified, an older version is picked up transitively from another dependency
   testCompile(group: 'io.airlift', name: 'slice', version: project.ext.'airlift-slice-version')
 }
-
-distributions {
-  main {
-    contents {
-      from jar
-      from project.configurations.runtime
-    }
-  }
-}
-
-artifacts {
-  archives jar, distTar
-}
-
-build.dependsOn distTar
