@@ -3,11 +3,10 @@ package com.linkedin.stdudfs.presto.data;
 import com.facebook.presto.spi.block.Block;
 import com.facebook.presto.spi.block.BlockBuilder;
 import com.facebook.presto.spi.block.BlockBuilderStatus;
-import com.facebook.presto.spi.block.InterleavedBlockBuilder;
+import com.facebook.presto.spi.block.PageBuilderStatus;
+import com.facebook.presto.spi.type.RowType;
 import com.facebook.presto.spi.type.Type;
-import com.facebook.presto.type.RowType;
 import com.linkedin.stdudfs.api.StdFactory;
-import com.linkedin.stdudfs.api.data.PlatformData;
 import com.linkedin.stdudfs.api.data.StdData;
 import com.linkedin.stdudfs.api.data.StdStruct;
 import com.linkedin.stdudfs.presto.PrestoWrapper;
@@ -15,11 +14,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
-import static com.facebook.presto.spi.type.TypeUtils.*;
+import static com.facebook.presto.spi.type.TypeUtils.readNativeValue;
 
 
-public class PrestoStruct implements StdStruct, PlatformData {
+public class PrestoStruct extends PrestoData implements StdStruct {
 
   final RowType _rowType;
   final StdFactory _stdFactory;
@@ -35,16 +35,17 @@ public class PrestoStruct implements StdStruct, PlatformData {
     _block = block;
   }
 
-  private PrestoStruct(Optional<List<String>> fieldNames, List<Type> fieldTypes, StdFactory stdFactory) {
-    this(new RowType(fieldTypes, fieldNames), stdFactory);
+  public PrestoStruct(List<Type> fieldTypes, StdFactory stdFactory) {
+    _stdFactory = stdFactory;
+    _rowType = RowType.anonymous(fieldTypes);
   }
 
   public PrestoStruct(List<String> fieldNames, List<Type> fieldTypes, StdFactory stdFactory) {
-    this(Optional.of(fieldNames), fieldTypes, stdFactory);
-  }
-
-  public PrestoStruct(List<Type> fieldTypes, StdFactory stdFactory) {
-    this(Optional.empty(), fieldTypes, stdFactory);
+    _stdFactory = stdFactory;
+    List<RowType.Field> fields = IntStream.range(0, fieldNames.size())
+        .mapToObj(i -> new RowType.Field(Optional.ofNullable(fieldNames.get(i)), fieldTypes.get(i)))
+        .collect(Collectors.toList());
+    _rowType = RowType.from(fields);
   }
 
   @Override
@@ -63,7 +64,7 @@ public class PrestoStruct implements StdStruct, PlatformData {
     int index = -1;
     Type elementType = null;
     int i = 0;
-    for (RowType.RowField field : _rowType.getFields()) {
+    for (RowType.Field field : _rowType.getFields()) {
       if (field.getName().isPresent() && name.equals(field.getName().get())) {
         index = i;
         elementType = field.getType();
@@ -80,13 +81,15 @@ public class PrestoStruct implements StdStruct, PlatformData {
 
   @Override
   public void setField(int index, StdData value) {
-
-    BlockBuilder mutable = _rowType.createBlockBuilder(new BlockBuilderStatus(), 1);
+    // TODO: This is not the right way to get this object. The status should be passed in from the invocation of the
+    // function and propagated to here. See PRESTO-1359 for more details.
+    BlockBuilderStatus blockBuilderStatus = new PageBuilderStatus().createBlockBuilderStatus();
+    BlockBuilder mutable = _rowType.createBlockBuilder(blockBuilderStatus, 1);
     BlockBuilder rowBlockBuilder = mutable.beginBlockEntry();
     int i = 0;
-    for (RowType.RowField field : _rowType.getFields()) {
+    for (RowType.Field field : _rowType.getFields()) {
       if (i == index) {
-        PrestoWrapper.writeStdDataToBlock(value, rowBlockBuilder);
+        ((PrestoData) value).writeToBlock(rowBlockBuilder);
       } else {
         if (_block == null) {
           rowBlockBuilder.appendNull();
@@ -102,12 +105,12 @@ public class PrestoStruct implements StdStruct, PlatformData {
 
   @Override
   public void setField(String name, StdData value) {
-    BlockBuilder mutable = _rowType.createBlockBuilder(new BlockBuilderStatus(), 1);
+    BlockBuilder mutable = _rowType.createBlockBuilder(new PageBuilderStatus().createBlockBuilderStatus(), 1);
     BlockBuilder rowBlockBuilder = mutable.beginBlockEntry();
     int i = 0;
-    for (RowType.RowField field : _rowType.getFields()) {
+    for (RowType.Field field : _rowType.getFields()) {
       if (field.getName().isPresent() && name.equals(field.getName().get())) {
-        PrestoWrapper.writeStdDataToBlock(value, rowBlockBuilder);
+        ((PrestoData) value).writeToBlock(rowBlockBuilder);
       } else {
         if (_block == null) {
           rowBlockBuilder.appendNull();
@@ -132,7 +135,8 @@ public class PrestoStruct implements StdStruct, PlatformData {
     return fields;
   }
 
-  @Override  public Object getUnderlyingData() {
+  @Override
+  public Object getUnderlyingData() {
     return _block;
   }
 
@@ -141,9 +145,8 @@ public class PrestoStruct implements StdStruct, PlatformData {
     _block = (Block) value;
   }
 
-  private InterleavedBlockBuilder createInterleavedBlockBuilder() {
-    return new InterleavedBlockBuilder(
-        _rowType.getFields().stream().map(field -> field.getType()).collect(Collectors.toList()),
-        new BlockBuilderStatus(), _rowType.getFields().size());
+  @Override
+  public void writeToBlock(BlockBuilder blockBuilder) {
+    _rowType.writeObject(blockBuilder, getUnderlyingData());
   }
 }

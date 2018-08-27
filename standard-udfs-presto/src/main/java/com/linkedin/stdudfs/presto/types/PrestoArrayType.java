@@ -1,6 +1,6 @@
 package com.linkedin.stdudfs.presto.types;
 
-import com.facebook.presto.type.ArrayType;
+import com.facebook.presto.spi.type.ArrayType;
 import com.linkedin.stdudfs.api.types.StdArrayType;
 import com.linkedin.stdudfs.api.types.StdType;
 import com.linkedin.stdudfs.presto.PrestoWrapper;

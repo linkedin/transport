@@ -1,11 +1,13 @@
 package com.linkedin.stdudfs.presto.data;
 
-import com.linkedin.stdudfs.api.data.PlatformData;
+import com.facebook.presto.spi.block.BlockBuilder;
 import com.linkedin.stdudfs.api.data.StdString;
 import io.airlift.slice.Slice;
 
+import static com.facebook.presto.spi.type.VarcharType.VARCHAR;
 
-public class PrestoString implements StdString, PlatformData {
+
+public class PrestoString extends PrestoData implements StdString {
 
   Slice _slice;
 
@@ -26,5 +28,10 @@ public class PrestoString implements StdString, PlatformData {
   @Override
   public void setUnderlyingData(Object value) {
     _slice = (Slice) value;
+  }
+
+  @Override
+  public void writeToBlock(BlockBuilder blockBuilder) {
+    VARCHAR.writeSlice(blockBuilder, _slice);
   }
 }

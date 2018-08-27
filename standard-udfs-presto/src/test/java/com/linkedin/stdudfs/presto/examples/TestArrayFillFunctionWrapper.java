@@ -1,7 +1,7 @@
 package com.linkedin.stdudfs.presto.examples;
 
 import com.facebook.presto.operator.scalar.AbstractTestFunctions;
-import com.facebook.presto.type.ArrayType;
+import com.facebook.presto.spi.type.ArrayType;
 import com.google.common.collect.ImmutableList;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;

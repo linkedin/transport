@@ -3,11 +3,11 @@ package com.linkedin.stdudfs.presto.data;
 import com.facebook.presto.spi.PrestoException;
 import com.facebook.presto.spi.block.Block;
 import com.facebook.presto.spi.block.BlockBuilder;
-import com.facebook.presto.spi.block.BlockBuilderStatus;
+import com.facebook.presto.spi.block.PageBuilderStatus;
 import com.facebook.presto.spi.function.OperatorType;
 import com.facebook.presto.spi.type.BooleanType;
+import com.facebook.presto.spi.type.MapType;
 import com.facebook.presto.spi.type.Type;
-import com.facebook.presto.type.MapType;
 import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableList;
 import com.linkedin.stdudfs.api.StdFactory;
@@ -23,12 +23,12 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.Set;
 
-import static com.facebook.presto.metadata.Signature.*;
-import static com.facebook.presto.spi.StandardErrorCode.*;
-import static com.facebook.presto.spi.type.TypeUtils.*;
+import static com.facebook.presto.metadata.Signature.internalOperator;
+import static com.facebook.presto.spi.StandardErrorCode.GENERIC_INTERNAL_ERROR;
+import static com.facebook.presto.spi.type.TypeUtils.readNativeValue;
 
 
-public class PrestoMap implements StdMap, PlatformData {
+public class PrestoMap extends PrestoData implements StdMap {
 
   final Type _keyType;
   final Type _valueType;
@@ -38,7 +38,7 @@ public class PrestoMap implements StdMap, PlatformData {
   Block _block;
 
   public PrestoMap(Type mapType, StdFactory stdFactory) {
-    BlockBuilder mutable = mapType.createBlockBuilder(new BlockBuilderStatus(), 1);
+    BlockBuilder mutable = mapType.createBlockBuilder(new PageBuilderStatus().createBlockBuilderStatus(), 1);
     mutable.beginBlockEntry();
     mutable.closeEntry();
     _block = ((MapType) mapType).getObject(mutable.build(), 0);
@@ -81,7 +81,7 @@ public class PrestoMap implements StdMap, PlatformData {
   // types, we can skip copying.
   @Override
   public void put(StdData key, StdData value) {
-    BlockBuilder mutable = _mapType.createBlockBuilder(new BlockBuilderStatus(), 1);
+    BlockBuilder mutable = _mapType.createBlockBuilder(new PageBuilderStatus().createBlockBuilderStatus(), 1);
     BlockBuilder entryBuilder = mutable.beginBlockEntry();
     Object prestoKey = ((PlatformData) key).getUnderlyingData();
     int valuePosition = seekKey(prestoKey);
@@ -91,15 +91,15 @@ public class PrestoMap implements StdMap, PlatformData {
       // Find out if we need to change the corresponding value
       if (i == valuePosition - 1) {
         // Use the user-supplied value
-        PrestoWrapper.writeStdDataToBlock(value, entryBuilder);
+        ((PrestoData) value).writeToBlock(entryBuilder);
       } else {
         // Use the existing value in original _block
         _valueType.appendTo(_block, i + 1, entryBuilder);
       }
     }
     if (valuePosition == -1) {
-      PrestoWrapper.writeStdDataToBlock(key, entryBuilder);
-      PrestoWrapper.writeStdDataToBlock(value, entryBuilder);
+      ((PrestoData) key).writeToBlock(entryBuilder);
+      ((PrestoData) value).writeToBlock(entryBuilder);
     }
 
     mutable.closeEntry();
@@ -190,5 +190,10 @@ public class PrestoMap implements StdMap, PlatformData {
       }
     }
     return -1;
+  }
+
+  @Override
+  public void writeToBlock(BlockBuilder blockBuilder) {
+    _mapType.writeObject(blockBuilder, _block);
   }
 }

@@ -2,12 +2,12 @@ package com.linkedin.stdudfs.presto;
 
 import com.facebook.presto.metadata.BoundVariables;
 import com.facebook.presto.metadata.FunctionRegistry;
+import com.facebook.presto.spi.type.ArrayType;
+import com.facebook.presto.spi.type.MapType;
+import com.facebook.presto.spi.type.RowType;
 import com.facebook.presto.spi.type.Type;
 import com.facebook.presto.spi.type.TypeManager;
 import com.facebook.presto.spi.type.TypeSignature;
-import com.facebook.presto.type.ArrayType;
-import com.facebook.presto.type.MapType;
-import com.facebook.presto.type.RowType;
 import com.google.common.base.Preconditions;
 import com.linkedin.stdudfs.api.StdFactory;
 import com.linkedin.stdudfs.api.data.StdArray;
@@ -72,7 +72,7 @@ public class PrestoFactory implements StdFactory {
 
   @Override
   public StdArray createArray(StdType stdType, int expectedSize) {
-    return new PrestoArray(((ArrayType) stdType.underlyingType()).getElementType(), expectedSize, this);
+    return new PrestoArray((ArrayType) stdType.underlyingType(), expectedSize, this);
   }
 
   @Override

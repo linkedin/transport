@@ -26,7 +26,6 @@ import com.linkedin.stdudfs.api.udf.TopLevelStdUDF;
 import com.linkedin.stdudfs.typesystem.GenericTypeSignatureElement;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
@@ -36,10 +35,10 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import org.apache.commons.lang.ClassUtils;
 
-import static com.facebook.presto.metadata.Signature.*;
-import static com.facebook.presto.metadata.SignatureBinder.*;
-import static com.facebook.presto.spi.type.TypeSignature.*;
-import static com.facebook.presto.util.Reflection.*;
+import static com.facebook.presto.metadata.Signature.typeVariable;
+import static com.facebook.presto.metadata.SignatureBinder.applyBoundVariables;
+import static com.facebook.presto.spi.type.TypeSignature.parseTypeSignature;
+import static com.facebook.presto.util.Reflection.methodHandle;
 
 
 public abstract class StdUdfWrapper extends SqlScalarFunction {
@@ -114,10 +113,13 @@ public abstract class StdUdfWrapper extends SqlScalarFunction {
     methodHandle = MethodHandles.insertArguments(methodHandle, 0, stdUDF);
     methodHandle = MethodHandles.insertArguments(methodHandle, 0, argTypes.toArray());
 
-    return new ScalarFunctionImplementation(true, IntStream.range(0, nullableArguments.length)
-        .mapToObj(idx -> nullableArguments[idx])
-        .collect(Collectors.toList()), Collections.nCopies(nullableArguments.length, false), methodHandle,
-        isDeterministic());
+    List<ScalarFunctionImplementation.ArgumentProperty> argsNullConvention = IntStream.range(0, nullableArguments.length)
+        .mapToObj(idx -> ScalarFunctionImplementation.ArgumentProperty.valueTypeArgumentProperty(
+            nullableArguments[idx] ? ScalarFunctionImplementation.NullConvention.USE_BOXED_TYPE
+                : ScalarFunctionImplementation.NullConvention.RETURN_NULL_ON_NULL))
+        .collect(Collectors.toList());
+
+    return new ScalarFunctionImplementation(true, argsNullConvention, methodHandle, isDeterministic());
   }
 
   private StdData[] wrapArguments(StdUDF stdUDF, Object[] arguments) {

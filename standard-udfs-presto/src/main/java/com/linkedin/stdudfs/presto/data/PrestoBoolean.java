@@ -1,10 +1,12 @@
 package com.linkedin.stdudfs.presto.data;
 
-import com.linkedin.stdudfs.api.data.PlatformData;
+import com.facebook.presto.spi.block.BlockBuilder;
 import com.linkedin.stdudfs.api.data.StdBoolean;
 
+import static com.facebook.presto.spi.type.BooleanType.BOOLEAN;
 
-public class PrestoBoolean implements StdBoolean, PlatformData {
+
+public class PrestoBoolean extends PrestoData implements StdBoolean {
 
   boolean _value;
 
@@ -25,5 +27,10 @@ public class PrestoBoolean implements StdBoolean, PlatformData {
   @Override
   public void setUnderlyingData(Object value) {
     _value = (boolean) value;
+  }
+
+  @Override
+  public void writeToBlock(BlockBuilder blockBuilder) {
+    BOOLEAN.writeBoolean(blockBuilder, _value);
   }
 }

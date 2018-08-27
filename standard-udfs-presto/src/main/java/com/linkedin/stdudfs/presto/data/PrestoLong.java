@@ -1,10 +1,12 @@
 package com.linkedin.stdudfs.presto.data;
 
-import com.linkedin.stdudfs.api.data.PlatformData;
+import com.facebook.presto.spi.block.BlockBuilder;
 import com.linkedin.stdudfs.api.data.StdLong;
 
+import static com.facebook.presto.spi.type.BigintType.BIGINT;
 
-public class PrestoLong implements StdLong, PlatformData {
+
+public class PrestoLong extends PrestoData implements StdLong {
 
   long _value;
 
@@ -25,5 +27,10 @@ public class PrestoLong implements StdLong, PlatformData {
   @Override
   public void setUnderlyingData(Object value) {
     _value = (long) value;
+  }
+
+  @Override
+  public void writeToBlock(BlockBuilder blockBuilder) {
+    BIGINT.writeLong(blockBuilder, _value);
   }
 }

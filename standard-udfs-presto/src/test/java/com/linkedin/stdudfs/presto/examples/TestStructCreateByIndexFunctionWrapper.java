@@ -1,8 +1,8 @@
 package com.linkedin.stdudfs.presto.examples;
 
 import com.facebook.presto.operator.scalar.AbstractTestFunctions;
-import com.facebook.presto.type.ArrayType;
-import com.facebook.presto.type.RowType;
+import com.facebook.presto.spi.type.ArrayType;
+import com.facebook.presto.spi.type.RowType;
 import com.google.common.collect.ImmutableList;
 import java.util.Optional;
 import org.testng.annotations.BeforeClass;
@@ -34,12 +34,14 @@ public class TestStructCreateByIndexFunctionWrapper extends AbstractTestFunction
 
     assertFunction(
         "cast(struct_create_by_index(cast(null as integer), cast(null as integer)) as row(A integer, B integer))",
-        new RowType(ImmutableList.of(INTEGER, INTEGER), Optional.of(ImmutableList.of("a", "b"))), null);
+        RowType.from(ImmutableList.of(new RowType.Field(Optional.of("a"), INTEGER),
+            new RowType.Field(Optional.of("b"), INTEGER))), null);
   }
 
   @Test(expectedExceptions = RuntimeException.class)
   public void testStructCreateByIndexFunctionError1() {
-    assertFunction("struct_create_by_index(null, null)",
-        new RowType(ImmutableList.of(UNKNOWN, UNKNOWN), Optional.of(ImmutableList.of("field0", "field1"))), null);
+    assertFunction("struct_create_by_index(null, null)", RowType.from(
+        ImmutableList.of(new RowType.Field(Optional.of("field0"), UNKNOWN),
+            new RowType.Field(Optional.of("field1"), UNKNOWN))), null);
   }
 }

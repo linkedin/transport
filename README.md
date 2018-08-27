@@ -1,3 +1,3 @@
-# open-source-skeleton
+# Building
 
-A basic template for new open source projects at LinkedIn.
+This project requires a JDK version of 1.8.0u172 or higher to run tests

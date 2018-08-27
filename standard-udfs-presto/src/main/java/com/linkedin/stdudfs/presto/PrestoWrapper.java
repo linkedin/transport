@@ -1,17 +1,15 @@
 package com.linkedin.stdudfs.presto;
 
 import com.facebook.presto.spi.block.Block;
-import com.facebook.presto.spi.block.BlockBuilder;
+import com.facebook.presto.spi.type.ArrayType;
 import com.facebook.presto.spi.type.BigintType;
 import com.facebook.presto.spi.type.BooleanType;
 import com.facebook.presto.spi.type.IntegerType;
+import com.facebook.presto.spi.type.MapType;
+import com.facebook.presto.spi.type.RowType;
 import com.facebook.presto.spi.type.Type;
 import com.facebook.presto.spi.type.VarcharType;
-import com.facebook.presto.type.ArrayType;
-import com.facebook.presto.type.MapType;
-import com.facebook.presto.type.RowType;
 import com.linkedin.stdudfs.api.StdFactory;
-import com.linkedin.stdudfs.api.data.PlatformData;
 import com.linkedin.stdudfs.api.data.StdData;
 import com.linkedin.stdudfs.api.types.StdType;
 import com.linkedin.stdudfs.presto.data.PrestoArray;
@@ -30,8 +28,7 @@ import com.linkedin.stdudfs.presto.types.PrestoStringType;
 import com.linkedin.stdudfs.presto.types.PrestoStructType;
 import io.airlift.slice.Slice;
 
-import static com.facebook.presto.spi.type.BooleanType.*;
-import static java.lang.Math.*;
+import static java.lang.Math.toIntExact;
 
 
 public final class PrestoWrapper {
@@ -55,7 +52,7 @@ public final class PrestoWrapper {
     } else if (prestoType.getJavaType() == Slice.class) {
       return new PrestoString((Slice) prestoData);
     } else if (prestoType instanceof ArrayType) {
-      return new PrestoArray((Block) prestoData, ((ArrayType) prestoType).getElementType(), stdFactory);
+      return new PrestoArray((Block) prestoData, (ArrayType) prestoType, stdFactory);
     } else if (prestoType instanceof MapType) {
       return new PrestoMap((Block) prestoData, prestoType, stdFactory);
     } else if (prestoType instanceof RowType) {
@@ -79,7 +76,7 @@ public final class PrestoWrapper {
     } else if (prestoType instanceof MapType) {
       return new PrestoMapType((MapType) prestoType);
     } else if (prestoType instanceof RowType) {
-      return new PrestoStructType((RowType) prestoType);
+      return new PrestoStructType(((RowType) prestoType));
     }
     assert false : "Unrecognized Presto Type: " + prestoType.getClass();
     return null;
@@ -94,20 +91,5 @@ public final class PrestoWrapper {
       return toIntExact(index);
     }
     return -1; // -1 indicates that the element is out of range and the calling function should return null
-  }
-
-  public static void writeStdDataToBlock(StdData value, BlockBuilder mutable) {
-    if (value instanceof PrestoInteger) {
-      mutable.writeInt((int) ((PrestoInteger) value).get()).closeEntry();
-    } else if (value instanceof PrestoLong) {
-      mutable.writeLong(((PrestoLong) value).get()).closeEntry();
-    } else if (value instanceof PrestoBoolean) {
-      BOOLEAN.writeBoolean(mutable, ((PrestoBoolean) value).get());
-    } else if (value instanceof PrestoString) {
-      Slice slice = (Slice) ((PlatformData) value).getUnderlyingData();
-      mutable.writeBytes(slice, 0, slice.length()).closeEntry();
-    } else if (value instanceof PrestoArray || value instanceof PrestoMap || value instanceof PrestoStruct) {
-      mutable.writeObject(((PlatformData) value).getUnderlyingData()).closeEntry();
-    }
   }
 }
