@@ -20,11 +20,9 @@ linkedin/<project> - <short summary>".
 Tips for Getting Your Pull Request Accepted
 ===========================================
 
-*Note: These are suggestions. Customize as needed.*
-
 1. Make sure all new features are tested and the tests pass.
 2. Bug fixes must include a test case demonstrating the error that it
    fixes.
 3. Open an issue first and seek advice for your change before
    submitting a pull request. Large features which have never been
-   discussed are unlikely to be accepted. **You have been warned.**
+   discussed are unlikely to be accepted.
