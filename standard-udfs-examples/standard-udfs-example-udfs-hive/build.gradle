@@ -1,0 +1,16 @@
+apply plugin: 'java'
+
+task fatJar(type: Jar) {
+  baseName = project.name + '-all'
+  from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
+  with jar
+}
+
+dependencies {
+  compile project(':standard-udfs-api')
+  compile project(':standard-udfs-examples:standard-udfs-example-udfs')
+  compile project(':standard-udfs-hive')
+  compileOnly('org.apache.hive:hive-exec:1.2.2')
+  testCompile project(path: ':standard-udfs-hive', configuration: 'tests')
+  testCompile('org.apache.hive:hive-exec:1.2.2')
+}

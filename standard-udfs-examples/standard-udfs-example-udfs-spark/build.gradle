@@ -2,8 +2,8 @@ apply plugin: 'scala'
 
 dependencies {
   compile project(':standard-udfs-api')
-  compile project(':standard-udfs-type-system')
-  compile project(':standard-udfs-utils')
+  compile project(':standard-udfs-examples:standard-udfs-example-udfs')
+  compile project(':standard-udfs-spark')
   compile('org.scala-lang:scala-library:2.11.8')
   // For spark-core and spark-sql dependencies, we exclude transitive dependency on 'jackson-module-paranamer',
   // since this is required for the LinkedIn version of spark-core and spark-sql.
@@ -22,20 +22,11 @@ dependencies {
     exclude module: 'jackson-module-paranamer'
   }
   testCompile('com.fasterxml.jackson.module:jackson-module-paranamer:2.6.7')
-  testCompile project(path: ':standard-udfs-type-system', configuration: 'tests')
+  testCompile project(path: ':standard-udfs-spark', configuration: 'tests')
 }
 
-task jarTests(type: Jar, dependsOn: testClasses) {
-  classifier = 'tests'
-  from sourceSets.test.output
-}
-
-configurations {
-  tests {
-    extendsFrom testRuntime
-  }
-}
-
-artifacts {
-  tests jarTests
+task fatJar(type: Jar) {
+  baseName = project.name + '-all'
+  from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
+  with jar
 }

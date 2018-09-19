@@ -1,14 +1,18 @@
 rootProject.name = 'standard-udfs'
 
 def modules = [
- 'standard-udfs-api',
- 'standard-udfs-avro',
- 'standard-udfs-examples',
- 'standard-udfs-hive',
- 'standard-udfs-presto',
- 'standard-udfs-spark',
- 'standard-udfs-type-system',
- 'standard-udfs-utils'
+    'standard-udfs-api',
+    'standard-udfs-avro',
+    'standard-udfs-examples:standard-udfs-example-udfs-avro',
+    'standard-udfs-examples:standard-udfs-example-udfs',
+    'standard-udfs-examples:standard-udfs-example-udfs-hive',
+    'standard-udfs-examples:standard-udfs-example-udfs-presto',
+    'standard-udfs-examples:standard-udfs-example-udfs-spark',
+    'standard-udfs-hive',
+    'standard-udfs-presto',
+    'standard-udfs-spark',
+    'standard-udfs-type-system',
+    'standard-udfs-utils'
 ]
 
  modules.each { module ->

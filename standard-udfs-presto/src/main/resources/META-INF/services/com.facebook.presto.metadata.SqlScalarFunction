@@ -1,7 +1,0 @@
-com.linkedin.stdudfs.presto.examples.ArrayElementAtFunctionWrapper
-com.linkedin.stdudfs.presto.examples.ArrayFillFunctionWrapper
-com.linkedin.stdudfs.presto.examples.MapFromTwoArraysFunctionWrapper
-com.linkedin.stdudfs.presto.examples.MapKeySetFunctionWrapper
-com.linkedin.stdudfs.presto.examples.MapValuesFunctionWrapper
-com.linkedin.stdudfs.presto.examples.StructCreateByIndexFunctionWrapper
-com.linkedin.stdudfs.presto.examples.StructCreateByNameFunctionWrapper

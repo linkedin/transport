@@ -1,14 +1,7 @@
 apply plugin: 'java'
 
-task fatJar(type: Jar) {
-  baseName = project.name + '-all'
-  from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
-  with jar
-}
-
 dependencies {
   compile project(':standard-udfs-api')
-  compile project(':standard-udfs-examples')
   compile project(':standard-udfs-type-system')
   compile project(':standard-udfs-utils')
   compile('org.apache.hadoop:hadoop-common:2.7.4')

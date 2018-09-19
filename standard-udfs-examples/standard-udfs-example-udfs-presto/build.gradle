@@ -1,9 +1,10 @@
 apply plugin: 'java'
+apply plugin: 'distribution'
 
 dependencies {
   compile project(':standard-udfs-api')
-  compile project(':standard-udfs-type-system')
-  compile project(':standard-udfs-utils')
+  compile project(':standard-udfs-examples:standard-udfs-example-udfs')
+  compile project(':standard-udfs-presto')
   compileOnly(group:'com.facebook.presto', name: 'presto-main', version: project.ext.'presto-version') {
     exclude 'group': 'com.google.collections', 'module': 'google-collections'
   }
@@ -13,11 +14,23 @@ dependencies {
   testCompile(group:'com.facebook.presto', name: 'presto-main', version: project.ext.'presto-version', classifier: 'tests') {
     exclude 'group': 'com.google.collections', 'module': 'google-collections'
   }
-  compileOnly(group:'com.facebook.presto', name: 'presto-spi', version: project.ext.'presto-version')
-  compile('org.apache.hadoop:hadoop-hdfs:2.7.4')
-  compile('org.apache.hadoop:hadoop-common:2.7.4')
   testCompile('io.airlift:testing:0.142')
   // The io.airlift.slice dependency below has to match its counterpart  in presto-root's pom.xml file
   // If not specified, an older version is picked up transitively from another dependency
   testCompile(group: 'io.airlift', name: 'slice', version: project.ext.'airlift-slice-version')
 }
+
+distributions {
+  main {
+    contents {
+      from jar
+      from project.configurations.runtime
+    }
+  }
+}
+
+artifacts {
+  archives jar, distTar
+}
+
+build.dependsOn distTar
