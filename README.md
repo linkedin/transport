@@ -1,14 +1,19 @@
 # Standard UDFs
 
-**Standard UDFs** is an API and framework for writing user-defined functions (UDFs) that can run across many engines,
-such as Spark, Hive, Presto, and process different data formats such as Avro, ORC, etc. Users can use the API to define
-their UDF logic once as a "Standard UDF", and the framework takes care of translating the Standard UDF to a native UDF
-for a specific engine or format. Currently, Standard UDFs support producing engine-artifacts for Spark, Hive, and
-Presto, and format-artifacts for Avro. Translated UDFs seem to the target engine as if they were written in that
+**Standard UDFs** is an API and framework for writing user-defined
+functions (UDFs) that can run across many engines, such as Spark,
+Hive, Presto, and process different data formats such as Avro, ORC,
+etc. Developers can use the API to implement their UDF logic once as a
+"Standard UDF", and the framework takes care of translating the
+Standard UDF to a native UDF for a specific engine or
+format. Currently, Standard UDFs support producing engine-artifacts
+for Spark, Hive, and Presto, and format-artifacts for Avro. Translated
+UDFs seem to the target engine as if they were written in that
 engine's native API in the first place.
 
 ## Example
-This is an example of what it takes to define a Standard UDF. It is simple and quite self-explanatory.
+This is an example of what it takes to define a Standard UDF. It is
+simple and quite self-explanatory.
 
 ```java
 public class MapFromTwoArraysFunction extends StdUDF2<StdArray, StdArray, StdMap> implements TopLevelStdUDF {
@@ -57,13 +62,19 @@ public class MapFromTwoArraysFunction extends StdUDF2<StdArray, StdArray, StdMap
   }
 }
 ```
-In the example above, `StdMap` and `StdArray` are interfaces that provide high-level map and array operations to their
-objects. Depending on the engine where this UDF is executed, those interfaces are implemented differently to deal with
-native data types used by that engine. `getStdFactory()` is a method used to create objects that conform to a given data 
-type (such as a map whose keys are of the type of elements in the first array and values are of the type of elements in
-the second array). `StdUDF2` is an abstract class to express a UDF that takes two parameters. It is parametrized by the
-UDF input types and the UDF output type. A more detailed documentation of the API usage can be found in the
-[Standard UDF API user guide](standard-udfs-documentation/user-guide.md).
+
+In the example above, `StdMap` and `StdArray` are interfaces that
+provide high-level map and array operations to their
+objects. Depending on the engine where this UDF is executed, those
+interfaces are implemented differently to deal with native data types
+used by that engine. `getStdFactory()` is a method used to create
+objects that conform to a given data type (such as a map whose keys
+are of the type of elements in the first array and values are of the
+type of elements in the second array). `StdUDF2` is an abstract class
+to express a UDF that takes two parameters. It is parametrized by the
+UDF input types and the UDF output type. A more detailed documentation
+of the API usage can be found in the [Standard UDF API user
+guide](standard-udfs-documentation/user-guide.md).
 
 ## License
 

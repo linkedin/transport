@@ -1,3 +1,7 @@
+// Copyright 2018 LinkedIn Corporation. All rights reserved.
+// Licensed under the BSD-2 Clause license.
+// See LICENSE in the project root for license information.
+
 allprojects {
   apply plugin: 'idea'
 }
@@ -31,7 +35,8 @@ subprojects {
   apply plugin: "com.github.hierynomus.license"
 
   license {
-    header = file("${rootDir}/LICENSE")
+    header = file("${rootDir}/gradle/license/LICENSE_HEADER")
+    ext.year = Calendar.getInstance().get(Calendar.YEAR)
     ignoreFailures false
     strictCheck true
   }
