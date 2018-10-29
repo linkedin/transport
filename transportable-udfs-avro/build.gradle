@@ -1,0 +1,23 @@
+apply plugin: 'java'
+
+dependencies {
+  compile project(':transportable-udfs-api')
+  compile project(':transportable-udfs-type-system')
+  compile('org.apache.avro:avro:1.7.7')
+  testCompile project(path: ':transportable-udfs-type-system', configuration: 'tests')
+}
+
+task jarTests(type: Jar, dependsOn: testClasses) {
+  classifier = 'tests'
+  from sourceSets.test.output
+}
+
+configurations {
+  tests {
+    extendsFrom testRuntime
+  }
+}
+
+artifacts {
+  tests jarTests
+}

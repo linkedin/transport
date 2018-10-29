@@ -1,18 +1,18 @@
-# Standard UDFs
+# Transportable UDFs
 
-**Standard UDFs** is an API and framework for writing user-defined
+**Transportable UDFs** is an API and framework for writing user-defined
 functions (UDFs) that can run across many engines, such as Spark,
 Hive, Presto, and process different data formats such as Avro, ORC,
 etc. Developers can use the API to implement their UDF logic once as a
-"Standard UDF", and the framework takes care of translating the
-Standard UDF to a native UDF for a specific engine or
-format. Currently, Standard UDFs support producing engine-artifacts
+"Transportable UDF", and the framework takes care of translating the
+Transportable UDF to a native UDF for a specific engine or
+format. Currently, Transportable UDFs support producing engine-artifacts
 for Spark, Hive, and Presto, and format-artifacts for Avro. Translated
 UDFs seem to the target engine as if they were written in that
 engine's native API in the first place.
 
 ## Example
-This is an example of what it takes to define a Standard UDF. It is
+This is an example of what it takes to define a Transportable UDF. It is
 simple and quite self-explanatory.
 
 ```java
@@ -73,8 +73,8 @@ are of the type of elements in the first array and values are of the
 type of elements in the second array). `StdUDF2` is an abstract class
 to express a UDF that takes two parameters. It is parametrized by the
 UDF input types and the UDF output type. A more detailed documentation
-of the API usage can be found in the [Standard UDF API user
-guide](standard-udfs-documentation/user-guide.md).
+of the API usage can be found in the [Transportable UDF API user
+guide](transportable-udfs-documentation/user-guide.md).
 
 ## License
 

@@ -1,6 +1,0 @@
-apply plugin: 'java'
-
-dependencies {
-  compile('org.apache.hadoop:hadoop-common:2.7.4')
-  compile('org.apache.hadoop:hadoop-mapreduce-client-core:2.7.4')
-}

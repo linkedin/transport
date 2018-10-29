@@ -2,21 +2,21 @@
 // Licensed under the BSD-2 Clause license.
 // See LICENSE in the project root for license information.
 
-rootProject.name = 'standard-udfs'
+rootProject.name = 'transportable-udfs'
 
 def modules = [
-    'standard-udfs-api',
-    'standard-udfs-avro',
-    'standard-udfs-examples:standard-udfs-example-udfs-avro',
-    'standard-udfs-examples:standard-udfs-example-udfs',
-    'standard-udfs-examples:standard-udfs-example-udfs-hive',
-    'standard-udfs-examples:standard-udfs-example-udfs-presto',
-    'standard-udfs-examples:standard-udfs-example-udfs-spark',
-    'standard-udfs-hive',
-    'standard-udfs-presto',
-    'standard-udfs-spark',
-    'standard-udfs-type-system',
-    'standard-udfs-utils'
+    'transportable-udfs-api',
+    'transportable-udfs-avro',
+    'transportable-udfs-examples:transportable-udfs-example-udfs-avro',
+    'transportable-udfs-examples:transportable-udfs-example-udfs',
+    'transportable-udfs-examples:transportable-udfs-example-udfs-hive',
+    'transportable-udfs-examples:transportable-udfs-example-udfs-presto',
+    'transportable-udfs-examples:transportable-udfs-example-udfs-spark',
+    'transportable-udfs-hive',
+    'transportable-udfs-presto',
+    'transportable-udfs-spark',
+    'transportable-udfs-type-system',
+    'transportable-udfs-utils'
 ]
 
  modules.each { module ->

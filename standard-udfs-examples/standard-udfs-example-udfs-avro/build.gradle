@@ -1,8 +1,0 @@
-apply plugin: 'java'
-
-dependencies {
-  compile project(':standard-udfs-api')
-  compile project(':standard-udfs-avro')
-  compile project(':standard-udfs-examples:standard-udfs-example-udfs')
-  testCompile project(path: ':standard-udfs-avro', configuration: 'tests')
-}

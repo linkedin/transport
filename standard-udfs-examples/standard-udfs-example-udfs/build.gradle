@@ -1,6 +1,0 @@
-apply plugin: 'java'
-
-dependencies {
-  compile project(':standard-udfs-api')
-  compile('com.google.guava:guava:19.0')
-}
