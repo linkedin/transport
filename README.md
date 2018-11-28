@@ -1,7 +1,7 @@
 ![logo](transportable-udfs-documentation/logo.png)
-# Transportable UDFs
+# Transport UDFs
 
-**Transportable UDFs** is an API and framework for writing user-defined
+**Transport UDFs** is an API and framework for writing user-defined
 functions (UDFs) that can run across many engines, such as Spark,
 Hive, Presto, and process different data formats such as Avro, ORC,
 etc. Developers can use the API to implement their UDF logic once as a
