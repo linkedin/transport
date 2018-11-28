@@ -1,3 +1,4 @@
+![logo](transportable-udfs-documentation/logo.png)
 # Transportable UDFs
 
 **Transportable UDFs** is an API and framework for writing user-defined

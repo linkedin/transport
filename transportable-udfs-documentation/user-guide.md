@@ -1,5 +1,6 @@
-# The Standard UDFs API
-The Standard UDFs API is comprised of a number of interfaces that
+![logo](transportable-udfs-documentation/logo.png)
+# The Transportable UDFs API
+The Transportable UDFs API is comprised of a number of interfaces that
 enable users to express data types, data objects, type signatures, and
 UDFs. Below we discuss each in detail.
 
@@ -35,7 +36,7 @@ public interface StdStructType extends StdType {
 ```
 ## `StdData` Interface
 `StdData` is a top-level interface for describing data that can be
-manipulated by Standard UDFs. As a top-level interface, `StdData`
+manipulated by Transportable UDFs. As a top-level interface, `StdData`
 itself does not contain any methods. A number of type-specific
 interfaces extend `StdData`, such as `StdInteger`, `StdLong`,
 `StdBoolean`, `StdString`, `StdArray`, `StdMap`, `StdStruct` to
@@ -87,8 +88,8 @@ public interface StdString extends StdData {
 ```
 
 ## Type Signatures
-The Standard UDFs framework provides a way to declare what data types
-a UDF expects through type signatures. Type signatures in standard
+The Transportable UDFs framework provides a way to declare what data types
+a UDF expects through type signatures. Type signatures in transportable
 UDFs support generic types, including type verification and
 inference. For example, a user can state that a UDF expects two
 arguments, one of type `"array(K)"` and the other of type `"array(V)"`
@@ -112,7 +113,7 @@ definition:
 * `"map(K,V)"`: to represent SQL Map type, with keys of type K and
   values of type V. The respective Standard Type is StdMap.
 * `"row(f1 T1,.., fn Tn)"`: to represent SQL Struct type with field
-  types T1.. Tn with names f1.. fn, respecitively. The respective
+  types T1.. Tn with names f1.. fn, respectively. The respective
   Standard Type is StdStruct.
 
 ## The `StdFactory` Interface
@@ -142,7 +143,7 @@ public interface StdFactory {
 ```
 
 ## The `StdUDF` API
-All Standard UDF implementations (expressing UDF logic) extend the
+All Transportable UDF implementations (expressing UDF logic) extend the
 `StdUDF` abstract class. `StdUDF` abstract class is the base class for
 more specific `StdUDF` abstract sub-classes that are specific to the
 number of UDF arguments, i.e., `StdUDF0`, `StdUDF1`, `StdUDF2`,
@@ -238,7 +239,7 @@ implementation is to set all arguments to be non-nullable.
 ## `TopLevelStdUDF` Interface
 `TopLevelStdUDF` API is an interface that has only two methods:
 `getFunctionName()` and `getFunctionDescription()`. It is used as a
-means to enable UDF overloading if necessary. Standard UDFs enable
+means to enable UDF overloading if necessary. Transportable UDFs enable
 overloading such that UDFs with the same name can have different type
 input parameter type signatures. If a UDF does not require
 overloading, it simply implements `TopLevelStdUDF` in addition to
