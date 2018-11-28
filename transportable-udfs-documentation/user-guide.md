@@ -1,4 +1,4 @@
-![logo](transportable-udfs-documentation/logo.png)
+![logo](logo.png)
 # The Transportable UDFs API
 The Transportable UDFs API is comprised of a number of interfaces that
 enable users to express data types, data objects, type signatures, and
