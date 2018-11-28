@@ -1,0 +1,7 @@
+com.linkedin.transport.examples.presto.ArrayElementAtFunctionWrapper
+com.linkedin.transport.examples.presto.ArrayFillFunctionWrapper
+com.linkedin.transport.examples.presto.MapFromTwoArraysFunctionWrapper
+com.linkedin.transport.examples.presto.MapKeySetFunctionWrapper
+com.linkedin.transport.examples.presto.MapValuesFunctionWrapper
+com.linkedin.transport.examples.presto.StructCreateByIndexFunctionWrapper
+com.linkedin.transport.examples.presto.StructCreateByNameFunctionWrapper
