@@ -77,6 +77,27 @@ UDF input types and the UDF output type. A more detailed documentation
 of the API usage can be found in the [Transportable UDF API user
 guide](transportable-udfs-documentation/user-guide.md).
 
+## How to Build
+Clone the repository:
+```bash
+ git clone https://github.com/linkedin/transport.git
+```
+Change directory to `transport`:
+```bash
+cd transport
+```
+
+Build:
+```bash
+gradle build
+```
+
+This project requires Java `1.8.0_172`.
+Either set `JAVA_HOME` to the path of this version or higher, or use the `gradlew` and set `org.gradle.java.home` to the Java home
+of this version or higher:
+```bash
+./gradlew -Dorg.gradle.java.home=/path/to/java/home build
+```
 ## License
 
     BSD 2-CLAUSE LICENSE
