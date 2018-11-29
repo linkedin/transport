@@ -10,7 +10,8 @@ Transportable UDF to a native UDF for a specific engine or
 format. Currently, Transportable UDFs support producing engine-artifacts
 for Spark, Hive, and Presto, and format-artifacts for Avro. Translated
 UDFs seem to the target engine as if they were written in that
-engine's native API in the first place.
+engine's native API in the first place. Further details on how they improve developer's experience can be found
+at this [LinkedIn Engineering blog post](https://engineering.linkedin.com/blog/2018/11/using-translatable-portable-UDFs).
 
 ## Example
 This is an example of what it takes to define a Transportable UDF. It is
