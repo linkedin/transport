@@ -155,7 +155,7 @@ public class PrestoMap extends PrestoData implements StdMap {
           @Override
           public StdData next() {
             i += 2;
-            return PrestoWrapper.createStdData(readNativeValue(_keyType, _block, i + 1), _keyType, _stdFactory);
+            return PrestoWrapper.createStdData(readNativeValue(_valueType, _block, i + 1), _valueType, _stdFactory);
           }
         };
       }
