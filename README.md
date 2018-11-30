@@ -93,9 +93,9 @@ Build:
 gradle build
 ```
 
-This project requires Java `1.8.0_172`.
-Either set `JAVA_HOME` to the path of this version or higher, or use the `gradlew` and set `org.gradle.java.home` to the Java home
-of this version or higher:
+This project requires Java `1.8.0_151` or higher.
+Either set `JAVA_HOME` to the home of an appropriate version, or use the `gradlew` and set `org.gradle.java.home` to the Java home
+of an appropriate version:
 ```bash
 ./gradlew -Dorg.gradle.java.home=/path/to/java/home build
 ```
