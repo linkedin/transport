@@ -81,7 +81,7 @@ guide](transportable-udfs-documentation/user-guide.md).
 ## How to Build
 Clone the repository:
 ```bash
- git clone https://github.com/linkedin/transport.git
+git clone https://github.com/linkedin/transport.git
 ```
 Change directory to `transport`:
 ```bash
@@ -94,7 +94,7 @@ gradle build
 ```
 
 This project requires Java `1.8.0_151` or higher.
-Either set `JAVA_HOME` to the home of an appropriate version, or use the `gradlew` and set `org.gradle.java.home` to the Java home
+Either set `JAVA_HOME` to the home of an appropriate version and use `gradle build` as described above, or use the `gradlew` and set `org.gradle.java.home` to the Java home
 of an appropriate version:
 ```bash
 ./gradlew -Dorg.gradle.java.home=/path/to/java/home build
