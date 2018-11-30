@@ -1,5 +1,28 @@
 apply plugin: 'java'
 
+buildscript {
+  repositories {
+    mavenCentral()
+  }
+  dependencies {
+    classpath group:'com.facebook.presto', name: 'presto-main', version: project.ext.'presto-version'
+  }
+}
+
+import com.google.common.base.StandardSystemProperty
+import com.facebook.presto.server.JavaVersion
+task verifyPrestoJvmRequirements(type:Exec) {
+  String javaVersion = StandardSystemProperty.JAVA_VERSION.value()
+  if (javaVersion == null) {
+    throw new GradleException("Java version not defined")
+  }
+  JavaVersion version = JavaVersion.parse(javaVersion)
+  if (!(version.getMajor() == 8 && version.getUpdate().isPresent() && version.getUpdate().getAsInt() >= 151)
+      || (version.getMajor() >= 9)) {
+    throw new GradleException(String.format("Presto requires Java 8u151+ (found %s)", version))
+  }
+}
+
 dependencies {
   compile project(':transportable-udfs-api')
   compile project(':transportable-udfs-type-system')
