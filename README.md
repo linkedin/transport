@@ -1,17 +1,17 @@
 ![logo](transportable-udfs-documentation/logo.png)
 # Transport UDFs
 
-**Transport UDFs** is an API and framework for writing user-defined
-functions (UDFs) that can run across many engines, such as Spark,
-Hive, Presto, and process different data formats such as Avro, ORC,
-etc. Developers can use the API to implement their UDF logic once as a
-"Transportable UDF", and the framework takes care of translating the
-Transportable UDF to a native UDF for a specific engine or
-format. Currently, Transportable UDFs support producing engine-artifacts
-for Spark, Hive, and Presto, and format-artifacts for Avro. Translated
-UDFs seem to the target engine as if they were written in that
-engine's native API in the first place. Further details on how they improve developer's experience can be found
-at this [LinkedIn Engineering blog post](https://engineering.linkedin.com/blog/2018/11/using-translatable-portable-UDFs).
+**Transport** is a framework for writing performant user-defined
+functions (UDFs) that are portable across a variety of engines
+including [Apache Spark](https://spark.apache.org/), [Apache Hive](https://hive.apache.org/), and
+[Presto](https://prestodb.io/). UDFs written with Transport are also
+capable of directly processing data stored in formats such as
+Avro. With Transport, developers only need to implement their UDF
+logic once using the Transport API. Transport then takes care of
+translating the UDF to a native version targeted at a specific engine
+or format. Currently, the Transport framework is capable of generating
+engine-artifacts for Spark, Hive, and Presto, and format-artifacts for
+Avro. Further details on Transport can be found in this [LinkedIn Engineering blog post](https://engineering.linkedin.com/blog/2018/11/using-translatable-portable-UDFs).
 
 ## Example
 This is an example of what it takes to define a Transportable UDF. It is
