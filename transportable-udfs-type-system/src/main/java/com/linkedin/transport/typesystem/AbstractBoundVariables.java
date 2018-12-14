@@ -132,6 +132,11 @@ public abstract class AbstractBoundVariables<T> {
               typeMismatch = true;
             }
             break;
+          case UNKNOWN:
+            if (!isUnknownType(dataType)) {
+              typeMismatch = true;
+            }
+            break;
           default:
             throw new RuntimeException("Unrecognized non-parametric type: " + concreteType);
         }

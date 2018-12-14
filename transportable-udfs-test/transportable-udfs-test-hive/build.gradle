@@ -1,0 +1,9 @@
+apply plugin: 'java'
+
+dependencies {
+  compile project(':transportable-udfs-api')
+  compile project(':transportable-udfs-hive')
+  compile project(':transportable-udfs-test:transportable-udfs-test-api')
+  compile('org.apache.hive:hive-exec:1.2.2')
+  compile('org.apache.hive:hive-service:1.2.2')
+}

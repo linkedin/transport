@@ -14,6 +14,7 @@ public enum ConcreteTypeSignatureElement implements TypeSignatureElement {
   INTEGER(false, 0),
   LONG(false, 0),
   STRING(false, 0),
+  UNKNOWN(false, 0),
   ARRAY(false, 1),
   MAP(false, 2),
   STRUCT(true, 0);

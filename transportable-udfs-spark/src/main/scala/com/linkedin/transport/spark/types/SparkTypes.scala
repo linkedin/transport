@@ -34,6 +34,11 @@ case class SparkBooleanType(booleanType: BooleanType) extends StdBooleanType {
   override def underlyingType(): DataType = booleanType
 }
 
+case class SparkUnknownType(unknownType: NullType) extends StdUnknownType {
+
+  override def underlyingType(): DataType = unknownType
+}
+
 case class SparkArrayType(arrayType: ArrayType) extends StdArrayType {
 
   override def elementType: StdType = SparkWrapper.createStdType(arrayType.elementType)

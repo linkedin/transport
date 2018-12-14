@@ -14,6 +14,7 @@ import com.facebook.presto.spi.type.MapType;
 import com.facebook.presto.spi.type.RowType;
 import com.facebook.presto.spi.type.Type;
 import com.facebook.presto.spi.type.VarcharType;
+import com.facebook.presto.type.UnknownType;
 import com.linkedin.transport.api.StdFactory;
 import com.linkedin.transport.api.data.StdData;
 import com.linkedin.transport.api.types.StdType;
@@ -31,6 +32,7 @@ import com.linkedin.transport.presto.types.PrestoLongType;
 import com.linkedin.transport.presto.types.PrestoMapType;
 import com.linkedin.transport.presto.types.PrestoStringType;
 import com.linkedin.transport.presto.types.PrestoStructType;
+import com.linkedin.transport.presto.types.PrestoUnknownType;
 import io.airlift.slice.Slice;
 
 import static java.lang.Math.*;
@@ -82,6 +84,8 @@ public final class PrestoWrapper {
       return new PrestoMapType((MapType) prestoType);
     } else if (prestoType instanceof RowType) {
       return new PrestoStructType(((RowType) prestoType));
+    } else if (prestoType instanceof UnknownType) {
+      return new PrestoUnknownType(((UnknownType) prestoType));
     }
     assert false : "Unrecognized Presto Type: " + prestoType.getClass();
     return null;

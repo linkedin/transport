@@ -71,6 +71,8 @@ public abstract class AbstractTypeFactory<T> {
             return createLongType();
           case STRING:
             return createStringType();
+          case UNKNOWN:
+            return createUnknownType();
           default:
             throw new RuntimeException("Unrecognized non-parametric type: " + concreteType);
         }

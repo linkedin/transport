@@ -138,6 +138,8 @@ public abstract class AbstractTypeInference<T> {
       return "bigint";
     } else if (isStringType(dataType)) {
       return "varchar";
+    } else if (isUnknownType(dataType)) {
+      return "unknown";
     } else if (isArrayType(dataType)) {
       return "array("
           + dataTypeToString(getArrayElementType(dataType))
