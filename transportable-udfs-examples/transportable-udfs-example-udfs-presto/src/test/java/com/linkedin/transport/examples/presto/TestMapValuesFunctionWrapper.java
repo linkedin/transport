@@ -26,6 +26,9 @@ public class TestMapValuesFunctionWrapper extends AbstractTestFunctions {
   @Test
   public void testMapValues() {
 
+    assertFunction("std_map_values(map_from_entries(ARRAY[(1, CAST('a' AS VARCHAR)),(2, CAST('b' AS VARCHAR))]))",
+        new ArrayType(VARCHAR), ImmutableList.of("a", "b"));
+
     assertFunction("std_map_values(map(array[1, 2, 3], array[4, 5, 6]))", new ArrayType(INTEGER),
         ImmutableList.of(4, 5, 6));
 

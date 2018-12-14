@@ -30,7 +30,6 @@ import com.linkedin.transport.presto.data.PrestoLong;
 import com.linkedin.transport.presto.data.PrestoMap;
 import com.linkedin.transport.presto.data.PrestoString;
 import com.linkedin.transport.presto.data.PrestoStruct;
-import com.linkedin.transport.presto.types.PrestoType;
 import io.airlift.slice.Slices;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -109,7 +108,7 @@ public class PrestoFactory implements StdFactory {
 
   @Override
   public StdType createStdType(String typeSignature) {
-    return new PrestoType(
+    return PrestoWrapper.createStdType(
         typeManager.getType(applyBoundVariables(TypeSignature.parseTypeSignature(typeSignature), boundVariables)));
   }
 }

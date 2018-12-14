@@ -22,6 +22,7 @@ import com.linkedin.transport.hive.types.HiveLongType;
 import com.linkedin.transport.hive.types.HiveMapType;
 import com.linkedin.transport.hive.types.HiveStringType;
 import com.linkedin.transport.hive.types.HiveStructType;
+import com.linkedin.transport.hive.types.HiveUnknownType;
 import org.apache.hadoop.hive.serde2.objectinspector.ListObjectInspector;
 import org.apache.hadoop.hive.serde2.objectinspector.MapObjectInspector;
 import org.apache.hadoop.hive.serde2.objectinspector.ObjectInspector;
@@ -78,7 +79,7 @@ public final class HiveWrapper {
     } else if (hiveObjectInspector instanceof StructObjectInspector) {
       return new HiveStructType((StructObjectInspector) hiveObjectInspector);
     } else if (hiveObjectInspector instanceof VoidObjectInspector) {
-      return null;
+      return new HiveUnknownType((VoidObjectInspector) hiveObjectInspector);
     }
     assert false : "Unrecognized Hive ObjectInspector: " + hiveObjectInspector.getClass();
     return null;
