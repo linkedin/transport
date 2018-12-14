@@ -11,41 +11,41 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 
+import static com.linkedin.transport.typesystem.TypeSignatureFactory.*;
+
+
 public class TestTypeSignature {
 
   @Test
   public void testTypeSignatureParse() {
-    Assert.assertEquals(TypeSignature.parse("varchar"), TypeSignatureFactory.STRING);
+    Assert.assertEquals(TypeSignature.parse("varchar"), STRING);
 
-    Assert.assertEquals(TypeSignature.parse("integer"), TypeSignatureFactory.INTEGER);
+    Assert.assertEquals(TypeSignature.parse("integer"), INTEGER);
 
-    Assert.assertEquals(TypeSignature.parse("bigint"), TypeSignatureFactory.LONG);
+    Assert.assertEquals(TypeSignature.parse("bigint"), LONG);
 
-    Assert.assertEquals(TypeSignature.parse("array(bigint)"), TypeSignatureFactory.array(TypeSignatureFactory.LONG));
+    Assert.assertEquals(TypeSignature.parse("array(bigint)"), array(LONG));
 
-    Assert.assertEquals(TypeSignature.parse("array(map(varchar,boolean))"), TypeSignatureFactory.array(
-        TypeSignatureFactory.map(TypeSignatureFactory.STRING, TypeSignatureFactory.BOOLEAN)));
+    Assert.assertEquals(TypeSignature.parse("array(unknown)"), array(NULL));
+
+    Assert.assertEquals(TypeSignature.parse("array(map(varchar,boolean))"), array(map(STRING, BOOLEAN)));
 
     Assert.assertEquals(
         TypeSignature.parse("array(row(varchar,boolean,integer))"),
-        TypeSignatureFactory.array(TypeSignatureFactory.struct(TypeSignatureFactory.STRING, TypeSignatureFactory.BOOLEAN, TypeSignatureFactory.INTEGER)));
+        array(struct(STRING, BOOLEAN, INTEGER)));
   }
 
   @Test
   public void testTypeSignatureParseRow() {
-    Assert.assertEquals(TypeSignature.parse("row(boolean,boolean)"), TypeSignatureFactory.struct(
-        TypeSignatureFactory.BOOLEAN, TypeSignatureFactory.BOOLEAN));
+    Assert.assertEquals(TypeSignature.parse("row(boolean,boolean)"), struct(BOOLEAN, BOOLEAN));
 
-    Assert.assertEquals(TypeSignature.parse("row(K,V)"), TypeSignatureFactory.struct(TypeSignatureFactory.generic("K"), TypeSignatureFactory
-        .generic("V")));
+    Assert.assertEquals(TypeSignature.parse("row(K,V)"), struct(generic("K"), generic("V")));
 
     Assert.assertEquals(TypeSignature.parse("row(a boolean,b boolean)"),
-        TypeSignatureFactory.struct(Arrays.asList(TypeSignatureFactory.BOOLEAN, TypeSignatureFactory.BOOLEAN), Arrays.asList("a", "b")));
+        struct(Arrays.asList(BOOLEAN, BOOLEAN), Arrays.asList("a", "b")));
 
     Assert.assertEquals(TypeSignature.parse("row(a boolean,b map(boolean, row(c boolean, d boolean)))"),
-        TypeSignatureFactory.struct(Arrays.asList(TypeSignatureFactory.BOOLEAN, TypeSignatureFactory.map(
-            TypeSignatureFactory.BOOLEAN, TypeSignatureFactory.struct(Arrays.asList(TypeSignatureFactory.BOOLEAN,
-                TypeSignatureFactory.BOOLEAN), Arrays.asList("c", "d")))),
+        struct(Arrays.asList(BOOLEAN, map(BOOLEAN, struct(Arrays.asList(BOOLEAN, BOOLEAN), Arrays.asList("c", "d")))),
             Arrays.asList("a", "b")));
   }
 

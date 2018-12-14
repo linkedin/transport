@@ -159,6 +159,9 @@ public class TypeSignature {
         case "varchar":
           currentBaseElement = ConcreteTypeSignatureElement.STRING;
           break;
+        case "unknown":
+          currentBaseElement = ConcreteTypeSignatureElement.UNKNOWN;
+          break;
         case "array":
           currentBaseElement = ConcreteTypeSignatureElement.ARRAY;
           break;

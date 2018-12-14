@@ -42,7 +42,7 @@ object SparkWrapper {
     case _: ArrayType => SparkArrayType(dataType.asInstanceOf[ArrayType])
     case _: MapType => SparkMapType(dataType.asInstanceOf[MapType])
     case _: StructType => SparkStructType(dataType.asInstanceOf[StructType])
-    case _: NullType => null
+    case _: NullType => SparkUnknownType(dataType.asInstanceOf[NullType])
     case _ => throw new UnsupportedOperationException("Unrecognized Spark Type: " + dataType.getClass)
   }
 }

@@ -19,6 +19,7 @@ build/
 dependency-reduced-pom.xml
 derby.log
 hdfs_cache/
+metastore_db/
 out/
 target/
 TempStatsStore/

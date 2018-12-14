@@ -55,6 +55,7 @@ public abstract class AbstractTestTypeFactory<T> {
     assertCreateType("boolean", BOOLEAN);
     assertCreateType("bigint", LONG);
     assertCreateType("varchar", STRING);
+    assertCreateType("unknown", NULL);
   }
 
   @Test

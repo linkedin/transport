@@ -15,11 +15,17 @@ def modules = [
     'transportable-udfs-hive',
     'transportable-udfs-presto',
     'transportable-udfs-spark',
+    'transportable-udfs-test:transportable-udfs-test-api',
+    'transportable-udfs-test:transportable-udfs-test-generic',
+    'transportable-udfs-test:transportable-udfs-test-hive',
+    'transportable-udfs-test:transportable-udfs-test-presto',
+    'transportable-udfs-test:transportable-udfs-test-spark',
+    'transportable-udfs-test:transportable-udfs-test-spi',
     'transportable-udfs-type-system',
     'transportable-udfs-utils'
 ]
 
- modules.each { module ->
+modules.each { module ->
   include "${module}"
 }
 
