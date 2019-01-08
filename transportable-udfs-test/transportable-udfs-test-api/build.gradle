@@ -3,6 +3,6 @@ apply plugin: 'java'
 dependencies {
   compile project(":transportable-udfs-api")
   compile project(":transportable-udfs-test:transportable-udfs-test-spi")
-  compile project(path: ':transportable-udfs-type-system', configuration: 'tests')
   compile ('com.google.guava:guava:24.1-jre')
+  compile ('org.testng:testng:6.11')
 }
