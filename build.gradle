@@ -37,6 +37,7 @@ subprojects {
   license {
     header = file("${rootDir}/gradle/license/LICENSE_HEADER")
     ext.year = Calendar.getInstance().get(Calendar.YEAR)
+    skipExistingHeaders true
     ignoreFailures false
     strictCheck true
   }

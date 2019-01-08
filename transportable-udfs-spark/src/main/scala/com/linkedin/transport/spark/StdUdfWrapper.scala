@@ -52,7 +52,8 @@ abstract class StdUdfWrapper(_expressions: Seq[Expression]) extends Expression
 
   override def children: Seq[Expression] = _expressions
 
-  private def getRequiredFiles(): Unit = {
+  // scalastyle:off magic.number
+  private def getRequiredFiles(): Unit = { // scalastyle:ignore cyclomatic.complexity
     if (_distributedCacheFiles == null) {
       val wrappedConstants = wrapConstants()
       val requiredFiles = wrappedConstants.length match {
@@ -66,9 +67,21 @@ abstract class StdUdfWrapper(_expressions: Seq[Expression]) extends Expression
         case 3 =>
           _stdUdf.asInstanceOf[StdUDF3[StdData, StdData, StdData, StdData]].getRequiredFiles(wrappedConstants(0),
             wrappedConstants(1), wrappedConstants(2))
-        case 4 => // scalastyle:ignore magic.number
+        case 4 =>
           _stdUdf.asInstanceOf[StdUDF4[StdData, StdData, StdData, StdData, StdData]].getRequiredFiles(wrappedConstants(0),
             wrappedConstants(1), wrappedConstants(2), wrappedConstants(3))
+        case 5 =>
+          _stdUdf.asInstanceOf[StdUDF5[StdData, StdData, StdData, StdData, StdData, StdData]].getRequiredFiles(wrappedConstants(0),
+            wrappedConstants(1), wrappedConstants(2), wrappedConstants(3), wrappedConstants(4))
+        case 6 =>
+          _stdUdf.asInstanceOf[StdUDF6[StdData, StdData, StdData, StdData, StdData, StdData, StdData]].getRequiredFiles(wrappedConstants(0),
+            wrappedConstants(1), wrappedConstants(2), wrappedConstants(3), wrappedConstants(4), wrappedConstants(5))
+        case 7 =>
+          _stdUdf.asInstanceOf[StdUDF7[StdData, StdData, StdData, StdData, StdData, StdData, StdData, StdData]].getRequiredFiles(wrappedConstants(0),
+            wrappedConstants(1), wrappedConstants(2), wrappedConstants(3), wrappedConstants(4), wrappedConstants(5), wrappedConstants(6))
+        case 8 =>
+          _stdUdf.asInstanceOf[StdUDF8[StdData, StdData, StdData, StdData, StdData, StdData, StdData, StdData, StdData]].getRequiredFiles(wrappedConstants(0),
+            wrappedConstants(1), wrappedConstants(2), wrappedConstants(3), wrappedConstants(4), wrappedConstants(5), wrappedConstants(6), wrappedConstants(7))
         case _ =>
           throw new UnsupportedOperationException("getRequiredFiles not yet supported for StdUDF" + _expressions.length)
       }
@@ -86,7 +99,8 @@ abstract class StdUdfWrapper(_expressions: Seq[Expression]) extends Expression
         }
       })
     }
-  }
+  } // scalastyle:on magic.number
+
 
   private final def wrapConstants(): Seq[StdData] = {
     _expressions.map(expr => {
@@ -94,7 +108,8 @@ abstract class StdUdfWrapper(_expressions: Seq[Expression]) extends Expression
     })
   }
 
-  override def eval(input: InternalRow): Any = {
+  // scalastyle:off magic.number
+  override def eval(input: InternalRow): Any = { // scalastyle:ignore cyclomatic.complexity
     val wrappedArguments = checkNullsAndWrapArguments(input)
     // if wrappedArguments is null, it means that null check failed -> return null
     if (wrappedArguments == null) {
@@ -113,16 +128,31 @@ abstract class StdUdfWrapper(_expressions: Seq[Expression]) extends Expression
         case 3 =>
           _stdUdf.asInstanceOf[StdUDF3[StdData, StdData, StdData, StdData]].eval(wrappedArguments(0), wrappedArguments(1),
             wrappedArguments(2))
-        case 4 => // scalastyle:ignore magic.number
+        case 4 =>
           _stdUdf.asInstanceOf[StdUDF4[StdData, StdData, StdData, StdData, StdData]].eval(wrappedArguments(0),
             wrappedArguments(1), wrappedArguments(2), wrappedArguments(3))
+        case 5 =>
+          _stdUdf.asInstanceOf[StdUDF5[StdData, StdData, StdData, StdData, StdData, StdData]].eval(wrappedArguments(0),
+            wrappedArguments(1), wrappedArguments(2), wrappedArguments(3), wrappedArguments(4))
+        case 6 =>
+          _stdUdf.asInstanceOf[StdUDF6[StdData, StdData, StdData, StdData, StdData, StdData, StdData]].eval(wrappedArguments(0),
+            wrappedArguments(1), wrappedArguments(2), wrappedArguments(3), wrappedArguments(4), wrappedArguments(5))
+        case 7 =>
+          _stdUdf.asInstanceOf[StdUDF7[StdData, StdData, StdData, StdData, StdData, StdData, StdData, StdData]].eval(wrappedArguments(0),
+            wrappedArguments(1), wrappedArguments(2), wrappedArguments(3), wrappedArguments(4), wrappedArguments(5),
+            wrappedArguments(6))
+        case 8 =>
+          _stdUdf.asInstanceOf[StdUDF8[StdData, StdData, StdData, StdData, StdData, StdData, StdData, StdData, StdData]].eval(wrappedArguments(0),
+            wrappedArguments(1), wrappedArguments(2), wrappedArguments(3), wrappedArguments(4), wrappedArguments(5),
+            wrappedArguments(6), wrappedArguments(7))
         case _ =>
           throw new UnsupportedOperationException("eval not yet supported for StdUDF" + _expressions.length)
       }
 
       if (stdResult == null) null else stdResult.asInstanceOf[PlatformData].getUnderlyingData
     }
-  }
+  } // scalastyle:on magic.number
+
 
   private final def checkNullsAndWrapArguments(input: InternalRow): Array[StdData] = {
     val wrappedArguments = new Array[StdData](_expressions.length)

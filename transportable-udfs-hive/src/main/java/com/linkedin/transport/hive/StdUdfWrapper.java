@@ -14,6 +14,10 @@ import com.linkedin.transport.api.udf.StdUDF1;
 import com.linkedin.transport.api.udf.StdUDF2;
 import com.linkedin.transport.api.udf.StdUDF3;
 import com.linkedin.transport.api.udf.StdUDF4;
+import com.linkedin.transport.api.udf.StdUDF5;
+import com.linkedin.transport.api.udf.StdUDF6;
+import com.linkedin.transport.api.udf.StdUDF7;
+import com.linkedin.transport.api.udf.StdUDF8;
 import com.linkedin.transport.api.udf.TopLevelStdUDF;
 import com.linkedin.transport.hive.typesystem.HiveTypeInference;
 import com.linkedin.transport.utils.FileSystemUtils;
@@ -163,6 +167,18 @@ public abstract class StdUdfWrapper extends GenericUDF {
       case 4:
         result = ((StdUDF4) _stdUdf).eval(args[0], args[1], args[2], args[3]);
         break;
+      case 5:
+        result = ((StdUDF5) _stdUdf).eval(args[0], args[1], args[2], args[3], args[4]);
+        break;
+      case 6:
+        result = ((StdUDF6) _stdUdf).eval(args[0], args[1], args[2], args[3], args[4], args[5]);
+        break;
+      case 7:
+        result = ((StdUDF7) _stdUdf).eval(args[0], args[1], args[2], args[3], args[4], args[5], args[6]);
+        break;
+      case 8:
+        result = ((StdUDF8) _stdUdf).eval(args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7]);
+        break;
       default:
         throw new UnsupportedOperationException("eval not yet supported for StdUDF" + args.length);
     }
@@ -188,6 +204,18 @@ public abstract class StdUdfWrapper extends GenericUDF {
         break;
       case 4:
         requiredFiles = ((StdUDF4) _stdUdf).getRequiredFiles(args[0], args[1], args[2], args[3]);
+        break;
+      case 5:
+        requiredFiles = ((StdUDF5) _stdUdf).getRequiredFiles(args[0], args[1], args[2], args[3], args[4]);
+        break;
+      case 6:
+        requiredFiles = ((StdUDF6) _stdUdf).getRequiredFiles(args[0], args[1], args[2], args[3], args[4], args[5]);
+        break;
+      case 7:
+        requiredFiles = ((StdUDF7) _stdUdf).getRequiredFiles(args[0], args[1], args[2], args[3], args[4], args[5], args[6]);
+        break;
+      case 8:
+        requiredFiles = ((StdUDF8) _stdUdf).getRequiredFiles(args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7]);
         break;
       default:
         throw new UnsupportedOperationException("getRequiredFiles not yet supported for StdUDF" + args.length);
