@@ -52,6 +52,8 @@ abstract class StdUdfWrapper(_expressions: Seq[Expression]) extends Expression
 
   override def children: Seq[Expression] = _expressions
 
+
+  // Suppressing magic number warming since the number match is required to cast it into the coresponding StdUDF
   // scalastyle:off magic.number
   private def getRequiredFiles(): Unit = { // scalastyle:ignore cyclomatic.complexity
     if (_distributedCacheFiles == null) {
@@ -108,6 +110,7 @@ abstract class StdUdfWrapper(_expressions: Seq[Expression]) extends Expression
     })
   }
 
+  // Suppressing magic number warming since the number match is required to cast it into the coresponding StdUDF
   // scalastyle:off magic.number
   override def eval(input: InternalRow): Any = { // scalastyle:ignore cyclomatic.complexity
     val wrappedArguments = checkNullsAndWrapArguments(input)
