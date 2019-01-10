@@ -46,13 +46,13 @@ public abstract class StdUDF8<I1 extends StdData, I2 extends StdData, I3 extends
 
   /**
    * Returns an array of file paths to be localized at the worker nodes.
-   * <p>
+
    * The Standard UDF framework localizes the files passed through this method and provides the localized file paths to
    * {@link StdUDF#processRequiredFiles(String[])} for further processing. Users can use the pattern "#LATEST" instead
    * of a concrete directory name in the path as a way of selecting the directory with the most recent timestamp, and
    * hence obtaining the most recent version of a file.
    * Example: 'hdfs:///data/derived/dwh/prop/testMemberId/#LATEST/testMemberId.txt'
-   * <p>
+
    * The arguments passed to {@link #eval(StdData, StdData, StdData, StdData, StdData, StdData, StdData, StdData)} are
    * passed to this method as well to allow users to construct required file paths from arguments passed to the UDF.
    * Since this method is called before any rows are processed, only constant UDF arguments should be used to construct

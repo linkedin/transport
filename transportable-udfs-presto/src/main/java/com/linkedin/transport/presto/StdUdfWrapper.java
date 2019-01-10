@@ -232,12 +232,12 @@ public abstract class StdUdfWrapper extends SqlScalarFunction {
         requiredFiles = ((StdUDF6) stdUDF).getRequiredFiles(args[0], args[1], args[2], args[3], args[4], args[5]);
         break;
       case 7:
-        requiredFiles =
-            ((StdUDF7) stdUDF).getRequiredFiles(args[0], args[1], args[2], args[3], args[4], args[5], args[6]);
+        requiredFiles = ((StdUDF7) stdUDF).getRequiredFiles(args[0], args[1], args[2], args[3], args[4], args[5],
+            args[6]);
         break;
       case 8:
-        requiredFiles =
-            ((StdUDF8) stdUDF).getRequiredFiles(args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7]);
+        requiredFiles = ((StdUDF8) stdUDF).getRequiredFiles(args[0], args[1], args[2], args[3], args[4], args[5],
+            args[6], args[7]);
         break;
       default:
         throw new RuntimeException("getRequiredFiles not supported yet for StdUDF" + args.length);
