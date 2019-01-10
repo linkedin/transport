@@ -70,7 +70,7 @@ public abstract class StdUDF8<I1 extends StdData, I2 extends StdData, I3 extends
    * @param arg5 the fifth input argument if the argument is constant, null otherwise
    * @param arg6 the sixth input argument if the argument is constant, null otherwise
    * @param arg7 the seventh input argument if the argument is constant, null otherwise
-   * @param arg8 the eighty input argument if the argument is constant, null otherwise
+   * @param arg8 the eighth input argument if the argument is constant, null otherwise
    *
    * @return an array of file paths to be localized at the worker nodes.
    */
