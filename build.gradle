@@ -1,4 +1,4 @@
-// Copyright 2018 LinkedIn Corporation. All rights reserved.
+// Copyright 2019 LinkedIn Corporation. All rights reserved.
 // Licensed under the BSD-2 Clause license.
 // See LICENSE in the project root for license information.
 
@@ -36,7 +36,7 @@ subprojects {
 
   license {
     header = file("${rootDir}/gradle/license/LICENSE_HEADER")
-    ext.year = 2018
+    ext.year = Calendar.getInstance().get(Calendar.YEAR)
     skipExistingHeaders true
     ignoreFailures false
     strictCheck true
