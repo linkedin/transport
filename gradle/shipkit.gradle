@@ -1,0 +1,34 @@
+shipkit {
+  gitHub.repository = "linkedin/transport"
+
+  gitHub.readOnlyAuthToken = "361a43a2b351e61e2243c5ea15792f33a3c9b467"
+
+  // The GitHub write token is required for committing release notes and bumping up project version
+  // Ensure that the release machine or Travis CI has this env variable exported
+  gitHub.writeAuthToken = System.getenv("GH_WRITE_TOKEN")
+
+  git.releasableBranchRegex = "master|release/.+"
+}
+
+allprojects {
+  plugins.withId("org.shipkit.bintray") {
+
+    //Bintray configuration is handled by JFrog Bintray Gradle Plugin
+    //For reference see the official documentation: https://github.com/bintray/gradle-bintray-plugin
+    bintray {
+
+      // The Bintray API token is required to publish artifacts to Bintray
+      // Ensure that the release machine or Travis CI has this env variable exported
+      key = System.getenv("BINTRAY_API_KEY")
+
+      pkg {
+        repo = 'maven'
+        user = 'smahadik'
+        userOrg = 'linkedin-transport'
+        name = 'transport'
+        licenses = ['BSD 2-Clause']
+        labels = ['transport', 'UDF', 'user defined functions', 'portable']
+      }
+    }
+  }
+}
