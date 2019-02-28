@@ -1,0 +1,16 @@
+{
+  "udfs": [
+    {
+      "topLevelStdUDFClass": "udfs.UDFWithMultipleInterfaces1",
+      "implementations": [
+        "udfs.UDFWithMultipleInterfaces1"
+      ]
+    },
+    {
+      "topLevelStdUDFClass": "udfs.UDFWithMultipleInterfaces2",
+      "implementations": [
+        "udfs.UDFWithMultipleInterfaces2"
+      ]
+    }
+  ]
+}
