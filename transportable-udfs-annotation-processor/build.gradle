@@ -7,3 +7,7 @@ dependencies {
 
   testCompile('com.google.testing.compile:compile-testing:0.15')
 }
+
+license {
+  exclude '**/*.json'
+}

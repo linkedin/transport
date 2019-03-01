@@ -1,3 +1,8 @@
+/**
+ * Copyright 2019 LinkedIn Corporation. All rights reserved.
+ * Licensed under the BSD-2 Clause license.
+ * See LICENSE in the project root for license information.
+ */
 package com.linkedin.transport.processor;
 
 import java.io.IOException;
@@ -52,12 +57,12 @@ public class TransportProcessorTest {
         .withWarningCount(2)
         .withWarningContaining(Constants.MULTIPLE_INTERFACES_WARNING)
         .in(forResource("udfs/UDFWithMultipleInterfaces1.java"))
-        .onLine(9)
+        .onLine(14)
         .atColumn(8)
         .and()
         .withWarningContaining(Constants.MULTIPLE_INTERFACES_WARNING)
         .in(forResource("udfs/UDFWithMultipleInterfaces2.java"))
-        .onLine(9)
+        .onLine(14)
         .atColumn(8)
         .and()
         .and()
@@ -74,7 +79,7 @@ public class TransportProcessorTest {
         .withErrorCount(1)
         .withErrorContaining(Constants.INTERFACE_NOT_IMPLEMENTED_ERROR)
         .in(forResource("udfs/UDFNotImplementingTopLevelStdUDF.java"))
-        .onLine(9)
+        .onLine(14)
         .atColumn(8);
   }
 
