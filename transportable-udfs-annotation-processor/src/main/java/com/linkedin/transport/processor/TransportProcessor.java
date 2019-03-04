@@ -104,7 +104,7 @@ public class TransportProcessor extends AbstractProcessor {
    * Finds the {@link TopLevelStdUDF} for the given {@link StdUDF} class and adds it to the list of discovered UDFs
    */
   private void processUDFClass(TypeElement udfClassElement) {
-    log(String.format("Processing UDF Class: %s", udfClassElement.getQualifiedName()));
+    debug(String.format("Processing UDF Class: %s", udfClassElement.getQualifiedName()));
 
     TypeElement closestTopLevelStdUDFInterface = getClosestTopLevelStdUDFInterface(udfClassElement);
     if (closestTopLevelStdUDFInterface != null) {
@@ -161,7 +161,7 @@ public class TransportProcessor extends AbstractProcessor {
       try (Writer writer = fileObject.openWriter()) {
         _udfProperties.toJson(writer);
       }
-      log("Wrote Transport UDF properties file to: " + fileObject.toUri());
+      debug("Wrote Transport UDF properties file to: " + fileObject.toUri());
     } catch (IOException e) {
       fatalError(String.format("Unable to create UDF properties resource file: %s", e));
     }
@@ -169,7 +169,7 @@ public class TransportProcessor extends AbstractProcessor {
 
   /* Helper methods for logging */
 
-  private void log(String msg) {
+  private void debug(String msg) {
     if (processingEnv.getOptions().containsKey("debug")) {
       processingEnv.getMessager().printMessage(Diagnostic.Kind.NOTE, msg);
     }
