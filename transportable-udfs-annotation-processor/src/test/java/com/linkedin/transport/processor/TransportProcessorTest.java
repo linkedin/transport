@@ -105,6 +105,17 @@ public class TransportProcessorTest {
         .withStringContents(Charset.defaultCharset(), asString(forResource("outputs/empty.json")));
   }
 
+  @Test
+  public void innerClassUDFNotSupported() throws IOException {
+    assertThat(
+        forResource("udfs/InnerClassUDF.java")
+    ).processedWith(new TransportProcessor())
+        .compilesWithoutError()
+        .and()
+        .generatesFileNamed(StandardLocation.CLASS_OUTPUT, "", Constants.UDF_RESOURCE_FILE_PATH)
+        .withStringContents(Charset.defaultCharset(), asString(forResource("outputs/empty.json")));
+  }
+
   static String asString(final JavaFileObject javaFileObject) throws IOException {
     return javaFileObject.getCharContent(true).toString();
   }

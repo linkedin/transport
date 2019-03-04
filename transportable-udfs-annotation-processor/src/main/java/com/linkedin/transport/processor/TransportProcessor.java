@@ -12,7 +12,6 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Set;
 import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.Filer;
@@ -72,9 +71,12 @@ public class TransportProcessor extends AbstractProcessor {
       processImpl(roundEnv);
     } catch (Exception e) {
       // We don't allow exceptions of any kind to propagate to the compiler
-      StringWriter writer = new StringWriter();
-      e.printStackTrace(new PrintWriter(writer));
-      fatalError(writer.toString());
+      try (StringWriter stringWriter = new StringWriter(); PrintWriter printWriter = new PrintWriter(stringWriter)) {
+        e.printStackTrace(printWriter);
+        fatalError(stringWriter.toString());
+      } catch (IOException ioe) {
+        fatalError("Could not close resources " + ioe);
+      }
     }
     // Universal processors should return false since other processor can be potentially acting on the same element
     return false;
@@ -116,19 +118,11 @@ public class TransportProcessor extends AbstractProcessor {
    * {@link TopLevelStdUDF} interface for a given {@link StdUDF} class
    */
   private TypeElement getClosestTopLevelStdUDFInterface(TypeElement udfClassElement) {
-    // If the UDF class directly implements TopLevelStdUDF, return the UDF class itself
-    List<? extends TypeMirror> implementedInterfaces = udfClassElement.getInterfaces();
-    for (TypeMirror iface : implementedInterfaces) {
-      if (_types.isSameType(iface, _topLevelStdUDFInterfaceType)) {
-        return udfClassElement;
-      }
-    }
-
-    // Check if any of the interfaces/superclass of the UDF class implement TopLevelStdUDF
+    // Check if any of the interfaces/superclass of the UDF class implement TopLevelStdUDF directly or indirectly
     TypeMirror superClass = udfClassElement.getSuperclass();
     boolean superClassImplementsTopLevelStdUDFInterface = _types.isAssignable(superClass, _topLevelStdUDFInterfaceType);
     LinkedList<TypeMirror> candidateInterfaces = new LinkedList<>();
-    for (TypeMirror iface : implementedInterfaces) {
+    for (TypeMirror iface : udfClassElement.getInterfaces()) {
       if (_types.isAssignable(iface, _topLevelStdUDFInterfaceType)) {
         candidateInterfaces.add(iface);
       }
@@ -141,8 +135,13 @@ public class TransportProcessor extends AbstractProcessor {
       warn(Constants.MULTIPLE_INTERFACES_WARNING, udfClassElement);
       return udfClassElement;
     } else if (candidateInterfaces.size() == 1) {
-      // If only one interface implements TopLevelStdUDF, return the interface
-      return (TypeElement) _types.asElement(candidateInterfaces.getFirst());
+      if (_types.isSameType(candidateInterfaces.getFirst(), _topLevelStdUDFInterfaceType)) {
+        // If the UDF class directly implements TopLevelStdUDF, return the UDF class itself
+        return udfClassElement;
+      } else {
+        // If only one interface implements TopLevelStdUDF, return the interface
+        return (TypeElement) _types.asElement(candidateInterfaces.getFirst());
+      }
     } else if (superClassImplementsTopLevelStdUDFInterface) {
       // If superclass indirectly implements TopLevelStdUDF, find the closest interface for the superclass
       return getClosestTopLevelStdUDFInterface((TypeElement) _types.asElement(superClass));
@@ -159,9 +158,9 @@ public class TransportProcessor extends AbstractProcessor {
     Filer filer = processingEnv.getFiler();
     try {
       FileObject fileObject = filer.createResource(StandardLocation.CLASS_OUTPUT, "", Constants.UDF_RESOURCE_FILE_PATH);
-      Writer writer = fileObject.openWriter();
-      _udfProperties.toJson(writer);
-      writer.close();
+      try (Writer writer = fileObject.openWriter()) {
+        _udfProperties.toJson(writer);
+      }
       log("Wrote Transport UDF properties file to: " + fileObject.toUri());
     } catch (IOException e) {
       fatalError(String.format("Unable to create UDF properties resource file: %s", e));
