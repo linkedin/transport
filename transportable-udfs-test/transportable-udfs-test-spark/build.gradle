@@ -12,6 +12,6 @@ dependencies {
   compile(group: project.ext.'spark-group', name: 'spark-sql_2.11', version: project.ext.'spark-version') {
     exclude module: 'jackson-module-paranamer'
   }
-  compile('com.fasterxml.jackson.module:jackson-module-paranamer:2.6.7')
+  compile('com.fasterxml.jackson.module:jackson-module-scala_2.11:2.7.9')
   compile 'org.testng:testng:6.11'
 }
