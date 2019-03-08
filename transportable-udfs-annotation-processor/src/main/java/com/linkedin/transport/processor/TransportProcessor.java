@@ -12,7 +12,10 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.util.LinkedList;
+import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.Filer;
 import javax.annotation.processing.ProcessingEnvironment;
@@ -22,9 +25,11 @@ import javax.annotation.processing.SupportedOptions;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
+import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.TypeMirror;
+import javax.lang.model.util.ElementFilter;
 import javax.lang.model.util.Elements;
 import javax.lang.model.util.Types;
 import javax.tools.Diagnostic;
@@ -37,8 +42,19 @@ import javax.tools.StandardLocation;
  * resource file
  *
  * The annotation processor does not rely on a special annotation, instead it will look for non-abstract classes which
- * extend {@link StdUDF} and implement {@link TopLevelStdUDF}. It will then identify all overloadings of the same UDF
- * name and store them in the resource file.
+ * extend {@link StdUDF}. It will then perform checks against class to ensure that the type hierarchy meets the rules
+ * mentioned below. If the class is considered to be a valid UDF class, it will create groupings of UDFs which are
+ * considered to be overloadings of each other and store them in the resource file.
+ *
+ * Validation Rules:
+ * Rule 1: A UDF class implementing TopLevelStdUDF through a superclass is not supported as of now since it is hard to
+ * determine which interface we want to use as the base for the group of UDF overloading. This is not a common use case
+ * anyway. If required, use composition instead of inheritance.
+ * Rule 2: More than one interface implementing TopLevelStdUDF can lead to ambiguity with respect to the name of the UDF
+ * and hence is not allowed.
+ * Rule 3: A UDF class should implement TopLevelStdUDF either directly or indirectly through an interface only.
+ * Rule 4: If the class does not directly implement TopLevelStdUDF, then verify that interface methods are not overriden
+ * since it can lead to UDF name ambiguity.
  */
 @SupportedOptions({"debug"})
 @SupportedAnnotationTypes({"*"})
@@ -106,18 +122,40 @@ public class TransportProcessor extends AbstractProcessor {
   private void processUDFClass(TypeElement udfClassElement) {
     debug(String.format("Processing UDF Class: %s", udfClassElement.getQualifiedName()));
 
-    TypeElement closestTopLevelStdUDFInterface = getClosestTopLevelStdUDFInterface(udfClassElement);
-    if (closestTopLevelStdUDFInterface != null) {
-      _udfProperties.addUDF(closestTopLevelStdUDFInterface.getQualifiedName().toString(),
+    if (isValidUDFClass(udfClassElement)) {
+      // At this point we have already verified that TopLevelStdUDF interface is coming from one and only one of the
+      // implemented interfaces
+      TypeElement elementImplementingTopLevelStdUDFInterface =
+          getElementImplementingTopLevelStdUDFInterface(udfClassElement);
+
+      _udfProperties.addUDF(elementImplementingTopLevelStdUDFInterface.getQualifiedName().toString(),
           udfClassElement.getQualifiedName().toString());
     }
   }
 
   /**
-   * Returns a {@link TypeElement} for the closest (in the type hierarchy) class/interface which implements the
-   * {@link TopLevelStdUDF} interface for a given {@link StdUDF} class
+   * Returns the element(class/interface) implementing {@link TopLevelStdUDF} for the given class
+   *
+   * If the class directly implements {@link TopLevelStdUDF}, the class is returned.
+   * If the class indirectly implements {@link TopLevelStdUDF} through an interface, the interface is returned.
    */
-  private TypeElement getClosestTopLevelStdUDFInterface(TypeElement udfClassElement) {
+  private TypeElement getElementImplementingTopLevelStdUDFInterface(TypeElement udfClassElement) {
+    TypeMirror ifaceImplementingTopLevelStdUDFInterface = udfClassElement.getInterfaces()
+        .stream()
+        .filter(iface -> _types.isAssignable(iface, _topLevelStdUDFInterfaceType))
+        .findFirst().get();
+
+    if (_types.isSameType(ifaceImplementingTopLevelStdUDFInterface, _topLevelStdUDFInterfaceType)) {
+      return udfClassElement;
+    } else {
+      return (TypeElement) _types.asElement(ifaceImplementingTopLevelStdUDFInterface);
+    }
+  }
+
+  /**
+   * Performs validations on the type hierarchy to verify UDF overloading rules
+   */
+  private boolean isValidUDFClass(TypeElement udfClassElement) {
     // Check if any of the interfaces/superclass of the UDF class implement TopLevelStdUDF directly or indirectly
     TypeMirror superClass = udfClassElement.getSuperclass();
     boolean superClassImplementsTopLevelStdUDFInterface = _types.isAssignable(superClass, _topLevelStdUDFInterfaceType);
@@ -128,27 +166,51 @@ public class TransportProcessor extends AbstractProcessor {
       }
     }
 
-    if (candidateInterfaces.size() > 1 || (candidateInterfaces.size() == 1
-        && superClassImplementsTopLevelStdUDFInterface)) {
-      // If more than one interface/superclass implements TopLevelStdUDF, Java will require the class to override the
-      // methods of TopLevelStdUDF again, hence we can safely return the UDF class itself
-      warn(Constants.MULTIPLE_INTERFACES_WARNING, udfClassElement);
-      return udfClassElement;
-    } else if (candidateInterfaces.size() == 1) {
-      if (_types.isSameType(candidateInterfaces.getFirst(), _topLevelStdUDFInterfaceType)) {
-        // If the UDF class directly implements TopLevelStdUDF, return the UDF class itself
-        return udfClassElement;
-      } else {
-        // If only one interface implements TopLevelStdUDF, return the interface
-        return (TypeElement) _types.asElement(candidateInterfaces.getFirst());
-      }
-    } else if (superClassImplementsTopLevelStdUDFInterface) {
-      // If superclass indirectly implements TopLevelStdUDF, find the closest interface for the superclass
-      return getClosestTopLevelStdUDFInterface((TypeElement) _types.asElement(superClass));
-    } else {
+    if (superClassImplementsTopLevelStdUDFInterface) {
+      // Rule 1: A UDF class implementing TopLevelStdUDF through a superclass is not supported as of now since it is
+      // hard to determine which interface we want to use as the base for the group of UDF overloading. This is not a
+      // common use case anyway. If required, use composition instead of inheritance.
+      error(Constants.SUPERCLASS_IMPLEMENTS_INTERFACE_ERROR, udfClassElement);
+      return false;
+    } else if (candidateInterfaces.size() > 1) {
+      // Rule 2: More than one interface implementing TopLevelStdUDF can lead to ambiguity with respect to the name of
+      // the UDF and hence is not allowed.
+      error(Constants.MULTIPLE_INTERFACES_ERROR, udfClassElement);
+      return false;
+    } else if (candidateInterfaces.size() == 0) {
+      // Rule 3: A UDF class should implement TopLevelStdUDF either directly or indirectly through an interface only
       error(Constants.INTERFACE_NOT_IMPLEMENTED_ERROR, udfClassElement);
-      return null;
+      return false;
+    } else if (!_types.isSameType(candidateInterfaces.getFirst(), _topLevelStdUDFInterfaceType)
+        && classOverridesTopLevelStdUDFMethods(udfClassElement)) {
+      // Rule 4: If the class does not directly implement TopLevelStdUDF, then verify that interface methods are not
+      // overriden since it can lead to UDF name ambiguity
+      error(Constants.CLASS_SHOULD_NOT_OVERRIDE_INTERFACE_METHODS_ERROR, udfClassElement);
+      return false;
+    } else {
+      return true;
     }
+  }
+
+  /**
+   * Returns true if the given class overrides {@link TopLevelStdUDF} methods coming from an interface
+   */
+  private boolean classOverridesTopLevelStdUDFMethods(TypeElement udfClassElement) {
+
+    Map<String, ExecutableElement> topLevelStdUDFMethods = ElementFilter.methodsIn(
+        _types.asElement(_topLevelStdUDFInterfaceType).getEnclosedElements())
+        .stream().collect(Collectors.toMap(e -> e.getSimpleName().toString(), Function.identity()));
+
+    // Check if any method also present in TopLevelStdUDF is being overriden in this class
+    // For simplicity we assume function names in TopLevelStdUDF are distinct
+    return ElementFilter.methodsIn(udfClassElement.getEnclosedElements())
+        .stream()
+        .anyMatch(method -> {
+          ExecutableElement matchingMethodFromTopLevelStdUDF =
+              topLevelStdUDFMethods.get(method.getSimpleName().toString());
+          return matchingMethodFromTopLevelStdUDF != null
+              && _elements.overrides(method, matchingMethodFromTopLevelStdUDF, udfClassElement);
+        });
   }
 
   /**

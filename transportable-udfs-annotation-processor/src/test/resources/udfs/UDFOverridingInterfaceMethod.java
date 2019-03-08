@@ -6,21 +6,16 @@
 package udfs;
 
 import com.google.common.collect.ImmutableList;
-import com.linkedin.transport.api.data.StdString;
+import com.linkedin.transport.api.data.StdBoolean;
 import com.linkedin.transport.api.udf.StdUDF0;
 import java.util.List;
 
 
-public class UDFWithMultipleInterfaces2 extends AbstractUDFImplementingInterface implements OverloadedUDF {
+public class UDFOverridingInterfaceMethod extends StdUDF0<StdBoolean> implements OverloadedUDF {
 
   @Override
   public String getFunctionName() {
-    return "udf_with_multiple_interfaces_2";
-  }
-
-  @Override
-  public String getFunctionDescription() {
-    return "UDF with multiple interfaces 2";
+    return "udf_overriding_interface_method";
   }
 
   @Override
@@ -34,7 +29,7 @@ public class UDFWithMultipleInterfaces2 extends AbstractUDFImplementingInterface
   }
 
   @Override
-  public StdString eval() {
+  public StdBoolean eval() {
     return null;
   }
 }

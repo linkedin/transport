@@ -7,21 +7,10 @@ package udfs;
 
 import com.google.common.collect.ImmutableList;
 import com.linkedin.transport.api.data.StdString;
-import com.linkedin.transport.api.udf.StdUDF0;
 import java.util.List;
 
 
-public class UDFWithMultipleInterfaces2 extends AbstractUDFImplementingInterface implements OverloadedUDF {
-
-  @Override
-  public String getFunctionName() {
-    return "udf_with_multiple_interfaces_2";
-  }
-
-  @Override
-  public String getFunctionDescription() {
-    return "UDF with multiple interfaces 2";
-  }
+public class UDFForAbstractUDFImplementingInterface extends AbstractUDFImplementingInterface {
 
   @Override
   public List<String> getInputParameterSignatures() {
@@ -30,7 +19,7 @@ public class UDFWithMultipleInterfaces2 extends AbstractUDFImplementingInterface
 
   @Override
   public String getOutputParameterSignature() {
-    return "boolean";
+    return "varchar";
   }
 
   @Override

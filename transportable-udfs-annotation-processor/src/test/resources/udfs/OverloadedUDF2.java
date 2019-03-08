@@ -8,15 +8,15 @@ package udfs;
 import com.linkedin.transport.api.udf.TopLevelStdUDF;
 
 
-public interface UDFInterface1 extends TopLevelStdUDF {
+public interface OverloadedUDF2 extends TopLevelStdUDF {
 
   @Override
   default String getFunctionName() {
-    return "";
+    return "overloaded_udf_2";
   }
 
   @Override
   default String getFunctionDescription() {
-    return "";
+    return "Overload UDF 2";
   }
 }

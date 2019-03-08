@@ -12,17 +12,17 @@ import com.linkedin.transport.api.udf.TopLevelStdUDF;
 import java.util.List;
 
 
-public class InnerClassUDF {
-  public class SimpleUDF extends StdUDF0<StdString> implements TopLevelStdUDF {
+public class OuterClassForInnerUDF {
+  public class InnerUDF extends StdUDF0<StdString> implements TopLevelStdUDF {
 
     @Override
     public String getFunctionName() {
-      return "";
+      return "inner_udf";
     }
 
     @Override
     public String getFunctionDescription() {
-      return "";
+      return "Inner UDF";
     }
 
     @Override

@@ -16,12 +16,12 @@ public class SimpleUDF extends StdUDF0<StdString> implements TopLevelStdUDF {
 
   @Override
   public String getFunctionName() {
-    return "";
+    return "simple_udf";
   }
 
   @Override
   public String getFunctionDescription() {
-    return "";
+    return "Simple UDF";
   }
 
   @Override

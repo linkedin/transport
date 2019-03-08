@@ -11,7 +11,7 @@ import com.linkedin.transport.api.udf.StdUDF0;
 import java.util.List;
 
 
-public class OverloadedUDFString extends StdUDF0<StdString> implements UDFInterface1 {
+public class OverloadedUDFString extends StdUDF0<StdString> implements OverloadedUDF {
 
   @Override
   public List<String> getInputParameterSignatures() {

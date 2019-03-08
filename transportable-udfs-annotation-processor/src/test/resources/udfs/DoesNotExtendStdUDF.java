@@ -8,15 +8,15 @@ package udfs;
 import com.linkedin.transport.api.udf.TopLevelStdUDF;
 
 
-public interface UDFInterface2 extends TopLevelStdUDF {
+public class DoesNotExtendStdUDF implements TopLevelStdUDF {
 
   @Override
-  default String getFunctionName() {
-    return "";
+  public String getFunctionName() {
+    return "does_not_extend_std_udf";
   }
 
   @Override
-  default String getFunctionDescription() {
-    return "";
+  public String getFunctionDescription() {
+    return "Does not extend StdUDF";
   }
 }

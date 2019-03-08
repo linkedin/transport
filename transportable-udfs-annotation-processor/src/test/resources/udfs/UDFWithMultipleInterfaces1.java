@@ -11,16 +11,16 @@ import com.linkedin.transport.api.udf.StdUDF0;
 import java.util.List;
 
 
-public class UDFWithMultipleInterfaces1 extends StdUDF0<StdBoolean> implements UDFInterface1, UDFInterface2 {
+public class UDFWithMultipleInterfaces1 extends StdUDF0<StdBoolean> implements OverloadedUDF, OverloadedUDF2 {
 
   @Override
   public String getFunctionName() {
-    return "";
+    return "udf_with_multiple_interfaces_1";
   }
 
   @Override
   public String getFunctionDescription() {
-    return "";
+    return "UDF with multiple interfaces 1";
   }
 
   @Override

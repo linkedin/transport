@@ -5,11 +5,18 @@
  */
 package udfs;
 
-import com.linkedin.transport.api.data.StdString;
-import com.linkedin.transport.api.udf.StdUDF0;
 import com.linkedin.transport.api.udf.TopLevelStdUDF;
 
 
-public abstract class AbstractUDF extends StdUDF0<StdString> {
+public interface OverloadedUDF extends TopLevelStdUDF {
 
+  @Override
+  default String getFunctionName() {
+    return "overloaded_udf";
+  }
+
+  @Override
+  default String getFunctionDescription() {
+    return "Overloaded UDF";
+  }
 }
