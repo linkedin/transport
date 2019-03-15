@@ -1,0 +1,20 @@
+// Copyright 2019 LinkedIn Corporation. All rights reserved.
+// Licensed under the BSD-2 Clause license.
+// See LICENSE in the project root for license information.
+
+rootProject.name = 'transportable-udfs-examples'
+
+includeBuild('../')
+
+def modules = [
+    'transportable-udfs-example-udfs-avro',
+    'transportable-udfs-example-udfs',
+    'transportable-udfs-example-udfs-hive',
+    'transportable-udfs-example-udfs-presto',
+    'transportable-udfs-example-udfs-spark'
+]
+
+modules.each { module ->
+  include "${module}"
+}
+

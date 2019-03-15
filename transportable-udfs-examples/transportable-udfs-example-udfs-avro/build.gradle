@@ -1,8 +1,7 @@
 apply plugin: 'java'
 
 dependencies {
-  compile project(':transportable-udfs-api')
-  compile project(':transportable-udfs-avro')
-  compile project(':transportable-udfs-examples:transportable-udfs-example-udfs')
-  testCompile project(path: ':transportable-udfs-avro', configuration: 'tests')
+  compile project(':transportable-udfs-example-udfs')
+  compile('com.linkedin.transport:transportable-udfs-api')
+  compile('com.linkedin.transport:transportable-udfs-avro')
 }

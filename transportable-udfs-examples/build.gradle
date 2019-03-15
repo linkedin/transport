@@ -1,0 +1,21 @@
+// Copyright 2019 LinkedIn Corporation. All rights reserved.
+// Licensed under the BSD-2 Clause license.
+// See LICENSE in the project root for license information.
+
+allprojects {
+  group = 'com.linkedin.transport'
+  apply plugin: 'idea'
+}
+
+subprojects {
+  repositories {
+    mavenCentral()
+    maven {
+      url "http://conjars.org/repo"
+    }
+  }
+  project.ext.setProperty('presto-version', '0.203')
+  project.ext.setProperty('airlift-slice-version', '0.33')
+  project.ext.setProperty('spark-group', 'org.apache.spark')
+  project.ext.setProperty('spark-version', '2.3.0')
+}

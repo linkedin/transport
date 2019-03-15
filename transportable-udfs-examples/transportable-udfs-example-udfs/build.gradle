@@ -1,11 +1,11 @@
 apply plugin: 'java'
 
 dependencies {
-  compile project(':transportable-udfs-api')
+  compile('com.linkedin.transport:transportable-udfs-api')
   // TODO: Reference all external dependencies from a single gradle file
   compile('com.google.guava:guava:24.1-jre')
   compile('org.apache.commons:commons-io:1.3.2')
-  testCompile project(':transportable-udfs-test:transportable-udfs-test-api')
+  testCompile('com.linkedin.transport:transportable-udfs-test-api')
 }
 
 // ============================================================================
@@ -29,11 +29,11 @@ configurations {
 }
 
 dependencies {
-  testRuntimeOnly project(':transportable-udfs-test:transportable-udfs-test-generic')
+  testRuntimeOnly('com.linkedin.transport:transportable-udfs-test-generic')
   platformTestRuntime sourceSets.main.output, sourceSets.test.output
-  hiveTestRuntime project(':transportable-udfs-test:transportable-udfs-test-hive')
-  prestoTestRuntime project(':transportable-udfs-test:transportable-udfs-test-presto')
-  sparkTestRuntime project(':transportable-udfs-test:transportable-udfs-test-spark')
+  hiveTestRuntime('com.linkedin.transport:transportable-udfs-test-hive')
+  prestoTestRuntime('com.linkedin.transport:transportable-udfs-test-presto')
+  sparkTestRuntime('com.linkedin.transport:transportable-udfs-test-spark')
 }
 
 task hiveTest(type: Test, dependsOn: test) {
