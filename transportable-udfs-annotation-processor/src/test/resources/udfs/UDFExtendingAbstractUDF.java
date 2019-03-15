@@ -6,16 +6,21 @@
 package udfs;
 
 import com.google.common.collect.ImmutableList;
-import com.linkedin.transport.api.data.StdBoolean;
-import com.linkedin.transport.api.udf.StdUDF0;
+import com.linkedin.transport.api.data.StdString;
+import com.linkedin.transport.api.udf.TopLevelStdUDF;
 import java.util.List;
 
 
-public class UDFOverridingInterfaceMethod extends StdUDF0<StdBoolean> implements OverloadedUDF1 {
+public class UDFExtendingAbstractUDF extends AbstractUDF implements TopLevelStdUDF {
 
   @Override
   public String getFunctionName() {
-    return "udf_overriding_interface_method";
+    return "udf_extending_abstract_udf";
+  }
+
+  @Override
+  public String getFunctionDescription() {
+    return "UDF extending Abstract UDF";
   }
 
   @Override
@@ -25,11 +30,11 @@ public class UDFOverridingInterfaceMethod extends StdUDF0<StdBoolean> implements
 
   @Override
   public String getOutputParameterSignature() {
-    return "boolean";
+    return "varchar";
   }
 
   @Override
-  public StdBoolean eval() {
+  public StdString eval() {
     return null;
   }
 }

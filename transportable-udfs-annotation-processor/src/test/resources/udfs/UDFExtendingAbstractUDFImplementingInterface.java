@@ -10,7 +10,7 @@ import com.linkedin.transport.api.data.StdString;
 import java.util.List;
 
 
-public class UDFForAbstractUDFImplementingInterface extends AbstractUDFImplementingInterface {
+public class UDFExtendingAbstractUDFImplementingInterface extends AbstractUDFImplementingInterface {
 
   @Override
   public List<String> getInputParameterSignatures() {

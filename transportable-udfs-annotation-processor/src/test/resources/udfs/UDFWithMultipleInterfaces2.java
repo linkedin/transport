@@ -7,11 +7,10 @@ package udfs;
 
 import com.google.common.collect.ImmutableList;
 import com.linkedin.transport.api.data.StdString;
-import com.linkedin.transport.api.udf.StdUDF0;
 import java.util.List;
 
 
-public class UDFWithMultipleInterfaces2 extends AbstractUDFImplementingInterface implements OverloadedUDF {
+public class UDFWithMultipleInterfaces2 extends AbstractUDFImplementingInterface implements OverloadedUDF1 {
 
   @Override
   public String getFunctionName() {

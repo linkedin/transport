@@ -34,7 +34,7 @@ public class TransportProcessorTest {
   @Test
   public void overloadedUDF() throws IOException {
     assertThat(
-        forResource("udfs/OverloadedUDF.java"),
+        forResource("udfs/OverloadedUDF1.java"),
         forResource("udfs/OverloadedUDFInt.java"),
         forResource("udfs/OverloadedUDFString.java")
     ).processedWith(new TransportProcessor())
@@ -45,45 +45,71 @@ public class TransportProcessorTest {
   }
 
   @Test
-  public void superClassShouldNotImplementInterface() throws IOException {
+  public void udfExtendingAbstractUDF() throws IOException {
     assertThat(
-        forResource("udfs/AbstractUDFImplementingInterface.java"),
-        forResource("udfs/UDFForAbstractUDFImplementingInterface.java")
+        forResource("udfs/AbstractUDF.java"),
+        forResource("udfs/UDFExtendingAbstractUDF.java")
     ).processedWith(new TransportProcessor())
-        .failsToCompile()
-        .withErrorCount(1)
-        .withErrorContaining(Constants.SUPERCLASS_IMPLEMENTS_INTERFACE_ERROR)
-        .in(forResource("udfs/UDFForAbstractUDFImplementingInterface.java"))
-        .onLine(13)
-        .atColumn(8);
+        .compilesWithoutError()
+        .and()
+        .generatesFileNamed(StandardLocation.CLASS_OUTPUT, "", Constants.UDF_RESOURCE_FILE_PATH)
+        .withStringContents(Charset.defaultCharset(),
+            asString(forResource("outputs/udfExtendingAbstractUDF.json")));
   }
 
   @Test
-  public void udfShouldNotImplementMultipleInterfaces1() throws IOException {
+  public void udfExtendingAbstractUDFImplementingInterface() throws IOException {
     assertThat(
-        forResource("udfs/OverloadedUDF.java"),
+        forResource("udfs/AbstractUDFImplementingInterface.java"),
+        forResource("udfs/UDFExtendingAbstractUDFImplementingInterface.java")
+    ).processedWith(new TransportProcessor())
+        .compilesWithoutError()
+        .and()
+        .generatesFileNamed(StandardLocation.CLASS_OUTPUT, "", Constants.UDF_RESOURCE_FILE_PATH)
+        .withStringContents(Charset.defaultCharset(),
+            asString(forResource("outputs/udfExtendingAbstractUDFImplementingInterface.json")));
+  }
+
+  @Test
+  public void shouldNotContainMultipleOverridingsOfTopLevelStdUDFMethods1() throws IOException {
+    assertThat(
+        forResource("udfs/OverloadedUDF1.java"),
         forResource("udfs/OverloadedUDF2.java"),
         forResource("udfs/UDFWithMultipleInterfaces1.java")
     ).processedWith(new TransportProcessor())
         .failsToCompile()
         .withErrorCount(1)
-        .withErrorContaining(Constants.MULTIPLE_INTERFACES_ERROR)
+        .withErrorContaining(Constants.MORE_THAN_ONE_OVERRIDING_ERROR)
         .in(forResource("udfs/UDFWithMultipleInterfaces1.java"))
         .onLine(14)
         .atColumn(8);
   }
 
   @Test
-  public void udfShouldNotImplementMultipleInterfaces2() throws IOException {
+  public void shouldNotContainMultipleOverridingsOfTopLevelStdUDFMethods2() throws IOException {
     assertThat(
-        forResource("udfs/OverloadedUDF.java"),
+        forResource("udfs/OverloadedUDF1.java"),
         forResource("udfs/AbstractUDFImplementingInterface.java"),
         forResource("udfs/UDFWithMultipleInterfaces2.java")
     ).processedWith(new TransportProcessor())
         .failsToCompile()
         .withErrorCount(1)
-        .withErrorContaining(Constants.SUPERCLASS_IMPLEMENTS_INTERFACE_ERROR)
+        .withErrorContaining(Constants.MORE_THAN_ONE_OVERRIDING_ERROR)
         .in(forResource("udfs/UDFWithMultipleInterfaces2.java"))
+        .onLine(13)
+        .atColumn(8);
+  }
+
+  @Test
+  public void udfShouldNotOverrideInterfaceMethods() throws IOException {
+    assertThat(
+        forResource("udfs/OverloadedUDF1.java"),
+        forResource("udfs/UDFOverridingInterfaceMethod.java")
+    ).processedWith(new TransportProcessor())
+        .failsToCompile()
+        .withErrorCount(1)
+        .withErrorContaining(Constants.MORE_THAN_ONE_OVERRIDING_ERROR)
+        .in(forResource("udfs/UDFOverridingInterfaceMethod.java"))
         .onLine(14)
         .atColumn(8);
   }
@@ -97,20 +123,6 @@ public class TransportProcessorTest {
         .withErrorCount(1)
         .withErrorContaining(Constants.INTERFACE_NOT_IMPLEMENTED_ERROR)
         .in(forResource("udfs/UDFNotImplementingTopLevelStdUDF.java"))
-        .onLine(14)
-        .atColumn(8);
-  }
-
-  @Test
-  public void udfShouldNotOverrideInterfaceMethods() throws IOException {
-    assertThat(
-        forResource("udfs/OverloadedUDF.java"),
-        forResource("udfs/UDFOverridingInterfaceMethod.java")
-    ).processedWith(new TransportProcessor())
-        .failsToCompile()
-        .withErrorCount(1)
-        .withErrorContaining(Constants.CLASS_SHOULD_NOT_OVERRIDE_INTERFACE_METHODS_ERROR)
-        .in(forResource("udfs/UDFOverridingInterfaceMethod.java"))
         .onLine(14)
         .atColumn(8);
   }

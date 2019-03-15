@@ -8,7 +8,7 @@ package udfs;
 import com.linkedin.transport.api.udf.TopLevelStdUDF;
 
 
-public interface OverloadedUDF extends TopLevelStdUDF {
+public interface OverloadedUDF1 extends TopLevelStdUDF {
 
   @Override
   default String getFunctionName() {
