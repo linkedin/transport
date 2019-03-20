@@ -125,7 +125,7 @@ public class TransportProcessor extends AbstractProcessor {
               elementsOverridingTopLevelStdUDFMethods.stream()
                   .map(TypeElement::getQualifiedName)
                   .collect(Collectors.joining(", ")),
-              Constants.MORE_THAN_ONE_OVERRIDING_ERROR),
+              Constants.MORE_THAN_ONE_TYPE_OVERRIDING_ERROR),
           udfClassElement
       );
     } else {
