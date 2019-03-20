@@ -114,7 +114,7 @@ public class TransportProcessor extends AbstractProcessor {
     debug(String.format("Processing UDF Class: %s", udfClassElement.getQualifiedName()));
 
     Set<TypeElement> elementsOverridingTopLevelStdUDFMethods =
-        getElementsOverridingTopLevelStdUDFMethods(udfClassElement).collect(Collectors.toSet());
+        getElementsOverridingTopLevelStdUDFMethods(udfClassElement);
 
     if (elementsOverridingTopLevelStdUDFMethods.size() == 0) {
       error(Constants.INTERFACE_NOT_IMPLEMENTED_ERROR, udfClassElement);
@@ -136,24 +136,22 @@ public class TransportProcessor extends AbstractProcessor {
     }
   }
 
-  private Stream<TypeElement> getParentsImplementingInterface(TypeElement typeElement, TypeMirror iface) {
-    return Stream.concat(Stream.of(typeElement.getSuperclass()), typeElement.getInterfaces().stream())
-        .filter(parent -> _types.isAssignable(parent, iface))
-        .map(parent -> (TypeElement) _types.asElement(parent));
+  /**
+   * Returns all types (self + ancestors) in the type hierarchy of an element
+   */
+  private Stream<TypeMirror> getAllTypesInHierarchy(TypeMirror typeMirror) {
+    return Stream.concat(Stream.of(typeMirror),
+        _types.directSupertypes(typeMirror).stream().flatMap(this::getAllTypesInHierarchy));
   }
 
   /**
    * Finds all elements in the type hierarchy of a {@link TypeElement} which override {@link TopLevelStdUDF} methods
    */
-  private Stream<TypeElement> getElementsOverridingTopLevelStdUDFMethods(TypeElement typeElement) {
-    Stream<TypeElement> elementsOverridingTopLevelStdUDFMethods =
-        getParentsImplementingInterface(typeElement, _topLevelStdUDFInterfaceType)
-            .flatMap(this::getElementsOverridingTopLevelStdUDFMethods);
-    if (typeElementOverridesTopLevelStdUDFMethods(typeElement)) {
-      elementsOverridingTopLevelStdUDFMethods =
-          Stream.concat(elementsOverridingTopLevelStdUDFMethods, Stream.of(typeElement));
-    }
-    return elementsOverridingTopLevelStdUDFMethods;
+  private Set<TypeElement> getElementsOverridingTopLevelStdUDFMethods(TypeElement typeElement) {
+    return getAllTypesInHierarchy(typeElement.asType())
+        .map(typeMirror -> (TypeElement) _types.asElement(typeMirror))
+        .filter(this::typeElementOverridesTopLevelStdUDFMethods)
+        .collect(Collectors.toSet());
   }
 
   /**

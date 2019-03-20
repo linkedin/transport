@@ -16,7 +16,7 @@ public class Constants {
           "A Transport UDF should implement %s interface.",
           TopLevelStdUDF.class.getSimpleName());
 
-  public static final String MORE_THAN_ONE_OVERRIDING_ERROR =
+  public static final String MORE_THAN_ONE_TYPE_OVERRIDING_ERROR =
       String.format(
           "%s methods should be overriden in only one class/interface in the type hierarchy.",
           TopLevelStdUDF.class.getSimpleName());
