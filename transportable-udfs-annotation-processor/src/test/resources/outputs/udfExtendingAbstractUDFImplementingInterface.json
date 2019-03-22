@@ -1,0 +1,10 @@
+{
+  "udfs": [
+    {
+      "topLevelStdUDFClass": "udfs.AbstractUDFImplementingInterface",
+      "implementations": [
+        "udfs.UDFExtendingAbstractUDFImplementingInterface"
+      ]
+    }
+  ]
+}

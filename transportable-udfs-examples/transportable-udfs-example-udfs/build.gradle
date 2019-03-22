@@ -14,6 +14,10 @@ dependencies {
 // following code will be applied by the plugin
 // ============================================================================
 
+dependencies {
+  annotationProcessor project(':transportable-udfs-annotation-processor')
+}
+
 // TODO: Add a debugPlatform flag to allow debugging specific test methods in IntelliJ
 // for a particular platform other than default
 

@@ -14,6 +14,7 @@ def modules = [
     'transportable-udfs-examples:transportable-udfs-example-udfs-spark',
     'transportable-udfs-hive',
     'transportable-udfs-presto',
+    'transportable-udfs-annotation-processor',
     'transportable-udfs-spark',
     'transportable-udfs-test:transportable-udfs-test-api',
     'transportable-udfs-test:transportable-udfs-test-generic',

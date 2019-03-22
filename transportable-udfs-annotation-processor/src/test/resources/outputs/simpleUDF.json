@@ -1,0 +1,10 @@
+{
+  "udfs": [
+    {
+      "topLevelStdUDFClass": "udfs.SimpleUDF",
+      "implementations": [
+        "udfs.SimpleUDF"
+      ]
+    }
+  ]
+}
