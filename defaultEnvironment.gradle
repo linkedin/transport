@@ -6,7 +6,7 @@ subprojects {
   repositories {
     mavenCentral()
     maven {
-      url "http://conjars.org/repo"
+      url "https://conjars.org/repo"
     }
   }
   project.ext.setProperty('presto-version', '0.203')
