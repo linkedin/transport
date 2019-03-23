@@ -6,10 +6,12 @@ rootProject.name = 'transportable-udfs'
 
 def modules = [
     'transportable-udfs-api',
+    'transportable-udfs-annotation-processor',
     'transportable-udfs-avro',
+    'transportable-udfs-codegen',
+    'transportable-udfs-compile-utils',
     'transportable-udfs-hive',
     'transportable-udfs-presto',
-    'transportable-udfs-annotation-processor',
     'transportable-udfs-spark',
     'transportable-udfs-test:transportable-udfs-test-api',
     'transportable-udfs-test:transportable-udfs-test-generic',
@@ -24,4 +26,3 @@ def modules = [
 modules.each { module ->
   include "${module}"
 }
-

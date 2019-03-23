@@ -3,12 +3,13 @@
  * Licensed under the BSD-2 Clause license.
  * See LICENSE in the project root for license information.
  */
-package com.linkedin.transport.processor;
+package com.linkedin.transport.compile;
 
-import com.google.common.collect.HashMultimap;
+import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.Multimap;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import java.io.Reader;
 import java.io.Writer;
 import java.util.Collection;
 import java.util.LinkedList;
@@ -22,16 +23,25 @@ public class UDFProperties {
   private Multimap<String, String> _udfs;
 
   public UDFProperties() {
-    _udfs = HashMultimap.create();
+    _udfs = LinkedHashMultimap.create();
   }
 
-  void addUDF(String topLevelStdUDFClassName, String udfClassName) {
+  public void addUDF(String topLevelStdUDFClassName, String udfClassName) {
     _udfs.put(topLevelStdUDFClassName, udfClassName);
+  }
+
+  public Multimap<String, String> getUdfs() {
+    return _udfs;
   }
 
   public void toJson(Writer writer) {
     Gson gson = new GsonBuilder().setPrettyPrinting().create();
     gson.toJson(UDFPropertiesFile.fromUDFProperties(this), writer);
+  }
+
+  public static UDFProperties fromJson(Reader reader) {
+    Gson gson = new GsonBuilder().create();
+    return gson.fromJson(reader, UDFPropertiesFile.class).toUDFProperties();
   }
 
   /**
@@ -55,6 +65,14 @@ public class UDFProperties {
         file.udfs.add(udf);
       }
       return file;
+    }
+
+    private UDFProperties toUDFProperties() {
+      UDFProperties properties = new UDFProperties();
+      for (UDF udf : udfs) {
+        properties._udfs.putAll(udf.topLevelStdUDFClass, udf.implementations);
+      }
+      return properties;
     }
   }
 }

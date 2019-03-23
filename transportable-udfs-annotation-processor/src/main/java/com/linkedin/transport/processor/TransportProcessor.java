@@ -7,6 +7,7 @@ package com.linkedin.transport.processor;
 
 import com.linkedin.transport.api.udf.StdUDF;
 import com.linkedin.transport.api.udf.TopLevelStdUDF;
+import com.linkedin.transport.compile.UDFProperties;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
