@@ -15,7 +15,7 @@ dependencies {
 // ============================================================================
 
 dependencies {
-  annotationProcessor project(':transportable-udfs-annotation-processor')
+  annotationProcessor('com.linkedin.transport:transportable-udfs-annotation-processor')
 }
 
 // TODO: Add a debugPlatform flag to allow debugging specific test methods in IntelliJ

@@ -2,6 +2,19 @@
 // Licensed under the BSD-2 Clause license.
 // See LICENSE in the project root for license information.
 
+buildscript {
+  repositories {
+    maven {
+      url "https://plugins.gradle.org/m2/"
+    }
+  }
+  dependencies {
+    classpath 'org.github.ngbinh.scalastyle:gradle-scalastyle-plugin_2.11:1.0.1'
+    classpath 'gradle.plugin.nl.javadude.gradle.plugins:license-gradle-plugin:0.14.0'
+  }
+}
+
+
 allprojects {
   group = 'com.linkedin.transport'
   apply plugin: 'idea'
@@ -11,11 +24,51 @@ subprojects {
   repositories {
     mavenCentral()
     maven {
-      url "http://conjars.org/repo"
+      url "https://conjars.org/repo"
     }
   }
   project.ext.setProperty('presto-version', '0.203')
   project.ext.setProperty('airlift-slice-version', '0.33')
   project.ext.setProperty('spark-group', 'org.apache.spark')
   project.ext.setProperty('spark-version', '2.3.0')
+}
+
+subprojects {
+  apply plugin: "com.github.hierynomus.license"
+
+  license {
+    header = file("${rootDir}/../gradle/license/LICENSE_HEADER")
+    ext.year = Calendar.getInstance().get(Calendar.YEAR)
+    skipExistingHeaders true
+    ignoreFailures false
+    strictCheck true
+  }
+
+  plugins.withType(JavaPlugin) {
+    project.apply(plugin: 'checkstyle')
+
+    dependencies {
+      testCompile 'org.testng:testng:6.11'
+    }
+
+    test {
+      useTestNG()
+    }
+
+    checkstyle {
+      configFile = file("${rootDir}/../gradle/checkstyle/linkedin-checkstyle.xml")
+    }
+  }
+
+  plugins.withType(ScalaPlugin) {
+    project.apply(plugin: 'scalaStyle')
+
+    scalaStyle {
+      configLocation = "${rootDir}/../gradle/scalastyle/scalastyle-config.xml"
+      source = sourceSets.main.allScala
+      testSource = sourceSets.test.allScala
+      includeTestSourceDirectory = true
+    }
+    check.dependsOn scalaStyle
+  }
 }
