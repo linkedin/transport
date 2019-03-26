@@ -334,4 +334,24 @@ public abstract class StdUdfWrapper extends SqlScalarFunction {
       Object arg3, Object arg4) {
     return eval(stdUDF, types, isIntegerReturnType, arg1, arg2, arg3, arg4);
   }
+
+  public Object evalInternal(StdUDF stdUDF, Type[] types, boolean isIntegerReturnType, Object arg1, Object arg2,
+      Object arg3, Object arg4, Object arg5) {
+    return eval(stdUDF, types, isIntegerReturnType, arg1, arg2, arg3, arg4, arg5);
+  }
+
+  public Object evalInternal(StdUDF stdUDF, Type[] types, boolean isIntegerReturnType, Object arg1, Object arg2,
+      Object arg3, Object arg4, Object arg5, Object arg6) {
+    return eval(stdUDF, types, isIntegerReturnType, arg1, arg2, arg3, arg4, arg5, arg6);
+  }
+
+  public Object evalInternal(StdUDF stdUDF, Type[] types, boolean isIntegerReturnType, Object arg1, Object arg2,
+      Object arg3, Object arg4, Object arg5, Object arg6, Object arg7) {
+    return eval(stdUDF, types, isIntegerReturnType, arg1, arg2, arg3, arg4, arg5, arg6, arg7);
+  }
+
+  public Object evalInternal(StdUDF stdUDF, Type[] types, boolean isIntegerReturnType, Object arg1, Object arg2,
+      Object arg3, Object arg4, Object arg5, Object arg6, Object arg7, Object arg8) {
+    return eval(stdUDF, types, isIntegerReturnType, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
+  }
 }
