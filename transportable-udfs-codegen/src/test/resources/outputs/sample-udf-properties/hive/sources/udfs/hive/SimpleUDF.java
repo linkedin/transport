@@ -16,8 +16,6 @@ public class SimpleUDF extends StdUdfWrapper {
 
   @Override
   protected List<? extends StdUDF> getStdUdfImplementations() {
-    ImmutableList.Builder<StdUDF> builder = ImmutableList.builder();
-    builder.add(new udfs.SimpleUDF());
-    return builder.build();
+    return ImmutableList.of(new udfs.SimpleUDF());
   }
 }

@@ -5,15 +5,14 @@
  */
 package com.linkedin.transport.codegen;
 
-import com.linkedin.transport.compile.UDFProperties;
-import java.io.File;
+import com.linkedin.transport.compile.TransportUDFMetadata;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Collection;
 import java.util.Set;
 import java.util.stream.Collectors;
-import org.apache.commons.io.FileUtils;
+import java.util.stream.Stream;
 import org.testng.Assert;
 
 
@@ -22,10 +21,10 @@ class TestUtils {
   private TestUtils() {
   }
 
-  static UDFProperties getUDFPropertiesFromResource(String resource) {
+  static TransportUDFMetadata getUDFPropertiesFromResource(String resource) {
     try (InputStreamReader reader = new InputStreamReader(
         Thread.currentThread().getContextClassLoader().getResourceAsStream(resource))) {
-      return UDFProperties.fromJson(reader);
+      return TransportUDFMetadata.fromJson(reader);
     } catch (IOException e) {
       throw new RuntimeException("Could not read UDF properties from resource: " + resource, e);
     }
@@ -38,18 +37,22 @@ class TestUtils {
     Set<Path> actualRelativeFilePaths = getRelativeFilePaths(actualDir);
     Set<Path> expectedRelativeFilePaths = getRelativeFilePaths(expectedDir);
 
+    // First check that the number and names of the files are the same
     Assert.assertEquals(actualRelativeFilePaths, expectedRelativeFilePaths,
         String.format("Either the number or names of files in the directories %s and %s are not equal", actualDir,
             expectedDir));
 
+    // For every path in the expected directory, compare the contents of corresponding path in the actual directory.
+    // We can be sure that there always exists a corresponding path in the actual directory since we have asserted that
+    // above.
     for (Path p : expectedRelativeFilePaths) {
-      File actualFile = actualDir.resolve(p).toFile();
-      File expectedFile = expectedDir.resolve(p).toFile();
+      Path expectedFile = expectedDir.resolve(p);
+      Path actualFile = actualDir.resolve(p);
       try {
-        Assert.assertEquals(FileUtils.readFileToString(actualFile), FileUtils.readFileToString(expectedFile),
+        Assert.assertEquals(Files.readAllLines(actualFile), Files.readAllLines(expectedFile),
             String.format("Contents of file %s and %s are not equal", actualFile, expectedFile));
       } catch (IOException e) {
-        throw new RuntimeException(e);
+        throw new RuntimeException(String.format("Error comparing files: %s and %s", actualFile, expectedFile), e);
       }
     }
   }
@@ -58,7 +61,10 @@ class TestUtils {
    * Returns a {@link Set} of relative {@link Path}s to all files in the directory and its subdirectories
    */
   private static Set<Path> getRelativeFilePaths(Path directory) {
-    Collection<File> files1 = FileUtils.listFiles(directory.toFile(), null, true);
-    return files1.stream().map(x -> directory.relativize(x.toPath())).collect(Collectors.toSet());
+    try (Stream<Path> recursivePaths = Files.walk(directory).filter(Files::isRegularFile)) {
+      return recursivePaths.map(directory::relativize).collect(Collectors.toSet());
+    } catch (IOException e) {
+      throw new RuntimeException(String.format("Error traversing directory: %s", directory), e);
+    }
   }
 }

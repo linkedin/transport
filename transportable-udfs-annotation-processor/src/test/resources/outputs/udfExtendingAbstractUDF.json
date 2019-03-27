@@ -1,8 +1,8 @@
 {
   "udfs": [
     {
-      "topLevelStdUDFClass": "udfs.UDFExtendingAbstractUDF",
-      "implementations": [
+      "topLevelClass": "udfs.UDFExtendingAbstractUDF",
+      "stdUDFImplementations": [
         "udfs.UDFExtendingAbstractUDF"
       ]
     }

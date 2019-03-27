@@ -6,12 +6,14 @@
 package com.linkedin.transport.codegen;
 
 import com.linkedin.transport.api.udf.StdUDF;
+import com.linkedin.transport.compile.TransportUDFMetadata;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.JavaFile;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.TypeSpec;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.LinkedList;
 import java.util.List;
 import javax.lang.model.element.Modifier;
@@ -28,38 +30,68 @@ public class PrestoWrapperGenerator implements WrapperGenerator {
   @Override
   public void generateWrappers(ProjectContext context) {
     List<String> services = new LinkedList<>();
-    for (String implementationClass : context.getUdfProperties().getUdfs().values()) {
-      generateWrapper(implementationClass, context.getSourcesOutputDir(), services);
+    TransportUDFMetadata udfMetadata = context.getTransportUdfMetadata();
+    for (String topLevelClass : context.getTransportUdfMetadata().getTopLevelClasses()) {
+      for (String implementationClass : udfMetadata.getStdUDFImplementations(topLevelClass)) {
+        generateWrapper(implementationClass, context.getSourcesOutputDir(), services);
+      }
     }
     try {
-      CodegenUtils.writeServiceFile(context.getResourcesOutputDir().toPath(), SERVICE_FILE, services);
+      CodegenUtils.writeServiceFile(context.getResourcesOutputDir().toPath(), Paths.get(SERVICE_FILE), services);
     } catch (IOException e) {
       throw new RuntimeException("Error creating service file", e);
     }
   }
 
   private void generateWrapper(String implementationClass, File sourcesOutputDir, List<String> services) {
-    ClassName implClass = ClassName.bestGuess(implementationClass);
+    ClassName implementationClassName = ClassName.bestGuess(implementationClass);
     ClassName wrapperClassName =
-        ClassName.get(implClass.packageName() + "." + PRESTO_PACKAGE_SUFFIX, implClass.simpleName());
+        ClassName.get(implementationClassName.packageName() + "." + PRESTO_PACKAGE_SUFFIX,
+            implementationClassName.simpleName());
 
+    /*
+      Generates constructor ->
+
+      public ${wrapperClassName}() {
+        super(new ${implementationClassName}());
+      }
+     */
     MethodSpec constructor = MethodSpec.constructorBuilder()
         .addModifiers(Modifier.PUBLIC)
-        .addStatement("super(new $T())", implClass)
+        .addStatement("super(new $T())", implementationClassName)
         .build();
 
-    MethodSpec getStdUDF = MethodSpec.methodBuilder(GET_STD_UDF_METHOD)
+    /*
+      Generates ->
+
+      @Override
+      protected StdUDF getStdUDF() {
+        return new ${implementationClassName}();
+      }
+     */
+    MethodSpec getStdUDFMethod = MethodSpec.methodBuilder(GET_STD_UDF_METHOD)
         .addAnnotation(Override.class)
         .returns(StdUDF.class)
         .addModifiers(Modifier.PROTECTED)
-        .addStatement("return new $T()", implClass)
+        .addStatement("return new $T()", implementationClassName)
         .build();
 
+    /*
+      Generates ->
+
+      public class ${wrapperClassName} extends StdUdfWrapper {
+
+        .
+        .
+        .
+
+      }
+     */
     TypeSpec wrapperClass = TypeSpec.classBuilder(wrapperClassName)
         .addModifiers(Modifier.PUBLIC)
         .superclass(PRESTO_STD_UDF_WRAPPER_CLASS_NAME)
         .addMethod(constructor)
-        .addMethod(getStdUDF)
+        .addMethod(getStdUDFMethod)
         .build();
 
     services.add(wrapperClassName.toString());

@@ -1,23 +1,15 @@
 {
   "udfs": [
     {
-      "topLevelStdUDFClass": "udfs.OverloadedUDF",
-      "implementations": [
-        "udfs.OverloadedUDF1",
-        "udfs.OverloadedUDF2",
-        "udfs.OverloadedUDF3",
-        "udfs.OverloadedUDF4",
-        "udfs.OverloadedUDF5",
-        "udfs.OverloadedUDF6",
-        "udfs.OverloadedUDF7",
-        "udfs.OverloadedUDF8",
-        "udfs.OverloadedUDF9",
-        "udfs.OverloadedUDF10"
+      "topLevelClass": "udfs.OverloadedUDF",
+      "stdUDFImplementations": [
+        "udfs.OverloadedUDFInt",
+        "udfs.OverloadedUDFString"
       ]
     },
     {
-      "topLevelStdUDFClass": "udfs.SimpleUDF",
-      "implementations": [
+      "topLevelClass": "udfs.SimpleUDF",
+      "stdUDFImplementations": [
         "udfs.SimpleUDF"
       ]
     }

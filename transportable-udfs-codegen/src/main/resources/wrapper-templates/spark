@@ -11,9 +11,7 @@ case class ${wrapperClass}(expressions: Seq[Expression]) extends StdUdfWrapper(e
 
   override protected def getTopLevelUdfClass: Class[_ <: TopLevelStdUDF] = classOf[${udfTopLevelClass}]
 
-  override protected def getStdUdfImplementations: util.List[_ <: StdUDF] = {
-    ImmutableList.builder[StdUDF]()
-      .add(${udfImplementations})
-      .build()
-  }
+  override protected def getStdUdfImplementations: util.List[_ <: StdUDF] = ImmutableList.of(
+    ${udfImplementations}
+  )
 }

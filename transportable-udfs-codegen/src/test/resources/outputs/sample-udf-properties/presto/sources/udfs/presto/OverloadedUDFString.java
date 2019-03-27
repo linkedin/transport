@@ -4,13 +4,13 @@ import com.linkedin.transport.api.udf.StdUDF;
 import com.linkedin.transport.presto.StdUdfWrapper;
 import java.lang.Override;
 
-public class OverloadedUDF3 extends StdUdfWrapper {
-  public OverloadedUDF3() {
-    super(new udfs.OverloadedUDF3());
+public class OverloadedUDFString extends StdUdfWrapper {
+  public OverloadedUDFString() {
+    super(new udfs.OverloadedUDFString());
   }
 
   @Override
   protected StdUDF getStdUDF() {
-    return new udfs.OverloadedUDF3();
+    return new udfs.OverloadedUDFString();
   }
 }

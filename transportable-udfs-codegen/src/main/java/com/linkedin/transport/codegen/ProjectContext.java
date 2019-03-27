@@ -6,10 +6,8 @@
 package com.linkedin.transport.codegen;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.linkedin.transport.compile.UDFProperties;
+import com.linkedin.transport.compile.TransportUDFMetadata;
 import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
 
 
 /**
@@ -18,12 +16,12 @@ import java.io.IOException;
  */
 public class ProjectContext {
 
-  private UDFProperties _udfProperties;
-  private File _sourcesOutputDir;
-  private File _resourcesOutputDir;
+  private final TransportUDFMetadata _transportUdfMetadata;
+  private final File _sourcesOutputDir;
+  private final File _resourcesOutputDir;
 
-  public UDFProperties getUdfProperties() {
-    return _udfProperties;
+  public TransportUDFMetadata getTransportUdfMetadata() {
+    return _transportUdfMetadata;
   }
 
   public File getSourcesOutputDir() {
@@ -35,18 +33,14 @@ public class ProjectContext {
   }
 
   @VisibleForTesting
-  ProjectContext(UDFProperties udfProperties, File sourcesOutputDir, File resourcesOutputDir) {
-    _udfProperties = udfProperties;
+  ProjectContext(TransportUDFMetadata transportUdfMetadata, File sourcesOutputDir, File resourcesOutputDir) {
+    _transportUdfMetadata = transportUdfMetadata;
     _sourcesOutputDir = sourcesOutputDir;
     _resourcesOutputDir = resourcesOutputDir;
   }
 
   public ProjectContext(File udfPropertiesFile, File sourcesOutputDir, File resourcesOutputDir) {
-    try (FileReader reader = new FileReader(udfPropertiesFile)) {
-      _udfProperties = UDFProperties.fromJson(reader);
-    } catch (IOException e) {
-      throw new RuntimeException("Could not read UDF properties file: " + udfPropertiesFile, e);
-    }
+    _transportUdfMetadata = TransportUDFMetadata.fromJsonFile(udfPropertiesFile);
     _sourcesOutputDir = sourcesOutputDir;
     _resourcesOutputDir = resourcesOutputDir;
   }

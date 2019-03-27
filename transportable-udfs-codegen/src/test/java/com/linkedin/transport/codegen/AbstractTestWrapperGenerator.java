@@ -65,12 +65,13 @@ public abstract class AbstractTestWrapperGenerator {
         expectedResourcesOutputPath = Paths.get(
             Thread.currentThread().getContextClassLoader().getResource(expectedResourcesOutputFolderResource).toURI());
       } else {
+        // No resources directory specified, so compare to an empty dir
         File tmpEmptyResourcesDir = Files.createTempDir();
         tmpEmptyResourcesDir.deleteOnExit();
         expectedResourcesOutputPath = tmpEmptyResourcesDir.toPath();
       }
     } catch (URISyntaxException e) {
-      throw new RuntimeException(e);
+      throw new RuntimeException("Error constructing URI", e);
     }
 
     TestUtils.assertDirectoriesAreEqual(_sourcesOutputDir.toPath(), expectedSourcesOutputPath);

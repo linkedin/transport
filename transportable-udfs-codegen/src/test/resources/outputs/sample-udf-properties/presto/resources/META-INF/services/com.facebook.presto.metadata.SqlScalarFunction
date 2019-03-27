@@ -1,11 +1,3 @@
-udfs.presto.OverloadedUDF1
-udfs.presto.OverloadedUDF2
-udfs.presto.OverloadedUDF3
-udfs.presto.OverloadedUDF4
-udfs.presto.OverloadedUDF5
-udfs.presto.OverloadedUDF6
-udfs.presto.OverloadedUDF7
-udfs.presto.OverloadedUDF8
-udfs.presto.OverloadedUDF9
-udfs.presto.OverloadedUDF10
+udfs.presto.OverloadedUDFInt
+udfs.presto.OverloadedUDFString
 udfs.presto.SimpleUDF

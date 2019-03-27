@@ -11,9 +11,7 @@ case class OverloadedUDF(expressions: Seq[Expression]) extends StdUdfWrapper(exp
 
   override protected def getTopLevelUdfClass: Class[_ <: TopLevelStdUDF] = classOf[udfs.OverloadedUDF]
 
-  override protected def getStdUdfImplementations: util.List[_ <: StdUDF] = {
-    ImmutableList.builder[StdUDF]()
-      .add(new udfs.OverloadedUDF1(), new udfs.OverloadedUDF2(), new udfs.OverloadedUDF3(), new udfs.OverloadedUDF4(), new udfs.OverloadedUDF5(), new udfs.OverloadedUDF6(), new udfs.OverloadedUDF7(), new udfs.OverloadedUDF8(), new udfs.OverloadedUDF9(), new udfs.OverloadedUDF10())
-      .build()
-  }
+  override protected def getStdUdfImplementations: util.List[_ <: StdUDF] = ImmutableList.of(
+    new udfs.OverloadedUDFInt(), new udfs.OverloadedUDFString()
+  )
 }

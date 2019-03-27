@@ -11,9 +11,7 @@ case class SimpleUDF(expressions: Seq[Expression]) extends StdUdfWrapper(express
 
   override protected def getTopLevelUdfClass: Class[_ <: TopLevelStdUDF] = classOf[udfs.SimpleUDF]
 
-  override protected def getStdUdfImplementations: util.List[_ <: StdUDF] = {
-    ImmutableList.builder[StdUDF]()
-      .add(new udfs.SimpleUDF())
-      .build()
-  }
+  override protected def getStdUdfImplementations: util.List[_ <: StdUDF] = ImmutableList.of(
+    new udfs.SimpleUDF()
+  )
 }
