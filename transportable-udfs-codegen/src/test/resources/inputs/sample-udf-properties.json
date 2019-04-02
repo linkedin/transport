@@ -1,0 +1,17 @@
+{
+  "udfs": [
+    {
+      "topLevelClass": "udfs.OverloadedUDF",
+      "stdUDFImplementations": [
+        "udfs.OverloadedUDFInt",
+        "udfs.OverloadedUDFString"
+      ]
+    },
+    {
+      "topLevelClass": "udfs.SimpleUDF",
+      "stdUDFImplementations": [
+        "udfs.SimpleUDF"
+      ]
+    }
+  ]
+}

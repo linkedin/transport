@@ -7,6 +7,7 @@ package com.linkedin.transport.processor;
 
 import com.linkedin.transport.api.udf.StdUDF;
 import com.linkedin.transport.api.udf.TopLevelStdUDF;
+import com.linkedin.transport.compile.TransportUDFMetadata;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -54,7 +55,7 @@ public class TransportProcessor extends AbstractProcessor {
   private Elements _elements;
   private TypeMirror _topLevelStdUDFInterfaceType;
   private TypeMirror _stdUDFClassType;
-  private UDFProperties _udfProperties;
+  private TransportUDFMetadata _transportUdfMetadata;
 
   @Override
   public SourceVersion getSupportedSourceVersion() {
@@ -68,7 +69,7 @@ public class TransportProcessor extends AbstractProcessor {
     _elements = processingEnv.getElementUtils();
     _topLevelStdUDFInterfaceType = _elements.getTypeElement(TopLevelStdUDF.class.getName()).asType();
     _stdUDFClassType = _elements.getTypeElement(StdUDF.class.getName()).asType();
-    _udfProperties = new UDFProperties();
+    _transportUdfMetadata = new TransportUDFMetadata();
   }
 
   @Override
@@ -132,7 +133,7 @@ public class TransportProcessor extends AbstractProcessor {
       String topLevelStdUdfClassName =
           elementsOverridingTopLevelStdUDFMethods.iterator().next().getQualifiedName().toString();
       debug(String.format("TopLevelStdUDF class found: %s", topLevelStdUdfClassName));
-      _udfProperties.addUDF(topLevelStdUdfClassName, udfClassElement.getQualifiedName().toString());
+      _transportUdfMetadata.addUDF(topLevelStdUdfClassName, udfClassElement.getQualifiedName().toString());
     }
   }
 
@@ -184,7 +185,7 @@ public class TransportProcessor extends AbstractProcessor {
     try {
       FileObject fileObject = filer.createResource(StandardLocation.CLASS_OUTPUT, "", Constants.UDF_RESOURCE_FILE_PATH);
       try (Writer writer = fileObject.openWriter()) {
-        _udfProperties.toJson(writer);
+        _transportUdfMetadata.toJson(writer);
       }
       debug("Wrote Transport UDF properties file to: " + fileObject.toUri());
     } catch (IOException e) {
