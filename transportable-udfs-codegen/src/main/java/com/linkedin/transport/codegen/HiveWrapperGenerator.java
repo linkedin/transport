@@ -31,7 +31,7 @@ public class HiveWrapperGenerator implements WrapperGenerator {
       ClassName.bestGuess("com.linkedin.transport.hive.StdUdfWrapper");
 
   @Override
-  public void generateWrappers(ProjectContext context) {
+  public void generateWrappers(WrapperGeneratorContext context) {
     TransportUDFMetadata udfMetadata = context.getTransportUdfMetadata();
     for (String topLevelClass : udfMetadata.getTopLevelClasses()) {
       generateWrapper(topLevelClass, udfMetadata.getStdUDFImplementations(topLevelClass),

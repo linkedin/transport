@@ -11,7 +11,7 @@ package com.linkedin.transport.codegen;
 public interface WrapperGenerator {
 
   /**
-   * Generates wrappers for Transport UDFs in the given {@link ProjectContext}
+   * Generates wrappers for Transport UDFs in the given {@link WrapperGeneratorContext}
    */
-  void generateWrappers(ProjectContext context);
+  void generateWrappers(WrapperGeneratorContext context);
 }

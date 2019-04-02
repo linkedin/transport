@@ -28,7 +28,7 @@ public class PrestoWrapperGenerator implements WrapperGenerator {
   private static final String SERVICE_FILE = "META-INF/services/com.facebook.presto.metadata.SqlScalarFunction";
 
   @Override
-  public void generateWrappers(ProjectContext context) {
+  public void generateWrappers(WrapperGeneratorContext context) {
     List<String> services = new LinkedList<>();
     TransportUDFMetadata udfMetadata = context.getTransportUdfMetadata();
     for (String topLevelClass : context.getTransportUdfMetadata().getTopLevelClasses()) {

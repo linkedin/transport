@@ -50,9 +50,9 @@ public abstract class AbstractTestWrapperGenerator {
 
   void testWrapperGenerator(String udfPropertiesFileResource, String expectedSourcesOutputFolderResource,
       String expectedResourcesOutputFolderResource) {
-    ProjectContext context =
-        new ProjectContext(TestUtils.getUDFPropertiesFromResource(udfPropertiesFileResource), _sourcesOutputDir,
-            _resourcesOutputDir);
+    WrapperGeneratorContext context =
+        new WrapperGeneratorContext(TestUtils.getUDFPropertiesFromResource(udfPropertiesFileResource),
+            _sourcesOutputDir, _resourcesOutputDir);
 
     getWrapperGenerator().generateWrappers(context);
 

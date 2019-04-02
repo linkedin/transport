@@ -27,7 +27,7 @@ public class SparkWrapperGenerator implements WrapperGenerator {
   private static final String SUBSTITUTOR_KEY_UDF_IMPLEMENTATIONS = "udfImplementations";
 
   @Override
-  public void generateWrappers(ProjectContext context) {
+  public void generateWrappers(WrapperGeneratorContext context) {
     TransportUDFMetadata udfMetadata = context.getTransportUdfMetadata();
     for (String topLevelClass : udfMetadata.getTopLevelClasses()) {
       generateWrapper(topLevelClass, udfMetadata.getStdUDFImplementations(topLevelClass),

@@ -11,10 +11,10 @@ import java.io.File;
 
 
 /**
- * Encapsulates configuration related to a Transport UDF project required by a {@link WrapperGenerator} such as
- * UDF metadata and the output directories for the wrappers and corresponding resources
+ * Context required by a {@link WrapperGenerator} to generate platform-specific wrappers for the Transport UDF project.
+ * This includes UDF metadata and the output directories for the wrappers and corresponding resources.
  */
-public class ProjectContext {
+public class WrapperGeneratorContext {
 
   private final TransportUDFMetadata _transportUdfMetadata;
   private final File _sourcesOutputDir;
@@ -33,13 +33,13 @@ public class ProjectContext {
   }
 
   @VisibleForTesting
-  ProjectContext(TransportUDFMetadata transportUdfMetadata, File sourcesOutputDir, File resourcesOutputDir) {
+  WrapperGeneratorContext(TransportUDFMetadata transportUdfMetadata, File sourcesOutputDir, File resourcesOutputDir) {
     _transportUdfMetadata = transportUdfMetadata;
     _sourcesOutputDir = sourcesOutputDir;
     _resourcesOutputDir = resourcesOutputDir;
   }
 
-  public ProjectContext(File udfPropertiesFile, File sourcesOutputDir, File resourcesOutputDir) {
+  public WrapperGeneratorContext(File udfPropertiesFile, File sourcesOutputDir, File resourcesOutputDir) {
     _transportUdfMetadata = TransportUDFMetadata.fromJsonFile(udfPropertiesFile);
     _sourcesOutputDir = sourcesOutputDir;
     _resourcesOutputDir = resourcesOutputDir;

@@ -10,6 +10,7 @@ import java.io.BufferedWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Collection;
 import org.apache.commons.lang3.StringUtils;
 
@@ -36,11 +37,11 @@ class CodegenUtils {
     Preconditions.checkArgument(!StringUtils.isBlank(className), "Class name should not be null or an empty string");
     Preconditions.checkNotNull(code, "Code should not be null");
 
-    Path packageDir = outputDir;
+    final Path packageDir;
     if (!StringUtils.isBlank(packageName)) {
-      for (String packageComponent : packageName.split("\\.")) {
-        packageDir = packageDir.resolve(packageComponent);
-      }
+      packageDir = Paths.get(outputDir.toString(), packageName.split("\\."));
+    } else {
+      packageDir = outputDir;
     }
     Files.createDirectories(packageDir);
 
