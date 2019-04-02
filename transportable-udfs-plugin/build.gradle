@@ -1,0 +1,36 @@
+plugins {
+  id 'java'
+  id 'java-gradle-plugin'
+}
+
+gradlePlugin {
+  plugins {
+    simplePlugin {
+      id = 'com.linkedin.transport.plugin'
+      implementationClass = 'com.linkedin.transport.plugin.TransportPlugin'
+    }
+  }
+}
+
+dependencies {
+  compile project(':transportable-udfs-api')
+  compile project(':transportable-udfs-codegen')
+  compile ('com.google.guava:guava:24.1-jre')
+  compile ('com.google.code.gson:gson:2.8.5')
+  testCompile('org.spockframework:spock-core:1.1-groovy-2.4') {
+    exclude group: 'org.codehaus.groovy'
+  }
+}
+
+def writeVersionInfo = { file ->
+  ant.propertyfile(file: file) {
+    entry(key: "transport-version", value: version)
+    entry(key: "hive-version", value: '1.2.2')
+    entry(key: "presto-version", value: '0.203')
+    entry(key: "spark-version", value: '2.3.0')
+  }
+}
+
+processResources.doLast {
+  writeVersionInfo(new File(sourceSets.main.output.resourcesDir, "version-info.properties"))
+}

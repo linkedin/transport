@@ -21,12 +21,12 @@ class TestUtils {
   private TestUtils() {
   }
 
-  static TransportUDFMetadata getUDFPropertiesFromResource(String resource) {
+  static TransportUDFMetadata getUDFMetadataFromResource(String resource) {
     try (InputStreamReader reader = new InputStreamReader(
         Thread.currentThread().getContextClassLoader().getResourceAsStream(resource))) {
       return TransportUDFMetadata.fromJson(reader);
     } catch (IOException e) {
-      throw new RuntimeException("Could not read UDF properties from resource: " + resource, e);
+      throw new RuntimeException("Could not read UDF metadata from resource: " + resource, e);
     }
   }
 

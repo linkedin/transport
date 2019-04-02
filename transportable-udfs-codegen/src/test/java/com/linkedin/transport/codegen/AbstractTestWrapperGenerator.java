@@ -44,14 +44,14 @@ public abstract class AbstractTestWrapperGenerator {
     _resourcesOutputDir.delete();
   }
 
-  void testWrapperGenerator(String udfPropertiesFileResource, String expectedSourcesOutputFolderResource) {
-    testWrapperGenerator(udfPropertiesFileResource, expectedSourcesOutputFolderResource, null);
+  void testWrapperGenerator(String udfMetadataFileResource, String expectedSourcesOutputFolderResource) {
+    testWrapperGenerator(udfMetadataFileResource, expectedSourcesOutputFolderResource, null);
   }
 
-  void testWrapperGenerator(String udfPropertiesFileResource, String expectedSourcesOutputFolderResource,
+  void testWrapperGenerator(String udfMetadataFileResource, String expectedSourcesOutputFolderResource,
       String expectedResourcesOutputFolderResource) {
     WrapperGeneratorContext context =
-        new WrapperGeneratorContext(TestUtils.getUDFPropertiesFromResource(udfPropertiesFileResource),
+        new WrapperGeneratorContext(TestUtils.getUDFMetadataFromResource(udfMetadataFileResource),
             _sourcesOutputDir, _resourcesOutputDir);
 
     getWrapperGenerator().generateWrappers(context);

@@ -1,66 +1,27 @@
+buildscript {
+  repositories {
+    mavenCentral()
+  }
+  dependencies {
+    classpath('com.linkedin.transport:transportable-udfs-plugin')
+  }
+}
+
 apply plugin: 'java'
+apply plugin: 'com.linkedin.transport.plugin'
 
 dependencies {
-  compile('com.linkedin.transport:transportable-udfs-api')
   // TODO: Reference all external dependencies from a single gradle file
   compile('com.google.guava:guava:24.1-jre')
   compile('org.apache.commons:commons-io:1.3.2')
-  testCompile('com.linkedin.transport:transportable-udfs-test-api')
 }
 
-// ============================================================================
-// transportable-udfs-plugin cannot be applied to this module as the plugin is also
-// built in this project. In projects using the Transportable UDF framework, the
-// following code will be applied by the plugin
-// ============================================================================
-
-dependencies {
-  annotationProcessor('com.linkedin.transport:transportable-udfs-annotation-processor')
-}
+licenseHive.enabled = false
+licensePresto.enabled = false
+licenseSpark.enabled = false
 
 // TODO: Add a debugPlatform flag to allow debugging specific test methods in IntelliJ
 // for a particular platform other than default
-
-configurations {
-  platformTestRuntime { extendsFrom testRuntime }
-  hiveTestRuntime { extendsFrom platformTestRuntime }
-  prestoTestRuntime { extendsFrom platformTestRuntime }
-  sparkTestRuntime { extendsFrom platformTestRuntime }
-}
-
-dependencies {
-  testRuntimeOnly('com.linkedin.transport:transportable-udfs-test-generic')
-  platformTestRuntime sourceSets.main.output, sourceSets.test.output
-  hiveTestRuntime('com.linkedin.transport:transportable-udfs-test-hive')
-  prestoTestRuntime('com.linkedin.transport:transportable-udfs-test-presto')
-  sparkTestRuntime('com.linkedin.transport:transportable-udfs-test-spark')
-}
-
-task hiveTest(type: Test, dependsOn: test) {
-  group 'Verification'
-  description 'Runs the Hive tests.'
-  testClassesDirs = sourceSets.test.output.classesDirs
-  classpath = configurations.hiveTestRuntime
-  useTestNG()
-}
-
-task prestoTest(type: Test, dependsOn: test) {
-  group 'Verification'
-  description 'Runs the Presto tests.'
-  testClassesDirs = sourceSets.test.output.classesDirs
-  classpath = configurations.prestoTestRuntime
-  useTestNG()
-}
-
-task sparkTest(type: Test, dependsOn: test) {
-  group 'Verification'
-  description 'Runs the Spark tests.'
-  testClassesDirs = sourceSets.test.output.classesDirs
-  classpath = configurations.sparkTestRuntime
-  useTestNG()
-}
-
-check.dependsOn(hiveTest, prestoTest, sparkTest)
 
 prestoTest {
   exclude '**/TestArrayFillFunctionFailsOnPresto.class'
