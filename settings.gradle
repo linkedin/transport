@@ -7,11 +7,6 @@ rootProject.name = 'transportable-udfs'
 def modules = [
     'transportable-udfs-api',
     'transportable-udfs-avro',
-    'transportable-udfs-examples:transportable-udfs-example-udfs-avro',
-    'transportable-udfs-examples:transportable-udfs-example-udfs',
-    'transportable-udfs-examples:transportable-udfs-example-udfs-hive',
-    'transportable-udfs-examples:transportable-udfs-example-udfs-presto',
-    'transportable-udfs-examples:transportable-udfs-example-udfs-spark',
     'transportable-udfs-hive',
     'transportable-udfs-presto',
     'transportable-udfs-annotation-processor',

@@ -14,7 +14,6 @@ LinkedIn Java style.
   <module name="TreeWalker">
     <property name="tabWidth" value="2"/>
     <module name="SuppressWarningsHolder"/>
-    <module name="FileContentsHolder"/>
 
     <!-- ANNOTATIONS -->
 
@@ -195,10 +194,8 @@ LinkedIn Java style.
     <property name="file" value="${config_loc}/suppressions.xml"/>
   </module>
   -->
-  <!-- Allow Checkstyle warnings to be suppressed using trailing comments -->
-  <module name="SuppressWithNearbyCommentFilter"/>
   <!-- Allow Checkstyle warnings to be suppressed using block comments -->
-  <module name="SuppressionCommentFilter"/>
+  <module name="SuppressWithPlainTextCommentFilter"/>
   <!-- Allow SuppressWarnings annotation to suppress Checkstyle issues -->
   <module name="SuppressWarningsFilter"/>
 </module>

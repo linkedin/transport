@@ -7,10 +7,8 @@ task fatJar(type: Jar) {
 }
 
 dependencies {
-  compile project(':transportable-udfs-api')
-  compile project(':transportable-udfs-examples:transportable-udfs-example-udfs')
-  compile project(':transportable-udfs-hive')
+  compile project(':transportable-udfs-example-udfs')
+  compile('com.linkedin.transport:transportable-udfs-api')
+  compile('com.linkedin.transport:transportable-udfs-hive')
   compileOnly('org.apache.hive:hive-exec:1.2.2')
-  testCompile project(path: ':transportable-udfs-hive', configuration: 'tests')
-  testCompile('org.apache.hive:hive-exec:1.2.2')
 }
