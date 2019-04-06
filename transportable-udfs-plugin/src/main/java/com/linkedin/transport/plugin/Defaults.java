@@ -10,10 +10,11 @@ import com.linkedin.transport.codegen.HiveWrapperGenerator;
 import com.linkedin.transport.codegen.PrestoWrapperGenerator;
 import com.linkedin.transport.codegen.SparkWrapperGenerator;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
 import java.util.Properties;
 
-import static com.linkedin.transport.plugin.DependencyConfigurationName.*;
+import static com.linkedin.transport.plugin.DependencyConfigurationType.*;
 
 
 /**
@@ -25,13 +26,14 @@ class Defaults {
   }
 
   // The versions of the Transport and supported platforms to apply corresponding versions of the platform dependencies
-  private static final Properties DEFAULT_VERSIONS;
+  private static final Properties DEFAULT_VERSIONS = loadDefaultVersions();
 
-  static {
-    DEFAULT_VERSIONS = new Properties();
-    try {
-      DEFAULT_VERSIONS.load(
-          Thread.currentThread().getContextClassLoader().getResourceAsStream("version-info.properties"));
+  private static Properties loadDefaultVersions () {
+    try(InputStream is =
+        Thread.currentThread().getContextClassLoader().getResourceAsStream("version-info.properties")) {
+      Properties defaultVersions = new Properties();
+      defaultVersions.load(is);
+      return defaultVersions;
     } catch (IOException e) {
       throw new RuntimeException("Error loading version-info.properties", e);
     }
@@ -48,8 +50,8 @@ class Defaults {
       getDependencyConfiguration(RUNTIME_ONLY, "com.linkedin.transport:transportable-udfs-test-generic", "transport")
   );
 
-  static final List<PlatformConfiguration> DEFAULT_PLATFORMS = ImmutableList.of(
-      new PlatformConfiguration(
+  static final List<Platform> DEFAULT_PLATFORMS = ImmutableList.of(
+      new Platform(
           "presto",
           Language.JAVA,
           PrestoWrapperGenerator.class,
@@ -63,7 +65,7 @@ class Defaults {
                   "transport")
           )
       ),
-      new PlatformConfiguration(
+      new Platform(
           "hive",
           Language.JAVA,
           HiveWrapperGenerator.class,
@@ -76,7 +78,7 @@ class Defaults {
                   "transport")
           )
       ),
-      new PlatformConfiguration(
+      new Platform(
           "spark",
           Language.SCALA,
           SparkWrapperGenerator.class,
@@ -92,9 +94,9 @@ class Defaults {
       )
   );
 
-  private static DependencyConfiguration getDependencyConfiguration(DependencyConfigurationName configurationName,
-      String moduleCoordinate, String platform) {
+  private static DependencyConfiguration getDependencyConfiguration(DependencyConfigurationType configurationName,
+      String module, String platform) {
     return new DependencyConfiguration(configurationName,
-        moduleCoordinate + ":" + DEFAULT_VERSIONS.getProperty(platform + "-version"));
+        module + ":" + DEFAULT_VERSIONS.getProperty(platform + "-version"));
   }
 }

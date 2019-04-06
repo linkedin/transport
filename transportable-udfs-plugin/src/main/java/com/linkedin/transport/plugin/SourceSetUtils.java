@@ -40,12 +40,12 @@ class SourceSetUtils {
   }
 
   private static Configuration getConfigurationForSourceSet(Project project, SourceSet sourceSet,
-      DependencyConfigurationName configurationName) {
+      DependencyConfigurationType configurationName) {
     return project.getConfigurations().getByName(getConfigurationNameForSourceSet(sourceSet, configurationName));
   }
 
   private static String getConfigurationNameForSourceSet(SourceSet sourceSet,
-      DependencyConfigurationName configurationName) {
+      DependencyConfigurationType configurationName) {
     final String configName;
     switch (configurationName) {
       case ANNOTATION_PROCESSOR:
@@ -87,7 +87,7 @@ class SourceSetUtils {
    */
   static void addDependencyToSourceSet(Project project, SourceSet sourceSet, DependencyConfiguration dependency) {
     addDependencyToConfiguration(project,
-        SourceSetUtils.getConfigurationForSourceSet(project, sourceSet, dependency.getConfigurationName()),
+        SourceSetUtils.getConfigurationForSourceSet(project, sourceSet, dependency.getConfigurationType()),
         dependency.getDependencyString());
   }
 

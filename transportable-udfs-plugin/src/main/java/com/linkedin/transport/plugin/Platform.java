@@ -12,7 +12,7 @@ import java.util.List;
 /**
  * Represents the information required to configure a given platform inside the {@link TransportPlugin}
  */
-public class PlatformConfiguration {
+public class Platform {
 
   private final String _name;
   private final Language _language;
@@ -20,7 +20,7 @@ public class PlatformConfiguration {
   private final List<DependencyConfiguration> _defaultWrapperDependencies;
   private final List<DependencyConfiguration> _defaultTestDependencies;
 
-  public PlatformConfiguration(String name, Language language, Class<? extends WrapperGenerator> wrapperGeneratorClass,
+  public Platform(String name, Language language, Class<? extends WrapperGenerator> wrapperGeneratorClass,
       List<DependencyConfiguration> defaultWrapperDependencies, List<DependencyConfiguration> defaultTestDependencies) {
     _name = name;
     _language = language;
