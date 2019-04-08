@@ -39,15 +39,15 @@ class SourceSetUtils {
     }
   }
 
-  private static Configuration getConfigurationForSourceSet(Project project, SourceSet sourceSet,
-      DependencyConfigurationType configurationName) {
-    return project.getConfigurations().getByName(getConfigurationNameForSourceSet(sourceSet, configurationName));
+  static Configuration getConfigurationForSourceSet(Project project, SourceSet sourceSet,
+      DependencyConfigurationType configurationType) {
+    return project.getConfigurations().getByName(getConfigurationNameForSourceSet(sourceSet, configurationType));
   }
 
   private static String getConfigurationNameForSourceSet(SourceSet sourceSet,
-      DependencyConfigurationType configurationName) {
+      DependencyConfigurationType configurationType) {
     final String configName;
-    switch (configurationName) {
+    switch (configurationType) {
       case ANNOTATION_PROCESSOR:
         configName = sourceSet.getAnnotationProcessorConfigurationName();
         break;
@@ -61,7 +61,7 @@ class SourceSetUtils {
         configName = sourceSet.getRuntimeOnlyConfigurationName();
         break;
       default:
-        throw new UnsupportedOperationException("Configuration " + configurationName + " not supported");
+        throw new UnsupportedOperationException("Configuration " + configurationType + " not supported");
     }
     return configName;
   }
@@ -71,15 +71,6 @@ class SourceSetUtils {
    */
   static void addDependencyToConfiguration(Project project, Configuration configuration, Object dependency) {
     configuration.withDependencies(dependencySet -> dependencySet.add(project.getDependencies().create(dependency)));
-  }
-
-  /**
-   * Adds the provided dependencies to the given {@link Configuration}
-   */
-  static void addDependenciesToConfiguration(Project project, Configuration configuration,
-      Collection<DependencyConfiguration> dependencies) {
-    dependencies.forEach(
-        dependency -> addDependencyToConfiguration(project, configuration, dependency.getDependencyString()));
   }
 
   /**

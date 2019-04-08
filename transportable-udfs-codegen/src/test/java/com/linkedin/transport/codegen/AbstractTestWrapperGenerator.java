@@ -56,26 +56,18 @@ public abstract class AbstractTestWrapperGenerator {
 
     getWrapperGenerator().generateWrappers(context);
 
-    final Path expectedSourcesOutputPath;
-    final Path expectedResourcesOutputPath;
     try {
-      expectedSourcesOutputPath = Paths.get(
+      Path expectedSourcesOutputPath = Paths.get(
           Thread.currentThread().getContextClassLoader().getResource(expectedSourcesOutputFolderResource).toURI());
+      TestUtils.assertDirectoriesAreEqual(_sourcesOutputDir.toPath(), expectedSourcesOutputPath);
       if (expectedResourcesOutputFolderResource != null) {
-        expectedResourcesOutputPath = Paths.get(
+        Path expectedResourcesOutputPath = Paths.get(
             Thread.currentThread().getContextClassLoader().getResource(expectedResourcesOutputFolderResource).toURI());
-      } else {
-        // No resources directory specified, so compare to an empty dir
-        File tmpEmptyResourcesDir = Files.createTempDir();
-        tmpEmptyResourcesDir.deleteOnExit();
-        expectedResourcesOutputPath = tmpEmptyResourcesDir.toPath();
+        TestUtils.assertDirectoriesAreEqual(_resourcesOutputDir.toPath(), expectedResourcesOutputPath);
       }
     } catch (URISyntaxException e) {
       throw new RuntimeException("Error constructing URI", e);
     }
-
-    TestUtils.assertDirectoriesAreEqual(_sourcesOutputDir.toPath(), expectedSourcesOutputPath);
-    TestUtils.assertDirectoriesAreEqual(_resourcesOutputDir.toPath(), expectedResourcesOutputPath);
   }
 
   abstract WrapperGenerator getWrapperGenerator();

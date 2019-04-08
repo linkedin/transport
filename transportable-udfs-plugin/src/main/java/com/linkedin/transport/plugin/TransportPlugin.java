@@ -21,6 +21,8 @@ import org.gradle.api.tasks.TaskProvider;
 import org.gradle.api.tasks.testing.Test;
 import org.gradle.language.base.plugins.LifecycleBasePlugin;
 
+import static com.linkedin.transport.plugin.DependencyConfigurationType.*;
+
 
 /**
  * A {@link Plugin} to be applied to a Transport UDF module which:
@@ -45,7 +47,7 @@ public class TransportPlugin implements Plugin<Project> {
       SourceSet testSourceSet = javaConvention.getSourceSets().getByName("test");
 
       configureBaseSourceSets(project, mainSourceSet, testSourceSet);
-      Defaults.DEFAULT_PLATFORMS.forEach(config -> configurePlatform(project, config, mainSourceSet, testSourceSet));
+      Defaults.DEFAULT_PLATFORMS.forEach(platform -> configurePlatform(project, platform, mainSourceSet, testSourceSet));
     });
   }
 
@@ -60,8 +62,7 @@ public class TransportPlugin implements Plugin<Project> {
   /**
    * Configures SourceSets, dependencies and tasks related to each Transport UDF platform
    */
-  private void configurePlatform(Project project, Platform platform,
-      SourceSet mainSourceSet, SourceSet testSourceSet) {
+  private void configurePlatform(Project project, Platform platform, SourceSet mainSourceSet, SourceSet testSourceSet) {
     SourceSet sourceSet = configureSourceSet(project, platform, mainSourceSet);
     TaskProvider<GenerateWrappersTask> generateWrappersTask =
         configureGenerateWrappersTask(project, platform, mainSourceSet, sourceSet);
@@ -81,17 +82,15 @@ public class TransportPlugin implements Plugin<Project> {
    * configurations and configures the default dependencies required for compilation and runtime of the wrapper
    * SourceSet
    */
-  private SourceSet configureSourceSet(Project project, Platform platform,
-      SourceSet mainSourceSet) {
+  private SourceSet configureSourceSet(Project project, Platform platform, SourceSet mainSourceSet) {
     JavaPluginConvention javaConvention = project.getConvention().getPlugin(JavaPluginConvention.class);
-    Path platformBaseDir =
-        project.getBuildDir().toPath().resolve(Paths.get("generatedWrappers", platform.getName()));
+    Path platformBaseDir = Paths.get(project.getBuildDir().toString(), "generatedWrappers", platform.getName());
     Path wrapperSourceOutputDir = platformBaseDir.resolve("sources");
     Path wrapperResourceOutputDir = platformBaseDir.resolve("resources");
 
     return javaConvention.getSourceSets().create(platform.getName(), sourceSet -> {
       /*
-        Creates a SourceSet and set the source directories. E.g.
+        Creates a SourceSet and set the source directories for a given platform. E.g. For the Presto platform,
 
         presto {
           java.srcDirs = ["${buildDir}/generatedWrappers/sources"]
@@ -103,20 +102,20 @@ public class TransportPlugin implements Plugin<Project> {
       sourceSet.getResources().setSrcDirs(ImmutableList.of(wrapperResourceOutputDir));
 
       /*
-        Sets up the configuration for the wrapper SourceSet. E.g.
+        Sets up the configuration for the platform's wrapper SourceSet. E.g. For the Presto platform,
 
         configurations {
           prestoImplementation.extendsFrom mainImplementation
           prestoRuntimeOnly.extendsFrom mainRuntimeOnly
         }
        */
-      project.getConfigurations().getByName(sourceSet.getImplementationConfigurationName())
-          .extendsFrom(project.getConfigurations().getByName(mainSourceSet.getImplementationConfigurationName()));
-      project.getConfigurations().getByName(sourceSet.getRuntimeOnlyConfigurationName()).extendsFrom(
-          project.getConfigurations().getByName(mainSourceSet.getRuntimeOnlyConfigurationName()));
+      SourceSetUtils.getConfigurationForSourceSet(project, sourceSet, IMPLEMENTATION)
+          .extendsFrom(SourceSetUtils.getConfigurationForSourceSet(project, mainSourceSet, IMPLEMENTATION));
+      SourceSetUtils.getConfigurationForSourceSet(project, sourceSet, RUNTIME_ONLY)
+          .extendsFrom(SourceSetUtils.getConfigurationForSourceSet(project, mainSourceSet, RUNTIME_ONLY));
 
       /*
-        Adds default dependency config for Presto
+        Adds the default dependencies for the platform. E.g For the Presto platform,
 
         dependencies {
           prestoImplementation sourceSets.main.output
@@ -125,10 +124,8 @@ public class TransportPlugin implements Plugin<Project> {
         }
        */
       SourceSetUtils.addDependencyToConfiguration(project,
-          project.getConfigurations().getByName(sourceSet.getImplementationConfigurationName()),
-          mainSourceSet.getOutput());
-      SourceSetUtils.addDependenciesToSourceSet(project, sourceSet,
-          platform.getDefaultWrapperDependencies());
+          SourceSetUtils.getConfigurationForSourceSet(project, sourceSet, IMPLEMENTATION), mainSourceSet.getOutput());
+      SourceSetUtils.addDependenciesToSourceSet(project, sourceSet, platform.getDefaultWrapperDependencies());
     });
   }
 
@@ -139,7 +136,7 @@ public class TransportPlugin implements Plugin<Project> {
       Platform platform, SourceSet inputSourceSet, SourceSet outputSourceSet) {
 
     /*
-      Example generateWrapper task for Presto
+      Creates a generateWrapper task for a given platform. E.g For the Presto platform,
 
       task generatePrestoWrappers {
         generatorClass = 'com.linkedin.transport.codegen.PrestoWrapperGenerator'
@@ -180,7 +177,7 @@ public class TransportPlugin implements Plugin<Project> {
       SourceSet mainSourceSet, SourceSet testSourceSet) {
 
     /*
-      Configures the classpath configuration to run platform-specific tests. E.g. for Presto,
+      Configures the classpath configuration to run platform-specific tests. E.g. For the Presto platform,
 
       configurations {
         prestoTestClasspath {
@@ -195,16 +192,17 @@ public class TransportPlugin implements Plugin<Project> {
      */
     Configuration testClasspath =
         project.getConfigurations().create(platform.getName() + "TestClasspath", config ->
-            config.extendsFrom(
-                project.getConfigurations().getByName(testSourceSet.getImplementationConfigurationName()))
+            config.extendsFrom(SourceSetUtils.getConfigurationForSourceSet(project, testSourceSet, IMPLEMENTATION))
         );
     SourceSetUtils.addDependencyToConfiguration(project, testClasspath, mainSourceSet.getOutput());
     SourceSetUtils.addDependencyToConfiguration(project, testClasspath, testSourceSet.getOutput());
-    SourceSetUtils.addDependenciesToConfiguration(project, testClasspath,
-        platform.getDefaultTestDependencies());
+    platform.getDefaultTestDependencies().forEach(dependencyConfiguration ->
+        SourceSetUtils.addDependencyToConfiguration(project, testClasspath,
+            dependencyConfiguration.getDependencyString())
+    );
 
     /*
-      Creates the test task for the platform. E.g. For Presto,
+      Creates the test task for a given platform. E.g. For the Presto platform,
 
       task prestoTest(type: Test, dependsOn: test) {
         group 'Verification'

@@ -28,8 +28,8 @@ class Defaults {
   // The versions of the Transport and supported platforms to apply corresponding versions of the platform dependencies
   private static final Properties DEFAULT_VERSIONS = loadDefaultVersions();
 
-  private static Properties loadDefaultVersions () {
-    try(InputStream is =
+  private static Properties loadDefaultVersions() {
+    try (InputStream is =
         Thread.currentThread().getContextClassLoader().getResourceAsStream("version-info.properties")) {
       Properties defaultVersions = new Properties();
       defaultVersions.load(is);
@@ -94,9 +94,9 @@ class Defaults {
       )
   );
 
-  private static DependencyConfiguration getDependencyConfiguration(DependencyConfigurationType configurationName,
+  private static DependencyConfiguration getDependencyConfiguration(DependencyConfigurationType configurationType,
       String module, String platform) {
-    return new DependencyConfiguration(configurationName,
+    return new DependencyConfiguration(configurationType,
         module + ":" + DEFAULT_VERSIONS.getProperty(platform + "-version"));
   }
 }
