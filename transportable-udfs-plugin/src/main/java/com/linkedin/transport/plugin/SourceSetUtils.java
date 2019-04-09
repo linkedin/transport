@@ -75,7 +75,7 @@ class SourceSetUtils {
   /**
    * Adds the provided dependency to the appropriate configurations of the given {@link SourceSet}
    */
-  static void addDependencyToSourceSet(Project project, SourceSet sourceSet,
+  static void addDependencyConfigurationToSourceSet(Project project, SourceSet sourceSet,
       DependencyConfiguration dependencyConfiguration) {
     addDependencyToConfiguration(project,
         SourceSetUtils.getConfigurationForSourceSet(project, sourceSet, dependencyConfiguration.getConfigurationType()),
@@ -85,9 +85,9 @@ class SourceSetUtils {
   /**
    * Adds the provided dependencies to the appropriate configurations of the given {@link SourceSet}
    */
-  static void addDependenciesToSourceSet(Project project, SourceSet sourceSet,
+  static void addDependencyConfigurationsToSourceSet(Project project, SourceSet sourceSet,
       Collection<DependencyConfiguration> dependencyConfigurations) {
     dependencyConfigurations.forEach(
-        dependencyConfiguration -> addDependencyToSourceSet(project, sourceSet, dependencyConfiguration));
+        dependencyConfiguration -> addDependencyConfigurationToSourceSet(project, sourceSet, dependencyConfiguration));
   }
 }

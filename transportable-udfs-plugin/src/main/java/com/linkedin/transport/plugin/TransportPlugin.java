@@ -22,6 +22,7 @@ import org.gradle.api.tasks.testing.Test;
 import org.gradle.language.base.plugins.LifecycleBasePlugin;
 
 import static com.linkedin.transport.plugin.ConfigurationType.*;
+import static com.linkedin.transport.plugin.SourceSetUtils.*;
 
 
 /**
@@ -47,7 +48,8 @@ public class TransportPlugin implements Plugin<Project> {
       SourceSet testSourceSet = javaConvention.getSourceSets().getByName("test");
 
       configureBaseSourceSets(project, mainSourceSet, testSourceSet);
-      Defaults.DEFAULT_PLATFORMS.forEach(platform -> configurePlatform(project, platform, mainSourceSet, testSourceSet));
+      Defaults.DEFAULT_PLATFORMS.forEach(
+          platform -> configurePlatform(project, platform, mainSourceSet, testSourceSet));
     });
   }
 
@@ -55,8 +57,8 @@ public class TransportPlugin implements Plugin<Project> {
    * Configures default dependencies for the main and test source sets
    */
   private void configureBaseSourceSets(Project project, SourceSet mainSourceSet, SourceSet testSourceSet) {
-    SourceSetUtils.addDependenciesToSourceSet(project, mainSourceSet, Defaults.MAIN_SOURCE_SET_DEPENDENCIES);
-    SourceSetUtils.addDependenciesToSourceSet(project, testSourceSet, Defaults.TEST_SOURCE_SET_DEPENDENCIES);
+    addDependencyConfigurationsToSourceSet(project, mainSourceSet, Defaults.MAIN_SOURCE_SET_DEPENDENCY_CONFIGURATIONS);
+    addDependencyConfigurationsToSourceSet(project, testSourceSet, Defaults.TEST_SOURCE_SET_DEPENDENCY_CONFIGURATIONS);
   }
 
   /**
@@ -97,8 +99,7 @@ public class TransportPlugin implements Plugin<Project> {
           resources.srcDirs = ["${buildDir}/generatedWrappers/resources"]
         }
        */
-      SourceSetUtils.getSourceDirectorySet(sourceSet, platform.getLanguage()).setSrcDirs(
-          ImmutableList.of(wrapperSourceOutputDir));
+      getSourceDirectorySet(sourceSet, platform.getLanguage()).setSrcDirs(ImmutableList.of(wrapperSourceOutputDir));
       sourceSet.getResources().setSrcDirs(ImmutableList.of(wrapperResourceOutputDir));
 
       /*
@@ -109,10 +110,10 @@ public class TransportPlugin implements Plugin<Project> {
           prestoRuntimeOnly.extendsFrom mainRuntimeOnly
         }
        */
-      SourceSetUtils.getConfigurationForSourceSet(project, sourceSet, IMPLEMENTATION)
-          .extendsFrom(SourceSetUtils.getConfigurationForSourceSet(project, mainSourceSet, IMPLEMENTATION));
-      SourceSetUtils.getConfigurationForSourceSet(project, sourceSet, RUNTIME_ONLY)
-          .extendsFrom(SourceSetUtils.getConfigurationForSourceSet(project, mainSourceSet, RUNTIME_ONLY));
+      getConfigurationForSourceSet(project, sourceSet, IMPLEMENTATION).extendsFrom(
+          getConfigurationForSourceSet(project, mainSourceSet, IMPLEMENTATION));
+      getConfigurationForSourceSet(project, sourceSet, RUNTIME_ONLY).extendsFrom(
+          getConfigurationForSourceSet(project, mainSourceSet, RUNTIME_ONLY));
 
       /*
         Adds the default dependencies for the platform. E.g For the Presto platform,
@@ -123,17 +124,17 @@ public class TransportPlugin implements Plugin<Project> {
           prestoCompileOnly 'com.facebook.presto:presto-main:$version'
         }
        */
-      SourceSetUtils.addDependencyToConfiguration(project,
-          SourceSetUtils.getConfigurationForSourceSet(project, sourceSet, IMPLEMENTATION), mainSourceSet.getOutput());
-      SourceSetUtils.addDependenciesToSourceSet(project, sourceSet, platform.getDefaultWrapperDependencies());
+      addDependencyToConfiguration(project, getConfigurationForSourceSet(project, sourceSet, IMPLEMENTATION),
+          mainSourceSet.getOutput());
+      addDependencyConfigurationsToSourceSet(project, sourceSet, platform.getDefaultWrapperDependencyConfigurations());
     });
   }
 
   /**
    * Creates and configures a task to generate UDF wrappers for a given platform
    */
-  private TaskProvider<GenerateWrappersTask> configureGenerateWrappersTask(Project project,
-      Platform platform, SourceSet inputSourceSet, SourceSet outputSourceSet) {
+  private TaskProvider<GenerateWrappersTask> configureGenerateWrappersTask(Project project, Platform platform,
+      SourceSet inputSourceSet, SourceSet outputSourceSet) {
 
     /*
       Creates a generateWrapper task for a given platform. E.g For the Presto platform,
@@ -150,21 +151,21 @@ public class TransportPlugin implements Plugin<Project> {
      */
     String taskName = outputSourceSet.getTaskName("generate", "Wrappers");
     File sourcesOutputDir =
-        SourceSetUtils.getSourceDirectorySet(outputSourceSet, platform.getLanguage())
-            .getSrcDirs().iterator().next();
+        getSourceDirectorySet(outputSourceSet, platform.getLanguage()).getSrcDirs().iterator().next();
     File resourcesOutputDir = outputSourceSet.getResources().getSrcDirs().iterator().next();
 
-    TaskProvider<GenerateWrappersTask>
-        generateWrappersTask = project.getTasks().register(taskName, GenerateWrappersTask.class, task -> {
-      task.setDescription("Generates Transport UDF wrappers for " + platform.getName());
-      task.getGeneratorClass().set(platform.getWrapperGeneratorClass().getName());
-      task.getInputClassesDirs().set(inputSourceSet.getOutput().getClassesDirs());
-      task.getSourcesOutputDir().set(sourcesOutputDir);
-      task.getResourcesOutputDir().set(resourcesOutputDir);
-      task.dependsOn(project.getTasks().named(inputSourceSet.getClassesTaskName()));
-    });
+    TaskProvider<GenerateWrappersTask> generateWrappersTask =
+        project.getTasks().register(taskName, GenerateWrappersTask.class, task -> {
+          task.setDescription("Generates Transport UDF wrappers for " + platform.getName());
+          task.getGeneratorClass().set(platform.getWrapperGeneratorClass().getName());
+          task.getInputClassesDirs().set(inputSourceSet.getOutput().getClassesDirs());
+          task.getSourcesOutputDir().set(sourcesOutputDir);
+          task.getResourcesOutputDir().set(resourcesOutputDir);
+          task.dependsOn(project.getTasks().named(inputSourceSet.getClassesTaskName()));
+        });
 
-    project.getTasks().named(outputSourceSet.getCompileTaskName(platform.getLanguage().toString()))
+    project.getTasks()
+        .named(outputSourceSet.getCompileTaskName(platform.getLanguage().toString()))
         .configure(task -> task.dependsOn(generateWrappersTask));
 
     return generateWrappersTask;
@@ -173,8 +174,8 @@ public class TransportPlugin implements Plugin<Project> {
   /**
    * Creates and configures a task to run tests written using the Unified Testing Framework against a given platform
    */
-  private TaskProvider<Test> configureTestTask(Project project, Platform platform,
-      SourceSet mainSourceSet, SourceSet testSourceSet) {
+  private TaskProvider<Test> configureTestTask(Project project, Platform platform, SourceSet mainSourceSet,
+      SourceSet testSourceSet) {
 
     /*
       Configures the classpath configuration to run platform-specific tests. E.g. For the Presto platform,
@@ -190,16 +191,14 @@ public class TransportPlugin implements Plugin<Project> {
         prestoTestClasspath 'com.linkedin.transport:transportable-udfs-test-presto'
       }
      */
-    Configuration testClasspath =
-        project.getConfigurations().create(platform.getName() + "TestClasspath", config ->
-            config.extendsFrom(SourceSetUtils.getConfigurationForSourceSet(project, testSourceSet, IMPLEMENTATION))
-        );
-    SourceSetUtils.addDependencyToConfiguration(project, testClasspath, mainSourceSet.getOutput());
-    SourceSetUtils.addDependencyToConfiguration(project, testClasspath, testSourceSet.getOutput());
-    platform.getDefaultTestDependencies().forEach(dependencyConfiguration ->
-        SourceSetUtils.addDependencyToConfiguration(project, testClasspath,
-            dependencyConfiguration.getDependencyString())
-    );
+    Configuration testClasspath = project.getConfigurations()
+        .create(platform.getName() + "TestClasspath",
+            config -> config.extendsFrom(getConfigurationForSourceSet(project, testSourceSet, IMPLEMENTATION)));
+    addDependencyToConfiguration(project, testClasspath, mainSourceSet.getOutput());
+    addDependencyToConfiguration(project, testClasspath, testSourceSet.getOutput());
+    platform.getDefaultTestDependencyConfigurations()
+        .forEach(dependencyConfiguration -> addDependencyToConfiguration(project, testClasspath,
+            dependencyConfiguration.getDependencyString()));
 
     /*
       Creates the test task for a given platform. E.g. For the Presto platform,

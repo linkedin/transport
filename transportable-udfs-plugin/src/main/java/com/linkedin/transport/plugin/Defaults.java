@@ -39,13 +39,13 @@ class Defaults {
     }
   }
 
-  static final List<DependencyConfiguration> MAIN_SOURCE_SET_DEPENDENCIES = ImmutableList.of(
+  static final List<DependencyConfiguration> MAIN_SOURCE_SET_DEPENDENCY_CONFIGURATIONS = ImmutableList.of(
       getDependencyConfiguration(IMPLEMENTATION, "com.linkedin.transport:transportable-udfs-api", "transport"),
       getDependencyConfiguration(ANNOTATION_PROCESSOR, "com.linkedin.transport:transportable-udfs-annotation-processor",
           "transport")
   );
 
-  static final List<DependencyConfiguration> TEST_SOURCE_SET_DEPENDENCIES = ImmutableList.of(
+  static final List<DependencyConfiguration> TEST_SOURCE_SET_DEPENDENCY_CONFIGURATIONS = ImmutableList.of(
       getDependencyConfiguration(IMPLEMENTATION, "com.linkedin.transport:transportable-udfs-test-api", "transport"),
       getDependencyConfiguration(RUNTIME_ONLY, "com.linkedin.transport:transportable-udfs-test-generic", "transport")
   );

@@ -17,16 +17,17 @@ public class Platform {
   private final String _name;
   private final Language _language;
   private final Class<? extends WrapperGenerator> _wrapperGeneratorClass;
-  private final List<DependencyConfiguration> _defaultWrapperDependencies;
-  private final List<DependencyConfiguration> _defaultTestDependencies;
+  private final List<DependencyConfiguration> _defaultWrapperDependencyConfigurations;
+  private final List<DependencyConfiguration> _defaultTestDependencyConfigurations;
 
   public Platform(String name, Language language, Class<? extends WrapperGenerator> wrapperGeneratorClass,
-      List<DependencyConfiguration> defaultWrapperDependencies, List<DependencyConfiguration> defaultTestDependencies) {
+      List<DependencyConfiguration> defaultWrapperDependencyConfigurations,
+      List<DependencyConfiguration> defaultTestDependencyConfigurations) {
     _name = name;
     _language = language;
     _wrapperGeneratorClass = wrapperGeneratorClass;
-    _defaultWrapperDependencies = defaultWrapperDependencies;
-    _defaultTestDependencies = defaultTestDependencies;
+    _defaultWrapperDependencyConfigurations = defaultWrapperDependencyConfigurations;
+    _defaultTestDependencyConfigurations = defaultTestDependencyConfigurations;
   }
 
   public String getName() {
@@ -41,11 +42,11 @@ public class Platform {
     return _wrapperGeneratorClass;
   }
 
-  public List<DependencyConfiguration> getDefaultWrapperDependencies() {
-    return _defaultWrapperDependencies;
+  public List<DependencyConfiguration> getDefaultWrapperDependencyConfigurations() {
+    return _defaultWrapperDependencyConfigurations;
   }
 
-  public List<DependencyConfiguration> getDefaultTestDependencies() {
-    return _defaultTestDependencies;
+  public List<DependencyConfiguration> getDefaultTestDependencyConfigurations() {
+    return _defaultTestDependencyConfigurations;
   }
 }

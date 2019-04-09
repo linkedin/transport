@@ -6,7 +6,7 @@
 package com.linkedin.transport.plugin;
 
 /**
- * Represents a dependency to be applied to a certain dependency configuration (e.g. implementation, compileOnly, etc.)
+ * Represents a dependency to be applied to a certain sourceset configuration (e.g. implementation, compileOnly, etc.)
  * In the future can expand to incorporate exclude rules, dependency substitutions, etc.
  */
 public class DependencyConfiguration {
