@@ -11,6 +11,7 @@ def modules = [
     'transportable-udfs-codegen',
     'transportable-udfs-compile-utils',
     'transportable-udfs-hive',
+    'transportable-udfs-plugin',
     'transportable-udfs-presto',
     'transportable-udfs-spark',
     'transportable-udfs-test:transportable-udfs-test-api',

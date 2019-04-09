@@ -9,7 +9,7 @@ import com.linkedin.transport.api.udf.TopLevelStdUDF;
 
 
 public class Constants {
-  public static final String UDF_RESOURCE_FILE_PATH = "META-INF/transport-udfs/udf-properties.json";
+  public static final String UDF_RESOURCE_FILE_PATH = "META-INF/transport-udfs/metadata.json";
 
   public static final String INTERFACE_NOT_IMPLEMENTED_ERROR =
       String.format(

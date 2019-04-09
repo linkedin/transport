@@ -17,6 +17,6 @@ public class TestHiveWrapperGenerator extends AbstractTestWrapperGenerator {
 
   @Test
   public void testHiveWrapperGenerator() {
-    testWrapperGenerator("inputs/sample-udf-properties.json", "outputs/sample-udf-properties/hive/sources");
+    testWrapperGenerator("inputs/sample-udf-metadata.json", "outputs/sample-udf-metadata/hive/sources");
   }
 }

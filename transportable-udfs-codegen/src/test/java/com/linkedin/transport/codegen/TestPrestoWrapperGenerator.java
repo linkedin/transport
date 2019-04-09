@@ -17,7 +17,7 @@ public class TestPrestoWrapperGenerator extends AbstractTestWrapperGenerator {
 
   @Test
   public void testPrestoWrapperGenerator() {
-    testWrapperGenerator("inputs/sample-udf-properties.json", "outputs/sample-udf-properties/presto/sources",
-        "outputs/sample-udf-properties/presto/resources");
+    testWrapperGenerator("inputs/sample-udf-metadata.json", "outputs/sample-udf-metadata/presto/sources",
+        "outputs/sample-udf-metadata/presto/resources");
   }
 }

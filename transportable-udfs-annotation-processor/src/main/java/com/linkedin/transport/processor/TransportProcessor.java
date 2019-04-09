@@ -91,7 +91,7 @@ public class TransportProcessor extends AbstractProcessor {
 
   private void processImpl(RoundEnvironment roundEnv) {
     if (roundEnv.processingOver()) {
-      generateUDFPropertiesFile();
+      generateUDFMetadataFile();
     } else {
       processElements(roundEnv.getRootElements());
     }
@@ -178,18 +178,18 @@ public class TransportProcessor extends AbstractProcessor {
   }
 
   /**
-   * Generates the UDF properties resource file in a pretty-printed JSON format
+   * Generates the UDF metadata resource file in a pretty-printed JSON format
    */
-  private void generateUDFPropertiesFile() {
+  private void generateUDFMetadataFile() {
     Filer filer = processingEnv.getFiler();
     try {
       FileObject fileObject = filer.createResource(StandardLocation.CLASS_OUTPUT, "", Constants.UDF_RESOURCE_FILE_PATH);
       try (Writer writer = fileObject.openWriter()) {
         _transportUdfMetadata.toJson(writer);
       }
-      debug("Wrote Transport UDF properties file to: " + fileObject.toUri());
+      debug("Wrote Transport UDF metadata file to: " + fileObject.toUri());
     } catch (IOException e) {
-      fatalError(String.format("Unable to create UDF properties resource file: %s", e));
+      fatalError(String.format("Unable to create UDF metadata resource file: %s", e));
     }
   }
 

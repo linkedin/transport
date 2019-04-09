@@ -17,6 +17,6 @@ public class TestSparkWrapperGenerator extends AbstractTestWrapperGenerator {
 
   @Test
   public void testSparkWrapperGenerator() {
-    testWrapperGenerator("inputs/sample-udf-properties.json", "outputs/sample-udf-properties/spark/sources");
+    testWrapperGenerator("inputs/sample-udf-metadata.json", "outputs/sample-udf-metadata/spark/sources");
   }
 }
