@@ -14,7 +14,7 @@ import java.io.InputStream;
 import java.util.List;
 import java.util.Properties;
 
-import static com.linkedin.transport.plugin.DependencyConfigurationType.*;
+import static com.linkedin.transport.plugin.ConfigurationType.*;
 
 
 /**
@@ -94,7 +94,7 @@ class Defaults {
       )
   );
 
-  private static DependencyConfiguration getDependencyConfiguration(DependencyConfigurationType configurationType,
+  private static DependencyConfiguration getDependencyConfiguration(ConfigurationType configurationType,
       String module, String platform) {
     return new DependencyConfiguration(configurationType,
         module + ":" + DEFAULT_VERSIONS.getProperty(platform + "-version"));

@@ -40,12 +40,11 @@ class SourceSetUtils {
   }
 
   static Configuration getConfigurationForSourceSet(Project project, SourceSet sourceSet,
-      DependencyConfigurationType configurationType) {
+      ConfigurationType configurationType) {
     return project.getConfigurations().getByName(getConfigurationNameForSourceSet(sourceSet, configurationType));
   }
 
-  private static String getConfigurationNameForSourceSet(SourceSet sourceSet,
-      DependencyConfigurationType configurationType) {
+  private static String getConfigurationNameForSourceSet(SourceSet sourceSet, ConfigurationType configurationType) {
     final String configName;
     switch (configurationType) {
       case ANNOTATION_PROCESSOR:
@@ -76,17 +75,19 @@ class SourceSetUtils {
   /**
    * Adds the provided dependency to the appropriate configurations of the given {@link SourceSet}
    */
-  static void addDependencyToSourceSet(Project project, SourceSet sourceSet, DependencyConfiguration dependency) {
+  static void addDependencyToSourceSet(Project project, SourceSet sourceSet,
+      DependencyConfiguration dependencyConfiguration) {
     addDependencyToConfiguration(project,
-        SourceSetUtils.getConfigurationForSourceSet(project, sourceSet, dependency.getConfigurationType()),
-        dependency.getDependencyString());
+        SourceSetUtils.getConfigurationForSourceSet(project, sourceSet, dependencyConfiguration.getConfigurationType()),
+        dependencyConfiguration.getDependencyString());
   }
 
   /**
    * Adds the provided dependencies to the appropriate configurations of the given {@link SourceSet}
    */
   static void addDependenciesToSourceSet(Project project, SourceSet sourceSet,
-      Collection<DependencyConfiguration> dependencies) {
-    dependencies.forEach(dependency -> addDependencyToSourceSet(project, sourceSet, dependency));
+      Collection<DependencyConfiguration> dependencyConfigurations) {
+    dependencyConfigurations.forEach(
+        dependencyConfiguration -> addDependencyToSourceSet(project, sourceSet, dependencyConfiguration));
   }
 }

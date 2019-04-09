@@ -5,7 +5,7 @@
  */
 package com.linkedin.transport.plugin;
 
-public enum DependencyConfigurationType {
+public enum ConfigurationType {
   ANNOTATION_PROCESSOR,
   COMPILE_ONLY,
   IMPLEMENTATION,

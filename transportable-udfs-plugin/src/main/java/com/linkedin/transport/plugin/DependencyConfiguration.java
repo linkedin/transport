@@ -10,15 +10,15 @@ package com.linkedin.transport.plugin;
  * In the future can expand to incorporate exclude rules, dependency substitutions, etc.
  */
 public class DependencyConfiguration {
-  private DependencyConfigurationType _configurationType;
+  private ConfigurationType _configurationType;
   private String _dependencyString;
 
-  public DependencyConfiguration(DependencyConfigurationType configurationType, String dependencyString) {
+  public DependencyConfiguration(ConfigurationType configurationType, String dependencyString) {
     _configurationType = configurationType;
     _dependencyString = dependencyString;
   }
 
-  public DependencyConfigurationType getConfigurationType() {
+  public ConfigurationType getConfigurationType() {
     return _configurationType;
   }
 

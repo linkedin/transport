@@ -21,7 +21,7 @@ import org.gradle.api.tasks.TaskProvider;
 import org.gradle.api.tasks.testing.Test;
 import org.gradle.language.base.plugins.LifecycleBasePlugin;
 
-import static com.linkedin.transport.plugin.DependencyConfigurationType.*;
+import static com.linkedin.transport.plugin.ConfigurationType.*;
 
 
 /**
