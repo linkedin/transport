@@ -17,6 +17,7 @@ dependencies {
   compile project(':transportable-udfs-codegen')
   compile ('com.google.guava:guava:24.1-jre')
   compile ('com.google.code.gson:gson:2.8.5')
+  compile ('com.github.jengelman.gradle.plugins:shadow:5.0.0')
   testCompile('org.spockframework:spock-core:1.1-groovy-2.4') {
     exclude group: 'org.codehaus.groovy'
   }

@@ -6,6 +6,7 @@
 package com.linkedin.transport.plugin;
 
 import com.linkedin.transport.codegen.WrapperGenerator;
+import com.linkedin.transport.plugin.packaging.Packaging;
 import java.util.List;
 
 
@@ -19,15 +20,17 @@ public class Platform {
   private final Class<? extends WrapperGenerator> _wrapperGeneratorClass;
   private final List<DependencyConfiguration> _defaultWrapperDependencyConfigurations;
   private final List<DependencyConfiguration> _defaultTestDependencyConfigurations;
+  private final Packaging _packaging;
 
   public Platform(String name, Language language, Class<? extends WrapperGenerator> wrapperGeneratorClass,
       List<DependencyConfiguration> defaultWrapperDependencyConfigurations,
-      List<DependencyConfiguration> defaultTestDependencyConfigurations) {
+      List<DependencyConfiguration> defaultTestDependencyConfigurations, Packaging packaging) {
     _name = name;
     _language = language;
     _wrapperGeneratorClass = wrapperGeneratorClass;
     _defaultWrapperDependencyConfigurations = defaultWrapperDependencyConfigurations;
     _defaultTestDependencyConfigurations = defaultTestDependencyConfigurations;
+    _packaging = packaging;
   }
 
   public String getName() {
@@ -48,5 +51,9 @@ public class Platform {
 
   public List<DependencyConfiguration> getDefaultTestDependencyConfigurations() {
     return _defaultTestDependencyConfigurations;
+  }
+
+  public Packaging getPackaging() {
+    return _packaging;
   }
 }

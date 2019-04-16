@@ -18,7 +18,7 @@ import org.gradle.api.tasks.SourceSet;
 /**
  * Utility class to help manipulate a {@link SourceSet}
  */
-class SourceSetUtils {
+public class SourceSetUtils {
 
   private SourceSetUtils() {
   }
@@ -39,7 +39,10 @@ class SourceSetUtils {
     }
   }
 
-  static Configuration getConfigurationForSourceSet(Project project, SourceSet sourceSet,
+  /**
+   * Returns the {@link Configuration} of a given {@link ConfigurationType} for the provided {@link SourceSet}
+   */
+  public static Configuration getConfigurationForSourceSet(Project project, SourceSet sourceSet,
       ConfigurationType configurationType) {
     return project.getConfigurations().getByName(getConfigurationNameForSourceSet(sourceSet, configurationType));
   }
@@ -55,6 +58,9 @@ class SourceSetUtils {
         break;
       case COMPILE_ONLY:
         configName = sourceSet.getCompileOnlyConfigurationName();
+        break;
+      case RUNTIME_CLASSPATH:
+        configName = sourceSet.getRuntimeClasspathConfigurationName();
         break;
       case RUNTIME_ONLY:
         configName = sourceSet.getRuntimeOnlyConfigurationName();
