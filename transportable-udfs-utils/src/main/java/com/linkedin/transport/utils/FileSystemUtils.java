@@ -1,5 +1,5 @@
 /**
- * Copyright 2018 LinkedIn Corporation. All rights reserved.
+ * Copyright 2019 LinkedIn Corporation. All rights reserved.
  * Licensed under the BSD-2 Clause license.
  * See LICENSE in the project root for license information.
  */
@@ -86,6 +86,11 @@ public class FileSystemUtils {
    * utility method gets the most recent version of the file by replacing the pattern "#LATEST" in the given path
    * with the most recent directory. If the input path does not contain the keyword "#LATEST" then it simply returns
    * the same path.
+   *
+   * @param path the to-resolve path
+   * @param fs the filesystem used for the path
+   * @return the resolved path
+   * @throws IOException when fs could not resolve the path
    */
   public static String resolveLatest(String path, FileSystem fs) throws IOException {
     if (!StringUtils.isBlank(path)) {
@@ -97,8 +102,9 @@ public class FileSystemUtils {
         retval = resolveLatestHelper(retval, fs) + split[i];
       }
 
+      //if the path ends with #LATEST, get the latest candidate regardless of file or directory
       if (path.endsWith("#LATEST")) {
-        retval = resolveLatestHelper(retval, fs);
+        retval = resolveLatestHelper(retval, fs, true);
       }
 
       return retval;
@@ -108,6 +114,10 @@ public class FileSystemUtils {
   }
 
   private static String resolveLatestHelper(String path, FileSystem fs) throws IOException {
+    return resolveLatestHelper(path, fs, false);
+  }
+
+  private static String resolveLatestHelper(String path, FileSystem fs, boolean allowFile) throws IOException {
     if (!StringUtils.isBlank(path)) {
       path = path.trim();
       if (path.endsWith("/")) {
@@ -115,11 +125,15 @@ public class FileSystemUtils {
       }
 
       FileStatus[] filesAndDirectories = fs.listStatus(new Path(path));
-      List<FileStatus> directories =
-          Arrays.stream(filesAndDirectories).filter(s -> s.isDirectory()).collect(Collectors.toList());
-      Collections.sort(directories);
-      if (directories != null && directories.size() != 0) {
-        String retval = path + "/" + directories.get(directories.size() - 1).getPath().getName();
+      List<FileStatus> candidates;
+      if (!allowFile) {
+        candidates = Arrays.stream(filesAndDirectories).filter(s -> s.isDirectory()).collect(Collectors.toList());
+      } else {
+        candidates = Arrays.stream(filesAndDirectories).collect(Collectors.toList());
+      }
+      Collections.sort(candidates);
+      if (candidates != null && candidates.size() != 0) {
+        String retval = path + "/" + candidates.get(candidates.size() - 1).getPath().getName();
         return retval;
       } else {
         throw new IOException("The path to resolve does not exist: [" + path + "]");
