@@ -99,7 +99,7 @@ public class FileSystemUtils {
       String retval = split[0];
 
       for (int i = 1; i < split.length; ++i) {
-        retval = resolveLatestHelper(retval, fs) + split[i];
+        retval = resolveLatestHelper(retval, fs, false) + split[i];
       }
 
       //if the path ends with #LATEST, get the latest candidate regardless of file or directory
@@ -111,10 +111,6 @@ public class FileSystemUtils {
     } else {
       throw new IllegalArgumentException("The path to resolve is an empty string.");
     }
-  }
-
-  private static String resolveLatestHelper(String path, FileSystem fs) throws IOException {
-    return resolveLatestHelper(path, fs, false);
   }
 
   private static String resolveLatestHelper(String path, FileSystem fs, boolean allowFile) throws IOException {
