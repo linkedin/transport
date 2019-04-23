@@ -87,10 +87,10 @@ public class FileSystemUtils {
    * with the most recent directory. If the input path does not contain the keyword "#LATEST" then it simply returns
    * the same path.
    *
-   * @param path the to-resolve path
-   * @param fs the filesystem used for the path
+   * @param path the path to resolve
+   * @param fs the filesystem used to resolve the path
    * @return the resolved path
-   * @throws IOException when fs could not resolve the path
+   * @throws IOException when the filesystem could not resolve the path
    */
   public static String resolveLatest(String path, FileSystem fs) throws IOException {
     if (!StringUtils.isBlank(path)) {
@@ -99,12 +99,12 @@ public class FileSystemUtils {
       String retval = split[0];
 
       for (int i = 1; i < split.length; ++i) {
-        retval = resolveLatestHelper(retval, fs, false) + split[i];
+        retval = resolveLatestHelper(retval, fs, true) + split[i];
       }
 
       //if the path ends with #LATEST, get the latest candidate regardless of file or directory
       if (path.endsWith("#LATEST")) {
-        retval = resolveLatestHelper(retval, fs, true);
+        retval = resolveLatestHelper(retval, fs, false);
       }
 
       return retval;
@@ -113,7 +113,7 @@ public class FileSystemUtils {
     }
   }
 
-  private static String resolveLatestHelper(String path, FileSystem fs, boolean allowFile) throws IOException {
+  private static String resolveLatestHelper(String path, FileSystem fs, boolean excludeFiles) throws IOException {
     if (!StringUtils.isBlank(path)) {
       path = path.trim();
       if (path.endsWith("/")) {
@@ -121,13 +121,8 @@ public class FileSystemUtils {
       }
 
       FileStatus[] filesAndDirectories = fs.listStatus(new Path(path));
-      List<FileStatus> candidates;
-      if (!allowFile) {
-        candidates = Arrays.stream(filesAndDirectories).filter(s -> s.isDirectory()).collect(Collectors.toList());
-      } else {
-        candidates = Arrays.stream(filesAndDirectories).collect(Collectors.toList());
-      }
-      Collections.sort(candidates);
+      List<FileStatus> candidates = Arrays.stream(filesAndDirectories).filter(s -> !excludeFiles || s.isDirectory())
+          .sorted().collect(Collectors.toList());
       if (candidates != null && candidates.size() != 0) {
         String retval = path + "/" + candidates.get(candidates.size() - 1).getPath().getName();
         return retval;
