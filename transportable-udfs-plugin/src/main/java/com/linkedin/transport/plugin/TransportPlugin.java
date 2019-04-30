@@ -5,14 +5,19 @@
  */
 package com.linkedin.transport.plugin;
 
+import com.github.jengelman.gradle.plugins.shadow.ShadowBasePlugin;
 import com.google.common.collect.ImmutableList;
 import com.linkedin.transport.plugin.tasks.GenerateWrappersTask;
 import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
+import org.gradle.api.Task;
 import org.gradle.api.artifacts.Configuration;
+import org.gradle.api.distribution.DistributionContainer;
+import org.gradle.api.distribution.plugins.DistributionPlugin;
 import org.gradle.api.plugins.JavaPlugin;
 import org.gradle.api.plugins.JavaPluginConvention;
 import org.gradle.api.plugins.scala.ScalaPlugin;
@@ -33,7 +38,7 @@ import static com.linkedin.transport.plugin.SourceSetUtils.*;
  *   <li>Creates a SourceSet for UDF wrapper generation</li>
  *   <li>Configures default dependencies for the platform wrappers</li>
  *   <li>Configures wrapper code generation tasks</li>
- *   <li>TODO: Configures tasks to package wrappers with appropriate shading rules</li>
+ *   <li>Configures tasks to package wrappers with appropriate shading rules</li>
  *   <li>Configures tasks to run UDF tests for the platform using the Unified Testing Framework</li>
  * </ol>
  */
@@ -42,6 +47,8 @@ public class TransportPlugin implements Plugin<Project> {
   public void apply(Project project) {
     project.getPlugins().withType(JavaPlugin.class, (javaPlugin) -> {
       project.getPlugins().apply(ScalaPlugin.class);
+      project.getPlugins().apply(DistributionPlugin.class);
+      project.getConfigurations().create(ShadowBasePlugin.getCONFIGURATION_NAME());
 
       JavaPluginConvention javaConvention = project.getConvention().getPlugin(JavaPluginConvention.class);
       SourceSet mainSourceSet = javaConvention.getSourceSets().getByName("main");
@@ -59,6 +66,12 @@ public class TransportPlugin implements Plugin<Project> {
   private void configureBaseSourceSets(Project project, SourceSet mainSourceSet, SourceSet testSourceSet) {
     addDependencyConfigurationsToSourceSet(project, mainSourceSet, Defaults.MAIN_SOURCE_SET_DEPENDENCY_CONFIGURATIONS);
     addDependencyConfigurationsToSourceSet(project, testSourceSet, Defaults.TEST_SOURCE_SET_DEPENDENCY_CONFIGURATIONS);
+
+    // Configure the default distribution task configured by the distribution plugin, else build fails
+    DistributionContainer distributions = project.getExtensions().getByType(DistributionContainer.class);
+    distributions.getByName(DistributionPlugin.MAIN_DISTRIBUTION_NAME)
+        .getContents()
+        .from(project.getTasks().named(mainSourceSet.getJarTaskName()));
   }
 
   /**
@@ -66,14 +79,11 @@ public class TransportPlugin implements Plugin<Project> {
    */
   private void configurePlatform(Project project, Platform platform, SourceSet mainSourceSet, SourceSet testSourceSet) {
     SourceSet sourceSet = configureSourceSet(project, platform, mainSourceSet);
-    TaskProvider<GenerateWrappersTask> generateWrappersTask =
-        configureGenerateWrappersTask(project, platform, mainSourceSet, sourceSet);
-    // TODO: shade and package into Jar
+    configureGenerateWrappersTask(project, platform, mainSourceSet, sourceSet);
+    List<TaskProvider<? extends Task>> packagingTasks =
+        configurePackagingTasks(project, platform, sourceSet, mainSourceSet);
     // Add Transport tasks to build task dependencies
-    project.getTasks().named(LifecycleBasePlugin.BUILD_TASK_NAME).configure(task -> {
-      // TODO: Replace this task with the shaded jar tasks once we create them
-      task.dependsOn(sourceSet.getClassesTaskName());
-    });
+    project.getTasks().named(LifecycleBasePlugin.BUILD_TASK_NAME).configure(task -> task.dependsOn(packagingTasks));
 
     TaskProvider<Test> testTask = configureTestTask(project, platform, mainSourceSet, testSourceSet);
     project.getTasks().named(LifecycleBasePlugin.CHECK_TASK_NAME).configure(task -> task.dependsOn(testTask));
@@ -119,13 +129,13 @@ public class TransportPlugin implements Plugin<Project> {
         Adds the default dependencies for the platform. E.g For the Presto platform,
 
         dependencies {
-          prestoImplementation sourceSets.main.output
+          prestoImplementation project.files(project.tasks.jar)
           prestoImplementation 'com.linkedin.transport:transportable-udfs-presto:$version'
           prestoCompileOnly 'com.facebook.presto:presto-main:$version'
         }
        */
       addDependencyToConfiguration(project, getConfigurationForSourceSet(project, sourceSet, IMPLEMENTATION),
-          mainSourceSet.getOutput());
+          project.files(project.getTasks().named(mainSourceSet.getJarTaskName())));
       addDependencyConfigurationsToSourceSet(project, sourceSet, platform.getDefaultWrapperDependencyConfigurations());
     });
   }
@@ -169,6 +179,14 @@ public class TransportPlugin implements Plugin<Project> {
         .configure(task -> task.dependsOn(generateWrappersTask));
 
     return generateWrappersTask;
+  }
+
+  /**
+   * Creates and configures packaging tasks for a given platform which generate publishable/distributable artifacts
+   */
+  private List<TaskProvider<? extends Task>> configurePackagingTasks(Project project, Platform platform,
+      SourceSet sourceSet, SourceSet mainSourceSet) {
+    return platform.getPackaging().configurePackagingTasks(project, platform, sourceSet, mainSourceSet);
   }
 
   /**

@@ -9,6 +9,8 @@ import com.google.common.collect.ImmutableList;
 import com.linkedin.transport.codegen.HiveWrapperGenerator;
 import com.linkedin.transport.codegen.PrestoWrapperGenerator;
 import com.linkedin.transport.codegen.SparkWrapperGenerator;
+import com.linkedin.transport.plugin.packaging.DistributionPackaging;
+import com.linkedin.transport.plugin.packaging.ShadedJarPackaging;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
@@ -63,8 +65,8 @@ class Defaults {
           ImmutableList.of(
               getDependencyConfiguration(RUNTIME_ONLY, "com.linkedin.transport:transportable-udfs-test-presto",
                   "transport")
-          )
-      ),
+          ),
+          new DistributionPackaging()),
       new Platform(
           "hive",
           Language.JAVA,
@@ -76,8 +78,8 @@ class Defaults {
           ImmutableList.of(
               getDependencyConfiguration(RUNTIME_ONLY, "com.linkedin.transport:transportable-udfs-test-hive",
                   "transport")
-          )
-      ),
+          ),
+          new ShadedJarPackaging(ImmutableList.of("org.apache.hadoop", "org.apache.hive"), null)),
       new Platform(
           "spark",
           Language.SCALA,
@@ -90,7 +92,10 @@ class Defaults {
           ImmutableList.of(
               getDependencyConfiguration(RUNTIME_ONLY, "com.linkedin.transport:transportable-udfs-test-spark",
                   "transport")
-          )
+          ),
+          new ShadedJarPackaging(
+              ImmutableList.of("org.apache.hadoop", "org.apache.spark"),
+              ImmutableList.of("com.linkedin.transport.spark.StdUDFRegistration"))
       )
   );
 

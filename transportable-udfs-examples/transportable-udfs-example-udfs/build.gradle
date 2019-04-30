@@ -1,7 +1,4 @@
 buildscript {
-  repositories {
-    mavenCentral()
-  }
   dependencies {
     classpath('com.linkedin.transport:transportable-udfs-plugin')
   }
