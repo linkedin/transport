@@ -25,7 +25,6 @@ import static com.linkedin.transport.plugin.SourceSetUtils.*;
 /**
  * A {@link Packaging} class which generates Shaded JARs containing all runtime dependencies using the
  * {@link ShadeTask}
- * TODO: Move to using the Shade Plugin once it is open-sourced
  */
 public class ShadedJarPackaging implements Packaging {
 

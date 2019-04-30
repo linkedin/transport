@@ -15,15 +15,15 @@ import org.gradle.api.tasks.TaskProvider;
 
 /**
  * Creates and configures packaging tasks for a given platform which generate publishable/distributable artifacts.
- * Usually this involves identify all dependencies to be included in the artifact, configuring tasks to generate these
- * artifacts and registering the artifact as an outgoing artifact of the project.
+ * Usually this involves identifying all dependencies to be included in the artifact, configuring tasks to generate
+ * these artifacts and registering the artifact as an outgoing artifact of the project.
  */
 public interface Packaging {
 
   /**
    * Creates and configures packaging tasks for a given platform which generate publishable/distributable artifacts.
-   * Usually this involves identify all dependencies to be included in the artifact, configuring tasks to generate these
-   * artifacts and registering the artifact as an outgoing artifact of the project.
+   * Usually this involves identifying all dependencies to be included in the artifact, configuring tasks to generate
+   * these artifacts and registering the artifact as an outgoing artifact of the project.
    *
    * @param project The Gradle {@link Project} for which the task will be created
    * @param platform The {@link Platform} for which the artifacts are being generated

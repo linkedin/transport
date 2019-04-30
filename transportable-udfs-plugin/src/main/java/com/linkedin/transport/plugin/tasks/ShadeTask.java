@@ -29,9 +29,8 @@ import org.gradle.api.tasks.TaskAction;
 
 
 /**
- * This code is borrowed from the Shade plugin which has not been open-sourced yet. Once the plugin is open-sourced, we
- * can remove this task and depend directly on the Shade plugin. One difference is that this task does not shade source
- * classes by default. We should add a flag in the open-source Shade plugin to allow such a behaviour.
+ * A {@link org.gradle.api.Task} which extends {@link ShadowJar} functionality by providing helper methods to exclude
+ * class from being shaded and exclude dependencies altogether from the output Jar
  */
 public class ShadeTask extends ShadowJar {
   private static Logger LOG = Logging.getLogger(ShadeTask.class);
