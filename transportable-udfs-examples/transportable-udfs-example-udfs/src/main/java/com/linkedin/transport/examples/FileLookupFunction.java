@@ -5,6 +5,7 @@
  */
 package com.linkedin.transport.examples;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.linkedin.transport.api.data.StdBoolean;
 import com.linkedin.transport.api.data.StdInteger;
@@ -26,7 +27,13 @@ public class FileLookupFunction extends StdUDF2<StdString, StdInteger, StdBoolea
 
   @Override
   public StdBoolean eval(StdString filename, StdInteger intToCheck) {
+    Preconditions.checkNotNull(intToCheck, "Integer to check should not be null");
     return getStdFactory().createBoolean(ids.contains(intToCheck.get()));
+  }
+
+  @Override
+  public boolean[] getNullableArguments() {
+    return new boolean[]{false, true};
   }
 
   @Override

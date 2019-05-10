@@ -28,8 +28,12 @@ public class TestFileLookupFunction extends AbstractStdUDFTest {
     StdTester tester = getTester();
     tester.check(functionCall("file_lookup", resource("file_lookup_function/sample"), 1), true, "boolean");
     tester.check(functionCall("file_lookup", resource("file_lookup_function/sample"), 6), false, "boolean");
+    tester.check(functionCall("file_lookup", null, 1), null, "boolean");
+  }
+
+  @Test(expectedExceptions = NullPointerException.class)
+  public void testFileLookupFailNull() {
+    StdTester tester = getTester();
     tester.check(functionCall("file_lookup", resource("file_lookup_function/sample"), null), null, "boolean");
-    // TODO: Check behaviour consistency between platforms when file argument is null
-    //    tester.check(functionCall("file_lookup", null, 1), null, "boolean");
   }
 }

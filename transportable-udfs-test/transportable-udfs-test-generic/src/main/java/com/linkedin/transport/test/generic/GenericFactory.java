@@ -5,6 +5,7 @@
  */
 package com.linkedin.transport.test.generic;
 
+import com.google.common.base.Preconditions;
 import com.linkedin.transport.api.StdFactory;
 import com.linkedin.transport.api.data.StdArray;
 import com.linkedin.transport.api.data.StdBoolean;
@@ -58,6 +59,7 @@ public class GenericFactory implements StdFactory {
 
   @Override
   public StdString createString(String value) {
+    Preconditions.checkNotNull(value, "Cannot create a null StdString");
     return new GenericString(value);
   }
 
