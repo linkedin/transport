@@ -112,7 +112,8 @@ class Defaults {
 
   private static DependencyConfiguration getDependencyConfiguration(ConfigurationType configurationType,
       String module, String platform, String classifier) {
-    return new DependencyConfiguration(configurationType, module + DEFAULT_VERSIONS.getProperty(platform + "-version")
+    return new DependencyConfiguration(configurationType, module
+        + ":" + DEFAULT_VERSIONS.getProperty(platform + "-version")
         + (classifier != null ? (":" + classifier) : ""));
   }
 }
