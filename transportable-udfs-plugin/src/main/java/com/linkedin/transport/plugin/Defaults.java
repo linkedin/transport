@@ -44,7 +44,10 @@ class Defaults {
   static final List<DependencyConfiguration> MAIN_SOURCE_SET_DEPENDENCY_CONFIGURATIONS = ImmutableList.of(
       getDependencyConfiguration(IMPLEMENTATION, "com.linkedin.transport:transportable-udfs-api", "transport"),
       getDependencyConfiguration(ANNOTATION_PROCESSOR, "com.linkedin.transport:transportable-udfs-annotation-processor",
-          "transport")
+          "transport"),
+      // the idea plugin needs a scala-library on the classpath when the scala plugin is applied even when there are no
+      // scala sources
+      getDependencyConfiguration(COMPILE_ONLY, "org.scala-lang:scala-library", "scala")
   );
 
   static final List<DependencyConfiguration> TEST_SOURCE_SET_DEPENDENCY_CONFIGURATIONS = ImmutableList.of(
@@ -64,7 +67,10 @@ class Defaults {
           ),
           ImmutableList.of(
               getDependencyConfiguration(RUNTIME_ONLY, "com.linkedin.transport:transportable-udfs-test-presto",
-                  "transport")
+                  "transport"),
+              // presto-main:tests is a transitive dependency of transportable-udfs-test-presto, but some POM -> IVY
+              // converters drop dependencies with classifiers, so we apply this dependency explicitly
+              getDependencyConfiguration(RUNTIME_ONLY, "com.facebook.presto:presto-main", "presto", "tests")
           ),
           new DistributionPackaging()),
       new Platform(
@@ -101,7 +107,13 @@ class Defaults {
 
   private static DependencyConfiguration getDependencyConfiguration(ConfigurationType configurationType,
       String module, String platform) {
-    return new DependencyConfiguration(configurationType,
-        module + ":" + DEFAULT_VERSIONS.getProperty(platform + "-version"));
+    return getDependencyConfiguration(configurationType, module, platform, null);
+  }
+
+  private static DependencyConfiguration getDependencyConfiguration(ConfigurationType configurationType,
+      String module, String platform, String classifier) {
+    return new DependencyConfiguration(configurationType, module
+        + ":" + DEFAULT_VERSIONS.getProperty(platform + "-version")
+        + (classifier != null ? (":" + classifier) : ""));
   }
 }
