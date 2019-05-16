@@ -62,11 +62,7 @@ public abstract class StdUdfWrapper extends GenericUDF {
   @Override
   public ObjectInspector initialize(ObjectInspector[] arguments) {
     HiveTypeInference hiveTypeInference = new HiveTypeInference();
-    hiveTypeInference.compile(
-        arguments,
-        getStdUdfImplementations(),
-        getTopLevelUdfClass()
-    );
+    hiveTypeInference.compile(arguments, getStdUdfImplementations(), getTopLevelUdfClass());
     _inputObjectInspectors = hiveTypeInference.getInputDataTypes();
     _stdFactory = hiveTypeInference.getStdFactory();
     _stdUdf = hiveTypeInference.getStdUdf();
@@ -96,6 +92,16 @@ public abstract class StdUdfWrapper extends GenericUDF {
   protected boolean containsNullValuedNonNullableArgument(DeferredObject[] arguments) throws HiveException {
     for (int i = 0; i < arguments.length; i++) {
       if (arguments[i].get() == null && !_nullableArguments[i]) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  protected boolean containsNullValuedNonNullableConstants() {
+    for (int i = 0; i < _inputObjectInspectors.length; i++) {
+      if (!_nullableArguments[i] && _inputObjectInspectors[i] instanceof ConstantObjectInspector
+          && ((ConstantObjectInspector) _inputObjectInspectors[i]).getWritableConstantValue() == null) {
         return true;
       }
     }
@@ -132,13 +138,10 @@ public abstract class StdUdfWrapper extends GenericUDF {
   }
 
   private StdData[] wrapConstants() {
-    return Arrays.stream(_inputObjectInspectors).map(oi ->
-        (oi instanceof ConstantObjectInspector) ? HiveWrapper.createStdData(
-            ((ConstantObjectInspector) oi).getWritableConstantValue(),
-            oi,
-            _stdFactory
-        ) : null
-    ).toArray(StdData[]::new);
+    return Arrays.stream(_inputObjectInspectors)
+        .map(oi -> (oi instanceof ConstantObjectInspector) ? HiveWrapper.createStdData(
+            ((ConstantObjectInspector) oi).getWritableConstantValue(), oi, _stdFactory) : null)
+        .toArray(StdData[]::new);
   }
 
   @Override
@@ -187,6 +190,9 @@ public abstract class StdUdfWrapper extends GenericUDF {
 
   @Override
   public String[] getRequiredFiles() {
+    if (containsNullValuedNonNullableConstants()) {
+      return new String[]{};
+    }
     StdData[] args = wrapConstants();
     String[] requiredFiles;
     switch (args.length) {
@@ -212,10 +218,13 @@ public abstract class StdUdfWrapper extends GenericUDF {
         requiredFiles = ((StdUDF6) _stdUdf).getRequiredFiles(args[0], args[1], args[2], args[3], args[4], args[5]);
         break;
       case 7:
-        requiredFiles = ((StdUDF7) _stdUdf).getRequiredFiles(args[0], args[1], args[2], args[3], args[4], args[5], args[6]);
+        requiredFiles =
+            ((StdUDF7) _stdUdf).getRequiredFiles(args[0], args[1], args[2], args[3], args[4], args[5], args[6]);
         break;
       case 8:
-        requiredFiles = ((StdUDF8) _stdUdf).getRequiredFiles(args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7]);
+        requiredFiles =
+            ((StdUDF8) _stdUdf).getRequiredFiles(args[0], args[1], args[2], args[3], args[4], args[5], args[6],
+                args[7]);
         break;
       default:
         throw new UnsupportedOperationException("getRequiredFiles not yet supported for StdUDF" + args.length);
@@ -234,13 +243,12 @@ public abstract class StdUdfWrapper extends GenericUDF {
   private synchronized void processRequiredFiles() {
     if (!_requiredFilesProcessed) {
       String[] localFiles = Arrays.stream(_distributedCacheFiles).map(distributedCacheFile -> {
-            try {
-              return getLocalFilePath(distributedCacheFile).toString();
-            } catch (IOException e) {
-              throw new RuntimeException("Failed to resolve path: [" + distributedCacheFile + "].", e);
-            }
-          }
-      ).toArray(String[]::new);
+        try {
+          return getLocalFilePath(distributedCacheFile).toString();
+        } catch (IOException e) {
+          throw new RuntimeException("Failed to resolve path: [" + distributedCacheFile + "].", e);
+        }
+      }).toArray(String[]::new);
       _stdUdf.processRequiredFiles(localFiles);
       _requiredFilesProcessed = true;
     }

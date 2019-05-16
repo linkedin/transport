@@ -57,64 +57,76 @@ abstract class StdUdfWrapper(_expressions: Seq[Expression]) extends Expression
   // scalastyle:off magic.number
   private def getRequiredFiles(): Unit = { // scalastyle:ignore cyclomatic.complexity
     if (_distributedCacheFiles == null) {
-      val wrappedConstants = wrapConstants()
-      val requiredFiles = wrappedConstants.length match {
-        case 0 =>
-          _stdUdf.asInstanceOf[StdUDF0[StdData]].getRequiredFiles()
-        case 1 =>
-          _stdUdf.asInstanceOf[StdUDF1[StdData, StdData]].getRequiredFiles(wrappedConstants(0))
-        case 2 =>
-          _stdUdf.asInstanceOf[StdUDF2[StdData, StdData, StdData]].getRequiredFiles(wrappedConstants(0),
-            wrappedConstants(1))
-        case 3 =>
-          _stdUdf.asInstanceOf[StdUDF3[StdData, StdData, StdData, StdData]].getRequiredFiles(wrappedConstants(0),
-            wrappedConstants(1), wrappedConstants(2))
-        case 4 =>
-          _stdUdf.asInstanceOf[StdUDF4[StdData, StdData, StdData, StdData, StdData]].getRequiredFiles(wrappedConstants(0),
-            wrappedConstants(1), wrappedConstants(2), wrappedConstants(3))
-        case 5 =>
-          _stdUdf.asInstanceOf[StdUDF5[StdData, StdData, StdData, StdData, StdData, StdData]].getRequiredFiles(wrappedConstants(0),
-            wrappedConstants(1), wrappedConstants(2), wrappedConstants(3), wrappedConstants(4))
-        case 6 =>
-          _stdUdf.asInstanceOf[StdUDF6[StdData, StdData, StdData, StdData, StdData, StdData, StdData]].getRequiredFiles(wrappedConstants(0),
-            wrappedConstants(1), wrappedConstants(2), wrappedConstants(3), wrappedConstants(4), wrappedConstants(5))
-        case 7 =>
-          _stdUdf.asInstanceOf[StdUDF7[StdData, StdData, StdData, StdData, StdData, StdData, StdData, StdData]].getRequiredFiles(wrappedConstants(0),
-            wrappedConstants(1), wrappedConstants(2), wrappedConstants(3), wrappedConstants(4), wrappedConstants(5), wrappedConstants(6))
-        case 8 =>
-          _stdUdf.asInstanceOf[StdUDF8[StdData, StdData, StdData, StdData, StdData, StdData, StdData, StdData, StdData]].getRequiredFiles(wrappedConstants(0),
-            wrappedConstants(1), wrappedConstants(2), wrappedConstants(3), wrappedConstants(4), wrappedConstants(5), wrappedConstants(6), wrappedConstants(7))
-        case _ =>
-          throw new UnsupportedOperationException("getRequiredFiles not yet supported for StdUDF" + _expressions.length)
-      }
-
-      lazy val sparkContext = SparkSession.builder().getOrCreate().sparkContext
-      _distributedCacheFiles = requiredFiles.map(file => {
-        try {
-          val resolvedFile = FileSystemUtils.resolveLatest(file, FileSystemUtils.getHDFSFileSystem)
-          // TODO: Currently does not support adding of files with same file name. E.g dirA/file.txt dirB/file.txt
-          sparkContext.addFile(resolvedFile)
-          resolvedFile
-        } catch {
-          case e: IOException =>
-            throw new RuntimeException("Failed to resolve path: [" + file + "].", e)
+      val wrappedConstants = checkNullsAndWrapConstants()
+      // If wrappedConstants is null, it means there were non-nullable constants whose value was evaluated to be null
+      // Hence we do not call user's getRequiredFiles(). Also in such a case, null checks in eval will also fail and
+      // user's eval will never be called, so there is no need to getRequiredFiles() anyway.
+      if (wrappedConstants != null) {
+        val requiredFiles = wrappedConstants.length match {
+          case 0 =>
+            _stdUdf.asInstanceOf[StdUDF0[StdData]].getRequiredFiles()
+          case 1 =>
+            _stdUdf.asInstanceOf[StdUDF1[StdData, StdData]].getRequiredFiles(wrappedConstants(0))
+          case 2 =>
+            _stdUdf.asInstanceOf[StdUDF2[StdData, StdData, StdData]].getRequiredFiles(wrappedConstants(0),
+              wrappedConstants(1))
+          case 3 =>
+            _stdUdf.asInstanceOf[StdUDF3[StdData, StdData, StdData, StdData]].getRequiredFiles(wrappedConstants(0),
+              wrappedConstants(1), wrappedConstants(2))
+          case 4 =>
+            _stdUdf.asInstanceOf[StdUDF4[StdData, StdData, StdData, StdData, StdData]].getRequiredFiles(wrappedConstants(0),
+              wrappedConstants(1), wrappedConstants(2), wrappedConstants(3))
+          case 5 =>
+            _stdUdf.asInstanceOf[StdUDF5[StdData, StdData, StdData, StdData, StdData, StdData]].getRequiredFiles(wrappedConstants(0),
+              wrappedConstants(1), wrappedConstants(2), wrappedConstants(3), wrappedConstants(4))
+          case 6 =>
+            _stdUdf.asInstanceOf[StdUDF6[StdData, StdData, StdData, StdData, StdData, StdData, StdData]].getRequiredFiles(wrappedConstants(0),
+              wrappedConstants(1), wrappedConstants(2), wrappedConstants(3), wrappedConstants(4), wrappedConstants(5))
+          case 7 =>
+            _stdUdf.asInstanceOf[StdUDF7[StdData, StdData, StdData, StdData, StdData, StdData, StdData, StdData]].getRequiredFiles(wrappedConstants(0),
+              wrappedConstants(1), wrappedConstants(2), wrappedConstants(3), wrappedConstants(4), wrappedConstants(5), wrappedConstants(6))
+          case 8 =>
+            _stdUdf.asInstanceOf[StdUDF8[StdData, StdData, StdData, StdData, StdData, StdData, StdData, StdData, StdData]].getRequiredFiles(wrappedConstants(0),
+              wrappedConstants(1), wrappedConstants(2), wrappedConstants(3), wrappedConstants(4), wrappedConstants(5), wrappedConstants(6), wrappedConstants(7))
+          case _ =>
+            throw new UnsupportedOperationException("getRequiredFiles not yet supported for StdUDF" + _expressions.length)
         }
-      })
+
+        lazy val sparkContext = SparkSession.builder().getOrCreate().sparkContext
+        _distributedCacheFiles = requiredFiles.map(file => {
+          try {
+            val resolvedFile = FileSystemUtils.resolveLatest(file, FileSystemUtils.getHDFSFileSystem)
+            // TODO: Currently does not support adding of files with same file name. E.g dirA/file.txt dirB/file.txt
+            sparkContext.addFile(resolvedFile)
+            resolvedFile
+          } catch {
+            case e: IOException =>
+              throw new RuntimeException("Failed to resolve path: [" + file + "].", e)
+          }
+        })
+      }
     }
   } // scalastyle:on magic.number
 
-
-  private final def wrapConstants(): Seq[StdData] = {
-    _expressions.map(expr => {
-      if (expr.foldable) SparkWrapper.createStdData(expr.eval(), expr.dataType) else null
-    })
+  private final def checkNullsAndWrapConstants(): Array[StdData] = {
+    val wrappedConstants = new Array[StdData](_expressions.length)
+    for (i <- _expressions.indices) {
+      val constantValue = if (_expressions(i).foldable) _expressions(i).eval() else null
+      if (!_nullableArguments(i) && _expressions(i).foldable && constantValue == null) {
+        // constant is defined as non nullable and value is null, so return early
+        return null // scalastyle:ignore return
+      }
+      wrappedConstants(i) = SparkWrapper.createStdData(constantValue, _expressions(i).dataType)
+    }
+    wrappedConstants
   }
 
-  // Suppressing magic number warming since the number match is required to cast it into the coresponding StdUDF
+  // Suppressing magic number warming since the number match is required to cast it into the corresponding StdUDF
   // scalastyle:off magic.number
   override def eval(input: InternalRow): Any = { // scalastyle:ignore cyclomatic.complexity
     val wrappedArguments = checkNullsAndWrapArguments(input)
-    // if wrappedArguments is null, it means that null check failed -> return null
+    // If wrappedArguments is null, it means there were non-nullable arguments whose value was evaluated to be null
+    // So we do not call user's eval()
     if (wrappedArguments == null) {
       null
     } else {
