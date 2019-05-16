@@ -58,10 +58,10 @@ abstract class StdUdfWrapper(_expressions: Seq[Expression]) extends Expression
   private def getRequiredFiles(): Unit = { // scalastyle:ignore cyclomatic.complexity
     if (_distributedCacheFiles == null) {
       val wrappedConstants = checkNullsAndWrapConstants()
-      // if wrappedConstants is null, it means that null check failed -> return null
-      if (wrappedConstants == null) {
-        null
-      } else {
+      // If wrappedConstants is null, it means there were non-nullable constants whose value was evaluated to be null
+      // Hence we do not call user's getRequiredFiles(). Also in such a case, null checks in eval will also fail and
+      // user's eval will never be called, so there is no need to getRequiredFiles() anyway.
+      if (wrappedConstants != null) {
         val requiredFiles = wrappedConstants.length match {
           case 0 =>
             _stdUdf.asInstanceOf[StdUDF0[StdData]].getRequiredFiles()
@@ -111,21 +111,22 @@ abstract class StdUdfWrapper(_expressions: Seq[Expression]) extends Expression
   private final def checkNullsAndWrapConstants(): Array[StdData] = {
     val wrappedConstants = new Array[StdData](_expressions.length)
     for (i <- _expressions.indices) {
-      val evaluatedExpression = if (_expressions(i).foldable) _expressions(i).eval() else null
-      if(!_nullableArguments(i) && _expressions(i).foldable && evaluatedExpression == null) {
+      val constantValue = if (_expressions(i).foldable) _expressions(i).eval() else null
+      if (!_nullableArguments(i) && _expressions(i).foldable && constantValue == null) {
         // constant is defined as non nullable and value is null, so return early
         return null // scalastyle:ignore return
       }
-      wrappedConstants(i) = SparkWrapper.createStdData(evaluatedExpression, _expressions(i).dataType)
+      wrappedConstants(i) = SparkWrapper.createStdData(constantValue, _expressions(i).dataType)
     }
     wrappedConstants
   }
 
-  // Suppressing magic number warming since the number match is required to cast it into the coresponding StdUDF
+  // Suppressing magic number warming since the number match is required to cast it into the corresponding StdUDF
   // scalastyle:off magic.number
   override def eval(input: InternalRow): Any = { // scalastyle:ignore cyclomatic.complexity
     val wrappedArguments = checkNullsAndWrapArguments(input)
-    // if wrappedArguments is null, it means that null check failed -> return null
+    // If wrappedArguments is null, it means there were non-nullable arguments whose value was evaluated to be null
+    // So we do not call user's eval()
     if (wrappedArguments == null) {
       null
     } else {
