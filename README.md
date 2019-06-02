@@ -1,4 +1,4 @@
-![logo](transportable-udfs-documentation/logo.png)
+![logo](docs/logo.png)
 # Transport UDFs
 
 **Transport** is a framework for writing performant user-defined
@@ -13,8 +13,25 @@ or formats. Currently, Transport is capable of generating
 engine-artifacts for Spark, Hive, and Presto, and format-artifacts for
 Avro. Further details on Transport can be found in this [LinkedIn Engineering blog post](https://engineering.linkedin.com/blog/2018/11/using-translatable-portable-UDFs).
 
+## Documentation
+
+- Project information: [README.md](/README.md)
+  - Transport release notes: [docs/release-notes.md](/docs/release-notes.md)
+  - Contributing [TODO]
+- User guides
+  - Transport UDFs API: [docs/transport-udfs-api.md](/docs/transport-udfs-api.md)
+  - Authoring Transport UDFs: [docs/authoring-transport-udfs.md](/docs/authoring-transport-udfs.md)
+  - Using Transport UDFs: [docs/using-transport-udfs.md](/docs/using-transport-udfs.md)
+  - Writing Tests for Transport UDFs: [TODO]
+  - FAQ: [docs/faq.md](/docs/faq.md)
+- Developer guides
+  - How the Transport Plugin works: [TODO]
+  - How the Transport Test Framework works: [TODO]
+
+
 ## Example
-This example shows how a portable UDF is written using the Transport APIs.
+
+This is an example of what it takes to define a Transport UDF. It is simple and quite self-explanatory.
 
 ```java
 public class MapFromTwoArraysFunction extends StdUDF2<StdArray, StdArray, StdMap> implements TopLevelStdUDF {
@@ -73,8 +90,8 @@ objects that conform to a given data type (such as a map whose keys
 are of the type of elements in the first array and values are of the
 type of elements in the second array). `StdUDF2` is an abstract class
 to express a UDF that takes two parameters. It is parametrized by the
-UDF input types and the UDF output type. Please consult the [Transportable UDF API user
-guide](transportable-udfs-documentation/user-guide.md) for more details and examples.
+UDF input types and the UDF output type. A more detailed documentation
+of the API usage can be found in the [Transport UDFs API](/docs/transport-udfs-api.md).
 
 ## How to Build
 Clone the repository:
@@ -88,19 +105,17 @@ cd transport
 
 Build:
 ```bash
-gradle build
+./gradlew build
 ```
 
- 
-Please note that this project requires Java `1.8.0_151` or higher.
-Either set `JAVA_HOME` to the home of an appropriate version and use `gradle build` as described above, or use the included `gradlew` command and set `org.gradle.java.home` to the Java home
-directory of an appropriate Java version:
+This project requires Java `1.8.0_151` or higher.
+Either set `JAVA_HOME` to the home of an appropriate version and then use `./gradlew build` as described above, or set the `org.gradle.java.home` gradle property to the Java home of an appropriate version as below:
 ```bash
 ./gradlew -Dorg.gradle.java.home=/path/to/java/home build
 ```
 
 ## How to Use
-The project under the directory [`transportable-udfs-examples`](transportable-udfs-examples) is a standalone Gradle project 
+The project under the directory [`transportable-udfs-examples`](transportable-udfs-examples) is a standalone Gradle project
 that shows how to setup a project that uses the Transport UDFs framework to write Transportable UDFs.
 You can model your project after that standalone project. It implements a number of [example
 UDFs](transportable-udfs-examples/transportable-udfs-example-udfs) to showcase different features and aspects of the API.
@@ -197,4 +212,3 @@ Please send any questions or discussion topics to [transport-udfs@googlegroups.c
     THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
     (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
     OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
