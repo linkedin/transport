@@ -102,20 +102,19 @@ of an appropriate version:
 ```
 
 ## How to Use
-The project under the directory [`transportable-udfs-examples`](transportable-udfs-examples) is an example project 
+The project under the directory [`transportable-udfs-examples`](transportable-udfs-examples) is a standalone Gradle project 
 that shows how to setup a project that uses the Transport UDFs framework to write Transportable UDFs.
-You can model your project after that project. It implements a number of [example
-UDFs](transportable-udfs-examples/transportable-udfs-example-udfs) to showcase different features of the API.
+You can model your project after that standalone project. It implements a number of [example
+UDFs](transportable-udfs-examples/transportable-udfs-example-udfs) to showcase different features and aspects of the API.
  Basically, you need to check out three components:
 
-* You can check out the
-[examples code](transportable-udfs-examples/transportable-udfs-example-udfs/src/main/java/com/linkedin/transport/examples)
+* [UDF examples code](transportable-udfs-examples/transportable-udfs-example-udfs/src/main/java/com/linkedin/transport/examples)
 to familiarize yourself with the API, and how to write new UDFs. 
 
-* You can check out the [test code](transportable-udfs-examples/transportable-udfs-example-udfs/src/test/java/com/linkedin/transport/examples)
+* [test code](transportable-udfs-examples/transportable-udfs-example-udfs/src/test/java/com/linkedin/transport/examples)
  to find out how to write UDF tests in a unified testing API, but have the framework test them on multiple platforms.
 
-* Further, check out the root examples [`build.gradle`](transportable-udfs-examples/build.gradle) file
+* Root [`build.gradle`](transportable-udfs-examples/build.gradle) file
 to find out how to apply the `transport` plugin, which enables generating Hive, Spark, and Presto UDFs out of
 the transportable UDFs you define once you build your project. To see that in action:
 
