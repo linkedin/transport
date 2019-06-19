@@ -102,10 +102,10 @@ of an appropriate version:
 ```
 
 ## How to Use
-The project under the directory [`transportable-udfs-examples`](transportable-udfs-examples) is a standalone Gradle
-project that depends on the Transport UDF project. You can model your project after that
-project. It implements a number of [example
-UDFs](transportable-udfs-examples/transportable-udfs-example-udfs).
+The project under the directory [`transportable-udfs-examples`](transportable-udfs-examples) is an example project 
+that shows how to setup a project that uses the Transport UDFs framework to write Transportable UDFs.
+You can model your project after that project. It implements a number of [example
+UDFs](transportable-udfs-examples/transportable-udfs-example-udfs). Basically, you need to check out three components:
 
 * You can check out the
 [examples code](transportable-udfs-examples/transportable-udfs-example-udfs/src/main/java/com/linkedin/transport/examples)
