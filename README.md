@@ -159,7 +159,7 @@ which is currently not part of Presto's SPI architecture. You can find the patch
  before deploying your UDFs jar to the Presto engine.
  
 ## Contributions
-The project is in active development and we welcome contributions of different forms:
+The project is under active development and we welcome contributions of different forms:
 
 * Contributing new general-purpose Transportable UDFs (e.g., Machine Learning UDFs, Spatial UDFs, Linear Algebra UDFs, etc).
 
