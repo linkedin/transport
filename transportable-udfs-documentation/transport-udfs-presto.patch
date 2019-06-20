@@ -1,0 +1,139 @@
+diff --git a/presto-main/pom.xml b/presto-main/pom.xml
+index b3171eeef2539598befd81f212b0e45c15f14cb0..d8d71a3df4900e5bdfe7fce974f4e198b95d35f0 100644
+--- a/presto-main/pom.xml
++++ b/presto-main/pom.xml
+@@ -357,6 +357,18 @@
+                             <classpathScope>test</classpathScope>
+                         </configuration>
+                     </plugin>
++                    <plugin>
++                        <groupId>org.apache.maven.plugins</groupId>
++                        <artifactId>maven-jar-plugin</artifactId>
++                        <version>2.2</version>
++                        <executions>
++                            <execution>
++                                <goals>
++                                    <goal>test-jar</goal>
++                                </goals>
++                            </execution>
++                        </executions>
++                    </plugin>
+                 </plugins>
+             </build>
+         </profile>
+diff --git a/presto-main/src/main/java/com/facebook/presto/server/PluginManager.java b/presto-main/src/main/java/com/facebook/presto/server/PluginManager.java
+index 1c36d89a4f23edb4048d6e757260435251712b99..d2845e94af855982027d79ca347981092c712012 100644
+--- a/presto-main/src/main/java/com/facebook/presto/server/PluginManager.java
++++ b/presto-main/src/main/java/com/facebook/presto/server/PluginManager.java
+@@ -18,6 +18,7 @@ import com.facebook.presto.connector.ConnectorManager;
+ import com.facebook.presto.eventlistener.EventListenerManager;
+ import com.facebook.presto.execution.resourceGroups.ResourceGroupManager;
+ import com.facebook.presto.metadata.Metadata;
++import com.facebook.presto.metadata.SqlScalarFunction;
+ import com.facebook.presto.security.AccessControlManager;
+ import com.facebook.presto.spi.Plugin;
+ import com.facebook.presto.spi.block.BlockEncodingFactory;
+@@ -37,6 +38,7 @@ import io.airlift.log.Logger;
+ import io.airlift.node.NodeInfo;
+ import io.airlift.resolver.ArtifactResolver;
+ import io.airlift.resolver.DefaultArtifact;
++import java.util.stream.Collectors;
+ import org.sonatype.aether.artifact.Artifact;
+
+ import javax.annotation.concurrent.ThreadSafe;
+@@ -62,8 +64,22 @@ import static java.util.Objects.requireNonNull;
+ @ThreadSafe
+ public class PluginManager
+ {
++    // As part of enabling SqlScalarFunctions to be loaded as Plugins, we introduce two changes to this
++    // class: 1) adding more packages to the SPI_PACKAGES list so that SqlScalarFunction class and its
++    // dependencies are visible to the PluginClassLoader (which is responsible of resolving Plugin dependencies)
++    // 2) registering SqlScalarFunction classes found in the plugin directory jars (or expressed as pom files)
++    // as it is the case with vanilla plugins.
++    // JIRA: https://jira01.corp.linkedin.com:8443/browse/LIHADOOP-34269
+     private static final ImmutableList<String> SPI_PACKAGES = ImmutableList.<String>builder()
++            // com.facebook.presto.metadata is required for SqlScalarFunction and FunctionRegistry classes
++            .add("com.facebook.presto.metadata.")
++            // com.facebook.presto.operator.scalar is required for ScalarFunctionImplementation
++            .add("com.facebook.presto.operator.scalar.")
+             .add("com.facebook.presto.spi.")
++            // com.facebook.presto.type is required for TypeManager, and all supported types
++            .add("com.facebook.presto.type.")
++            // com.facebook.presto.util is required for Reflection
++            .add("com.facebook.presto.util.")
+             .add("com.fasterxml.jackson.annotation.")
+             .add("io.airlift.slice.")
+             .add("io.airlift.units.")
+@@ -166,10 +182,21 @@ public class PluginManager
+         ServiceLoader<Plugin> serviceLoader = ServiceLoader.load(Plugin.class, pluginClassLoader);
+         List<Plugin> plugins = ImmutableList.copyOf(serviceLoader);
+
+-        if (plugins.isEmpty()) {
+-            log.warn("No service providers of type %s", Plugin.class.getName());
++        ServiceLoader<SqlScalarFunction> sqlScalarFunctionsServiceLoader = ServiceLoader.load(SqlScalarFunction.class,
++            pluginClassLoader);
++        List<SqlScalarFunction> sqlScalarFunctions = ImmutableList.copyOf(sqlScalarFunctionsServiceLoader);
++
++        if (plugins.isEmpty() && sqlScalarFunctions.isEmpty()) {
++            log.warn("No service providers of type %s or %s",
++                Plugin.class.getName(), SqlScalarFunction.class.getName());
+         }
+
++        installPlugins(plugins);
++        registerSqlScalarFunctions(sqlScalarFunctions);
++    }
++
++    private void installPlugins(List<Plugin> plugins)
++    {
+         for (Plugin plugin : plugins) {
+             log.info("Installing %s", plugin.getClass().getName());
+             installPlugin(plugin);
+@@ -219,6 +246,15 @@ public class PluginManager
+         }
+     }
+
++    public void registerSqlScalarFunctions(List<SqlScalarFunction> sqlScalarFunctions)
++    {
++        for (SqlScalarFunction sqlScalarFunction : sqlScalarFunctions) {
++            log.info("Registering function %s(%s)", sqlScalarFunction.getSignature().getName(), sqlScalarFunction.getSignature().getArgumentTypes().stream().map(e -> e.toString()).collect(
++                Collectors.joining(",")));
++            metadata.addFunctions(ImmutableList.of(sqlScalarFunction));
++        }
++    }
++
+     private URLClassLoader buildClassLoader(String plugin)
+             throws Exception
+     {
+diff --git a/presto-main/src/test/java/com/facebook/presto/operator/scalar/AbstractTestFunctions.java b/presto-main/src/test/java/com/facebook/presto/operator/scalar/AbstractTestFunctions.java
+index f9f2b300b96ad83e98bf19b2b3e197169fe29b28..c4ec66e9105f12aaff3bfde44d7979d29656c0a7 100644
+--- a/presto-main/src/test/java/com/facebook/presto/operator/scalar/AbstractTestFunctions.java
++++ b/presto-main/src/test/java/com/facebook/presto/operator/scalar/AbstractTestFunctions.java
+@@ -17,6 +17,7 @@ import com.facebook.presto.Session;
+ import com.facebook.presto.metadata.FunctionListBuilder;
+ import com.facebook.presto.metadata.Metadata;
+ import com.facebook.presto.metadata.SqlFunction;
++import com.facebook.presto.metadata.SqlScalarFunction;
+ import com.facebook.presto.spi.ErrorCodeSupplier;
+ import com.facebook.presto.spi.PrestoException;
+ import com.facebook.presto.spi.function.OperatorType;
+@@ -27,6 +28,7 @@ import com.facebook.presto.spi.type.Type;
+ import com.facebook.presto.sql.analyzer.FeaturesConfig;
+ import com.facebook.presto.sql.analyzer.SemanticErrorCode;
+ import com.facebook.presto.sql.analyzer.SemanticException;
++import com.google.common.collect.ImmutableList;
+ import io.airlift.slice.Slice;
+
+ import java.math.BigInteger;
+@@ -148,6 +150,12 @@ public abstract class AbstractTestFunctions
+         }
+     }
+
++    protected void registerScalarFunction(SqlScalarFunction sqlScalarFunction)
++    {
++        Metadata metadata = functionAssertions.getMetadata();
++        metadata.getFunctionRegistry().addFunctions(ImmutableList.of(sqlScalarFunction));
++    }
++
+     protected void registerScalar(Class<?> clazz)
+     {
+         Metadata metadata = functionAssertions.getMetadata();
