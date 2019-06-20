@@ -109,7 +109,7 @@ UDFs](transportable-udfs-examples/transportable-udfs-example-udfs) to showcase d
 * [UDF examples code](transportable-udfs-examples/transportable-udfs-example-udfs/src/main/java/com/linkedin/transport/examples)
 to familiarize yourself with the API, and how to write new UDFs. 
 
-* [test code](transportable-udfs-examples/transportable-udfs-example-udfs/src/test/java/com/linkedin/transport/examples)
+* [Test code](transportable-udfs-examples/transportable-udfs-example-udfs/src/test/java/com/linkedin/transport/examples)
  to find out how to write UDF tests in a unified testing API, but have the framework test them on multiple platforms.
 
 * Root [`build.gradle`](transportable-udfs-examples/build.gradle) file
