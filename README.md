@@ -4,18 +4,17 @@
 **Transport** is a framework for writing performant user-defined
 functions (UDFs) that are portable across a variety of engines
 including [Apache Spark](https://spark.apache.org/), [Apache Hive](https://hive.apache.org/), and
-[Presto](https://prestodb.io/). UDFs written with Transport are also
-capable of directly processing data stored in formats such as
-Avro. With Transport, developers only need to implement their UDF
+[Presto](https://prestodb.io/). Transport UDFs are also
+capable of directly processing data stored in serialization formats such as
+Apache Avro. With Transport, developers only need to implement their UDF
 logic once using the Transport API. Transport then takes care of
-translating the UDF to a native version targeted at a specific engine
-or format. Currently, the Transport framework is capable of generating
+translating the UDF to native UDF version targeted at various engines
+or formats. Currently, Transport is capable of generating
 engine-artifacts for Spark, Hive, and Presto, and format-artifacts for
 Avro. Further details on Transport can be found in this [LinkedIn Engineering blog post](https://engineering.linkedin.com/blog/2018/11/using-translatable-portable-UDFs).
 
 ## Example
-This is an example of what it takes to define a Transportable UDF. It is
-simple and quite self-explanatory.
+This example shows how a portable UDF is written using the Transport APIs.
 
 ```java
 public class MapFromTwoArraysFunction extends StdUDF2<StdArray, StdArray, StdMap> implements TopLevelStdUDF {
@@ -74,9 +73,8 @@ objects that conform to a given data type (such as a map whose keys
 are of the type of elements in the first array and values are of the
 type of elements in the second array). `StdUDF2` is an abstract class
 to express a UDF that takes two parameters. It is parametrized by the
-UDF input types and the UDF output type. A more detailed documentation
-of the API usage can be found in the [Transportable UDF API user
-guide](transportable-udfs-documentation/user-guide.md).
+UDF input types and the UDF output type. Please consult the [Transportable UDF API user
+guide](transportable-udfs-documentation/user-guide.md) for more details and examples.
 
 ## How to Build
 Clone the repository:
@@ -94,9 +92,9 @@ gradle build
 ```
 
  
-This project requires Java `1.8.0_151` or higher.
-Either set `JAVA_HOME` to the home of an appropriate version and use `gradle build` as described above, or use the `gradlew` and set `org.gradle.java.home` to the Java home
-of an appropriate version:
+Please note that this project requires Java `1.8.0_151` or higher.
+Either set `JAVA_HOME` to the home of an appropriate version and use `gradle build` as described above, or use the included `gradlew` command and set `org.gradle.java.home` to the Java home
+directory of an appropriate Java version:
 ```bash
 ./gradlew -Dorg.gradle.java.home=/path/to/java/home build
 ```
@@ -152,7 +150,7 @@ there is no data transformation needed for interoperability or portability. Only
 
 To call those jars from your SQL engine (i.e., Hive, Spark, or Presto), the standard process for deploying UDF jars is followed
 for each engine. For example, in Hive, you add the jar to the classpath using the `ADD JAR` statement,
- and register it using `CREATE FUNCTION` statement.
+ and register the UDF using `CREATE FUNCTION` statement.
 In Presto, the jar is deployed to the `plugin` directory. However, a small patch is required for the Presto
 engine to recognize the jar as a plugin, since the generated Presto UDFs implement the `SqlScalarFunction` API, 
 which is currently not part of Presto's SPI architecture. You can find the patch [here](transportable-udfs-documentation/transport-udfs-presto.patch) and apply it
