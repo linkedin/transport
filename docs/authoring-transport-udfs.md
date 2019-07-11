@@ -38,7 +38,7 @@ apply plugin: "com.linkedin.transport.plugin"
 
 ## Writing the UDF
 
-Let's write a UDF to multiply two integers. Paste the following into `src/main/java/transport/example/Multiply.java` of your Transport UDF module.
+Let's write a UDF to multiply two integers. Paste the following into `src/main/java/transport/example/Multiply.java` inside your Transport UDF module.
 
 ```java
 package transport.example;
@@ -46,6 +46,7 @@ package transport.example;
 import com.linkedin.transport.api.data.StdInteger;
 import com.linkedin.transport.api.udf.StdUDF2;
 import com.linkedin.transport.api.udf.TopLevelStdUDF;
+import java.util.Arrays;
 import java.util.List;
 
 
@@ -54,8 +55,7 @@ public class Multiply extends StdUDF2<StdInteger, StdInteger, StdInteger>
 
   @Override
   public List<String> getInputParameterSignatures() {
-    // TODO: Don't use Guava here
-    return ImmutableList.of("integer", "integer");
+    return Arrays.asList("integer", "integer");
   }
 
   @Override

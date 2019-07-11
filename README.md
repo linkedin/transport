@@ -22,7 +22,7 @@ Avro. Further details on Transport can be found in this [LinkedIn Engineering bl
   - Transport UDFs API: [docs/transport-udfs-api.md](/docs/transport-udfs-api.md)
   - Authoring Transport UDFs: [docs/authoring-transport-udfs.md](/docs/authoring-transport-udfs.md)
   - Using Transport UDFs: [docs/using-transport-udfs.md](/docs/using-transport-udfs.md)
-  - Writing Tests for Transport UDFs: [TODO]
+  - Writing Tests for Transport UDFs: [docs/writing-tests.md](/docs/writing-tests.md)
   - FAQ: [docs/faq.md](/docs/faq.md)
 - Developer guides
   - How the Transport Plugin works: [TODO]
