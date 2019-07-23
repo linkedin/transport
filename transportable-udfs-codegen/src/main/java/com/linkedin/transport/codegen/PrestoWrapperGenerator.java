@@ -95,7 +95,9 @@ public class PrestoWrapperGenerator implements WrapperGenerator {
         .build();
 
     services.add(wrapperClassName.toString());
-    JavaFile javaFile = JavaFile.builder(wrapperClassName.packageName(), wrapperClass).build();
+    JavaFile javaFile = JavaFile.builder(wrapperClassName.packageName(), wrapperClass)
+        .skipJavaLangImports(true)
+        .build();
 
     try {
       javaFile.writeTo(sourcesOutputDir);
