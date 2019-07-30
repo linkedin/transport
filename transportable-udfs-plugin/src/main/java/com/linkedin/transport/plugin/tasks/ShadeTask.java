@@ -33,7 +33,7 @@ import org.gradle.api.tasks.TaskAction;
  * class from being shaded and exclude dependencies altogether from the output Jar
  */
 public class ShadeTask extends ShadowJar {
-  private static Logger LOG = Logging.getLogger(ShadeTask.class);
+  private static final Logger LOG = Logging.getLogger(ShadeTask.class);
 
   /**
    * The prefix to be applied to all shaded classes in the JAR
