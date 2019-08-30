@@ -1,8 +1,7 @@
 # Writing Tests for Transport UDFs
 
-Thank you for using Transport UDFs. See also [documentation index](/README.md#documentation)
+This guide takes you through writing tests for Transport UDFs using the unified testing framework. For information about the project in general please refer to the [documentation index](/README.md#documentation)
 
-This guide takes you through writing a test for a Transport UDF using the unified testing framework.
 This framework allows you to write your tests using a standard API and the framework will execute these test on all the supported platforms.
 Here we will be writing tests for the Multiply UDF which we developed in [Authoring Transport UDFs](authoring-transport-udfs.md).
 

@@ -31,7 +31,7 @@ Avro. Further details on Transport can be found in this [LinkedIn Engineering bl
 
 ## Example
 
-This is an example of what it takes to define a Transport UDF. It is simple and quite self-explanatory.
+This example shows how a portable UDF is written using the Transport APIs.
 
 ```java
 public class MapFromTwoArraysFunction extends StdUDF2<StdArray, StdArray, StdMap> implements TopLevelStdUDF {
@@ -90,8 +90,7 @@ objects that conform to a given data type (such as a map whose keys
 are of the type of elements in the first array and values are of the
 type of elements in the second array). `StdUDF2` is an abstract class
 to express a UDF that takes two parameters. It is parametrized by the
-UDF input types and the UDF output type. A more detailed documentation
-of the API usage can be found in the [Transport UDFs API](/docs/transport-udfs-api.md).
+UDF input types and the UDF output type. Please consult the [Transport UDFs API](/docs/transport-udfs-api.md) for more details and examples.
 
 ## How to Build
 Clone the repository:
@@ -108,7 +107,7 @@ Build:
 ./gradlew build
 ```
 
-This project requires Java `1.8.0_151` or higher.
+Please note that this project requires Java `1.8.0_151` or higher.
 Either set `JAVA_HOME` to the home of an appropriate version and then use `./gradlew build` as described above, or set the `org.gradle.java.home` gradle property to the Java home of an appropriate version as below:
 ```bash
 ./gradlew -Dorg.gradle.java.home=/path/to/java/home build
@@ -179,7 +178,9 @@ The project is under active development and we welcome contributions of differen
 * Contributing new platform support.
 
 * Contributing a framework for new types of UDFs, e.g., aggregate UDFs (UDAFs), or table functions (UDTFs).
- 
+
+Please take a look at the [Contribution Agreement](CONTRIBUTING.md).
+
 ## Questions?
 Please send any questions or discussion topics to [transport-udfs@googlegroups.com](mailto:transport-udfs@googlegroups.com)
 

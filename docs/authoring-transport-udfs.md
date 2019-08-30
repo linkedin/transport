@@ -1,9 +1,8 @@
 # Authoring Transport UDFs
 
-Thank you for using Transport UDFs. See also [documentation index](/README.md#documentation)
-
 This guide takes you through writing a simple UDF in a Gradle project.
-For better understanding, it is suggested that you read [Transport UDFs API](transport-udfs-api.md) either prior to or alongside this guide.
+For the API documentation, please refer to the [Transport UDFs API](transport-udfs-api.md).
+For information about the project in general please refer to the [documentation index](/README.md#documentation)
 
 ## Adding Dependency
 

@@ -1,10 +1,8 @@
 # The Transport UDFs API
 
-Thank you for using Transport UDFs. See also [documentation index](/README.md#documentation)
-
-The Transport UDFs API is comprised of a number of interfaces that
-enable users to express data types, data objects, type signatures, and
-UDFs. Below we discuss each in detail.
+This guide takes you through the various interfaces in the Transport UDFs API that
+enable users to express data types, data objects, type signatures, and UDFs.
+For information about the project in general please refer to the [documentation index](/README.md#documentation)
 
 ## `StdType` Interface
 The `StdType` interface is the parent class of all type objects that

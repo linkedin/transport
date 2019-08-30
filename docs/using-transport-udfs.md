@@ -2,7 +2,10 @@
 
 Thank you for using Transport UDFs. See also [documentation index](/README.md#documentation)
 
-This guide describes the procedure for using Transport UDFs in various supported platforms. If the UDF library uses the Transport Plugin, UDF artifacts will be automatically generated for each platform. These artifacts are distinguished by maven/ivy classifiers in addition to the original UDF artifact coordinates. Follow the below sections on how to identify the correct artifact/class for your platform and consequently how to use it in the platform.
+This guide describes the procedure for using Transport UDFs in various supported platforms.
+For information about the project in general please refer to the [documentation index](/README.md#documentation)
+
+If the UDF library uses the Transport Plugin, UDF artifacts will be automatically generated for each platform. These artifacts are distinguished by maven/ivy classifiers in addition to the original UDF artifact coordinates. Follow the below sections on how to identify the correct artifact/class for your platform and consequently how to use it in the platform.
 
 - [Identifying platform-specific UDF artifacts](#identifying-platform-specific-udf-artifacts)
     - [Platform-specific artifact file](#platform-specific-artifact-file)
@@ -103,7 +106,10 @@ If the UDF class is `com.linkedin.transport.example.ExampleUDF` then the platfor
 ### Presto
 
 1. Add the UDF to the Presto installation  
-Unlike Hive and Spark, Presto currently does not allow dynamically loading jar files once the Presto server has started. To be able to use the Transport UDFs in Presto, the tar file for the UDF needs to be added as a Presto plugin. For instructions on how to add a Presto tar as a Presto plugin, see [TODO Add link to Presto patch + plugin instructions].
+Unlike Hive and Spark, Presto currently does not allow dynamically loading jar files once the Presto server has started.
+In Presto, the jar is deployed to the `plugin` directory.
+However, a small patch is required for the Presto engine to recognize the jar as a plugin, since the generated Presto UDFs implement the `SqlScalarFunction` API, which is currently not part of Presto's SPI architecture.
+You can find the patch [here](transportable-udfs-documentation/transport-udfs-presto.patch) and apply it before deploying your UDFs jar to the Presto engine.
 
 2. Call the UDF in a query  
     To call the UDF, you will need to use the function name defined in the Transport UDF definition.
