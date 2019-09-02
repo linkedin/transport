@@ -65,5 +65,5 @@ To figure out Java equivalents of StdData types to be used in the test framework
     - [TestStructCreateByIndexFunction](../transportable-udfs-examples/transportable-udfs-example-udfs/src/test/java/com/linkedin/transport/examples/TestStructCreateByIndexFunction.java)
 - Testing overloaded UDFs
     - [TestNumericAddFunction](../transportable-udfs-examples/transportable-udfs-example-udfs/src/test/java/com/linkedin/transport/examples/TestNumericAddFunction.java)
-- Testing UDFs which access side files
+- Testing UDFs which access HDFS files
     - [TestFileLookupFunction](../transportable-udfs-examples/transportable-udfs-example-udfs/src/test/java/com/linkedin/transport/examples/TestFileLookupFunction.java)

@@ -17,7 +17,7 @@ Avro. Further details on Transport can be found in this [LinkedIn Engineering bl
 
 - Project information: [README.md](/README.md)
   - Transport release notes: [docs/release-notes.md](/docs/release-notes.md)
-  - Contributing [TODO]
+  - Contributing: [#contributing](#contributing)
 - User guides
   - Transport UDFs API: [docs/transport-udfs-api.md](/docs/transport-udfs-api.md)
   - Authoring Transport UDFs: [docs/authoring-transport-udfs.md](/docs/authoring-transport-udfs.md)
@@ -170,10 +170,10 @@ engine to recognize the jar as a plugin, since the generated Presto UDFs impleme
 which is currently not part of Presto's SPI architecture. You can find the patch [here](transportable-udfs-documentation/transport-udfs-presto.patch) and apply it
  before deploying your UDFs jar to the Presto engine.
  
-## Contributions
+## Contributing
 The project is under active development and we welcome contributions of different forms:
 
-* Contributing new general-purpose Transportable UDFs (e.g., Machine Learning UDFs, Spatial UDFs, Linear Algebra UDFs, etc).
+* Contributing new general-purpose Transport UDFs (e.g., Machine Learning UDFs, Spatial UDFs, Linear Algebra UDFs, etc).
 
 * Contributing new platform support.
 

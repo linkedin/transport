@@ -102,6 +102,6 @@ For instructions on how to use these artifacts, see [Using Transport UDFs](using
     - [NumericAddFunction](../transportable-udfs-examples/transportable-udfs-example-udfs/src/main/java/com/linkedin/transport/examples/NumericAddFunction.java)
     - [NumericAddIntFunction](../transportable-udfs-examples/transportable-udfs-example-udfs/src/main/java/com/linkedin/transport/examples/NumericAddIntFunction.java)
     - [NumericAddLongFunction](../transportable-udfs-examples/transportable-udfs-example-udfs/src/main/java/com/linkedin/transport/examples/NumericAddLongFunction.java)
-- Accessing side files in the UDF
+- Accessing HDFS files in the UDF
     - [`StdUDF` File Processing](transport-udfs-api.md#stdudf-file-processing)
     - [FileLookupFunction](../transportable-udfs-examples/transportable-udfs-example-udfs/src/main/java/com/linkedin/transport/examples/FileLookupFunction.java)

@@ -1,7 +1,5 @@
 # Frequently Asked Questions
 
-See also the entire [documentation index](/README.md#documentation)
-
 ### How do I get started?
 
 Check out following documents:
