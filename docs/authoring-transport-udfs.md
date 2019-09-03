@@ -95,13 +95,11 @@ For instructions on how to use these artifacts, see [Using Transport UDFs](using
 ## More Complex UDF Examples
 
 - Complex types (maps, arrays, structs) with generics
-    - [MapFromTwoArraysFunction](../transportable-udfs-examples/transportable-udfs-example-udfs/src/main/java/com/linkedin/transport/examples/MapFromTwoArraysFunction.java)
-    - [StructCreateByIndexFunction](../transportable-udfs-examples/transportable-udfs-example-udfs/src/main/java/com/linkedin/transport/examples/StructCreateByIndexFunction.java)
+    - Transport UDFs can accept/return complex types. E.g. the input parameter signature for a UDF which accepts a list of integers would be `array(integer)`. You can also use generic types to derive types at runtime. E.g. you can accept a generic type `K` as input and return an `array(K)` in which case the type of `K` will be derived at query compile time.
+    - Example: [MapFromTwoArraysFunction](../transportable-udfs-examples/transportable-udfs-example-udfs/src/main/java/com/linkedin/transport/examples/MapFromTwoArraysFunction.java) and [StructCreateByNameFunction](../transportable-udfs-examples/transportable-udfs-example-udfs/src/main/java/com/linkedin/transport/examples/StructCreateByNameFunction.java)
 - UDF overloading
-    - [`TopLevelStdUDF` Interface](transport-udfs-api.md#toplevelstdudf-interface)
-    - [NumericAddFunction](../transportable-udfs-examples/transportable-udfs-example-udfs/src/main/java/com/linkedin/transport/examples/NumericAddFunction.java)
-    - [NumericAddIntFunction](../transportable-udfs-examples/transportable-udfs-example-udfs/src/main/java/com/linkedin/transport/examples/NumericAddIntFunction.java)
-    - [NumericAddLongFunction](../transportable-udfs-examples/transportable-udfs-example-udfs/src/main/java/com/linkedin/transport/examples/NumericAddLongFunction.java)
+    - You can define multiple Transport UDFs which share the same name but accept different input parameter signatures using the [`TopLevelStdUDF` Interface](transport-udfs-api.md#toplevelstdudf-interface).
+    - Example:  [NumericAddFunction](../transportable-udfs-examples/transportable-udfs-example-udfs/src/main/java/com/linkedin/transport/examples/NumericAddFunction.java) is the interface that defines the UDF name which is then shared by two of its overloadings viz. [NumericAddIntFunction](../transportable-udfs-examples/transportable-udfs-example-udfs/src/main/java/com/linkedin/transport/examples/NumericAddIntFunction.java) and  [NumericAddLongFunction](../transportable-udfs-examples/transportable-udfs-example-udfs/src/main/java/com/linkedin/transport/examples/NumericAddLongFunction.java).
 - Accessing HDFS files in the UDF
-    - [`StdUDF` File Processing](transport-udfs-api.md#stdudf-file-processing)
-    - [FileLookupFunction](../transportable-udfs-examples/transportable-udfs-example-udfs/src/main/java/com/linkedin/transport/examples/FileLookupFunction.java)
+    - Transport UDF API provides a standard way to access and process HDFS files in the UDFs (details - [`StdUDF` File Processing](transport-udfs-api.md#stdudf-file-processing)). 
+    - Example: One common usage of this feature is to build hash tables (or bitmaps) from files that can then be used as lookup tables inside the UDF. Such usage is demonstrated in [FileLookupFunction](../transportable-udfs-examples/transportable-udfs-example-udfs/src/main/java/com/linkedin/transport/examples/FileLookupFunction.java).
