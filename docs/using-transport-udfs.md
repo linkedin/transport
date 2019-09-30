@@ -1,7 +1,5 @@
 # Using Transport UDFs
 
-Thank you for using Transport UDFs. See also [documentation index](/README.md#documentation)
-
 This guide describes the procedure for using Transport UDFs in various supported platforms.
 For information about the project in general please refer to the [documentation index](/README.md#documentation)
 
