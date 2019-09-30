@@ -3,7 +3,7 @@
 This guide describes the procedure for using Transport UDFs in various supported platforms.
 For information about the project in general please refer to the [documentation index](/README.md#documentation)
 
-If the UDF library uses the Transport Plugin, UDF artifacts will be automatically generated for each platform. These artifacts are distinguished by maven/ivy classifiers in addition to the original UDF artifact coordinates. Follow the below sections on how to identify the correct artifact/class for your platform and consequently how to use it in the platform.
+If the UDF library uses the Transport Plugin, UDF artifacts will be automatically generated for each platform. These artifacts are distinguished by maven classifiers in addition to the original UDF artifact coordinates. Follow the below sections on how to identify the correct artifact/class for your platform and consequently how to use it in the platform.
 
 - [Identifying platform-specific UDF artifacts](#identifying-platform-specific-udf-artifacts)
     - [Platform-specific artifact file](#platform-specific-artifact-file)
@@ -17,30 +17,9 @@ If the UDF library uses the Transport Plugin, UDF artifacts will be automaticall
 
 ### Platform-specific artifact file
 
-As mentioned above, the Transport Plugin will automatically generate artifacts for each platform.
-- Ivy/Gradle  
-    If the UDF has an ivy coordinate `com.linkedin.transport-example:example-udf:1.0.0`, then the coordinate for the platform-specific UDF would be `com.linkedin.transport-example:example-udf:1.0.0:PLATFORM-NAME` or alternatively `com.linkedin.transport-example:example-udf:1.0.0?classifier=PLATFORM-NAME` where `PLATFORM-NAME` is `hive`, `presto` or `spark`.
-- Maven  
-    If the UDF has a maven coordinate like
-    ```xml
-    <dependency>
-        <groupId>com.linkedin.transport-example</groupId>
-        <artifactId>example-udf</artifactId>
-        <version>1.0.0</version>
-    <dependency>
-    ```
-    then the coordinate for the platform-specific UDF would be
-    ```xml
-    <dependency>
-        <groupId>com.linkedin.transport-example</groupId>
-        <artifactId>example-udf</artifactId>
-        <version>1.0.0</version>
-        <classifier>PLATFORM-NAME</classifier>
-    <dependency>
-    ```
-    where `PLATFORM-NAME` is `hive`, `presto` or `spark`.
-- Local File System  
-    When building the UDF project, platform-specific artifacts are built alongside the UDF artifact in the output directory with the platform name as a file suffix. If the built UDF is located at `/path/to/example-udf.ext` then the platform-specific artifact is located at `/path/to/example-udf-PLATFORM-NAME.ext` where `PLATFORM-NAME` is `hive`, `presto` or `spark`.
+As mentioned above, the Transport Plugin will automatically generate artifacts for each platform. Once these artifacts are published to a ivy repository, you can consume them using the corresponding ivy coordinates using the platform name as a maven classifier. E.g. if the UDF has an ivy coordinate `com.linkedin.transport-example:example-udf:1.0.0`, then the coordinate for the platform-specific UDF would be `com.linkedin.transport-example:example-udf:1.0.0?classifier=PLATFORM-NAME` where `PLATFORM-NAME` is `hive`, `presto` or `spark`.
+
+If you are building the UDF project locally, the platform-specific artifacts are built alongside the UDF artifact in the output directory with the platform name as a file suffix. If the built UDF is located at `/path/to/example-udf.ext` then the platform-specific artifact is located at `/path/to/example-udf-PLATFORM-NAME.ext` where `PLATFORM-NAME` is `hive`, `presto` or `spark`.
 
 ### Platform-specific UDF class
 
