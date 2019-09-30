@@ -7,33 +7,26 @@ For information about the project in general please refer to the [documentation 
 ## Adding Dependency
 
 Add the following to the `build.gradle` of the Gradle module in which you wish to develop your UDF.
-Get the latest version of "com.linkedin.transport.plugin" plugin from [Gradle Plugin Portal](https://plugins.gradle.org/plugin/com.linkedin.transport.plugin)
-
-```Gradle
-plugins {
-    id "java"
-    id "com.linkedin.transport.plugin" version "TODO"
-}
-```
-
-<details>
-    <summary>For advanced users, if you need to use the traditional way of configuring Gradle plugins</summary>
 
 ```Gradle
 buildscript {
     repositories {
-        maven { url "https://plugins.gradle.org/m2/" }
+        mavenCentral()
     }
 
     dependencies {
-        classpath "com.linkedin.transport:transportable-udfs-plugin:TODO"
+        classpath "com.linkedin.transport:transportable-udfs-plugin:+"
     }
 }
 
 apply plugin: "java"
 apply plugin: "com.linkedin.transport.plugin"
+
+repositories {
+    mavenCentral()
+}
 ```
-</details>
+
 
 ## Writing the UDF
 
