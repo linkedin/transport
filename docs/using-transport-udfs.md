@@ -3,7 +3,7 @@
 This guide describes the procedure for using Transport UDFs in various supported platforms.
 For information about the project in general please refer to the [documentation index](/README.md#documentation)
 
-If the UDF library uses the Transport Plugin, UDF artifacts will be automatically generated for each platform. These artifacts are distinguished by maven classifiers in addition to the original UDF artifact coordinates. Follow the below sections on how to identify the correct artifact/class for your platform and consequently how to use it in the platform.
+The Transport framework automatically generates UDF artifacts for each supported platform. These artifacts are distinguished by maven classifiers in addition to the original UDF artifact coordinates. Follow the below sections on how to identify the correct artifact/class for your platform and consequently how to use it in the platform.
 
 - [Identifying platform-specific UDF artifacts](#identifying-platform-specific-udf-artifacts)
     - [Platform-specific artifact file](#platform-specific-artifact-file)
