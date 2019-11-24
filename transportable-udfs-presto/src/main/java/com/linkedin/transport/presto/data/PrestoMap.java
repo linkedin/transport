@@ -5,14 +5,6 @@
  */
 package com.linkedin.transport.presto.data;
 
-import com.facebook.presto.spi.PrestoException;
-import com.facebook.presto.spi.block.Block;
-import com.facebook.presto.spi.block.BlockBuilder;
-import com.facebook.presto.spi.block.PageBuilderStatus;
-import com.facebook.presto.spi.function.OperatorType;
-import com.facebook.presto.spi.type.BooleanType;
-import com.facebook.presto.spi.type.MapType;
-import com.facebook.presto.spi.type.Type;
 import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableList;
 import com.linkedin.transport.api.StdFactory;
@@ -21,6 +13,14 @@ import com.linkedin.transport.api.data.StdData;
 import com.linkedin.transport.api.data.StdMap;
 import com.linkedin.transport.presto.PrestoFactory;
 import com.linkedin.transport.presto.PrestoWrapper;
+import io.prestosql.spi.PrestoException;
+import io.prestosql.spi.block.Block;
+import io.prestosql.spi.block.BlockBuilder;
+import io.prestosql.spi.block.PageBuilderStatus;
+import io.prestosql.spi.function.OperatorType;
+import io.prestosql.spi.type.BooleanType;
+import io.prestosql.spi.type.MapType;
+import io.prestosql.spi.type.Type;
 import java.lang.invoke.MethodHandle;
 import java.util.AbstractCollection;
 import java.util.AbstractSet;
@@ -28,9 +28,9 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.Set;
 
-import static com.facebook.presto.metadata.Signature.*;
-import static com.facebook.presto.spi.StandardErrorCode.*;
-import static com.facebook.presto.spi.type.TypeUtils.*;
+import static io.prestosql.metadata.Signature.*;
+import static io.prestosql.spi.StandardErrorCode.*;
+import static io.prestosql.spi.type.TypeUtils.*;
 
 
 public class PrestoMap extends PrestoData implements StdMap {
@@ -53,8 +53,7 @@ public class PrestoMap extends PrestoData implements StdMap {
     _mapType = mapType;
 
     _stdFactory = stdFactory;
-    _keyEqualsMethod = ((PrestoFactory) stdFactory).getFunctionRegistry()
-        .getScalarFunctionImplementation(
+    _keyEqualsMethod = ((PrestoFactory) stdFactory).getScalarFunctionImplementation(
             internalOperator(OperatorType.EQUAL, BooleanType.BOOLEAN, ImmutableList.of(_keyType, _keyType)))
         .getMethodHandle();
   }

@@ -5,18 +5,6 @@
  */
 package com.linkedin.transport.presto;
 
-import com.facebook.presto.metadata.BoundVariables;
-import com.facebook.presto.metadata.FunctionKind;
-import com.facebook.presto.metadata.FunctionRegistry;
-import com.facebook.presto.metadata.Signature;
-import com.facebook.presto.metadata.SqlScalarFunction;
-import com.facebook.presto.metadata.TypeVariableConstraint;
-import com.facebook.presto.operator.scalar.ScalarFunctionImplementation;
-import com.facebook.presto.spi.classloader.ThreadContextClassLoader;
-import com.facebook.presto.spi.type.IntegerType;
-import com.facebook.presto.spi.type.Type;
-import com.facebook.presto.spi.type.TypeManager;
-import com.facebook.presto.spi.type.TypeSignature;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
 import com.linkedin.transport.api.StdFactory;
@@ -34,6 +22,17 @@ import com.linkedin.transport.api.udf.StdUDF7;
 import com.linkedin.transport.api.udf.StdUDF8;
 import com.linkedin.transport.api.udf.TopLevelStdUDF;
 import com.linkedin.transport.typesystem.GenericTypeSignatureElement;
+import io.prestosql.metadata.BoundVariables;
+import io.prestosql.metadata.FunctionKind;
+import io.prestosql.metadata.Metadata;
+import io.prestosql.metadata.Signature;
+import io.prestosql.metadata.SqlScalarFunction;
+import io.prestosql.metadata.TypeVariableConstraint;
+import io.prestosql.operator.scalar.ScalarFunctionImplementation;
+import io.prestosql.spi.classloader.ThreadContextClassLoader;
+import io.prestosql.spi.type.IntegerType;
+import io.prestosql.spi.type.Type;
+import io.prestosql.spi.type.TypeSignature;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
@@ -46,10 +45,10 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import org.apache.commons.lang3.ClassUtils;
 
-import static com.facebook.presto.metadata.Signature.*;
-import static com.facebook.presto.metadata.SignatureBinder.*;
-import static com.facebook.presto.spi.type.TypeSignature.*;
-import static com.facebook.presto.util.Reflection.*;
+import static io.prestosql.metadata.Signature.*;
+import static io.prestosql.metadata.SignatureBinder.*;
+import static io.prestosql.spi.type.TypeSignature.*;
+import static io.prestosql.util.Reflection.*;
 
 // Suppressing argument naming convention for the evalInternal methods
 @SuppressWarnings({"checkstyle:regexpsinglelinejava"})
@@ -101,9 +100,8 @@ public abstract class StdUdfWrapper extends SqlScalarFunction {
   }
 
   @Override
-  public ScalarFunctionImplementation specialize(BoundVariables boundVariables, int arity, TypeManager typeManager,
-      FunctionRegistry functionRegistry) {
-    StdFactory stdFactory = new PrestoFactory(boundVariables, typeManager, functionRegistry);
+  public ScalarFunctionImplementation specialize(BoundVariables boundVariables, int arity, Metadata metadata) {
+    StdFactory stdFactory = new PrestoFactory(boundVariables, metadata);
     StdUDF stdUDF = getStdUDF();
     stdUDF.init(stdFactory);
     // Subtract a small jitter value so that refresh is triggered on first call
@@ -115,13 +113,13 @@ public abstract class StdUdfWrapper extends SqlScalarFunction {
     boolean[] nullableArguments = stdUDF.getAndCheckNullableArguments();
 
     return new ScalarFunctionImplementation(true, getNullConventionForArguments(nullableArguments),
-        getMethodHandle(stdUDF, typeManager, boundVariables, nullableArguments), isDeterministic());
+        getMethodHandle(stdUDF, metadata, boundVariables, nullableArguments), isDeterministic());
   }
 
-  private MethodHandle getMethodHandle(StdUDF stdUDF, TypeManager typeManager, BoundVariables boundVariables,
+  private MethodHandle getMethodHandle(StdUDF stdUDF, Metadata metadata, BoundVariables boundVariables,
       boolean[] nullableArguments) {
-    Type[] inputTypes = getPrestoTypes(stdUDF.getInputParameterSignatures(), typeManager, boundVariables);
-    Type outputType = getPrestoType(stdUDF.getOutputParameterSignature(), typeManager, boundVariables);
+    Type[] inputTypes = getPrestoTypes(stdUDF.getInputParameterSignatures(), metadata, boundVariables);
+    Type outputType = getPrestoType(stdUDF.getOutputParameterSignature(), metadata, boundVariables);
 
     // Generic MethodHandle for eval where all arguments are of type Object
     Class<?>[] genericMethodHandleArgumentTypes = getMethodHandleArgumentTypes(inputTypes, nullableArguments, true);
@@ -129,7 +127,7 @@ public abstract class StdUdfWrapper extends SqlScalarFunction {
         methodHandle(StdUdfWrapper.class, "evalInternal", genericMethodHandleArgumentTypes).bindTo(this);
 
     Class<?>[] specificMethodHandleArgumentTypes = getMethodHandleArgumentTypes(inputTypes, nullableArguments, false);
-    Class<?> specificMethodHandleReturnType = getMethodHandleJavaType(outputType, true, 0);
+    Class<?> specificMethodHandleReturnType = getJavaTypeForNullability(outputType, true);
     MethodType specificMethodType =
         MethodType.methodType(specificMethodHandleReturnType, specificMethodHandleArgumentTypes);
 
@@ -263,36 +261,20 @@ public abstract class StdUdfWrapper extends SqlScalarFunction {
     }
   }
 
-  private Class getMethodHandleJavaType(Type prestoType, boolean nullableArgument, int idx) {
-    Class prestoTypeJavaType = prestoType.getJavaType();
-    Class methodHandleJavaType;
-    if (prestoType.getJavaType() == void.class) {
-      if (nullableArgument) {
-        methodHandleJavaType = Void.class;
-      } else {
-        throw new RuntimeException("Error processing argument #" + idx + " of function " + getSignature().getName()
-            + ". Cannot process a non-nullable argument with an unknown type."
-            + " If type is unknown, argument must be nullable");
-      }
+  private Class getJavaTypeForNullability(Type prestoType, boolean nullableArgument) {
+    if (nullableArgument) {
+      return ClassUtils.primitiveToWrapper(prestoType.getJavaType());
     } else {
-      if (nullableArgument) {
-        methodHandleJavaType =
-            prestoTypeJavaType.isPrimitive() ? ClassUtils.primitiveToWrapper(prestoTypeJavaType) : prestoTypeJavaType;
-      } else {
-        methodHandleJavaType = prestoTypeJavaType;
-      }
+      return prestoType.getJavaType();
     }
-    return methodHandleJavaType;
   }
 
-  private Type[] getPrestoTypes(List<String> parameterSignatures, TypeManager typeManager,
-      BoundVariables boundVariables) {
-    return parameterSignatures.stream().map(p -> getPrestoType(p, typeManager, boundVariables)).toArray(Type[]::new);
+  private Type[] getPrestoTypes(List<String> parameterSignatures, Metadata metadata, BoundVariables boundVariables) {
+    return parameterSignatures.stream().map(p -> getPrestoType(p, metadata, boundVariables)).toArray(Type[]::new);
   }
 
-  private Type getPrestoType(String parameterSignature, TypeManager typeManager, BoundVariables boundVariables) {
-    return typeManager.getType(
-        applyBoundVariables(TypeSignature.parseTypeSignature(parameterSignature), boundVariables));
+  private Type getPrestoType(String parameterSignature, Metadata metadata, BoundVariables boundVariables) {
+    return metadata.getType(applyBoundVariables(TypeSignature.parseTypeSignature(parameterSignature), boundVariables));
   }
 
   private Class<?>[] getMethodHandleArgumentTypes(Type[] argTypes, boolean[] nullableArguments,
@@ -305,7 +287,7 @@ public abstract class StdUdfWrapper extends SqlScalarFunction {
       if (useObjectForArgumentType) {
         methodHandleArgumentTypes[i + 3] = Object.class;
       } else {
-        methodHandleArgumentTypes[i + 3] = getMethodHandleJavaType(argTypes[i], nullableArguments[i], i);
+        methodHandleArgumentTypes[i + 3] = getJavaTypeForNullability(argTypes[i], nullableArguments[i]);
       }
     }
     return methodHandleArgumentTypes;

@@ -22,9 +22,3 @@ plugins.withId('com.github.hierynomus.license') {
 
 // TODO: Add a debugPlatform flag to allow debugging specific test methods in IntelliJ
 // for a particular platform other than default
-
-prestoTest {
-  exclude '**/TestArrayFillFunctionFailsOnPresto.class'
-  exclude '**/TestStructCreateByIndexFunctionFailsOnPresto.class'
-  exclude '**/TestStructCreateByNameFunctionFailsOnPresto.class'
-}

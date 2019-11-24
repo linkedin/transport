@@ -5,10 +5,10 @@
  */
 package com.linkedin.transport.presto.types;
 
-import com.facebook.presto.spi.type.RowType;
 import com.linkedin.transport.api.types.StdStructType;
 import com.linkedin.transport.api.types.StdType;
 import com.linkedin.transport.presto.PrestoWrapper;
+import io.prestosql.spi.type.RowType;
 import java.util.List;
 import java.util.stream.Collectors;
 

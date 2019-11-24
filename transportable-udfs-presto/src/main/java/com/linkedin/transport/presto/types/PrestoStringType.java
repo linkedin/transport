@@ -5,8 +5,8 @@
  */
 package com.linkedin.transport.presto.types;
 
-import com.facebook.presto.spi.type.VarcharType;
 import com.linkedin.transport.api.types.StdStringType;
+import io.prestosql.spi.type.VarcharType;
 
 
 public class PrestoStringType implements StdStringType {

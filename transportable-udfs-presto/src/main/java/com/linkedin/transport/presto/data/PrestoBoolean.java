@@ -5,10 +5,10 @@
  */
 package com.linkedin.transport.presto.data;
 
-import com.facebook.presto.spi.block.BlockBuilder;
 import com.linkedin.transport.api.data.StdBoolean;
+import io.prestosql.spi.block.BlockBuilder;
 
-import static com.facebook.presto.spi.type.BooleanType.*;
+import static io.prestosql.spi.type.BooleanType.*;
 
 
 public class PrestoBoolean extends PrestoData implements StdBoolean {

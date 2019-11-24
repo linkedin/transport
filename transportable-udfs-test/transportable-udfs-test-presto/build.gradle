@@ -6,10 +6,10 @@ dependencies {
   compile project(":transportable-udfs-test:transportable-udfs-test-spi")
   compile project(":transportable-udfs-presto")
   compile('com.google.guava:guava:24.1-jre')
-  compile(group:'com.facebook.presto', name: 'presto-main', version: project.ext.'presto-version') {
+  compile(group:'io.prestosql', name: 'presto-main', version: project.ext.'presto-version') {
     exclude 'group': 'com.google.collections', 'module': 'google-collections'
   }
-  compile(group:'com.facebook.presto', name: 'presto-main', version: project.ext.'presto-version', classifier: 'tests') {
+  compile(group:'io.prestosql', name: 'presto-main', version: project.ext.'presto-version', classifier: 'tests') {
     exclude 'group': 'com.google.collections', 'module': 'google-collections'
   }
   compile('io.airlift:testing:0.142')

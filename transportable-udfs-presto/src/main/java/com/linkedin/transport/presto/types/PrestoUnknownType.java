@@ -5,8 +5,8 @@
  */
 package com.linkedin.transport.presto.types;
 
-import com.facebook.presto.type.UnknownType;
 import com.linkedin.transport.api.types.StdUnknownType;
+import io.prestosql.type.UnknownType;
 
 
 public class PrestoUnknownType implements StdUnknownType {

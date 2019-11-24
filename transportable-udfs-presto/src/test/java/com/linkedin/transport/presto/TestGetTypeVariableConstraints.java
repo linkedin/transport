@@ -5,14 +5,14 @@
  */
 package com.linkedin.transport.presto;
 
-import com.facebook.presto.metadata.TypeVariableConstraint;
 import com.google.common.collect.ImmutableList;
 import com.linkedin.transport.api.udf.StdUDF;
+import io.prestosql.metadata.TypeVariableConstraint;
 import java.util.List;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import static com.facebook.presto.metadata.Signature.*;
+import static io.prestosql.metadata.Signature.*;
 
 
 public class TestGetTypeVariableConstraints {

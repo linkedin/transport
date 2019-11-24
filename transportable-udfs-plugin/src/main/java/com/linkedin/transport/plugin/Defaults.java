@@ -63,14 +63,14 @@ class Defaults {
           ImmutableList.of(
               getDependencyConfiguration(IMPLEMENTATION, "com.linkedin.transport:transportable-udfs-presto",
                   "transport"),
-              getDependencyConfiguration(COMPILE_ONLY, "com.facebook.presto:presto-main", "presto")
+              getDependencyConfiguration(COMPILE_ONLY, "io.prestosql:presto-main", "presto")
           ),
           ImmutableList.of(
               getDependencyConfiguration(RUNTIME_ONLY, "com.linkedin.transport:transportable-udfs-test-presto",
                   "transport"),
               // presto-main:tests is a transitive dependency of transportable-udfs-test-presto, but some POM -> IVY
               // converters drop dependencies with classifiers, so we apply this dependency explicitly
-              getDependencyConfiguration(RUNTIME_ONLY, "com.facebook.presto:presto-main", "presto", "tests")
+              getDependencyConfiguration(RUNTIME_ONLY, "io.prestosql:presto-main", "presto", "tests")
           ),
           new DistributionPackaging()),
       new Platform(

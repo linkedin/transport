@@ -28,5 +28,6 @@ public class TestStructCreateByIndexFunction extends AbstractStdUDFTest {
     StdTester tester = getTester();
     tester.check(functionCall("struct_create_by_index", "x", "y"), row("x", "y"), "row(varchar,varchar)");
     tester.check(functionCall("struct_create_by_index", 1, array(1)), row(1, array(1)), "row(integer,array(integer))");
+    tester.check(functionCall("struct_create_by_index", null, null), null, "row(unknown,unknown)");
   }
 }

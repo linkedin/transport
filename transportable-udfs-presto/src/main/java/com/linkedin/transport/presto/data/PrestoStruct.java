@@ -5,23 +5,23 @@
  */
 package com.linkedin.transport.presto.data;
 
-import com.facebook.presto.spi.block.Block;
-import com.facebook.presto.spi.block.BlockBuilder;
-import com.facebook.presto.spi.block.BlockBuilderStatus;
-import com.facebook.presto.spi.block.PageBuilderStatus;
-import com.facebook.presto.spi.type.RowType;
-import com.facebook.presto.spi.type.Type;
 import com.linkedin.transport.api.StdFactory;
 import com.linkedin.transport.api.data.StdData;
 import com.linkedin.transport.api.data.StdStruct;
 import com.linkedin.transport.presto.PrestoWrapper;
+import io.prestosql.spi.block.Block;
+import io.prestosql.spi.block.BlockBuilder;
+import io.prestosql.spi.block.BlockBuilderStatus;
+import io.prestosql.spi.block.PageBuilderStatus;
+import io.prestosql.spi.type.RowType;
+import io.prestosql.spi.type.Type;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import static com.facebook.presto.spi.type.TypeUtils.*;
+import static io.prestosql.spi.type.TypeUtils.*;
 
 
 public class PrestoStruct extends PrestoData implements StdStruct {

@@ -33,5 +33,6 @@ public class TestArrayFillFunction extends AbstractStdUDFTest {
         "array(array(integer))");
     tester.check(functionCall("array_fill", 1, 0L), array(), "array(integer)");
     tester.check(functionCall("array_fill", 1, null), null, "array(integer)");
+    tester.check(functionCall("array_fill", null, 2L), null, "array(unknown)");
   }
 }
