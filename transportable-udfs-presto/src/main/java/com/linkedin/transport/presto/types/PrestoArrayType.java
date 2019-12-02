@@ -5,10 +5,10 @@
  */
 package com.linkedin.transport.presto.types;
 
-import com.facebook.presto.spi.type.ArrayType;
 import com.linkedin.transport.api.types.StdArrayType;
 import com.linkedin.transport.api.types.StdType;
 import com.linkedin.transport.presto.PrestoWrapper;
+import io.prestosql.spi.type.ArrayType;
 
 
 public class PrestoArrayType implements StdArrayType {

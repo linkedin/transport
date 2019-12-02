@@ -5,9 +5,9 @@
  */
 package com.linkedin.transport.test.presto;
 
-import com.facebook.presto.metadata.BoundVariables;
-import com.facebook.presto.operator.scalar.AbstractTestFunctions;
-import com.facebook.presto.spi.type.Type;
+import io.prestosql.metadata.BoundVariables;
+import io.prestosql.operator.scalar.AbstractTestFunctions;
+import io.prestosql.spi.type.Type;
 import com.google.common.collect.ImmutableMap;
 import com.linkedin.transport.api.StdFactory;
 import com.linkedin.transport.api.udf.StdUDF;
@@ -48,8 +48,7 @@ public class PrestoTester extends AbstractTestFunctions implements SqlStdTester 
   public StdFactory getStdFactory() {
     if (_stdFactory == null) {
       _stdFactory = new PrestoFactory(new BoundVariables(ImmutableMap.of(), ImmutableMap.of()),
-          this.functionAssertions.getMetadata().getTypeManager(),
-          this.functionAssertions.getMetadata().getFunctionRegistry());
+          this.functionAssertions.getMetadata());
     }
     return _stdFactory;
   }

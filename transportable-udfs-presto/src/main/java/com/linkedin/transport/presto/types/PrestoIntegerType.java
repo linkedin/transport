@@ -5,8 +5,8 @@
  */
 package com.linkedin.transport.presto.types;
 
-import com.facebook.presto.spi.type.IntegerType;
 import com.linkedin.transport.api.types.StdIntegerType;
+import io.prestosql.spi.type.IntegerType;
 
 
 public class PrestoIntegerType implements StdIntegerType {

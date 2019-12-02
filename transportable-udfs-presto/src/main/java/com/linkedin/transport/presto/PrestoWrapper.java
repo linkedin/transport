@@ -5,16 +5,6 @@
  */
 package com.linkedin.transport.presto;
 
-import com.facebook.presto.spi.block.Block;
-import com.facebook.presto.spi.type.ArrayType;
-import com.facebook.presto.spi.type.BigintType;
-import com.facebook.presto.spi.type.BooleanType;
-import com.facebook.presto.spi.type.IntegerType;
-import com.facebook.presto.spi.type.MapType;
-import com.facebook.presto.spi.type.RowType;
-import com.facebook.presto.spi.type.Type;
-import com.facebook.presto.spi.type.VarcharType;
-import com.facebook.presto.type.UnknownType;
 import com.linkedin.transport.api.StdFactory;
 import com.linkedin.transport.api.data.StdData;
 import com.linkedin.transport.api.types.StdType;
@@ -34,6 +24,16 @@ import com.linkedin.transport.presto.types.PrestoStringType;
 import com.linkedin.transport.presto.types.PrestoStructType;
 import com.linkedin.transport.presto.types.PrestoUnknownType;
 import io.airlift.slice.Slice;
+import io.prestosql.spi.block.Block;
+import io.prestosql.spi.type.ArrayType;
+import io.prestosql.spi.type.BigintType;
+import io.prestosql.spi.type.BooleanType;
+import io.prestosql.spi.type.IntegerType;
+import io.prestosql.spi.type.MapType;
+import io.prestosql.spi.type.RowType;
+import io.prestosql.spi.type.Type;
+import io.prestosql.spi.type.VarcharType;
+import io.prestosql.type.UnknownType;
 
 import static java.lang.Math.*;
 

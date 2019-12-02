@@ -5,12 +5,12 @@ buildscript {
     mavenCentral()
   }
   dependencies {
-    classpath group:'com.facebook.presto', name: 'presto-main', version: project.ext.'presto-version'
+    classpath group:'io.prestosql', name: 'presto-main', version: project.ext.'presto-version'
   }
 }
 
 import com.google.common.base.StandardSystemProperty
-import com.facebook.presto.server.JavaVersion
+import io.prestosql.server.JavaVersion
 task verifyPrestoJvmRequirements(type:Exec) {
   String javaVersion = StandardSystemProperty.JAVA_VERSION.value()
   if (javaVersion == null) {
@@ -27,16 +27,16 @@ dependencies {
   compile project(':transportable-udfs-api')
   compile project(':transportable-udfs-type-system')
   compile project(':transportable-udfs-utils')
-  compileOnly(group:'com.facebook.presto', name: 'presto-main', version: project.ext.'presto-version') {
+  compileOnly(group:'io.prestosql', name: 'presto-main', version: project.ext.'presto-version') {
     exclude 'group': 'com.google.collections', 'module': 'google-collections'
   }
-  testCompile(group:'com.facebook.presto', name: 'presto-main', version: project.ext.'presto-version') {
+  testCompile(group:'io.prestosql', name: 'presto-main', version: project.ext.'presto-version') {
     exclude 'group': 'com.google.collections', 'module': 'google-collections'
   }
-  testCompile(group:'com.facebook.presto', name: 'presto-main', version: project.ext.'presto-version', classifier: 'tests') {
+  testCompile(group:'io.prestosql', name: 'presto-main', version: project.ext.'presto-version', classifier: 'tests') {
     exclude 'group': 'com.google.collections', 'module': 'google-collections'
   }
-  compileOnly(group:'com.facebook.presto', name: 'presto-spi', version: project.ext.'presto-version')
+  compileOnly(group:'io.prestosql', name: 'presto-spi', version: project.ext.'presto-version')
   compile('org.apache.hadoop:hadoop-hdfs:2.7.4')
   compile('org.apache.hadoop:hadoop-common:2.7.4')
   testCompile('io.airlift:testing:0.142')

@@ -5,14 +5,6 @@
  */
 package com.linkedin.transport.presto;
 
-import com.facebook.presto.metadata.BoundVariables;
-import com.facebook.presto.metadata.FunctionRegistry;
-import com.facebook.presto.spi.type.ArrayType;
-import com.facebook.presto.spi.type.MapType;
-import com.facebook.presto.spi.type.RowType;
-import com.facebook.presto.spi.type.Type;
-import com.facebook.presto.spi.type.TypeManager;
-import com.facebook.presto.spi.type.TypeSignature;
 import com.google.common.base.Preconditions;
 import com.linkedin.transport.api.StdFactory;
 import com.linkedin.transport.api.data.StdArray;
@@ -31,26 +23,29 @@ import com.linkedin.transport.presto.data.PrestoMap;
 import com.linkedin.transport.presto.data.PrestoString;
 import com.linkedin.transport.presto.data.PrestoStruct;
 import io.airlift.slice.Slices;
+import io.prestosql.metadata.BoundVariables;
+import io.prestosql.metadata.Metadata;
+import io.prestosql.metadata.Signature;
+import io.prestosql.operator.scalar.ScalarFunctionImplementation;
+import io.prestosql.spi.type.ArrayType;
+import io.prestosql.spi.type.MapType;
+import io.prestosql.spi.type.RowType;
+import io.prestosql.spi.type.Type;
+import io.prestosql.spi.type.TypeSignature;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.facebook.presto.metadata.SignatureBinder.*;
+import static io.prestosql.metadata.SignatureBinder.*;
 
 
 public class PrestoFactory implements StdFactory {
 
   final BoundVariables boundVariables;
-  final TypeManager typeManager;
-  final FunctionRegistry functionRegistry;
+  final Metadata metadata;
 
-  public PrestoFactory(BoundVariables boundVariables, TypeManager typeManager, FunctionRegistry functionRegistry) {
+  public PrestoFactory(BoundVariables boundVariables, Metadata metadata) {
     this.boundVariables = boundVariables;
-    this.typeManager = typeManager;
-    this.functionRegistry = functionRegistry;
-  }
-
-  public FunctionRegistry getFunctionRegistry() {
-    return functionRegistry;
+    this.metadata = metadata;
   }
 
   @Override
@@ -109,6 +104,10 @@ public class PrestoFactory implements StdFactory {
   @Override
   public StdType createStdType(String typeSignature) {
     return PrestoWrapper.createStdType(
-        typeManager.getType(applyBoundVariables(TypeSignature.parseTypeSignature(typeSignature), boundVariables)));
+        metadata.getType(applyBoundVariables(TypeSignature.parseTypeSignature(typeSignature), boundVariables)));
+  }
+
+  public ScalarFunctionImplementation getScalarFunctionImplementation(Signature signature) {
+    return metadata.getScalarFunctionImplementation(signature);
   }
 }

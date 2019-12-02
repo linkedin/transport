@@ -5,10 +5,10 @@
  */
 package com.linkedin.transport.presto.types;
 
-import com.facebook.presto.spi.type.MapType;
 import com.linkedin.transport.api.types.StdMapType;
 import com.linkedin.transport.api.types.StdType;
 import com.linkedin.transport.presto.PrestoWrapper;
+import io.prestosql.spi.type.MapType;
 
 
 public class PrestoMapType implements StdMapType {

@@ -5,18 +5,18 @@
  */
 package com.linkedin.transport.presto.data;
 
-import com.facebook.presto.spi.block.Block;
-import com.facebook.presto.spi.block.BlockBuilder;
-import com.facebook.presto.spi.block.PageBuilderStatus;
-import com.facebook.presto.spi.type.ArrayType;
-import com.facebook.presto.spi.type.Type;
 import com.linkedin.transport.api.StdFactory;
 import com.linkedin.transport.api.data.StdArray;
 import com.linkedin.transport.api.data.StdData;
 import com.linkedin.transport.presto.PrestoWrapper;
+import io.prestosql.spi.block.Block;
+import io.prestosql.spi.block.BlockBuilder;
+import io.prestosql.spi.block.PageBuilderStatus;
+import io.prestosql.spi.type.ArrayType;
+import io.prestosql.spi.type.Type;
 import java.util.Iterator;
 
-import static com.facebook.presto.spi.type.TypeUtils.*;
+import static io.prestosql.spi.type.TypeUtils.*;
 
 
 public class PrestoArray extends PrestoData implements StdArray {

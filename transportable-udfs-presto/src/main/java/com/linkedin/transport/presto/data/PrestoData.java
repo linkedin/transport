@@ -5,8 +5,8 @@
  */
 package com.linkedin.transport.presto.data;
 
-import com.facebook.presto.spi.block.BlockBuilder;
 import com.linkedin.transport.api.data.PlatformData;
+import io.prestosql.spi.block.BlockBuilder;
 
 
 /**

@@ -5,11 +5,11 @@
  */
 package com.linkedin.transport.presto.data;
 
-import com.facebook.presto.spi.block.BlockBuilder;
 import com.linkedin.transport.api.data.StdString;
 import io.airlift.slice.Slice;
+import io.prestosql.spi.block.BlockBuilder;
 
-import static com.facebook.presto.spi.type.VarcharType.*;
+import static io.prestosql.spi.type.VarcharType.*;
 
 
 public class PrestoString extends PrestoData implements StdString {

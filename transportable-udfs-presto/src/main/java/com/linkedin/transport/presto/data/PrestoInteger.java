@@ -5,10 +5,10 @@
  */
 package com.linkedin.transport.presto.data;
 
-import com.facebook.presto.spi.block.BlockBuilder;
 import com.linkedin.transport.api.data.StdInteger;
+import io.prestosql.spi.block.BlockBuilder;
 
-import static com.facebook.presto.spi.type.IntegerType.*;
+import static io.prestosql.spi.type.IntegerType.*;
 
 
 public class PrestoInteger extends PrestoData implements StdInteger {

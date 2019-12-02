@@ -5,8 +5,8 @@
  */
 package com.linkedin.transport.presto.types;
 
-import com.facebook.presto.spi.type.BooleanType;
 import com.linkedin.transport.api.types.StdBooleanType;
+import io.prestosql.spi.type.BooleanType;
 
 
 public class PrestoBooleanType implements StdBooleanType {

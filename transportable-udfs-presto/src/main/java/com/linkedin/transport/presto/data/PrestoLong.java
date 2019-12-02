@@ -5,10 +5,10 @@
  */
 package com.linkedin.transport.presto.data;
 
-import com.facebook.presto.spi.block.BlockBuilder;
 import com.linkedin.transport.api.data.StdLong;
+import io.prestosql.spi.block.BlockBuilder;
 
-import static com.facebook.presto.spi.type.BigintType.*;
+import static io.prestosql.spi.type.BigintType.*;
 
 
 public class PrestoLong extends PrestoData implements StdLong {

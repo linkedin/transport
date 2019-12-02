@@ -131,7 +131,7 @@ public class TransportPlugin implements Plugin<Project> {
         dependencies {
           prestoImplementation project.files(project.tasks.jar)
           prestoImplementation 'com.linkedin.transport:transportable-udfs-presto:$version'
-          prestoCompileOnly 'com.facebook.presto:presto-main:$version'
+          prestoCompileOnly 'io.prestosql:presto-main:$version'
         }
        */
       addDependencyToConfiguration(project, getConfigurationForSourceSet(project, sourceSet, IMPLEMENTATION),
