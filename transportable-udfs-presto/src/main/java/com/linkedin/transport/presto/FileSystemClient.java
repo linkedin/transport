@@ -53,7 +53,7 @@ public class FileSystemClient {
       Path remotePath = new Path(remoteFilename);
       Path localPath = new Path(Paths.get(getAndCreateLocalDir(), new File(remoteFilename).getName()).toString());
       FileSystem fs = remotePath.getFileSystem(conf);
-      String resolvedRemoteFilename = FileSystemUtils.resolveLatest(remoteFilename, fs);
+      String resolvedRemoteFilename = FileSystemUtils.resolveLatest(remoteFilename);
       Path resolvedRemotePath = new Path(resolvedRemoteFilename);
       fs.copyToLocalFile(resolvedRemotePath, localPath);
       return localPath.toString();

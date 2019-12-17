@@ -196,7 +196,7 @@ public class GenericStdUDFWrapper {
     }
     _localFiles = Arrays.stream(requiredFiles).map(requiredFile -> {
       try {
-        return FileSystemUtils.resolveLatest(requiredFile, FileSystemUtils.getLocalFileSystem());
+        return FileSystemUtils.resolveLatest(requiredFile);
       } catch (IOException e) {
         throw new RuntimeException("Failed to resolve path: [" + requiredFile + "].", e);
       }

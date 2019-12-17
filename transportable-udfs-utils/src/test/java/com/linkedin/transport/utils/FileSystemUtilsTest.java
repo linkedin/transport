@@ -18,20 +18,18 @@ public class FileSystemUtilsTest {
 
   @Test
   public void testResolveLatest() throws IOException, URISyntaxException {
-    FileSystem fs = FileSystemUtils.getLocalFileSystem();
-
-    String resourcePath = getPathForResource("root");
+    String resourcePath = "file://" + getPathForResource("root");
 
     // Test cases to resolve #LATEST
-    String filePath = FileSystemUtils.resolveLatest(resourcePath + "/2018/11/02.dat", fs);
+    String filePath = FileSystemUtils.resolveLatest(resourcePath + "/2018/11/02.dat");
     Assert.assertTrue(
-        FileSystemUtils.resolveLatest(resourcePath + "/2018/11/02.dat", fs).endsWith("/root/2018/11/02.dat"));
+        FileSystemUtils.resolveLatest(resourcePath + "/2018/11/02.dat").endsWith("/root/2018/11/02.dat"));
     Assert.assertTrue(
-        FileSystemUtils.resolveLatest(resourcePath + "/#LATEST/11/#LATEST", fs).endsWith("/root/2019/11/02.dat"));
+        FileSystemUtils.resolveLatest(resourcePath + "/#LATEST/11/#LATEST").endsWith("/root/2019/11/02.dat"));
     Assert.assertTrue(
-        FileSystemUtils.resolveLatest(resourcePath + "/#LATEST/#LATEST/#LATEST", fs).endsWith("/root/2019/12/02.dat"));
+        FileSystemUtils.resolveLatest(resourcePath + "/#LATEST/#LATEST/#LATEST").endsWith("/root/2019/12/02.dat"));
     Assert.assertTrue(
-        FileSystemUtils.resolveLatest(resourcePath + "/#LATEST/#LATEST", fs).endsWith("/root/2019/13.dat"));
+        FileSystemUtils.resolveLatest(resourcePath + "/#LATEST/#LATEST").endsWith("/root/2019/13.dat"));
   }
 
   private String getPathForResource(String resource) throws URISyntaxException {
