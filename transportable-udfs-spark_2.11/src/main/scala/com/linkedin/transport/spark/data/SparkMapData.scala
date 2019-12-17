@@ -34,26 +34,10 @@ case class SparkMapData[K, V](private var _mapData: org.apache.spark.sql.catalys
   }
 
   override def keySet(): util.Set[K] = {
-    val keysIterator: Iterator[Any] = if (_mutableMap == null) {
-      new Iterator[Any] {
-        var offset : Int = 0
-
-        override def next(): Any = {
-          offset += 1
-          _mapData.keyArray().get(offset - 1, _keyType)
-        }
-
-        override def hasNext: Boolean = {
-          offset < SparkMap.this.size()
-        }
-      }
-    } else {
-      _mutableMap.keysIterator
-    }
-
     new util.AbstractSet[K] {
 
       override def iterator(): util.Iterator[K] = new util.Iterator[K] {
+        private val keysIterator = if (_mutableMap == null) _mapData.keyArray().array.iterator else _mutableMap.keysIterator
 
         override def next(): K = SparkWrapper.createStdData(keysIterator.next(), _keyType).asInstanceOf[K]
 
@@ -73,26 +57,10 @@ case class SparkMapData[K, V](private var _mapData: org.apache.spark.sql.catalys
   }
 
   override def values(): util.Collection[V] = {
-    val valueIterator: Iterator[Any] = if (_mutableMap == null) {
-      new Iterator[Any] {
-        var offset : Int = 0
-
-        override def next(): Any = {
-          offset += 1
-          _mapData.valueArray().get(offset - 1, _valueType)
-        }
-
-        override def hasNext: Boolean = {
-          offset < SparkMap.this.size()
-        }
-      }
-    } else {
-      _mutableMap.valuesIterator
-    }
-
     new util.AbstractCollection[V] {
 
       override def iterator(): util.Iterator[V] = new util.Iterator[V] {
+        private val valueIterator = if (_mutableMap == null) _mapData.valueArray().array.iterator else _mutableMap.valuesIterator
 
         override def next(): V = SparkWrapper.createStdData(valueIterator.next(), _valueType).asInstanceOf[V]
 

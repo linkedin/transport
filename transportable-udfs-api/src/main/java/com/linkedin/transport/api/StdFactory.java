@@ -8,7 +8,6 @@ package com.linkedin.transport.api;
 import com.linkedin.transport.api.data.ArrayData;
 import com.linkedin.transport.api.data.MapData;
 import com.linkedin.transport.api.data.RowData;
-import com.linkedin.transport.api.data.StdData;
 import com.linkedin.transport.api.types.StdArrayType;
 import com.linkedin.transport.api.types.StdMapType;
 import com.linkedin.transport.api.types.StdType;
@@ -78,7 +77,7 @@ public interface StdFactory extends Serializable {
   /**
    * Creates a {@link RowData} whose type is given by the given {@link StdType}.
    *
-   * It is expected that the top-level {@link StdType} is a {@link com.linkedin.transport.api.types.RowType}.
+   * It is expected that the top-level {@link StdType} is a {@link RowType}.
    *
    * @param stdType  type of the struct to be created
    * @return a {@link RowData} with all fields initialized to null
@@ -90,17 +89,17 @@ public interface StdFactory extends Serializable {
    *
    * The following are considered valid type signatures:
    * <ul>
-   *   <li>{@code "varchar"} - Represents SQL varchar type. Corresponding Transport type is {@link String}</li>
-   *   <li>{@code "integer"} - Represents SQL int type. Corresponding Transport type is {@link Integer}</li>
-   *   <li>{@code "bigint"} - Represents SQL bigint/long type. Corresponding Transport type is {@link Long}</li>
-   *   <li>{@code "boolean"} - Represents SQL boolean type. Corresponding Transport type is {@link Boolean}</li>
+   *   <li>{@code "varchar"} - Represents SQL varchar type. Corresponding standard type is {@link String}</li>
+   *   <li>{@code "integer"} - Represents SQL int type. Corresponding standard type is {@link Integer}</li>
+   *   <li>{@code "bigint"} - Represents SQL bigint/long type. Corresponding standard type is {@link Long}</li>
+   *   <li>{@code "boolean"} - Represents SQL boolean type. Corresponding standard type is {@link Boolean}</li>
    *   <li>{@code "array(T)"} - Represents SQL array type, where {@code T} is type signature of array element.
-   *     Corresponding Transport type is {@link ArrayData}</li>
+   *     Corresponding standard type is {@link ArrayData}</li>
    *   <li>{@code "map(K,V)"} - Represents SQL map type, where {@code K} and {@code V} are type signatures of the map
-   *     keys and values respectively. Corresponding Transport type is {@link MapData}</li>
+   *     keys and values respectively. array element. Corresponding standard type is {@link MapData}</li>
    *   <li>{@code "row(f0 T0, f1 T1,... fn Tn)"} - Represents SQL struct type, where {@code f0}...{@code fn} are field
    *     names and {@code T0}...{@code Tn} are type signatures for the fields. Field names are optional; if not
-   *     specified they default to {@code field0}...{@code fieldn}. Corresponding Transport type is {@link RowData}</li>
+   *     specified they default to {@code field0}...{@code fieldn}. Corresponding standard type is {@link RowData}</li>
    * </ul>
    *
    * Generic type parameters can also be used as part of the type signatures; e.g., The type signature {@code "map(K,V)"}
