@@ -5,7 +5,7 @@
  */
 package com.linkedin.transport.avro.types;
 
-import com.linkedin.transport.api.types.StdStructType;
+import com.linkedin.transport.api.types.RowType;
 import com.linkedin.transport.api.types.StdType;
 import com.linkedin.transport.avro.AvroWrapper;
 import java.util.List;
@@ -13,10 +13,10 @@ import java.util.stream.Collectors;
 import org.apache.avro.Schema;
 
 
-public class AvroStructType implements StdStructType {
+public class AvroRowType implements RowType {
   final private Schema _schema;
 
-  public AvroStructType(Schema schema) {
+  public AvroRowType(Schema schema) {
     _schema = schema;
   }
 

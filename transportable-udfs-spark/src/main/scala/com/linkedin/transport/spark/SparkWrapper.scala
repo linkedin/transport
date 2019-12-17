@@ -5,31 +5,48 @@
  */
 package com.linkedin.transport.spark
 
-import com.linkedin.transport.api.data.StdData
+import com.linkedin.transport.api.data.PlatformData
 import com.linkedin.transport.api.types.StdType
 import com.linkedin.transport.spark.data._
 import com.linkedin.transport.spark.types._
 import org.apache.spark.sql.catalyst.InternalRow
-import org.apache.spark.sql.catalyst.util.{ArrayData, MapData}
 import org.apache.spark.sql.types._
 import org.apache.spark.unsafe.types.UTF8String
 
 object SparkWrapper {
 
-  def createStdData(data: Any, dataType: DataType): StdData = { // scalastyle:ignore cyclomatic.complexity
+  def createStdData(data: Any, dataType: DataType): Object = { // scalastyle:ignore cyclomatic.complexity
     if (data == null) {
       null
     } else {
       dataType match {
-        case _: IntegerType => SparkInteger(data.asInstanceOf[Integer])
-        case _: LongType => SparkLong(data.asInstanceOf[java.lang.Long])
-        case _: BooleanType => SparkBoolean(data.asInstanceOf[java.lang.Boolean])
-        case _: StringType => SparkString(data.asInstanceOf[UTF8String])
-        case _: ArrayType => SparkArray(data.asInstanceOf[ArrayData], dataType.asInstanceOf[ArrayType])
-        case _: MapType => SparkMap(data.asInstanceOf[MapData], dataType.asInstanceOf[MapType])
-        case _: StructType => SparkStruct(data.asInstanceOf[InternalRow], dataType.asInstanceOf[StructType])
+        case _: IntegerType => data.asInstanceOf[Object]
+        case _: LongType => data.asInstanceOf[Object]
+        case _: BooleanType => data.asInstanceOf[Object]
+        case _: StringType => data.asInstanceOf[UTF8String].toString
+        case _: ArrayType => SparkArrayData(
+          data.asInstanceOf[org.apache.spark.sql.catalyst.util.ArrayData], dataType.asInstanceOf[ArrayType]
+        )
+        case _: MapType => SparkMapData(
+          data.asInstanceOf[org.apache.spark.sql.catalyst.util.MapData], dataType.asInstanceOf[MapType]
+        )
+        case _: StructType => SparkRowData(data.asInstanceOf[InternalRow], dataType.asInstanceOf[StructType])
         case _: NullType => null
         case _ => throw new UnsupportedOperationException("Unrecognized Spark Type: " + dataType.getClass)
+      }
+    }
+  }
+
+  def getPlatformData(transportData: Object): Object = {
+    if (transportData == null) {
+      null
+    } else {
+      transportData match {
+        case _: java.lang.Integer => transportData
+        case _: java.lang.Long => transportData
+        case _: java.lang.Boolean => transportData
+        case _: java.lang.String => UTF8String.fromString(transportData.asInstanceOf[String])
+        case _ => transportData.asInstanceOf[PlatformData].getUnderlyingData
       }
     }
   }

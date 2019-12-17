@@ -5,17 +5,13 @@
  */
 package com.linkedin.transport.api;
 
-import com.linkedin.transport.api.data.StdArray;
-import com.linkedin.transport.api.data.StdBoolean;
+import com.linkedin.transport.api.data.ArrayData;
+import com.linkedin.transport.api.data.MapData;
 import com.linkedin.transport.api.data.StdData;
-import com.linkedin.transport.api.data.StdInteger;
-import com.linkedin.transport.api.data.StdLong;
-import com.linkedin.transport.api.data.StdMap;
-import com.linkedin.transport.api.data.StdString;
-import com.linkedin.transport.api.data.StdStruct;
+import com.linkedin.transport.api.data.RowData;
 import com.linkedin.transport.api.types.StdArrayType;
 import com.linkedin.transport.api.types.StdMapType;
-import com.linkedin.transport.api.types.StdStructType;
+import com.linkedin.transport.api.types.RowType;
 import com.linkedin.transport.api.types.StdType;
 import com.linkedin.transport.api.udf.StdUDF;
 import java.io.Serializable;
@@ -32,111 +28,79 @@ import java.util.List;
 public interface StdFactory extends Serializable {
 
   /**
-   * Creates a {@link StdInteger} representing a given integer value.
-   *
-   * @param value  the input integer value
-   * @return {@link StdInteger} with the given integer value
-   */
-  StdInteger createInteger(int value);
-
-  /**
-   * Creates a {@link StdLong} representing a given long value.
-   *
-   * @param value  the input long value
-   * @return {@link StdLong} with the given long value
-   */
-  StdLong createLong(long value);
-
-  /**
-   * Creates a {@link StdBoolean} representing a given boolean value.
-   *
-   * @param value  the input boolean value
-   * @return {@link StdBoolean} with the given boolean value
-   */
-  StdBoolean createBoolean(boolean value);
-
-  /**
-   * Creates a {@link StdString} representing a given {@link String} value.
-   *
-   * @param value  the input {@link String} value
-   * @return {@link StdString} with the given {@link String} value
-   */
-  StdString createString(String value);
-
-  /**
-   * Creates an empty {@link StdArray} whose type is given by the given {@link StdType}.
+   * Creates an empty {@link ArrayData} whose type is given by the given {@link StdType}.
    *
    * It is expected that the top-level {@link StdType} is a {@link StdArrayType}.
    *
    * @param stdType  type of the array to be created
    * @param expectedSize  expected number of entries in the array
-   * @return an empty {@link StdArray}
+   * @return an empty {@link ArrayData}
    */
-  StdArray createArray(StdType stdType, int expectedSize);
+  ArrayData createArray(StdType stdType, int expectedSize);
 
   /**
-   * Creates an empty {@link StdArray} whose type is given by the given {@link StdType}.
+   * Creates an empty {@link ArrayData} whose type is given by the given {@link StdType}.
    *
    * It is expected that the top-level {@link StdType} is a {@link StdArrayType}.
    *
    * @param stdType  type of the array to be created
-   * @return an empty {@link StdArray}
+   * @return an empty {@link ArrayData}
    */
-  StdArray createArray(StdType stdType);
+  ArrayData createArray(StdType stdType);
 
   /**
-   * Creates an empty {@link StdMap} whose type is given by the given {@link StdType}.
+   * Creates an empty {@link MapData} whose type is given by the given {@link StdType}.
    *
    * It is expected that the top-level {@link StdType} is a {@link StdMapType}.
    *
    * @param stdType  type of the map to be created
-   * @return an empty {@link StdMap}
+   * @return an empty {@link MapData}
    */
-  StdMap createMap(StdType stdType);
+  MapData createMap(StdType stdType);
 
   /**
-   * Creates a {@link StdStruct} with the given field names and types.
+   * Creates a {@link RowData} with the given field names and types.
    *
    * @param fieldNames  names of the struct fields
    * @param fieldTypes  types of the struct fields
-   * @return a {@link StdStruct} with all fields initialized to null
+   * @return a {@link RowData} with all fields initialized to null
    */
-  StdStruct createStruct(List<String> fieldNames, List<StdType> fieldTypes);
+  RowData createStruct(List<String> fieldNames, List<StdType> fieldTypes);
 
   /**
-   * Creates a {@link StdStruct} with the given field types. Field names will be field0, field1, field2...
+   * Creates a {@link RowData} with the given field types. Field names will be field0, field1, field2...
    *
    * @param fieldTypes  types of the struct fields
-   * @return a {@link StdStruct} with all fields initialized to null
+   * @return a {@link RowData} with all fields initialized to null
    */
-  StdStruct createStruct(List<StdType> fieldTypes);
+  RowData createStruct(List<StdType> fieldTypes);
 
   /**
-   * Creates a {@link StdStruct} whose type is given by the given {@link StdType}.
+   * Creates a {@link RowData} whose type is given by the given {@link StdType}.
    *
-   * It is expected that the top-level {@link StdType} is a {@link StdStructType}.
+   * It is expected that the top-level {@link StdType} is a {@link RowType}.
    *
    * @param stdType  type of the struct to be created
-   * @return a {@link StdStruct} with all fields initialized to null
+   * @return a {@link RowData} with all fields initialized to null
    */
-  StdStruct createStruct(StdType stdType);
+  RowData createStruct(StdType stdType);
 
   /**
    * Creates a {@link StdType} representing the given type signature.
    *
    * The following are considered valid type signatures:
    * <ul>
-   *   <li>{@code "varchar"} - Represents SQL varchar type. Corresponding standard type is {@link StdString}</li>
-   *   <li>{@code "integer"} - Represents SQL int type. Corresponding standard type is {@link StdInteger}</li>
-   *   <li>{@code "bigint"} - Represents SQL bigint/long type. Corresponding standard type is {@link StdLong}</li>
-   *   <li>{@code "boolean"} - Represents SQL boolean type. Corresponding standard type is {@link StdBoolean}</li>
+   *   <li>{@code "varchar"} - Represents SQL varchar type. Corresponding standard type is {@link String}</li>
+   *   <li>{@code "integer"} - Represents SQL int type. Corresponding standard type is {@link Integer}</li>
+   *   <li>{@code "bigint"} - Represents SQL bigint/long type. Corresponding standard type is {@link Long}</li>
+   *   <li>{@code "boolean"} - Represents SQL boolean type. Corresponding standard type is {@link Boolean}</li>
    *   <li>{@code "array(T)"} - Represents SQL array type, where {@code T} is type signature of array element.
-   *     Corresponding standard type is {@link StdArray}</li>
+   *     Corresponding standard type is {@link ArrayData}</li>
    *   <li>{@code "map(K,V)"} - Represents SQL map type, where {@code K} and {@code V} are type signatures of the map
-   *     keys and values respectively. array element. Corresponding standard type is {@link StdMap}</li>
+   *     keys and values respectively. array element. Corresponding standard type is {@link MapData}</li>
    *   <li>{@code "row(f0 T0, f1 T1,... fn Tn)"} - Represents SQL struct type, where {@code f0}...{@code fn} are field
    *     names and {@code T0}...{@code Tn} are type signatures for the fields. Field names are optional; if not
-   *     specified they default to {@code field0}...{@code fieldn}. Corresponding standard type is {@link StdStruct}</li>
+   *     specified they default to {@code field0}...{@code fieldn}. Corresponding standard type is {@link RowData}</li>
    * </ul>
    *
    * Generic type parameters can also be used as part of the type signatures; e.g., The type signature {@code "map(K,V)"}

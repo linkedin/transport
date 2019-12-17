@@ -7,16 +7,14 @@ package com.linkedin.transport.examples;
 
 import com.google.common.collect.ImmutableList;
 import com.linkedin.transport.api.StdFactory;
-import com.linkedin.transport.api.data.StdArray;
-import com.linkedin.transport.api.data.StdData;
-import com.linkedin.transport.api.data.StdLong;
+import com.linkedin.transport.api.data.ArrayData;
 import com.linkedin.transport.api.types.StdType;
 import com.linkedin.transport.api.udf.StdUDF2;
 import com.linkedin.transport.api.udf.TopLevelStdUDF;
 import java.util.List;
 
 
-public class ArrayFillFunction extends StdUDF2<StdData, StdLong, StdArray> implements TopLevelStdUDF {
+public class ArrayFillFunction<K> extends StdUDF2<K, Long, ArrayData<K>> implements TopLevelStdUDF {
 
   private StdType _arrayType;
 
@@ -40,9 +38,9 @@ public class ArrayFillFunction extends StdUDF2<StdData, StdLong, StdArray> imple
   }
 
   @Override
-  public StdArray eval(StdData a, StdLong length) {
-    StdArray array = getStdFactory().createArray(_arrayType);
-    for (int i = 0; i < length.get(); i++) {
+  public ArrayData<K> eval(K a, Long length) {
+    ArrayData<K> array = getStdFactory().createArray(_arrayType);
+    for (int i = 0; i < length; i++) {
       array.add(a);
     }
     return array;

@@ -5,24 +5,14 @@
  */
 package com.linkedin.transport.presto;
 
-import com.google.common.base.Preconditions;
 import com.linkedin.transport.api.StdFactory;
-import com.linkedin.transport.api.data.StdArray;
-import com.linkedin.transport.api.data.StdBoolean;
-import com.linkedin.transport.api.data.StdInteger;
-import com.linkedin.transport.api.data.StdLong;
-import com.linkedin.transport.api.data.StdMap;
-import com.linkedin.transport.api.data.StdString;
-import com.linkedin.transport.api.data.StdStruct;
+import com.linkedin.transport.api.data.ArrayData;
+import com.linkedin.transport.api.data.MapData;
+import com.linkedin.transport.api.data.RowData;
 import com.linkedin.transport.api.types.StdType;
-import com.linkedin.transport.presto.data.PrestoArray;
-import com.linkedin.transport.presto.data.PrestoBoolean;
-import com.linkedin.transport.presto.data.PrestoInteger;
-import com.linkedin.transport.presto.data.PrestoLong;
-import com.linkedin.transport.presto.data.PrestoMap;
-import com.linkedin.transport.presto.data.PrestoString;
-import com.linkedin.transport.presto.data.PrestoStruct;
-import io.airlift.slice.Slices;
+import com.linkedin.transport.presto.data.PrestoArrayData;
+import com.linkedin.transport.presto.data.PrestoMapData;
+import com.linkedin.transport.presto.data.PrestoRowData;
 import io.prestosql.metadata.BoundVariables;
 import io.prestosql.metadata.Metadata;
 import io.prestosql.metadata.Signature;
@@ -49,56 +39,35 @@ public class PrestoFactory implements StdFactory {
   }
 
   @Override
-  public StdInteger createInteger(int value) {
-    return new PrestoInteger(value);
+  public ArrayData createArray(StdType stdType, int expectedSize) {
+    return new PrestoArrayData((ArrayType) stdType.underlyingType(), expectedSize, this);
   }
 
   @Override
-  public StdLong createLong(long value) {
-    return new PrestoLong(value);
-  }
-
-  @Override
-  public StdBoolean createBoolean(boolean value) {
-    return new PrestoBoolean(value);
-  }
-
-  @Override
-  public StdString createString(String value) {
-    Preconditions.checkNotNull(value, "Cannot create a null StdString");
-    return new PrestoString(Slices.utf8Slice(value));
-  }
-
-  @Override
-  public StdArray createArray(StdType stdType, int expectedSize) {
-    return new PrestoArray((ArrayType) stdType.underlyingType(), expectedSize, this);
-  }
-
-  @Override
-  public StdArray createArray(StdType stdType) {
+  public ArrayData createArray(StdType stdType) {
     return createArray(stdType, 0);
   }
 
   @Override
-  public StdMap createMap(StdType stdType) {
-    return new PrestoMap((MapType) stdType.underlyingType(), this);
+  public MapData createMap(StdType stdType) {
+    return new PrestoMapData((MapType) stdType.underlyingType(), this);
   }
 
   @Override
-  public PrestoStruct createStruct(List<String> fieldNames, List<StdType> fieldTypes) {
-    return new PrestoStruct(fieldNames,
+  public PrestoRowData createStruct(List<String> fieldNames, List<StdType> fieldTypes) {
+    return new PrestoRowData(fieldNames,
         fieldTypes.stream().map(stdType -> (Type) stdType.underlyingType()).collect(Collectors.toList()), this);
   }
 
   @Override
-  public PrestoStruct createStruct(List<StdType> fieldTypes) {
-    return new PrestoStruct(
+  public PrestoRowData createStruct(List<StdType> fieldTypes) {
+    return new PrestoRowData(
         fieldTypes.stream().map(stdType -> (Type) stdType.underlyingType()).collect(Collectors.toList()), this);
   }
 
   @Override
-  public StdStruct createStruct(StdType stdType) {
-    return new PrestoStruct((RowType) stdType.underlyingType(), this);
+  public RowData createStruct(StdType stdType) {
+    return new PrestoRowData((RowType) stdType.underlyingType(), this);
   }
 
   @Override

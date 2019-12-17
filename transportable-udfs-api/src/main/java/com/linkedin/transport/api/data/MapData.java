@@ -10,7 +10,7 @@ import java.util.Set;
 
 
 /** A Standard UDF data type for representing maps. */
-public interface StdMap extends StdData {
+public interface MapData<K, V> {
 
   /** Returns the number of key-value pairs in the map. */
   int size();
@@ -20,7 +20,7 @@ public interface StdMap extends StdData {
    *
    * @param key  the key whose value is to be returned
    */
-  StdData get(StdData key);
+  V get(K key);
 
   /**
    * Adds the given value to the map against the given key.
@@ -28,18 +28,18 @@ public interface StdMap extends StdData {
    * @param key  the key to which the value is to be associated
    * @param value  the value to be associated with the key
    */
-  void put(StdData key, StdData value);
+  void put(K key, V value);
 
   /** Returns a {@link Set} of all the keys in the map. */
-  Set<StdData> keySet();
+  Set<K> keySet();
 
   /** Returns a {@link Collection} of all the values in the map. */
-  Collection<StdData> values();
+  Collection<V> values();
 
   /**
    * Returns true if the map contains the given key, false otherwise.
    *
    * @param key  the key to be checked
    */
-  boolean containsKey(StdData key);
+  boolean containsKey(K key);
 }

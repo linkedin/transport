@@ -5,7 +5,7 @@
  */
 package com.linkedin.transport.hive.types;
 
-import com.linkedin.transport.api.types.StdStructType;
+import com.linkedin.transport.api.types.RowType;
 import com.linkedin.transport.api.types.StdType;
 import com.linkedin.transport.hive.HiveWrapper;
 import java.util.List;
@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
 import org.apache.hadoop.hive.serde2.objectinspector.StructObjectInspector;
 
 
-public class HiveStructType implements StdStructType {
+public class HiveStructType implements RowType {
 
   final StructObjectInspector _structObjectInspector;
 

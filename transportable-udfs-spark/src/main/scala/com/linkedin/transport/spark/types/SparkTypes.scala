@@ -55,7 +55,7 @@ case class SparkMapType(mapType: MapType) extends StdMapType {
   override def valueType(): StdType = SparkWrapper.createStdType(mapType.valueType)
 }
 
-case class SparkStructType(structType: StructType) extends StdStructType {
+case class SparkStructType(structType: StructType) extends RowType {
 
   override def underlyingType(): DataType = structType
 

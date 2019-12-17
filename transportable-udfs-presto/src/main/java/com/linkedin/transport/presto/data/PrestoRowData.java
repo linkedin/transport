@@ -6,8 +6,7 @@
 package com.linkedin.transport.presto.data;
 
 import com.linkedin.transport.api.StdFactory;
-import com.linkedin.transport.api.data.StdData;
-import com.linkedin.transport.api.data.StdStruct;
+import com.linkedin.transport.api.data.RowData;
 import com.linkedin.transport.presto.PrestoWrapper;
 import io.prestosql.spi.block.Block;
 import io.prestosql.spi.block.BlockBuilder;
@@ -24,28 +23,28 @@ import java.util.stream.IntStream;
 import static io.prestosql.spi.type.TypeUtils.*;
 
 
-public class PrestoStruct extends PrestoData implements StdStruct {
+public class PrestoRowData extends PrestoData implements RowData {
 
   final RowType _rowType;
   final StdFactory _stdFactory;
   Block _block;
 
-  public PrestoStruct(Type rowType, StdFactory stdFactory) {
+  public PrestoRowData(Type rowType, StdFactory stdFactory) {
     _rowType = (RowType) rowType;
     _stdFactory = stdFactory;
   }
 
-  public PrestoStruct(Block block, Type rowType, StdFactory stdFactory) {
+  public PrestoRowData(Block block, Type rowType, StdFactory stdFactory) {
     this(rowType, stdFactory);
     _block = block;
   }
 
-  public PrestoStruct(List<Type> fieldTypes, StdFactory stdFactory) {
+  public PrestoRowData(List<Type> fieldTypes, StdFactory stdFactory) {
     _stdFactory = stdFactory;
     _rowType = RowType.anonymous(fieldTypes);
   }
 
-  public PrestoStruct(List<String> fieldNames, List<Type> fieldTypes, StdFactory stdFactory) {
+  public PrestoRowData(List<String> fieldNames, List<Type> fieldTypes, StdFactory stdFactory) {
     _stdFactory = stdFactory;
     List<RowType.Field> fields = IntStream.range(0, fieldNames.size())
         .mapToObj(i -> new RowType.Field(Optional.ofNullable(fieldNames.get(i)), fieldTypes.get(i)))
@@ -54,7 +53,7 @@ public class PrestoStruct extends PrestoData implements StdStruct {
   }
 
   @Override
-  public StdData getField(int index) {
+  public Object getField(int index) {
     int position = PrestoWrapper.checkedIndexToBlockPosition(_block, index);
     if (position == -1) {
       return null;
@@ -65,7 +64,7 @@ public class PrestoStruct extends PrestoData implements StdStruct {
   }
 
   @Override
-  public StdData getField(String name) {
+  public Object getField(String name) {
     int index = -1;
     Type elementType = null;
     int i = 0;
@@ -85,7 +84,7 @@ public class PrestoStruct extends PrestoData implements StdStruct {
   }
 
   @Override
-  public void setField(int index, StdData value) {
+  public void setField(int index, Object value) {
     // TODO: This is not the right way to get this object. The status should be passed in from the invocation of the
     // function and propagated to here. See PRESTO-1359 for more details.
     BlockBuilderStatus blockBuilderStatus = new PageBuilderStatus().createBlockBuilderStatus();
@@ -94,7 +93,7 @@ public class PrestoStruct extends PrestoData implements StdStruct {
     int i = 0;
     for (RowType.Field field : _rowType.getFields()) {
       if (i == index) {
-        ((PrestoData) value).writeToBlock(rowBlockBuilder);
+        PrestoWrapper.writeToBlock(value, rowBlockBuilder);
       } else {
         if (_block == null) {
           rowBlockBuilder.appendNull();
@@ -109,13 +108,13 @@ public class PrestoStruct extends PrestoData implements StdStruct {
   }
 
   @Override
-  public void setField(String name, StdData value) {
+  public void setField(String name, Object value) {
     BlockBuilder mutable = _rowType.createBlockBuilder(new PageBuilderStatus().createBlockBuilderStatus(), 1);
     BlockBuilder rowBlockBuilder = mutable.beginBlockEntry();
     int i = 0;
     for (RowType.Field field : _rowType.getFields()) {
       if (field.getName().isPresent() && name.equals(field.getName().get())) {
-        ((PrestoData) value).writeToBlock(rowBlockBuilder);
+        PrestoWrapper.writeToBlock(value, rowBlockBuilder);
       } else {
         if (_block == null) {
           rowBlockBuilder.appendNull();
@@ -130,8 +129,8 @@ public class PrestoStruct extends PrestoData implements StdStruct {
   }
 
   @Override
-  public List<StdData> fields() {
-    ArrayList<StdData> fields = new ArrayList<>();
+  public List<Object> fields() {
+    ArrayList<Object> fields = new ArrayList<>();
     for (int i = 0; i < _block.getPositionCount(); i++) {
       Type elementType = _rowType.getFields().get(i).getType();
       Object element = readNativeValue(elementType, _block, i);

@@ -6,15 +6,12 @@
 package com.linkedin.transport.presto;
 
 import com.linkedin.transport.api.StdFactory;
-import com.linkedin.transport.api.data.StdData;
+import com.linkedin.transport.api.data.PlatformData;
 import com.linkedin.transport.api.types.StdType;
-import com.linkedin.transport.presto.data.PrestoArray;
-import com.linkedin.transport.presto.data.PrestoBoolean;
-import com.linkedin.transport.presto.data.PrestoInteger;
-import com.linkedin.transport.presto.data.PrestoLong;
-import com.linkedin.transport.presto.data.PrestoMap;
-import com.linkedin.transport.presto.data.PrestoString;
-import com.linkedin.transport.presto.data.PrestoStruct;
+import com.linkedin.transport.presto.data.PrestoArrayData;
+import com.linkedin.transport.presto.data.PrestoData;
+import com.linkedin.transport.presto.data.PrestoMapData;
+import com.linkedin.transport.presto.data.PrestoRowData;
 import com.linkedin.transport.presto.types.PrestoArrayType;
 import com.linkedin.transport.presto.types.PrestoBooleanType;
 import com.linkedin.transport.presto.types.PrestoIntegerType;
@@ -24,7 +21,9 @@ import com.linkedin.transport.presto.types.PrestoStringType;
 import com.linkedin.transport.presto.types.PrestoStructType;
 import com.linkedin.transport.presto.types.PrestoUnknownType;
 import io.airlift.slice.Slice;
+import io.airlift.slice.Slices;
 import io.prestosql.spi.block.Block;
+import io.prestosql.spi.block.BlockBuilder;
 import io.prestosql.spi.type.ArrayType;
 import io.prestosql.spi.type.BigintType;
 import io.prestosql.spi.type.BooleanType;
@@ -35,6 +34,10 @@ import io.prestosql.spi.type.Type;
 import io.prestosql.spi.type.VarcharType;
 import io.prestosql.type.UnknownType;
 
+import static io.prestosql.spi.type.BigintType.*;
+import static io.prestosql.spi.type.BooleanType.*;
+import static io.prestosql.spi.type.IntegerType.*;
+import static io.prestosql.spi.type.VarcharType.*;
 import static java.lang.Math.*;
 
 
@@ -43,30 +46,64 @@ public final class PrestoWrapper {
   private PrestoWrapper() {
   }
 
-  public static StdData createStdData(Object prestoData, Type prestoType, StdFactory stdFactory) {
+  public static Object createStdData(Object prestoData, Type prestoType, StdFactory stdFactory) {
     if (prestoData == null) {
       return null;
     }
     if (prestoType instanceof IntegerType) {
       // Presto represents SQL Integers (i.e., corresponding to IntegerType above) as long or Long
-      // Therefore, to pass it to the PrestoInteger class, we first cast it to Long, then extract
-      // the int value.
-      return new PrestoInteger(((Long) prestoData).intValue());
-    } else if (prestoType instanceof BigintType) {
-      return new PrestoLong((long) prestoData);
-    } else if (prestoType.getJavaType() == boolean.class) {
-      return new PrestoBoolean((boolean) prestoData);
+      // Therefore, we first cast prestoData to Long, then extract the int value.
+      return ((Long) prestoData).intValue();
+    } else if (prestoType instanceof BigintType || prestoType.getJavaType() == boolean.class) {
+      return prestoData;
     } else if (prestoType.getJavaType() == Slice.class) {
-      return new PrestoString((Slice) prestoData);
+      return ((Slice) prestoData).toStringUtf8();
     } else if (prestoType instanceof ArrayType) {
-      return new PrestoArray((Block) prestoData, (ArrayType) prestoType, stdFactory);
+      return new PrestoArrayData((Block) prestoData, (ArrayType) prestoType, stdFactory);
     } else if (prestoType instanceof MapType) {
-      return new PrestoMap((Block) prestoData, prestoType, stdFactory);
+      return new PrestoMapData((Block) prestoData, prestoType, stdFactory);
     } else if (prestoType instanceof RowType) {
-      return new PrestoStruct((Block) prestoData, prestoType, stdFactory);
+      return new PrestoRowData((Block) prestoData, prestoType, stdFactory);
     }
     assert false : "Unrecognized Presto Type: " + prestoType.getClass();
     return null;
+  }
+
+  public static Object getPlatformData(Object transportData) {
+    if (transportData == null) {
+      return null;
+    }
+    if (transportData instanceof Integer) {
+      return ((Number) transportData).longValue();
+    } else if (transportData instanceof Long) {
+      return ((Long) transportData).longValue();
+    } else if (transportData instanceof Boolean) {
+      return ((Boolean) transportData).booleanValue();
+    } else if (transportData instanceof String) {
+      return Slices.utf8Slice((String) transportData);
+    } else {
+      return ((PlatformData) transportData).getUnderlyingData();
+    }
+  }
+
+  public static void writeToBlock(Object transportData, BlockBuilder blockBuilder) {
+    if (transportData == null) {
+      blockBuilder.appendNull();
+    } else {
+      if (transportData instanceof Integer) {
+        // This looks a bit strange, but the call to writeLong is correct here. INTEGER does not have a writeInt method for
+        // some reason. It uses BlockBuilder.writeInt internally.
+        INTEGER.writeLong(blockBuilder, (Integer) transportData);
+      } else if (transportData instanceof Long) {
+        BIGINT.writeLong(blockBuilder, (Long) transportData);
+      } else if (transportData instanceof Boolean) {
+        BOOLEAN.writeBoolean(blockBuilder, (Boolean) transportData);
+      } else if (transportData instanceof String) {
+        VARCHAR.writeSlice(blockBuilder, Slices.utf8Slice((String) transportData));
+      } else {
+        ((PrestoData) transportData).writeToBlock(blockBuilder);
+      }
+    }
   }
 
   public static StdType createStdType(Object prestoType) {

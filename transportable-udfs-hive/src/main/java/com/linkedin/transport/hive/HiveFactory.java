@@ -5,23 +5,14 @@
  */
 package com.linkedin.transport.hive;
 
-import com.google.common.base.Preconditions;
 import com.linkedin.transport.api.StdFactory;
-import com.linkedin.transport.api.data.StdArray;
-import com.linkedin.transport.api.data.StdBoolean;
-import com.linkedin.transport.api.data.StdInteger;
-import com.linkedin.transport.api.data.StdLong;
-import com.linkedin.transport.api.data.StdMap;
-import com.linkedin.transport.api.data.StdString;
-import com.linkedin.transport.api.data.StdStruct;
+import com.linkedin.transport.api.data.ArrayData;
+import com.linkedin.transport.api.data.MapData;
+import com.linkedin.transport.api.data.RowData;
 import com.linkedin.transport.api.types.StdType;
-import com.linkedin.transport.hive.data.HiveArray;
-import com.linkedin.transport.hive.data.HiveBoolean;
-import com.linkedin.transport.hive.data.HiveInteger;
-import com.linkedin.transport.hive.data.HiveLong;
-import com.linkedin.transport.hive.data.HiveMap;
-import com.linkedin.transport.hive.data.HiveString;
-import com.linkedin.transport.hive.data.HiveStruct;
+import com.linkedin.transport.hive.data.HiveArrayData;
+import com.linkedin.transport.hive.data.HiveMapData;
+import com.linkedin.transport.hive.data.HiveRowData;
 import com.linkedin.transport.hive.types.objectinspector.CacheableObjectInspectorConverters;
 import com.linkedin.transport.hive.typesystem.HiveTypeFactory;
 import com.linkedin.transport.typesystem.AbstractBoundVariables;
@@ -38,7 +29,6 @@ import org.apache.hadoop.hive.serde2.objectinspector.ObjectInspector;
 import org.apache.hadoop.hive.serde2.objectinspector.ObjectInspectorConverters.Converter;
 import org.apache.hadoop.hive.serde2.objectinspector.ObjectInspectorFactory;
 import org.apache.hadoop.hive.serde2.objectinspector.StructObjectInspector;
-import org.apache.hadoop.hive.serde2.objectinspector.primitive.PrimitiveObjectInspectorFactory;
 
 
 public class HiveFactory implements StdFactory {
@@ -54,44 +44,23 @@ public class HiveFactory implements StdFactory {
   }
 
   @Override
-  public StdInteger createInteger(int value) {
-    return new HiveInteger(value, PrimitiveObjectInspectorFactory.javaIntObjectInspector, this);
-  }
-
-  @Override
-  public StdLong createLong(long value) {
-    return new HiveLong(value, PrimitiveObjectInspectorFactory.javaLongObjectInspector, this);
-  }
-
-  @Override
-  public StdBoolean createBoolean(boolean value) {
-    return new HiveBoolean(value, PrimitiveObjectInspectorFactory.javaBooleanObjectInspector, this);
-  }
-
-  @Override
-  public StdString createString(String value) {
-    Preconditions.checkNotNull(value, "Cannot create a null StdString");
-    return new HiveString(value, PrimitiveObjectInspectorFactory.javaStringObjectInspector, this);
-  }
-
-  @Override
-  public StdArray createArray(StdType stdType, int expectedSize) {
+  public ArrayData createArray(StdType stdType, int expectedSize) {
     ListObjectInspector listObjectInspector = (ListObjectInspector) stdType.underlyingType();
-    return new HiveArray(
+    return new HiveArrayData(
         new ArrayList(expectedSize),
         ObjectInspectorFactory.getStandardListObjectInspector(listObjectInspector.getListElementObjectInspector()),
         this);
   }
 
   @Override
-  public StdArray createArray(StdType stdType) {
+  public ArrayData createArray(StdType stdType) {
     return createArray(stdType, 0);
   }
 
   @Override
-  public StdMap createMap(StdType stdType) {
+  public MapData createMap(StdType stdType) {
     MapObjectInspector mapObjectInspector = (MapObjectInspector) stdType.underlyingType();
-    return new HiveMap(
+    return new HiveMapData(
         new HashMap(),
         ObjectInspectorFactory.getStandardMapObjectInspector(
             mapObjectInspector.getMapKeyObjectInspector(),
@@ -100,8 +69,8 @@ public class HiveFactory implements StdFactory {
   }
 
   @Override
-  public StdStruct createStruct(List<String> fieldNames, List<StdType> fieldTypes) {
-    return new HiveStruct(
+  public RowData createStruct(List<String> fieldNames, List<StdType> fieldTypes) {
+    return new HiveRowData(
         new ArrayList(Arrays.asList(new Object[fieldTypes.size()])),
         ObjectInspectorFactory.getStandardStructObjectInspector(
             fieldNames,
@@ -111,16 +80,16 @@ public class HiveFactory implements StdFactory {
   }
 
   @Override
-  public StdStruct createStruct(List<StdType> fieldTypes) {
+  public RowData createStruct(List<StdType> fieldTypes) {
     List<String> fieldNames =
         IntStream.range(0, fieldTypes.size()).mapToObj(i -> "field" + i).collect(Collectors.toList());
     return createStruct(fieldNames, fieldTypes);
   }
 
   @Override
-  public StdStruct createStruct(StdType stdType) {
+  public RowData createStruct(StdType stdType) {
     StructObjectInspector structObjectInspector = (StructObjectInspector) stdType.underlyingType();
-    return new HiveStruct(
+    return new HiveRowData(
         new ArrayList(Arrays.asList(new Object[structObjectInspector.getAllStructFieldRefs().size()])),
         ObjectInspectorFactory.getStandardStructObjectInspector(
             structObjectInspector.getAllStructFieldRefs()

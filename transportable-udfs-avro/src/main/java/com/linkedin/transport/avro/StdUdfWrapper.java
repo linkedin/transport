@@ -7,7 +7,6 @@ package com.linkedin.transport.avro;
 
 import com.linkedin.transport.api.StdFactory;
 import com.linkedin.transport.api.data.PlatformData;
-import com.linkedin.transport.api.data.StdData;
 import com.linkedin.transport.api.udf.StdUDF;
 import com.linkedin.transport.api.udf.StdUDF0;
 import com.linkedin.transport.api.udf.StdUDF1;
@@ -23,6 +22,7 @@ import com.linkedin.transport.avro.typesystem.AvroTypeInference;
 import java.util.List;
 import java.util.stream.IntStream;
 import org.apache.avro.Schema;
+import org.apache.avro.util.Utf8;
 
 
 /**
@@ -36,7 +36,7 @@ public abstract class StdUdfWrapper {
   protected boolean _requiredFilesProcessed;
   protected StdFactory _stdFactory;
   private boolean[] _nullableArguments;
-  private StdData[] _args;
+  private Object[] _args;
 
   /**
    * Given input schemas, this method matches them to the expected type signatures, and finds bindings to the
@@ -68,12 +68,27 @@ public abstract class StdUdfWrapper {
     return false;
   }
 
-  protected StdData wrap(Object avroObject, StdData stdData) {
-    if (avroObject != null) {
-      ((PlatformData) stdData).setUnderlyingData(avroObject);
-      return stdData;
-    } else {
-      return null;
+  protected Object wrap(Object avroObject, Schema inputSchema, Object stdData) {
+    switch (inputSchema.getType()) {
+      case INT:
+      case LONG:
+      case BOOLEAN:
+        return avroObject;
+      case STRING:
+        return avroObject == null? null : avroObject.toString();
+      case ARRAY:
+      case MAP:
+      case RECORD:
+        if (avroObject != null) {
+          ((PlatformData) stdData).setUnderlyingData(avroObject);
+          return stdData;
+        } else {
+          return null;
+        }
+      case NULL:
+        return null;
+      default:
+        throw new RuntimeException("Unrecognized Avro Schema: " + inputSchema.getClass());
     }
   }
 
@@ -82,22 +97,24 @@ public abstract class StdUdfWrapper {
   protected abstract Class<? extends TopLevelStdUDF> getTopLevelUdfClass();
 
   protected void createStdData() {
-    _args = new StdData[_inputSchemas.length];
+    _args = new Object[_inputSchemas.length];
     for (int i = 0; i < _inputSchemas.length; i++) {
       _args[i] = AvroWrapper.createStdData(null, _inputSchemas[i]);
     }
   }
 
-  private StdData[] wrapArguments(Object[] arguments) {
-    return IntStream.range(0, _args.length).mapToObj(i -> wrap(arguments[i], _args[i])).toArray(StdData[]::new);
+  private Object[] wrapArguments(Object[] arguments) {
+    return IntStream.range(0, _args.length).mapToObj(
+        i -> wrap(arguments[i], _inputSchemas[i], _args[i])
+    ).toArray(Object[]::new);
   }
 
   public Object evaluate(Object[] arguments) {
     if (containsNullValuedNonNullableArgument(arguments)) {
       return null;
     }
-    StdData[] args = wrapArguments(arguments);
-    StdData result;
+    Object[] args = wrapArguments(arguments);
+    Object result;
     switch (args.length) {
       case 0:
         result = ((StdUDF0) _stdUdf).eval();
@@ -129,6 +146,6 @@ public abstract class StdUdfWrapper {
       default:
         throw new UnsupportedOperationException("eval not yet supported for StdUDF" + args.length);
     }
-    return result == null ? null : ((PlatformData) result).getUnderlyingData();
+    return AvroWrapper.getPlatformData(result);
   }
 }

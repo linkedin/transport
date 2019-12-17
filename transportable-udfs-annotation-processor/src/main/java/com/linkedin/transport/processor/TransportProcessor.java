@@ -130,10 +130,19 @@ public class TransportProcessor extends AbstractProcessor {
           udfClassElement
       );
     } else {
-      String topLevelStdUdfClassName =
-          elementsOverridingTopLevelStdUDFMethods.iterator().next().getQualifiedName().toString();
+      TypeElement topLevelStdUdfTypeElement = elementsOverridingTopLevelStdUDFMethods.iterator().next();
+      String topLevelStdUdfClassName = topLevelStdUdfTypeElement.getQualifiedName().toString();
       debug(String.format("TopLevelStdUDF class found: %s", topLevelStdUdfClassName));
+      String udfClassName = udfClassElement.getQualifiedName().toString();
       _transportUdfMetadata.addUDF(topLevelStdUdfClassName, udfClassElement.getQualifiedName().toString());
+      _transportUdfMetadata.setClassNumberOfTypeParameters(
+          topLevelStdUdfClassName,
+          topLevelStdUdfTypeElement.getTypeParameters().size()
+      );
+      _transportUdfMetadata.setClassNumberOfTypeParameters(
+          udfClassName,
+          udfClassElement.getTypeParameters().size()
+      );
     }
   }
 

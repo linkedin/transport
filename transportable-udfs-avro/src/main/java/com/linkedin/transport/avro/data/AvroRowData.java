@@ -6,8 +6,7 @@
 package com.linkedin.transport.avro.data;
 
 import com.linkedin.transport.api.data.PlatformData;
-import com.linkedin.transport.api.data.StdData;
-import com.linkedin.transport.api.data.StdStruct;
+import com.linkedin.transport.api.data.RowData;
 import com.linkedin.transport.avro.AvroWrapper;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -17,17 +16,17 @@ import org.apache.avro.generic.GenericData.Record;
 import org.apache.avro.generic.GenericRecord;
 
 
-public class AvroStruct implements StdStruct, PlatformData {
+public class AvroRowData implements RowData, PlatformData {
 
   private final Schema _recordSchema;
   private GenericRecord _genericRecord;
 
-  public AvroStruct(GenericRecord genericRecord, Schema recordSchema) {
+  public AvroRowData(GenericRecord genericRecord, Schema recordSchema) {
     _genericRecord = genericRecord;
     _recordSchema = recordSchema;
   }
 
-  public AvroStruct(Schema recordSchema) {
+  public AvroRowData(Schema recordSchema) {
     _genericRecord = new Record(recordSchema);
     _recordSchema = recordSchema;
   }
@@ -43,27 +42,27 @@ public class AvroStruct implements StdStruct, PlatformData {
   }
 
   @Override
-  public StdData getField(int index) {
+  public Object getField(int index) {
     return AvroWrapper.createStdData(_genericRecord.get(index), _recordSchema.getFields().get(index).schema());
   }
 
   @Override
-  public StdData getField(String name) {
+  public Object getField(String name) {
     return AvroWrapper.createStdData(_genericRecord.get(name), _recordSchema.getField(name).schema());
   }
 
   @Override
-  public void setField(int index, StdData value) {
-    _genericRecord.put(index, ((PlatformData) value).getUnderlyingData());
+  public void setField(int index, Object value) {
+    _genericRecord.put(index, AvroWrapper.getPlatformData(value));
   }
 
   @Override
-  public void setField(String name, StdData value) {
-    _genericRecord.put(name, ((PlatformData) value).getUnderlyingData());
+  public void setField(String name, Object value) {
+    _genericRecord.put(name, AvroWrapper.getPlatformData(value));
   }
 
   @Override
-  public List<StdData> fields() {
+  public List<Object> fields() {
     return IntStream.range(0, _recordSchema.getFields().size()).mapToObj(i -> getField(i)).collect(Collectors.toList());
   }
 }

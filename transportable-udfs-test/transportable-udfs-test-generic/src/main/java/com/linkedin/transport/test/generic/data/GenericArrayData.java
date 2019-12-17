@@ -5,9 +5,8 @@
  */
 package com.linkedin.transport.test.generic.data;
 
+import com.linkedin.transport.api.data.ArrayData;
 import com.linkedin.transport.api.data.PlatformData;
-import com.linkedin.transport.api.data.StdArray;
-import com.linkedin.transport.api.data.StdData;
 import com.linkedin.transport.test.generic.GenericWrapper;
 import com.linkedin.transport.test.spi.types.ArrayTestType;
 import com.linkedin.transport.test.spi.types.TestType;
@@ -15,12 +14,12 @@ import java.util.Iterator;
 import java.util.List;
 
 
-public class GenericArray implements StdArray, PlatformData {
+public class GenericArrayData<E> implements ArrayData<E>, PlatformData {
 
   private List<Object> _array;
   private TestType _elementType;
 
-  public GenericArray(List<Object> data, TestType type) {
+  public GenericArrayData(List<Object> data, TestType type) {
     _array = data;
     _elementType = ((ArrayTestType) type).getElementType();
   }
@@ -31,18 +30,18 @@ public class GenericArray implements StdArray, PlatformData {
   }
 
   @Override
-  public StdData get(int idx) {
-    return GenericWrapper.createStdData(_array.get(idx), _elementType);
+  public E get(int idx) {
+    return (E) GenericWrapper.createStdData(_array.get(idx), _elementType);
   }
 
   @Override
-  public void add(StdData e) {
-    _array.add(((PlatformData) e).getUnderlyingData());
+  public void add(E e) {
+    _array.add(GenericWrapper.getPlatformData(e));
   }
 
   @Override
-  public Iterator<StdData> iterator() {
-    return new Iterator<StdData>() {
+  public Iterator<E> iterator() {
+    return new Iterator<E>() {
       private final Iterator<Object> _iterator = _array.iterator();
 
       @Override
@@ -51,8 +50,8 @@ public class GenericArray implements StdArray, PlatformData {
       }
 
       @Override
-      public StdData next() {
-        return GenericWrapper.createStdData(_iterator.next(), _elementType);
+      public E next() {
+        return (E) GenericWrapper.createStdData(_iterator.next(), _elementType);
       }
     };
   }

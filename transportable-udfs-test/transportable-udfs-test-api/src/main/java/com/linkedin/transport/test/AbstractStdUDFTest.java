@@ -6,6 +6,9 @@
 package com.linkedin.transport.test;
 
 import com.google.common.base.Preconditions;
+import com.linkedin.transport.api.data.ArrayData;
+import com.linkedin.transport.api.data.MapData;
+import com.linkedin.transport.api.data.RowData;
 import com.linkedin.transport.api.data.StdData;
 import com.linkedin.transport.api.udf.StdUDF;
 import com.linkedin.transport.api.udf.TopLevelStdUDF;
@@ -32,9 +35,9 @@ import java.util.Map;
  *   <li>{@link com.linkedin.transport.api.data.StdLong} = {@link Long}</li>
  *   <li>{@link com.linkedin.transport.api.data.StdBoolean} = {@link Boolean}</li>
  *   <li>{@link com.linkedin.transport.api.data.StdString} = {@link String}</li>
- *   <li>{@link com.linkedin.transport.api.data.StdArray} = Use {@link #array(Object...)} to create arrays</li>
- *   <li>{@link com.linkedin.transport.api.data.StdMap} = Use {@link #map(Object...)} to create maps</li>
- *   <li>{@link com.linkedin.transport.api.data.StdStruct} = Use {@link #row(Object...)} to create structs</li>
+ *   <li>{@link ArrayData} = Use {@link #array(Object...)} to create arrays</li>
+ *   <li>{@link MapData} = Use {@link #map(Object...)} to create maps</li>
+ *   <li>{@link RowData} = Use {@link #row(Object...)} to create structs</li>
  * </ul>
  *
  *

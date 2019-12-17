@@ -6,7 +6,7 @@
 package com.linkedin.transport.api.data;
 
 /** A Standard UDF data type for representing arrays. */
-public interface StdArray extends StdData, Iterable<StdData> {
+public interface ArrayData<E> extends Iterable<E> {
 
   /** Returns the number of elements in the array. */
   int size();
@@ -16,12 +16,12 @@ public interface StdArray extends StdData, Iterable<StdData> {
    *
    * @param idx  the index of the element to be retrieved
    */
-  StdData get(int idx);
+  E get(int idx);
 
   /**
    * Adds an element to the end of the array.
    *
    * @param e  the element to append to the array
    */
-  void add(StdData e);
+  void add(E e);
 }
