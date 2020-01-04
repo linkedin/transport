@@ -6,12 +6,11 @@
 package udfs;
 
 import com.google.common.collect.ImmutableList;
-import com.linkedin.transport.api.data.StdBoolean;
 import com.linkedin.transport.api.udf.StdUDF0;
 import java.util.List;
 
 
-public class UDFWithMultipleInterfaces1 extends StdUDF0<StdBoolean> implements OverloadedUDF1, OverloadedUDF2 {
+public class UDFWithMultipleInterfaces1 extends StdUDF0<Boolean> implements OverloadedUDF1, OverloadedUDF2 {
 
   @Override
   public String getFunctionName() {
@@ -34,7 +33,7 @@ public class UDFWithMultipleInterfaces1 extends StdUDF0<StdBoolean> implements O
   }
 
   @Override
-  public StdBoolean eval() {
+  public Boolean eval() {
     return null;
   }
 }

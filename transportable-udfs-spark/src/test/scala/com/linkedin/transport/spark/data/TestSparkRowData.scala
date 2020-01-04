@@ -33,8 +33,8 @@ class TestSparkRowData {
   def testSparkStructGetField(): Unit = {
     val stdStruct = SparkWrapper.createStdData(structData, structType).asInstanceOf[RowData]
     dataArray.indices.foreach(idx => {
-      assertEquals(stdStruct.getField(idx).asInstanceOf[PlatformData].getUnderlyingData, dataArray(idx))
-      assertEquals(stdStruct.getField(fieldNames(idx)).asInstanceOf[PlatformData].getUnderlyingData, dataArray(idx))
+      assertEquals(SparkWrapper.getPlatformData(stdStruct.getField(idx)), dataArray(idx))
+      assertEquals(SparkWrapper.getPlatformData(stdStruct.getField(fieldNames(idx))), dataArray(idx))
     })
   }
 
@@ -42,16 +42,16 @@ class TestSparkRowData {
   def testSparkStructFields(): Unit = {
     val stdStruct = SparkWrapper.createStdData(structData, structType).asInstanceOf[RowData]
     assertEquals(stdStruct.fields().size(), structData.numFields)
-    assertEquals(stdStruct.fields().toArray.map(f => f.asInstanceOf[PlatformData].getUnderlyingData), dataArray)
+    assertEquals(stdStruct.fields().toArray.map(f => SparkWrapper.getPlatformData(f)), dataArray)
   }
 
   @Test
   def testSparkStructSetField(): Unit = {
     val stdStruct = SparkWrapper.createStdData(structData, structType).asInstanceOf[RowData]
-    stdStruct.setField(1, stdFactory.createInteger(1))
-    assertEquals(stdStruct.getField(1).asInstanceOf[PlatformData].getUnderlyingData, 1)
-    stdStruct.setField(fieldNames(2), stdFactory.createLong(5)) // scalastyle:ignore magic.number
-    assertEquals(stdStruct.getField(fieldNames(2)).asInstanceOf[PlatformData].getUnderlyingData, 5L) // scalastyle:ignore magic.number
+    stdStruct.setField(1, 1)
+    assertEquals(stdStruct.getField(1), 1)
+    stdStruct.setField(fieldNames(2), 5L) // scalastyle:ignore magic.number
+    assertEquals(stdStruct.getField(fieldNames(2)), 5L) // scalastyle:ignore magic.number
     // Since original InternalRow is immutable, a mutable ArrayBuffer should be created and set as the underlying object
     assertNotSame(stdStruct.asInstanceOf[PlatformData].getUnderlyingData, structData)
   }
@@ -59,7 +59,7 @@ class TestSparkRowData {
   @Test
   def testSparkStructMutabilityReset(): Unit = {
     val stdStruct = SparkWrapper.createStdData(structData, structType).asInstanceOf[RowData]
-    stdStruct.setField(1, stdFactory.createInteger(1))
+    stdStruct.setField(1, 1)
     stdStruct.asInstanceOf[PlatformData].setUnderlyingData(structData)
     // After underlying data is explicitly set, mutable buffer should be removed
     assertSame(stdStruct.asInstanceOf[PlatformData].getUnderlyingData, structData)

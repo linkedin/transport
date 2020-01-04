@@ -1,10 +1,10 @@
 {
-  "udfs": [
-    {
-      "topLevelClass": "udfs.SimpleUDF",
-      "stdUDFImplementations": [
-        "udfs.SimpleUDF"
-      ]
-    }
-  ]
+  "udfs": {
+    "udfs.SimpleUDF": [
+      "udfs.SimpleUDF"
+    ]
+  },
+  "classToNumberOfTypeParameters": {
+    "udfs.SimpleUDF": 0
+  }
 }

@@ -18,7 +18,8 @@ import java.util.List;
 
 
 /**
- * {@link StdFactory} is used to create {@link StdData} and {@link StdType} objects inside Standard UDFs.
+ * {@link StdFactory} is used to create containter types (e.g., {@link ArrayData}, {@link MapData}, {@link RowData})
+ * and {@link StdType} objects inside Standard UDFs.
  *
  * Specific APIs of {@link StdFactory} are implemented by each target platform (e.g., Spark, Presto, Hive) individually.
  * A {@link StdFactory} object is available inside Standard UDFs using {@link StdUDF#getStdFactory()}.

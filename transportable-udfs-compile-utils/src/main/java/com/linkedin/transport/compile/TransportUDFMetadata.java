@@ -20,10 +20,7 @@ import java.io.Reader;
 import java.io.Writer;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 
 
@@ -65,7 +62,7 @@ public class TransportUDFMetadata {
   }
 
   public void toJson(Writer writer) {
-    GSON.toJson(TransportUDFMetadataSerDe2.serialize(this), writer);
+    GSON.toJson(TransportUDFMetadataSerDe.serialize(this), writer);
   }
 
   public static TransportUDFMetadata fromJsonFile(File jsonFile) {
@@ -77,59 +74,10 @@ public class TransportUDFMetadata {
   }
 
   public static TransportUDFMetadata fromJson(Reader reader) {
-    return TransportUDFMetadataSerDe2.deserialize(new JsonParser().parse(reader));
+    return TransportUDFMetadataSerDe.deserialize(new JsonParser().parse(reader));
   }
 
-  /**
-   * Represents the JSON object structure of the Transport UDF metadata resource file
-   */
-  private static class TransportUDFMetadataJson {
-    private List<UDFInfo> udfs;
-
-    TransportUDFMetadataJson() {
-      this.udfs = new LinkedList<>();
-    }
-
-    static class UDFInfo {
-
-      static class ClazzInfo {
-        private String className;
-        private boolean isTypeParameterized;
-
-        @Override
-        public boolean equals(Object o) {
-          if (this == o) {
-            return true;
-          }
-          if (o == null || getClass() != o.getClass()) {
-            return false;
-          }
-          ClazzInfo clazzInfo = (ClazzInfo) o;
-          return Objects.equals(className, clazzInfo.className);
-        }
-
-        @Override
-        public int hashCode() {
-          return Objects.hash(className);
-        }
-
-        ClazzInfo(String className, boolean isTypeParameterized) {
-          this.className = className;
-          this.isTypeParameterized = isTypeParameterized;
-        }
-      }
-
-      private ClazzInfo topLevelClass;
-      private Collection<ClazzInfo> stdUDFImplementations;
-
-      UDFInfo(ClazzInfo topLevelClass, Collection<ClazzInfo> stdUDFImplementations) {
-        this.topLevelClass = topLevelClass;
-        this.stdUDFImplementations = stdUDFImplementations;
-      }
-    }
-  }
-
-  private static class TransportUDFMetadataSerDe2 {
+  private static class TransportUDFMetadataSerDe {
 
     public static TransportUDFMetadata deserialize(JsonElement json) {
       TransportUDFMetadata metadata = new TransportUDFMetadata();
@@ -171,34 +119,4 @@ public class TransportUDFMetadata {
       return root;
     }
   }
-  /**
-   * Converts objects between {@link TransportUDFMetadata} and {@link TransportUDFMetadataJson}
-   */
-  /*private static class TransportUDFMetadataSerDe {
-
-    private static TransportUDFMetadataJson fromUDFMetadata(TransportUDFMetadata metadata) {
-      TransportUDFMetadataJson metadataJson = new TransportUDFMetadataJson();
-      for (String topLevelClass : metadata.getTopLevelClasses()) {
-        metadataJson.udfs.add(
-            new TransportUDFMetadataJson.UDFInfo(
-                new TransportUDFMetadataJson.UDFInfo.ClazzInfo(topLevelClass, metadata.isTypeParameterizedClass(topLevelClass)),
-                new TransportUDFMetadataJson.UDFInfo.ClazzInfo()
-                metadata.getStdUDFImplementations(topLevelClass),
-                metadata.isTypeParameterizedClass(topLevelClass)
-            ));
-      }
-      return metadataJson;
-    }
-
-    private static TransportUDFMetadata toUDFMetadata(TransportUDFMetadataJson metadataJson) {
-      TransportUDFMetadata metadata = new TransportUDFMetadata();
-      for (TransportUDFMetadataJson.UDFInfo udf : metadataJson.udfs) {
-        metadata.addUDF(udf.topLevelClass, udf.stdUDFImplementations);
-        if (udf.isTypeParameterizedTopLevelClass) {
-          metadata.setTypeParameterizedClass(udf.topLevelClass);
-        }
-      }
-      return metadata;
-    }
-  }*/
 }
