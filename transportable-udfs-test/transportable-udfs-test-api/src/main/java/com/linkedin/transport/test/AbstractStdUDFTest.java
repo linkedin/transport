@@ -9,7 +9,6 @@ import com.google.common.base.Preconditions;
 import com.linkedin.transport.api.data.ArrayData;
 import com.linkedin.transport.api.data.MapData;
 import com.linkedin.transport.api.data.RowData;
-import com.linkedin.transport.api.data.StdData;
 import com.linkedin.transport.api.udf.StdUDF;
 import com.linkedin.transport.api.udf.TopLevelStdUDF;
 import com.linkedin.transport.test.spi.FunctionCall;
@@ -29,12 +28,9 @@ import java.util.Map;
  * An abstract class to be extended by all test classes. This class contains helper methods to initialize the
  * {@link StdTester} and create input and output data for the test cases.
  *
- * The mapping between a {@link StdData} to the corresponding Java type is given below:
+ * Primitive data is represented by primitive types when passed to the test cases.
+ * The mapping between container types to the corresponding Java type is given below:
  * <ul>
- *   <li>{@link com.linkedin.transport.api.data.StdInteger} = {@link Integer}</li>
- *   <li>{@link com.linkedin.transport.api.data.StdLong} = {@link Long}</li>
- *   <li>{@link com.linkedin.transport.api.data.StdBoolean} = {@link Boolean}</li>
- *   <li>{@link com.linkedin.transport.api.data.StdString} = {@link String}</li>
  *   <li>{@link ArrayData} = Use {@link #array(Object...)} to create arrays</li>
  *   <li>{@link MapData} = Use {@link #map(Object...)} to create maps</li>
  *   <li>{@link RowData} = Use {@link #row(Object...)} to create structs</li>

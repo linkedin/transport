@@ -6,8 +6,6 @@
 package com.linkedin.transport.api.udf;
 
 import com.linkedin.transport.api.StdFactory;
-import com.linkedin.transport.api.data.StdData;
-import com.linkedin.transport.api.types.StdType;
 import java.util.List;
 
 
@@ -19,8 +17,7 @@ import java.util.List;
  * abstract class for UDFs expecting {@code i} arguments. Similar to lambda expressions, StdUDF(i) abstract classes are
  * type-parameterized by the input types and output type of the eval function. Each class is type-parameterized by
  * {@code (i+1)} type parameters; {@code i} type parameters for the UDF input types, and one type parameter for the
- * output type. All types (both input and output types) must extend the {@linkObject}
- * interface.
+ * output type.
  */
 public abstract class StdUDF {
   private StdFactory _stdFactory;
@@ -40,7 +37,7 @@ public abstract class StdUDF {
    * of contained UDF.
    *
    * @param stdFactory  a {@link StdFactory} object which can be used to create
-   * {@linkObject} and {@link StdType} objects
+   * data and type objects
    */
   public void init(StdFactory stdFactory) {
     _stdFactory = stdFactory;
@@ -85,8 +82,8 @@ public abstract class StdUDF {
   protected abstract int numberOfArguments();
 
   /**
-   * Returns a {@link StdFactory} object which can be used to create {@linkObject} and
-   * {@link StdType} objects
+   * Returns a {@link StdFactory} object which can be used to create data and
+   * type objects
    */
   public StdFactory getStdFactory() {
     return _stdFactory;
