@@ -7,7 +7,6 @@ package com.linkedin.transport.hive.data;
 
 import com.linkedin.transport.api.StdFactory;
 import com.linkedin.transport.api.data.ArrayData;
-import com.linkedin.transport.api.data.StdData;
 import com.linkedin.transport.hive.HiveWrapper;
 import java.util.Iterator;
 import org.apache.hadoop.hive.serde2.objectinspector.ListObjectInspector;

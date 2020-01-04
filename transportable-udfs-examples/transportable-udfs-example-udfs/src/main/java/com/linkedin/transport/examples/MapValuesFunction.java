@@ -9,7 +9,6 @@ import com.google.common.collect.ImmutableList;
 import com.linkedin.transport.api.StdFactory;
 import com.linkedin.transport.api.data.ArrayData;
 import com.linkedin.transport.api.data.MapData;
-import com.linkedin.transport.api.data.StdData;
 import com.linkedin.transport.api.types.StdType;
 import com.linkedin.transport.api.udf.StdUDF1;
 import com.linkedin.transport.api.udf.TopLevelStdUDF;
