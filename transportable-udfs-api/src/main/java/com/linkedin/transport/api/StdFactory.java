@@ -7,7 +7,6 @@ package com.linkedin.transport.api;
 
 import com.linkedin.transport.api.data.ArrayData;
 import com.linkedin.transport.api.data.MapData;
-import com.linkedin.transport.api.data.StdData;
 import com.linkedin.transport.api.data.RowData;
 import com.linkedin.transport.api.types.StdArrayType;
 import com.linkedin.transport.api.types.StdMapType;
@@ -19,7 +18,8 @@ import java.util.List;
 
 
 /**
- * {@link StdFactory} is used to create {@link StdData} and {@link StdType} objects inside Standard UDFs.
+ * {@link StdFactory} is used to create containter types (e.g., {@link ArrayData}, {@link MapData}, {@link RowData})
+ * and {@link StdType} objects inside Standard UDFs.
  *
  * Specific APIs of {@link StdFactory} are implemented by each target platform (e.g., Spark, Presto, Hive) individually.
  * A {@link StdFactory} object is available inside Standard UDFs using {@link StdUDF#getStdFactory()}.

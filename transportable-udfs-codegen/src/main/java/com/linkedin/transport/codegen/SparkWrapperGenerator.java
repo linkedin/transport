@@ -83,6 +83,6 @@ public class SparkWrapperGenerator implements WrapperGenerator {
     int numberOfTypeParameters = classToNumberOfTypeParameters.get(clazz);
     String[] objectTypes = new String[numberOfTypeParameters];
     Arrays.fill(objectTypes, "Object");
-    return numberOfTypeParameters > 0?  "[" + String.join(", ", objectTypes)+ "]" : "";
+    return numberOfTypeParameters > 0 ?  "[" + String.join(", ", objectTypes) + "]" : "";
   }
 }

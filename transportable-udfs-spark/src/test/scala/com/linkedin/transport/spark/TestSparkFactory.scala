@@ -21,14 +21,6 @@ class TestSparkFactory {
   val stdFactory = new SparkFactory(new SparkBoundVariables)
 
   @Test
-  def testCreatePrimitives(): Unit = {
-    assertEquals(stdFactory.createInteger(1).get(), 1)
-    assertEquals(stdFactory.createLong(1L).get(), 1L)
-    assertEquals(stdFactory.createBoolean(true).get(), true)
-    assertEquals(stdFactory.createString("").get(), "")
-  }
-
-  @Test
   def testCreateArray(): Unit = {
     var stdArray = stdFactory.createArray(stdFactory.createStdType("array(integer)"))
     assertEquals(stdArray.size(), 0)

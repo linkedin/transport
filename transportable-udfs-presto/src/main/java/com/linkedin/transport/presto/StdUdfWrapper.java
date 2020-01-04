@@ -10,7 +10,6 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.linkedin.transport.api.StdFactory;
 import com.linkedin.transport.api.data.PlatformData;
-import com.linkedin.transport.api.data.StdData;
 import com.linkedin.transport.api.udf.StdUDF;
 import com.linkedin.transport.api.udf.StdUDF0;
 import com.linkedin.transport.api.udf.StdUDF1;
