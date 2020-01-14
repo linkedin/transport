@@ -40,11 +40,11 @@ public class FileSystemUtils {
   }
 
   /**
-   * Get the HDFS FileSystem
+   * Get the FileSystem for the path
    *
-   * @return the HDFS FileSystem if we are not in local mode, local FileSystem if we are.
+   * @return the Path's FileSystem if we are not in local mode, local FileSystem if we are.
    */
-  public static FileSystem getHDFSFileSystem() {
+  public static FileSystem getFileSystem(String filePath) {
     FileSystem fs;
     JobConf conf = new JobConf();
     try {
@@ -52,7 +52,7 @@ public class FileSystemUtils {
       if (isLocalEnvironment(conf)) {
         fs = FileSystem.getLocal(conf);
       } else {
-        fs = FileSystem.get(conf);
+        fs = new Path(filePath).getFileSystem(conf);
       }
     } catch (IOException e) {
       throw new RuntimeException("Failed to load the HDFS file system.", e);
@@ -87,16 +87,15 @@ public class FileSystemUtils {
    * the same path.
    *
    * @param path the path to resolve
-   * @param fs the filesystem used to resolve the path
    * @return the resolved path
    * @throws IOException when the filesystem could not resolve the path
    */
-  public static String resolveLatest(String path, FileSystem fs) throws IOException {
+  public static String resolveLatest(String path) throws IOException {
     if (!StringUtils.isBlank(path)) {
       path = path.trim();
       String[] split = path.split("#LATEST");
       String retval = split[0];
-
+      FileSystem fs = getFileSystem(path);
       for (int i = 1; i < split.length; ++i) {
         retval = resolveLatestHelper(retval, fs, true) + split[i];
       }

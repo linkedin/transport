@@ -95,7 +95,7 @@ abstract class StdUdfWrapper(_expressions: Seq[Expression]) extends Expression
         lazy val sparkContext = SparkSession.builder().getOrCreate().sparkContext
         _distributedCacheFiles = requiredFiles.map(file => {
           try {
-            val resolvedFile = FileSystemUtils.resolveLatest(file, FileSystemUtils.getHDFSFileSystem)
+            val resolvedFile = FileSystemUtils.resolveLatest(file)
             // TODO: Currently does not support adding of files with same file name. E.g dirA/file.txt dirB/file.txt
             sparkContext.addFile(resolvedFile)
             resolvedFile

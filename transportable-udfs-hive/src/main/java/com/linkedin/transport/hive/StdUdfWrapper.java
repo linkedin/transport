@@ -231,7 +231,7 @@ public abstract class StdUdfWrapper extends GenericUDF {
     }
     _distributedCacheFiles = Arrays.stream(requiredFiles).map(requiredFile -> {
       try {
-        return FileSystemUtils.resolveLatest(requiredFile, FileSystemUtils.getHDFSFileSystem());
+        return FileSystemUtils.resolveLatest(requiredFile);
       } catch (IOException e) {
         throw new RuntimeException("Failed to resolve path: [" + requiredFile + "].", e);
       }
