@@ -60,6 +60,7 @@ public class TransportPlugin implements Plugin<Project> {
       Defaults.DEFAULT_PLATFORMS.forEach(
           platform -> configurePlatform(project, platform, mainSourceSet, testSourceSet));
     });
+    // Disable Jacoco for platform test tasks as it is known to cause issues with Presto and Hive tests
     project.getPlugins().withType(JacocoPlugin.class, (jacocoPlugin) -> {
         Defaults.DEFAULT_PLATFORMS.forEach(platform -> {
           project.getTasksByName(testTaskName(platform), true).forEach(task -> {
