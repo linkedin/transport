@@ -25,6 +25,8 @@ import org.gradle.api.tasks.SourceSet;
 import org.gradle.api.tasks.TaskProvider;
 import org.gradle.api.tasks.testing.Test;
 import org.gradle.language.base.plugins.LifecycleBasePlugin;
+import org.gradle.testing.jacoco.plugins.JacocoPlugin;
+import org.gradle.testing.jacoco.plugins.JacocoTaskExtension;
 
 import static com.linkedin.transport.plugin.ConfigurationType.*;
 import static com.linkedin.transport.plugin.SourceSetUtils.*;
@@ -57,6 +59,17 @@ public class TransportPlugin implements Plugin<Project> {
       configureBaseSourceSets(project, mainSourceSet, testSourceSet);
       Defaults.DEFAULT_PLATFORMS.forEach(
           platform -> configurePlatform(project, platform, mainSourceSet, testSourceSet));
+    });
+    // Disable Jacoco for platform test tasks as it is known to cause issues with Presto and Hive tests
+    project.getPlugins().withType(JacocoPlugin.class, (jacocoPlugin) -> {
+        Defaults.DEFAULT_PLATFORMS.forEach(platform -> {
+          project.getTasksByName(testTaskName(platform), true).forEach(task -> {
+            JacocoTaskExtension jacocoExtension = task.getExtensions().findByType(JacocoTaskExtension.class);
+            if (jacocoExtension != null) {
+              jacocoExtension.setEnabled(false);
+            }
+          });
+        });
     });
   }
 
@@ -230,7 +243,7 @@ public class TransportPlugin implements Plugin<Project> {
       }
     */
 
-    return project.getTasks().register(platform.getName() + "Test", Test.class, task -> {
+    return project.getTasks().register(testTaskName(platform), Test.class, task -> {
       task.setGroup(LifecycleBasePlugin.VERIFICATION_GROUP);
       task.setDescription("Runs Transport UDF tests on " + platform.getName());
       task.setTestClassesDirs(testSourceSet.getOutput().getClassesDirs());
@@ -238,5 +251,9 @@ public class TransportPlugin implements Plugin<Project> {
       task.useTestNG();
       task.mustRunAfter(project.getTasks().named("test"));
     });
+  }
+
+  private String testTaskName(Platform platform) {
+    return platform.getName() + "Test";
   }
 }
