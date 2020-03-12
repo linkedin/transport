@@ -86,7 +86,7 @@ If the UDF class is `com.linkedin.transport.example.ExampleUDF` then the platfor
 Unlike Hive and Spark, Presto currently does not allow dynamically loading jar files once the Presto server has started.
 In Presto, the jar is deployed to the `plugin` directory.
 However, a small patch is required for the Presto engine to recognize the jar as a plugin, since the generated Presto UDFs implement the `SqlScalarFunction` API, which is currently not part of Presto's SPI architecture.
-You can find the patch [here](transportable-udfs-documentation/transport-udfs-presto.patch) and apply it before deploying your UDFs jar to the Presto engine.
+You can find the patch [here](transport-udfs-presto.patch) and apply it before deploying your UDFs jar to the Presto engine.
 
 2. Call the UDF in a query  
     To call the UDF, you will need to use the function name defined in the Transport UDF definition.
