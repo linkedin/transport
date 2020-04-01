@@ -30,16 +30,6 @@ public class FileSystemUtils {
   }
 
   /**
-   * Checks if the current UDF is running in local environment or something else.
-   *
-   * @param conf the Hadoop configuration
-   * @return true if it is in local mode
-   */
-  public static boolean isLocalEnvironment(Configuration conf) {
-    return conf.get(MAPREDUCE_FRAMEWORK_NAME, conf.get(MAPRED_JOB_TRACKER, LOCAL)).equals(LOCAL);
-  }
-
-  /**
    * Get the FileSystem for the path
    *
    * @return the Path's FileSystem if we are not in local mode, local FileSystem if we are.
@@ -48,12 +38,7 @@ public class FileSystemUtils {
     FileSystem fs;
     JobConf conf = new JobConf();
     try {
-      // Checks if currently we are in local mode, which is basically when running unit tests
-      if (isLocalEnvironment(conf)) {
-        fs = FileSystem.getLocal(conf);
-      } else {
-        fs = new Path(filePath).getFileSystem(conf);
-      }
+      fs = new Path(filePath).getFileSystem(conf);
     } catch (IOException e) {
       throw new RuntimeException("Failed to load the HDFS file system.", e);
     }
