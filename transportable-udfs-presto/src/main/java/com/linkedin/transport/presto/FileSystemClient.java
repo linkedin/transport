@@ -53,7 +53,9 @@ public class FileSystemClient {
       Path remotePath = new Path(remoteFilename);
       Path localPath = new Path(Paths.get(getAndCreateLocalDir(), new File(remoteFilename).getName()).toString());
       FileSystem fs = remotePath.getFileSystem(conf);
-      String resolvedRemoteFilename = FileSystemUtils.resolveLatest(remoteFilename);
+      // It is important to pass the custom configuration object to FileSystemUtils since we load some extra
+      // properties from etc/**.xml in getConfiguration() for Presto
+      String resolvedRemoteFilename = FileSystemUtils.resolveLatest(remoteFilename, conf);
       Path resolvedRemotePath = new Path(resolvedRemoteFilename);
       fs.copyToLocalFile(resolvedRemotePath, localPath);
       return localPath.toString();
