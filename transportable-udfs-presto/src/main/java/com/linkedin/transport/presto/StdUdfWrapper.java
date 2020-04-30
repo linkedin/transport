@@ -41,6 +41,7 @@ import java.util.List;
 import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import org.apache.commons.lang3.ClassUtils;
@@ -56,7 +57,6 @@ public abstract class StdUdfWrapper extends SqlScalarFunction {
 
   private static final int DEFAULT_REFRESH_INTERVAL_DAYS = 1;
   private static final int JITTER_FACTOR = 50;  // to calculate jitter from delay
-  private volatile long _requiredFilesNextRefreshTime = Long.MAX_VALUE; // Will be set in specialize()
   private String _functionDescription;
 
   protected StdUdfWrapper(StdUDF stdUDF) {
@@ -105,19 +105,20 @@ public abstract class StdUdfWrapper extends SqlScalarFunction {
     StdUDF stdUDF = getStdUDF();
     stdUDF.init(stdFactory);
     // Subtract a small jitter value so that refresh is triggered on first call
-    // Do not add extra delay, if refresh time was set to lower value by an earlier specialize
+    // while ensuring subsequent calls do not happen at the same time across workers
     long initialJitter = getRefreshIntervalMillis() / JITTER_FACTOR;
     int initialJitterInt = initialJitter > Integer.MAX_VALUE ? Integer.MAX_VALUE : (int) initialJitter;
-    _requiredFilesNextRefreshTime =
-        Math.min(_requiredFilesNextRefreshTime, System.currentTimeMillis() - (new Random()).nextInt(initialJitterInt));
+    AtomicLong requiredFilesNextRefreshTime = new AtomicLong(System.currentTimeMillis()
+        - (new Random()).nextInt(initialJitterInt));
     boolean[] nullableArguments = stdUDF.getAndCheckNullableArguments();
 
     return new ScalarFunctionImplementation(true, getNullConventionForArguments(nullableArguments),
-        getMethodHandle(stdUDF, metadata, boundVariables, nullableArguments), isDeterministic());
+        getMethodHandle(stdUDF, metadata, boundVariables, nullableArguments, requiredFilesNextRefreshTime),
+        isDeterministic());
   }
 
   private MethodHandle getMethodHandle(StdUDF stdUDF, Metadata metadata, BoundVariables boundVariables,
-      boolean[] nullableArguments) {
+      boolean[] nullableArguments, AtomicLong requiredFilesNextRefreshTime) {
     Type[] inputTypes = getPrestoTypes(stdUDF.getInputParameterSignatures(), metadata, boundVariables);
     Type outputType = getPrestoType(stdUDF.getOutputParameterSignature(), metadata, boundVariables);
 
@@ -134,7 +135,7 @@ public abstract class StdUdfWrapper extends SqlScalarFunction {
     // Specific MethodHandle required by presto where argument types map to the type signature
     MethodHandle specificMethodHandle = MethodHandles.explicitCastArguments(genericMethodHandle, specificMethodType);
     return MethodHandles.insertArguments(specificMethodHandle, 0, stdUDF, inputTypes,
-        outputType instanceof IntegerType);
+        outputType instanceof IntegerType, requiredFilesNextRefreshTime);
   }
 
   private List<ScalarFunctionImplementation.ArgumentProperty> getNullConventionForArguments(
@@ -158,11 +159,12 @@ public abstract class StdUdfWrapper extends SqlScalarFunction {
     return stdData;
   }
 
-  protected Object eval(StdUDF stdUDF, Type[] types, boolean isIntegerReturnType, Object... arguments) {
+  protected Object eval(StdUDF stdUDF, Type[] types, boolean isIntegerReturnType,
+      AtomicLong requiredFilesNextRefreshTime, Object... arguments) {
     StdData[] args = wrapArguments(stdUDF, types, arguments);
-    if (_requiredFilesNextRefreshTime < System.currentTimeMillis()) {
+    if (requiredFilesNextRefreshTime.get() <= System.currentTimeMillis()) {
       String[] requiredFiles = getRequiredFiles(stdUDF, args);
-      processRequiredFiles(stdUDF, requiredFiles);
+      processRequiredFiles(stdUDF, requiredFiles, requiredFilesNextRefreshTime);
     }
     StdData result;
     switch (args.length) {
@@ -243,8 +245,9 @@ public abstract class StdUdfWrapper extends SqlScalarFunction {
     return requiredFiles;
   }
 
-  private synchronized void processRequiredFiles(StdUDF stdUDF, String[] requiredFiles) {
-    if (_requiredFilesNextRefreshTime < System.currentTimeMillis()) {
+  private synchronized void processRequiredFiles(StdUDF stdUDF, String[] requiredFiles,
+      AtomicLong requiredFilesNextRefreshTime) {
+    if (requiredFilesNextRefreshTime.get() <= System.currentTimeMillis()) {
       try (ThreadContextClassLoader ignored = new ThreadContextClassLoader(getClass().getClassLoader())) {
         String[] copiedFiles = new String[requiredFiles.length];
         FileSystemClient client = new FileSystemClient();
@@ -255,8 +258,8 @@ public abstract class StdUdfWrapper extends SqlScalarFunction {
         stdUDF.processRequiredFiles(copiedFiles);
         // Determine how many times _refreshIntervalMillis needs to be added to go above currentTimeMillis
         int refreshIntervalFactor = (int) Math.ceil(
-            (System.currentTimeMillis() - _requiredFilesNextRefreshTime) / (double) getRefreshIntervalMillis());
-        _requiredFilesNextRefreshTime += getRefreshIntervalMillis() * Math.max(1, refreshIntervalFactor);
+            (System.currentTimeMillis() - requiredFilesNextRefreshTime.get()) / (double) getRefreshIntervalMillis());
+        requiredFilesNextRefreshTime.getAndAdd(getRefreshIntervalMillis() * Math.max(1, refreshIntervalFactor));
       }
     }
   }
@@ -279,15 +282,16 @@ public abstract class StdUdfWrapper extends SqlScalarFunction {
 
   private Class<?>[] getMethodHandleArgumentTypes(Type[] argTypes, boolean[] nullableArguments,
       boolean useObjectForArgumentType) {
-    Class<?>[] methodHandleArgumentTypes = new Class<?>[argTypes.length + 3];
+    Class<?>[] methodHandleArgumentTypes = new Class<?>[argTypes.length + 4];
     methodHandleArgumentTypes[0] = StdUDF.class;
     methodHandleArgumentTypes[1] = Type[].class;
     methodHandleArgumentTypes[2] = boolean.class;
+    methodHandleArgumentTypes[3] = AtomicLong.class;
     for (int i = 0; i < argTypes.length; i++) {
       if (useObjectForArgumentType) {
-        methodHandleArgumentTypes[i + 3] = Object.class;
+        methodHandleArgumentTypes[i + 4] = Object.class;
       } else {
-        methodHandleArgumentTypes[i + 3] = getJavaTypeForNullability(argTypes[i], nullableArguments[i]);
+        methodHandleArgumentTypes[i + 4] = getJavaTypeForNullability(argTypes[i], nullableArguments[i]);
       }
     }
     return methodHandleArgumentTypes;
@@ -295,45 +299,53 @@ public abstract class StdUdfWrapper extends SqlScalarFunction {
 
   protected abstract StdUDF getStdUDF();
 
-  public Object evalInternal(StdUDF stdUDF, Type[] types, boolean isIntegerReturnType) {
-    return eval(stdUDF, types, isIntegerReturnType);
+  public Object evalInternal(StdUDF stdUDF, Type[] types, boolean isIntegerReturnType,
+      AtomicLong requiredFilesNextRefreshTime) {
+    return eval(stdUDF, types, isIntegerReturnType, requiredFilesNextRefreshTime);
   }
 
-  public Object evalInternal(StdUDF stdUDF, Type[] types, boolean isIntegerReturnType, Object arg1) {
-    return eval(stdUDF, types, isIntegerReturnType, arg1);
+  public Object evalInternal(StdUDF stdUDF, Type[] types, boolean isIntegerReturnType,
+      AtomicLong requiredFilesNextRefreshTime, Object arg1) {
+    return eval(stdUDF, types, isIntegerReturnType, requiredFilesNextRefreshTime, arg1);
   }
 
-  public Object evalInternal(StdUDF stdUDF, Type[] types, boolean isIntegerReturnType, Object arg1, Object arg2) {
-    return eval(stdUDF, types, isIntegerReturnType, arg1, arg2);
+  public Object evalInternal(StdUDF stdUDF, Type[] types, boolean isIntegerReturnType,
+      AtomicLong requiredFilesNextRefreshTime, Object arg1, Object arg2) {
+    return eval(stdUDF, types, isIntegerReturnType, requiredFilesNextRefreshTime, arg1, arg2);
   }
 
-  public Object evalInternal(StdUDF stdUDF, Type[] types, boolean isIntegerReturnType, Object arg1, Object arg2,
-      Object arg3) {
-    return eval(stdUDF, types, isIntegerReturnType, arg1, arg2, arg3);
+  public Object evalInternal(StdUDF stdUDF, Type[] types, boolean isIntegerReturnType,
+      AtomicLong requiredFilesNextRefreshTime, Object arg1, Object arg2, Object arg3) {
+    return eval(stdUDF, types, isIntegerReturnType, requiredFilesNextRefreshTime, arg1, arg2, arg3);
   }
 
-  public Object evalInternal(StdUDF stdUDF, Type[] types, boolean isIntegerReturnType, Object arg1, Object arg2,
-      Object arg3, Object arg4) {
-    return eval(stdUDF, types, isIntegerReturnType, arg1, arg2, arg3, arg4);
+  public Object evalInternal(StdUDF stdUDF, Type[] types, boolean isIntegerReturnType,
+      AtomicLong requiredFilesNextRefreshTime, Object arg1, Object arg2, Object arg3, Object arg4) {
+    return eval(stdUDF, types, isIntegerReturnType, requiredFilesNextRefreshTime, arg1, arg2, arg3, arg4);
   }
 
-  public Object evalInternal(StdUDF stdUDF, Type[] types, boolean isIntegerReturnType, Object arg1, Object arg2,
-      Object arg3, Object arg4, Object arg5) {
-    return eval(stdUDF, types, isIntegerReturnType, arg1, arg2, arg3, arg4, arg5);
+  public Object evalInternal(StdUDF stdUDF, Type[] types, boolean isIntegerReturnType,
+      AtomicLong requiredFilesNextRefreshTime, Object arg1, Object arg2, Object arg3, Object arg4, Object arg5) {
+    return eval(stdUDF, types, isIntegerReturnType, requiredFilesNextRefreshTime, arg1, arg2, arg3, arg4, arg5);
   }
 
-  public Object evalInternal(StdUDF stdUDF, Type[] types, boolean isIntegerReturnType, Object arg1, Object arg2,
-      Object arg3, Object arg4, Object arg5, Object arg6) {
-    return eval(stdUDF, types, isIntegerReturnType, arg1, arg2, arg3, arg4, arg5, arg6);
+  public Object evalInternal(StdUDF stdUDF, Type[] types, boolean isIntegerReturnType,
+      AtomicLong requiredFilesNextRefreshTime, Object arg1, Object arg2, Object arg3, Object arg4, Object arg5,
+      Object arg6) {
+    return eval(stdUDF, types, isIntegerReturnType, requiredFilesNextRefreshTime, arg1, arg2, arg3, arg4, arg5, arg6);
   }
 
-  public Object evalInternal(StdUDF stdUDF, Type[] types, boolean isIntegerReturnType, Object arg1, Object arg2,
-      Object arg3, Object arg4, Object arg5, Object arg6, Object arg7) {
-    return eval(stdUDF, types, isIntegerReturnType, arg1, arg2, arg3, arg4, arg5, arg6, arg7);
+  public Object evalInternal(StdUDF stdUDF, Type[] types, boolean isIntegerReturnType,
+      AtomicLong requiredFilesNextRefreshTime, Object arg1, Object arg2, Object arg3, Object arg4, Object arg5,
+      Object arg6, Object arg7) {
+    return eval(stdUDF, types, isIntegerReturnType, requiredFilesNextRefreshTime, arg1, arg2, arg3, arg4, arg5, arg6,
+        arg7);
   }
 
-  public Object evalInternal(StdUDF stdUDF, Type[] types, boolean isIntegerReturnType, Object arg1, Object arg2,
-      Object arg3, Object arg4, Object arg5, Object arg6, Object arg7, Object arg8) {
-    return eval(stdUDF, types, isIntegerReturnType, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
+  public Object evalInternal(StdUDF stdUDF, Type[] types, boolean isIntegerReturnType,
+      AtomicLong requiredFilesNextRefreshTime, Object arg1, Object arg2, Object arg3, Object arg4, Object arg5,
+      Object arg6, Object arg7, Object arg8) {
+    return eval(stdUDF, types, isIntegerReturnType, requiredFilesNextRefreshTime, arg1, arg2, arg3, arg4, arg5, arg6,
+        arg7, arg8);
   }
 }
