@@ -105,7 +105,7 @@ public abstract class StdUdfWrapper extends SqlScalarFunction {
     StdUDF stdUDF = getStdUDF();
     stdUDF.init(stdFactory);
     // Subtract a small jitter value so that refresh is triggered on first call
-    // But subsequent calls do not happen at the same time across workers
+    // while ensuring subsequent calls do not happen at the same time across workers
     long initialJitter = getRefreshIntervalMillis() / JITTER_FACTOR;
     int initialJitterInt = initialJitter > Integer.MAX_VALUE ? Integer.MAX_VALUE : (int) initialJitter;
     AtomicLong requiredFilesNextRefreshTime = new AtomicLong(System.currentTimeMillis()
