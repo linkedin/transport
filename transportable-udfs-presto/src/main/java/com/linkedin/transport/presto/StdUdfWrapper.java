@@ -7,6 +7,8 @@ package com.linkedin.transport.presto;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.primitives.Booleans;
 import com.linkedin.transport.api.StdFactory;
 import com.linkedin.transport.api.data.PlatformData;
 import com.linkedin.transport.api.data.StdData;
@@ -23,7 +25,9 @@ import com.linkedin.transport.api.udf.StdUDF8;
 import com.linkedin.transport.api.udf.TopLevelStdUDF;
 import com.linkedin.transport.typesystem.GenericTypeSignatureElement;
 import io.prestosql.metadata.BoundVariables;
+import io.prestosql.metadata.FunctionArgumentDefinition;
 import io.prestosql.metadata.FunctionKind;
+import io.prestosql.metadata.FunctionMetadata;
 import io.prestosql.metadata.Metadata;
 import io.prestosql.metadata.Signature;
 import io.prestosql.metadata.SqlScalarFunction;
@@ -32,7 +36,6 @@ import io.prestosql.operator.scalar.ScalarFunctionImplementation;
 import io.prestosql.spi.classloader.ThreadContextClassLoader;
 import io.prestosql.spi.type.IntegerType;
 import io.prestosql.spi.type.Type;
-import io.prestosql.spi.type.TypeSignature;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
@@ -48,7 +51,7 @@ import org.apache.commons.lang3.ClassUtils;
 
 import static io.prestosql.metadata.Signature.*;
 import static io.prestosql.metadata.SignatureBinder.*;
-import static io.prestosql.spi.type.TypeSignature.*;
+import static io.prestosql.operator.TypeSignatureParser.parseTypeSignature;
 import static io.prestosql.util.Reflection.*;
 
 // Suppressing argument naming convention for the evalInternal methods
@@ -57,16 +60,26 @@ public abstract class StdUdfWrapper extends SqlScalarFunction {
 
   private static final int DEFAULT_REFRESH_INTERVAL_DAYS = 1;
   private static final int JITTER_FACTOR = 50;  // to calculate jitter from delay
-  private String _functionDescription;
 
   protected StdUdfWrapper(StdUDF stdUDF) {
-    super(new Signature(((TopLevelStdUDF) stdUDF).getFunctionName(), FunctionKind.SCALAR,
-        getTypeVariableConstraintsForStdUdf(stdUDF), ImmutableList.of(),
-        parseTypeSignature(stdUDF.getOutputParameterSignature()), stdUDF.getInputParameterSignatures()
-        .stream()
-        .map(TypeSignature::parseTypeSignature)
-        .collect(Collectors.toList()), false));
-    _functionDescription = ((TopLevelStdUDF) stdUDF).getFunctionDescription();
+    super(new FunctionMetadata(
+            new Signature(
+                    ((TopLevelStdUDF) stdUDF).getFunctionName(),
+                    getTypeVariableConstraintsForStdUdf(stdUDF),
+                    ImmutableList.of(),
+                    parseTypeSignature(stdUDF.getOutputParameterSignature(),ImmutableSet.of()),
+                    stdUDF.getInputParameterSignatures().stream()
+                            .map(typeSignature -> parseTypeSignature(typeSignature, ImmutableSet.of()))
+                            .collect(Collectors.toList()),
+                    false),
+            true,
+            Booleans.asList(stdUDF.getNullableArguments()).stream()
+                    .map(FunctionArgumentDefinition::new)
+                    .collect(Collectors.toList()),
+            false,
+            false,
+            ((TopLevelStdUDF) stdUDF).getFunctionDescription(),
+            FunctionKind.SCALAR));
   }
 
   @VisibleForTesting
@@ -85,21 +98,6 @@ public abstract class StdUdfWrapper extends SqlScalarFunction {
   }
 
   @Override
-  public boolean isHidden() {
-    return false;
-  }
-
-  @Override
-  public boolean isDeterministic() {
-    return false;
-  }
-
-  @Override
-  public String getDescription() {
-    return _functionDescription;
-  }
-
-  @Override
   public ScalarFunctionImplementation specialize(BoundVariables boundVariables, int arity, Metadata metadata) {
     StdFactory stdFactory = new PrestoFactory(boundVariables, metadata);
     StdUDF stdUDF = getStdUDF();
@@ -113,8 +111,7 @@ public abstract class StdUdfWrapper extends SqlScalarFunction {
     boolean[] nullableArguments = stdUDF.getAndCheckNullableArguments();
 
     return new ScalarFunctionImplementation(true, getNullConventionForArguments(nullableArguments),
-        getMethodHandle(stdUDF, metadata, boundVariables, nullableArguments, requiredFilesNextRefreshTime),
-        isDeterministic());
+        getMethodHandle(stdUDF, metadata, boundVariables, nullableArguments, requiredFilesNextRefreshTime));
   }
 
   private MethodHandle getMethodHandle(StdUDF stdUDF, Metadata metadata, BoundVariables boundVariables,
@@ -277,7 +274,7 @@ public abstract class StdUdfWrapper extends SqlScalarFunction {
   }
 
   private Type getPrestoType(String parameterSignature, Metadata metadata, BoundVariables boundVariables) {
-    return metadata.getType(applyBoundVariables(TypeSignature.parseTypeSignature(parameterSignature), boundVariables));
+    return metadata.getType(applyBoundVariables(parseTypeSignature(parameterSignature, ImmutableSet.of()), boundVariables));
   }
 
   private Class<?>[] getMethodHandleArgumentTypes(Type[] argTypes, boolean[] nullableArguments,
