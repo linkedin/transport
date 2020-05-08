@@ -1,28 +1,5 @@
-diff --git a/presto-main/pom.xml b/presto-main/pom.xml
-index 83a20a23fe..02afa5310f 100644
---- a/presto-main/pom.xml
-+++ b/presto-main/pom.xml
-@@ -424,6 +424,18 @@
-                             <classpathScope>test</classpathScope>
-                         </configuration>
-                     </plugin>
-+                    <plugin>
-+                        <groupId>org.apache.maven.plugins</groupId>
-+                        <artifactId>maven-jar-plugin</artifactId>
-+                        <version>2.2</version>
-+                        <executions>
-+                            <execution>
-+                                <goals>
-+                                    <goal>test-jar</goal>
-+                                </goals>
-+                            </execution>
-+                        </executions>
-+                    </plugin>
-                 </plugins>
-             </build>
-         </profile>
 diff --git a/presto-main/src/main/java/io/prestosql/server/PluginManager.java b/presto-main/src/main/java/io/prestosql/server/PluginManager.java
-index f02ceeab03..88de943bed 100644
+index abcd001031..053c17aeed 100644
 --- a/presto-main/src/main/java/io/prestosql/server/PluginManager.java
 +++ b/presto-main/src/main/java/io/prestosql/server/PluginManager.java
 @@ -23,6 +23,7 @@ import io.prestosql.connector.ConnectorManager;
@@ -31,17 +8,17 @@ index f02ceeab03..88de943bed 100644
  import io.prestosql.metadata.MetadataManager;
 +import io.prestosql.metadata.SqlScalarFunction;
  import io.prestosql.security.AccessControlManager;
+ import io.prestosql.security.GroupProviderManager;
  import io.prestosql.server.security.PasswordAuthenticatorManager;
- import io.prestosql.spi.Plugin;
-@@ -52,6 +53,7 @@ import java.util.List;
- import java.util.ServiceLoader;
+@@ -54,6 +55,7 @@ import java.util.ServiceLoader;
  import java.util.Set;
  import java.util.concurrent.atomic.AtomicBoolean;
+ import java.util.function.Supplier;
 +import java.util.stream.Collectors;
 
  import static com.google.common.base.Preconditions.checkState;
  import static io.prestosql.metadata.FunctionExtractor.extractFunctions;
-@@ -62,8 +64,22 @@ import static java.util.Objects.requireNonNull;
+@@ -64,8 +66,22 @@ import static java.util.Objects.requireNonNull;
  @ThreadSafe
  public class PluginManager
  {
@@ -54,8 +31,8 @@ index f02ceeab03..88de943bed 100644
      private static final ImmutableList<String> SPI_PACKAGES = ImmutableList.<String>builder()
 +            // io.prestosql.metadata is required for SqlScalarFunction and FunctionRegistry classes
 +            .add("io.prestosql.metadata.")
-+            // io.prestosql.operator.scalar is required for ScalarFunctionImplementation
-+            .add("io.prestosql.operator.scalar.")
++            // io.prestosql.operator. is required for ScalarFunctionImplementation and TypeSignatureParser
++            .add("io.prestosql.operator.")
              .add("io.prestosql.spi.")
 +            // io.prestosql.type is required for TypeManager, and all supported types
 +            .add("io.prestosql.type.")
@@ -63,8 +40,8 @@ index f02ceeab03..88de943bed 100644
 +            .add("io.prestosql.util.")
              .add("com.fasterxml.jackson.annotation.")
              .add("io.airlift.slice.")
-             .add("io.airlift.units.")
-@@ -155,7 +171,21 @@ public class PluginManager
+             .add("org.openjdk.jol.")
+@@ -159,11 +175,22 @@ public class PluginManager
      {
          ServiceLoader<Plugin> serviceLoader = ServiceLoader.load(Plugin.class, pluginClassLoader);
          List<Plugin> plugins = ImmutableList.copyOf(serviceLoader);
@@ -74,32 +51,21 @@ index f02ceeab03..88de943bed 100644
 +                pluginClassLoader);
 +        List<SqlScalarFunction> sqlScalarFunctions = ImmutableList.copyOf(sqlScalarFunctionsServiceLoader);
 +
-+        checkState(!plugins.isEmpty() || !sqlScalarFunctions.isEmpty(), "No service providers of type %s or %s",
-+                Plugin.class.getName(), SqlScalarFunction.class.getName());
++        checkState(!plugins.isEmpty() || !sqlScalarFunctions.isEmpty(), "No service providers of type %s or %s", Plugin.class.getName(), SqlScalarFunction.class.getName());
 +
-+        installPlugins(plugins);
-+
-+        registerSqlScalarFunctions(sqlScalarFunctions);
-+    }
-+
-+    private void installPlugins(List<Plugin> plugins)
-+    {
          for (Plugin plugin : plugins) {
              log.info("Installing %s", plugin.getClass().getName());
-             installPlugin(plugin);
-@@ -215,6 +245,15 @@ public class PluginManager
+             installPlugin(plugin, pluginClassLoader::duplicate);
          }
-     }
-
-+    public void registerSqlScalarFunctions(List<SqlScalarFunction> sqlScalarFunctions)
-+    {
++
 +        for (SqlScalarFunction sqlScalarFunction : sqlScalarFunctions) {
-+            log.info("Registering function %s(%s)", sqlScalarFunction.getSignature().getName(), sqlScalarFunction.getSignature().getArgumentTypes().stream().map(e -> e.toString()).collect(
-+                    Collectors.joining(", ")));
++            log.info("Registering function %s(%s)",
++                    sqlScalarFunction.getFunctionMetadata().getSignature().getName(),
++                    sqlScalarFunction.getFunctionMetadata().getSignature().getArgumentTypes().stream()
++                            .map(e -> e.toString())
++                            .collect(Collectors.joining(", ")));
 +            metadataManager.addFunctions(ImmutableList.of(sqlScalarFunction));
 +        }
-+    }
-+
-     private URLClassLoader buildClassLoader(String plugin)
-             throws Exception
-     {
+     }
+
+     public void installPlugin(Plugin plugin, Supplier<ClassLoader> duplicatePluginClassLoaderFactory)

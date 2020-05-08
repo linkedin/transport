@@ -54,7 +54,7 @@ public class PrestoMap extends PrestoData implements StdMap {
 
     _stdFactory = stdFactory;
     _keyEqualsMethod = ((PrestoFactory) stdFactory).getScalarFunctionImplementation(
-            internalOperator(OperatorType.EQUAL, BooleanType.BOOLEAN, ImmutableList.of(_keyType, _keyType)))
+            ((PrestoFactory) stdFactory).resolveOperator(OperatorType.EQUAL, ImmutableList.of(_keyType, _keyType)))
         .getMethodHandle();
   }
 

@@ -33,8 +33,8 @@ subprojects {
       url "https://conjars.org/repo"
     }
   }
-  project.ext.setProperty('presto-version', '319')
-  project.ext.setProperty('airlift-slice-version', '0.33')
+  project.ext.setProperty('presto-version', '333')
+  project.ext.setProperty('airlift-slice-version', '0.38')
   project.ext.setProperty('spark-group', 'org.apache.spark')
   project.ext.setProperty('spark-version', '2.3.0')
 }

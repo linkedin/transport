@@ -6,6 +6,7 @@
 package com.linkedin.transport.presto;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableSet;
 import com.linkedin.transport.api.StdFactory;
 import com.linkedin.transport.api.data.StdArray;
 import com.linkedin.transport.api.data.StdBoolean;
@@ -25,18 +26,19 @@ import com.linkedin.transport.presto.data.PrestoStruct;
 import io.airlift.slice.Slices;
 import io.prestosql.metadata.BoundVariables;
 import io.prestosql.metadata.Metadata;
-import io.prestosql.metadata.Signature;
+import io.prestosql.metadata.OperatorNotFoundException;
+import io.prestosql.metadata.ResolvedFunction;
 import io.prestosql.operator.scalar.ScalarFunctionImplementation;
+import io.prestosql.spi.function.OperatorType;
 import io.prestosql.spi.type.ArrayType;
 import io.prestosql.spi.type.MapType;
 import io.prestosql.spi.type.RowType;
 import io.prestosql.spi.type.Type;
-import io.prestosql.spi.type.TypeSignature;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import static io.prestosql.metadata.SignatureBinder.*;
-
+import static io.prestosql.operator.TypeSignatureParser.parseTypeSignature;
 
 public class PrestoFactory implements StdFactory {
 
@@ -104,10 +106,14 @@ public class PrestoFactory implements StdFactory {
   @Override
   public StdType createStdType(String typeSignature) {
     return PrestoWrapper.createStdType(
-        metadata.getType(applyBoundVariables(TypeSignature.parseTypeSignature(typeSignature), boundVariables)));
+        metadata.getType(applyBoundVariables(parseTypeSignature(typeSignature, ImmutableSet.of()), boundVariables)));
   }
 
-  public ScalarFunctionImplementation getScalarFunctionImplementation(Signature signature) {
-    return metadata.getScalarFunctionImplementation(signature);
+  public ScalarFunctionImplementation getScalarFunctionImplementation(ResolvedFunction resolvedFunction) {
+    return metadata.getScalarFunctionImplementation(resolvedFunction);
+  }
+
+  public ResolvedFunction resolveOperator(OperatorType operatorType, List<? extends Type> argumentTypes) throws OperatorNotFoundException {
+    return metadata.resolveOperator(operatorType, argumentTypes);
   }
 }
