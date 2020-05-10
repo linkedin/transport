@@ -10,7 +10,6 @@ import java.nio.file.Paths
 import java.util.List
 
 import com.linkedin.transport.api.StdFactory
-import com.linkedin.transport.api.data.PlatformData
 import com.linkedin.transport.api.udf._
 import com.linkedin.transport.spark.typesystem.SparkTypeInference
 import com.linkedin.transport.utils.FileSystemUtils
@@ -20,7 +19,6 @@ import org.apache.spark.sql.catalyst.InternalRow
 import org.apache.spark.sql.catalyst.expressions.Expression
 import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
 import org.apache.spark.sql.types.DataType
-import org.apache.spark.unsafe.types.UTF8String
 
 abstract class StdUdfWrapper(_expressions: Seq[Expression]) extends Expression
   with CodegenFallback with Serializable {

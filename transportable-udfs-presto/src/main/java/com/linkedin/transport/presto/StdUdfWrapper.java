@@ -6,10 +6,8 @@
 package com.linkedin.transport.presto;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.linkedin.transport.api.StdFactory;
-import com.linkedin.transport.api.data.PlatformData;
 import com.linkedin.transport.api.udf.StdUDF;
 import com.linkedin.transport.api.udf.StdUDF0;
 import com.linkedin.transport.api.udf.StdUDF1;
@@ -22,7 +20,6 @@ import com.linkedin.transport.api.udf.StdUDF7;
 import com.linkedin.transport.api.udf.StdUDF8;
 import com.linkedin.transport.api.udf.TopLevelStdUDF;
 import com.linkedin.transport.typesystem.GenericTypeSignatureElement;
-import io.airlift.slice.Slices;
 import io.prestosql.metadata.BoundVariables;
 import io.prestosql.metadata.FunctionKind;
 import io.prestosql.metadata.Metadata;
