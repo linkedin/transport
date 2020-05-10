@@ -9,7 +9,7 @@ import java.util.Collection;
 import java.util.Set;
 
 
-/** A Standard UDF data type for representing maps. */
+/** A Transport UDF data type for representing maps. */
 public interface MapData<K, V> {
 
   /** Returns the number of key-value pairs in the map. */

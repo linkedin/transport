@@ -20,7 +20,7 @@ import com.linkedin.transport.hive.types.HiveIntegerType;
 import com.linkedin.transport.hive.types.HiveLongType;
 import com.linkedin.transport.hive.types.HiveMapType;
 import com.linkedin.transport.hive.types.HiveStringType;
-import com.linkedin.transport.hive.types.HiveStructType;
+import com.linkedin.transport.hive.types.HiveRowType;
 import com.linkedin.transport.hive.types.HiveUnknownType;
 import java.nio.ByteBuffer;
 import org.apache.hadoop.hive.serde2.objectinspector.ListObjectInspector;
@@ -95,7 +95,7 @@ public final class HiveWrapper {
     } else if (hiveObjectInspector instanceof MapObjectInspector) {
       return new HiveMapType((MapObjectInspector) hiveObjectInspector);
     } else if (hiveObjectInspector instanceof StructObjectInspector) {
-      return new HiveStructType((StructObjectInspector) hiveObjectInspector);
+      return new HiveRowType((StructObjectInspector) hiveObjectInspector);
     } else if (hiveObjectInspector instanceof VoidObjectInspector) {
       return new HiveUnknownType((VoidObjectInspector) hiveObjectInspector);
     }

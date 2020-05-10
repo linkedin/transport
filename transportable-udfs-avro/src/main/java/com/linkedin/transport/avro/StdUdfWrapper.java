@@ -22,7 +22,6 @@ import com.linkedin.transport.avro.typesystem.AvroTypeInference;
 import java.util.List;
 import java.util.stream.IntStream;
 import org.apache.avro.Schema;
-import org.apache.avro.util.Utf8;
 
 
 /**

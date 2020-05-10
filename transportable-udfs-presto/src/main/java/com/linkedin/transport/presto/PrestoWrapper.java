@@ -21,7 +21,7 @@ import com.linkedin.transport.presto.types.PrestoIntegerType;
 import com.linkedin.transport.presto.types.PrestoLongType;
 import com.linkedin.transport.presto.types.PrestoMapType;
 import com.linkedin.transport.presto.types.PrestoStringType;
-import com.linkedin.transport.presto.types.PrestoStructType;
+import com.linkedin.transport.presto.types.PrestoRowType;
 import com.linkedin.transport.presto.types.PrestoUnknownType;
 import io.airlift.slice.Slice;
 import io.airlift.slice.Slices;
@@ -165,7 +165,7 @@ public final class PrestoWrapper {
     } else if (prestoType instanceof MapType) {
       return new PrestoMapType((MapType) prestoType);
     } else if (prestoType instanceof RowType) {
-      return new PrestoStructType(((RowType) prestoType));
+      return new PrestoRowType(((RowType) prestoType));
     } else if (prestoType instanceof UnknownType) {
       return new PrestoUnknownType(((UnknownType) prestoType));
     }

@@ -13,10 +13,18 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 
+<<<<<<< HEAD:transportable-udfs-trino/src/main/java/com/linkedin/transport/trino/types/TrinoStructType.java
 public class TrinoStructType implements RowType {
   final io.prestosql.spi.type.RowType rowType;
 
   public TrinoStructType(RowType rowType) {
+=======
+public class PrestoRowType implements RowType {
+
+  final io.prestosql.spi.type.RowType rowType;
+
+  public PrestoRowType(io.prestosql.spi.type.RowType rowType) {
+>>>>>>> 7695140 (Address review comments):transportable-udfs-presto/src/main/java/com/linkedin/transport/presto/types/PrestoRowType.java
     this.rowType = rowType;
   }
 

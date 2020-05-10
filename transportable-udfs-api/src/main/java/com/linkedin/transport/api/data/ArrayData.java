@@ -5,7 +5,7 @@
  */
 package com.linkedin.transport.api.data;
 
-/** A Standard UDF data type for representing arrays. */
+/** A Transport UDF data type for representing arrays. */
 public interface ArrayData<E> extends Iterable<E> {
 
   /** Returns the number of elements in the array. */
