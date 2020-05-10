@@ -19,7 +19,6 @@ import org.apache.spark.sql.catalyst.InternalRow
 import org.apache.spark.sql.catalyst.expressions.Expression
 import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
 import org.apache.spark.sql.types.DataType
-import org.apache.spark.unsafe.types.UTF8String
 
 abstract class StdUdfWrapper(_expressions: Seq[Expression]) extends Expression
   with CodegenFallback with Serializable {

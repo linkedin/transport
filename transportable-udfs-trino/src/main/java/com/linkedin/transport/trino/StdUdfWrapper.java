@@ -6,7 +6,6 @@
 package com.linkedin.transport.trino;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.linkedin.transport.api.StdFactory;
 import com.linkedin.transport.api.udf.StdUDF;
@@ -35,6 +34,7 @@ import io.trino.operator.scalar.ScalarFunctionImplementation;
 import io.trino.spi.classloader.ThreadContextClassLoader;
 import io.trino.spi.function.InvocationConvention;
 import io.trino.spi.type.Type;
+
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
