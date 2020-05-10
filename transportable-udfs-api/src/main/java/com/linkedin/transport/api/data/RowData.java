@@ -8,7 +8,7 @@ package com.linkedin.transport.api.data;
 import java.util.List;
 
 
-/** A Standard UDF data type for representing SQL ROW/STRUCT data type. */
+/** A Transport UDF data type for representing SQL ROW/STRUCT data type. */
 public interface RowData {
 
   /**

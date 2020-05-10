@@ -12,11 +12,11 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 
-public class PrestoStructType implements RowType {
+public class PrestoRowType implements RowType {
 
   final io.prestosql.spi.type.RowType rowType;
 
-  public PrestoStructType(io.prestosql.spi.type.RowType rowType) {
+  public PrestoRowType(io.prestosql.spi.type.RowType rowType) {
     this.rowType = rowType;
   }
 

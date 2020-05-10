@@ -13,11 +13,11 @@ import java.util.stream.Collectors;
 import org.apache.hadoop.hive.serde2.objectinspector.StructObjectInspector;
 
 
-public class HiveStructType implements RowType {
+public class HiveRowType implements RowType {
 
   final StructObjectInspector _structObjectInspector;
 
-  public HiveStructType(StructObjectInspector structObjectInspector) {
+  public HiveRowType(StructObjectInspector structObjectInspector) {
     _structObjectInspector = structObjectInspector;
   }
 
