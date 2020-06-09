@@ -10,6 +10,9 @@ import com.linkedin.transport.api.data.StdData;
 import com.linkedin.transport.api.types.StdType;
 import com.linkedin.transport.hive.data.HiveArray;
 import com.linkedin.transport.hive.data.HiveBoolean;
+import com.linkedin.transport.hive.data.HiveBytes;
+import com.linkedin.transport.hive.data.HiveDouble;
+import com.linkedin.transport.hive.data.HiveFloat;
 import com.linkedin.transport.hive.data.HiveInteger;
 import com.linkedin.transport.hive.data.HiveLong;
 import com.linkedin.transport.hive.data.HiveMap;
@@ -17,6 +20,9 @@ import com.linkedin.transport.hive.data.HiveString;
 import com.linkedin.transport.hive.data.HiveStruct;
 import com.linkedin.transport.hive.types.HiveArrayType;
 import com.linkedin.transport.hive.types.HiveBooleanType;
+import com.linkedin.transport.hive.types.HiveBytesType;
+import com.linkedin.transport.hive.types.HiveDoubleType;
+import com.linkedin.transport.hive.types.HiveFloatType;
 import com.linkedin.transport.hive.types.HiveIntegerType;
 import com.linkedin.transport.hive.types.HiveLongType;
 import com.linkedin.transport.hive.types.HiveMapType;
@@ -27,7 +33,10 @@ import org.apache.hadoop.hive.serde2.objectinspector.ListObjectInspector;
 import org.apache.hadoop.hive.serde2.objectinspector.MapObjectInspector;
 import org.apache.hadoop.hive.serde2.objectinspector.ObjectInspector;
 import org.apache.hadoop.hive.serde2.objectinspector.StructObjectInspector;
+import org.apache.hadoop.hive.serde2.objectinspector.primitive.BinaryObjectInspector;
 import org.apache.hadoop.hive.serde2.objectinspector.primitive.BooleanObjectInspector;
+import org.apache.hadoop.hive.serde2.objectinspector.primitive.DoubleObjectInspector;
+import org.apache.hadoop.hive.serde2.objectinspector.primitive.FloatObjectInspector;
 import org.apache.hadoop.hive.serde2.objectinspector.primitive.IntObjectInspector;
 import org.apache.hadoop.hive.serde2.objectinspector.primitive.LongObjectInspector;
 import org.apache.hadoop.hive.serde2.objectinspector.primitive.StringObjectInspector;
@@ -48,6 +57,12 @@ public final class HiveWrapper {
       return new HiveBoolean(hiveData, (BooleanObjectInspector) hiveObjectInspector, stdFactory);
     } else if (hiveObjectInspector instanceof StringObjectInspector) {
       return new HiveString(hiveData, (StringObjectInspector) hiveObjectInspector, stdFactory);
+    } else if (hiveObjectInspector instanceof FloatObjectInspector) {
+      return new HiveFloat(hiveData, (FloatObjectInspector) hiveObjectInspector, stdFactory);
+    } else if (hiveObjectInspector instanceof DoubleObjectInspector) {
+      return new HiveDouble(hiveData, (DoubleObjectInspector) hiveObjectInspector, stdFactory);
+    } else if (hiveObjectInspector instanceof BinaryObjectInspector) {
+      return new HiveBytes(hiveData, (BinaryObjectInspector) hiveObjectInspector, stdFactory);
     } else if (hiveObjectInspector instanceof ListObjectInspector) {
       ListObjectInspector listObjectInspector = (ListObjectInspector) hiveObjectInspector;
       return new HiveArray(hiveData, listObjectInspector, stdFactory);
@@ -72,6 +87,12 @@ public final class HiveWrapper {
       return new HiveBooleanType((BooleanObjectInspector) hiveObjectInspector);
     } else if (hiveObjectInspector instanceof StringObjectInspector) {
       return new HiveStringType((StringObjectInspector) hiveObjectInspector);
+    } else if (hiveObjectInspector instanceof FloatObjectInspector) {
+      return new HiveFloatType((FloatObjectInspector) hiveObjectInspector);
+    } else if (hiveObjectInspector instanceof DoubleObjectInspector) {
+      return new HiveDoubleType((DoubleObjectInspector) hiveObjectInspector);
+    } else if (hiveObjectInspector instanceof BinaryObjectInspector) {
+      return new HiveBytesType((BinaryObjectInspector) hiveObjectInspector);
     } else if (hiveObjectInspector instanceof ListObjectInspector) {
       return new HiveArrayType((ListObjectInspector) hiveObjectInspector);
     } else if (hiveObjectInspector instanceof MapObjectInspector) {

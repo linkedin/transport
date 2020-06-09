@@ -18,7 +18,6 @@ import io.prestosql.spi.block.Block;
 import io.prestosql.spi.block.BlockBuilder;
 import io.prestosql.spi.block.PageBuilderStatus;
 import io.prestosql.spi.function.OperatorType;
-import io.prestosql.spi.type.BooleanType;
 import io.prestosql.spi.type.MapType;
 import io.prestosql.spi.type.Type;
 import java.lang.invoke.MethodHandle;
@@ -28,7 +27,6 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.Set;
 
-import static io.prestosql.metadata.Signature.*;
 import static io.prestosql.spi.StandardErrorCode.*;
 import static io.prestosql.spi.type.TypeUtils.*;
 

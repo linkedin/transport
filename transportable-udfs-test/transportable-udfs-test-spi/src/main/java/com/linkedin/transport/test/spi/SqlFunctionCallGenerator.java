@@ -7,6 +7,8 @@ package com.linkedin.transport.test.spi;
 
 import com.linkedin.transport.test.spi.types.ArrayTestType;
 import com.linkedin.transport.test.spi.types.BooleanTestType;
+import com.linkedin.transport.test.spi.types.DoubleTestType;
+import com.linkedin.transport.test.spi.types.FloatTestType;
 import com.linkedin.transport.test.spi.types.IntegerTestType;
 import com.linkedin.transport.test.spi.types.LongTestType;
 import com.linkedin.transport.test.spi.types.MapTestType;
@@ -53,6 +55,10 @@ public interface SqlFunctionCallGenerator {
       return getBooleanArgumentString((Boolean) argument);
     } else if (argumentType instanceof StringTestType) {
       return getStringArgumentString((String) argument);
+    } else if (argumentType instanceof FloatTestType) {
+      return getFloatArgumentString((Float) argument);
+    } else if (argumentType instanceof DoubleTestType) {
+      return getDoubleArgumentString((Double) argument);
     } else if (argumentType instanceof ArrayTestType) {
       return getArrayArgumentString((List<Object>) argument, ((ArrayTestType) argumentType).getElementType());
     } else if (argumentType instanceof MapTestType) {
@@ -83,6 +89,14 @@ public interface SqlFunctionCallGenerator {
 
   default String getStringArgumentString(String value) {
     return "'" + value + "'";
+  }
+
+  default String getFloatArgumentString(Float value) {
+    return String.valueOf(value);
+  }
+
+  default String getDoubleArgumentString(Double value) {
+    return String.valueOf(value);
   }
 
   /**

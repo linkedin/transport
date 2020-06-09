@@ -21,13 +21,25 @@ public class TestNumericAddFunction extends AbstractStdUDFTest {
   @Override
   protected Map<Class<? extends TopLevelStdUDF>, List<Class<? extends StdUDF>>> getTopLevelStdUDFClassesAndImplementations() {
     return ImmutableMap.of(NumericAddFunction.class,
-        ImmutableList.of(NumericAddIntFunction.class, NumericAddLongFunction.class));
+        ImmutableList.of(
+            NumericAddIntFunction.class,
+            NumericAddLongFunction.class,
+            NumericAddFloatFunction.class,
+            NumericAddDoubleFunction.class));
   }
 
   @Test
   public void testNumericAdd() {
     StdTester tester = getTester();
+    String testerClassName = tester.getClass().getCanonicalName();
     tester.check(functionCall("numeric_add", 1, 2), 3, "integer");
     tester.check(functionCall("numeric_add", 1L, 2L), 3L, "bigint");
+    if (testerClassName.contains("GenericTester")) {
+      tester.check(functionCall("numeric_add", 2.0f, 3.0f), 5.0f, "real");
+    }
+
+    if (testerClassName.contains("GenericTester") || testerClassName.contains("HiveTester")) {
+      tester.check(functionCall("numeric_add", 3.0, 4.0), 7.0, "double");
+    }
   }
 }

@@ -17,6 +17,9 @@ public class TypeSignatureFactory {
   final public static TypeSignature INTEGER = new TypeSignature(ConcreteTypeSignatureElement.INTEGER, null);
   final public static TypeSignature LONG = new TypeSignature(ConcreteTypeSignatureElement.LONG, null);
   final public static TypeSignature STRING = new TypeSignature(ConcreteTypeSignatureElement.STRING, null);
+  final public static TypeSignature FLOAT = new TypeSignature(ConcreteTypeSignatureElement.FLOAT, null);
+  final public static TypeSignature DOUBLE = new TypeSignature(ConcreteTypeSignatureElement.DOUBLE, null);
+  final public static TypeSignature BYTES = new TypeSignature(ConcreteTypeSignatureElement.BYTES, null);
   final public static TypeSignature NULL = new TypeSignature(ConcreteTypeSignatureElement.UNKNOWN, null);
 
   public static TypeSignature array(TypeSignature elementTypeSignature) {

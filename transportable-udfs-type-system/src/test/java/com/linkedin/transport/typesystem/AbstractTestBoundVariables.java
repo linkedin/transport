@@ -22,6 +22,9 @@ public abstract class AbstractTestBoundVariables<T> {
   final private T LONG = getTypeSystem().createLongType();
   final private T INTEGER = getTypeSystem().createIntegerType();
   final private T STRING = getTypeSystem().createStringType();
+  final private T FLOAT = getTypeSystem().createFloatType();
+  final private T DOUBLE = getTypeSystem().createDoubleType();
+  final private T BYTES = getTypeSystem().createBytesType();
   final private T BOOLEAN = getTypeSystem().createBooleanType();
   final private T NULL = getTypeSystem().createUnknownType();
 
@@ -89,12 +92,12 @@ public abstract class AbstractTestBoundVariables<T> {
             "K"
         ),
         ImmutableList.of(
-            map(STRING, array(array(struct(BOOLEAN, STRING)))),
+            map(STRING, array(array(struct(BOOLEAN, STRING, FLOAT, DOUBLE, BYTES)))),
             STRING
         ),
         ImmutableMap.of(
             "K", STRING,
-            "V", array(struct(BOOLEAN, STRING))
+            "V", array(struct(BOOLEAN, STRING, FLOAT, DOUBLE, BYTES))
         )
     );
   }

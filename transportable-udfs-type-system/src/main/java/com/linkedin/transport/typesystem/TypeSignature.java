@@ -159,6 +159,15 @@ public class TypeSignature {
         case "varchar":
           currentBaseElement = ConcreteTypeSignatureElement.STRING;
           break;
+        case "real":
+          currentBaseElement = ConcreteTypeSignatureElement.FLOAT;
+          break;
+        case "double":
+          currentBaseElement = ConcreteTypeSignatureElement.DOUBLE;
+          break;
+        case "bytes":
+          currentBaseElement = ConcreteTypeSignatureElement.BYTES;
+          break;
         case "unknown":
           currentBaseElement = ConcreteTypeSignatureElement.UNKNOWN;
           break;

@@ -5,11 +5,11 @@
  */
 package com.linkedin.transport.presto.types;
 
-import com.linkedin.transport.api.types.StdIntegerType;
+import com.linkedin.transport.api.types.StdLongType;
 import io.prestosql.spi.type.BigintType;
 
 
-public class PrestoLongType implements StdIntegerType {
+public class PrestoLongType implements StdLongType {
 
   final BigintType bigintType;
 

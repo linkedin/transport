@@ -7,6 +7,7 @@ package com.linkedin.transport.test.spi.types;
 
 import com.linkedin.transport.test.spi.FunctionCall;
 import com.linkedin.transport.test.spi.Row;
+import java.nio.ByteBuffer;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -29,6 +30,12 @@ public class TestTypeUtils {
       return TestTypeFactory.BOOLEAN_TEST_TYPE;
     } else if (data instanceof String) {
       return TestTypeFactory.STRING_TEST_TYPE;
+    } else if (data instanceof Float) {
+      return TestTypeFactory.FLOAT_TEST_TYPE;
+    } else if (data instanceof Double) {
+      return TestTypeFactory.DOUBLE_TEST_TYPE;
+    } else if (data instanceof ByteBuffer) {
+      return TestTypeFactory.BYTES_TEST_TYPE;
     } else if (data instanceof List) {
       return TestTypeFactory.array(inferCollectionTypeFromData((List) data, "array elements"));
     } else if (data instanceof Map) {

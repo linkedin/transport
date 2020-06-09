@@ -7,6 +7,9 @@ package com.linkedin.transport.test.generic.typesystem;
 
 import com.linkedin.transport.test.spi.types.ArrayTestType;
 import com.linkedin.transport.test.spi.types.BooleanTestType;
+import com.linkedin.transport.test.spi.types.BytesTestType;
+import com.linkedin.transport.test.spi.types.DoubleTestType;
+import com.linkedin.transport.test.spi.types.FloatTestType;
 import com.linkedin.transport.test.spi.types.IntegerTestType;
 import com.linkedin.transport.test.spi.types.LongTestType;
 import com.linkedin.transport.test.spi.types.MapTestType;
@@ -67,6 +70,21 @@ public class GenericTypeSystem extends AbstractTypeSystem<TestType> {
   }
 
   @Override
+  protected boolean isFloatType(TestType dataType) {
+    return dataType instanceof FloatTestType;
+  }
+
+  @Override
+  protected boolean isDoubleType(TestType dataType) {
+    return dataType instanceof DoubleTestType;
+  }
+
+  @Override
+  protected boolean isBytesType(TestType dataType) {
+    return dataType instanceof BytesTestType;
+  }
+
+  @Override
   protected boolean isArrayType(TestType dataType) {
     return dataType instanceof ArrayTestType;
   }
@@ -99,6 +117,21 @@ public class GenericTypeSystem extends AbstractTypeSystem<TestType> {
   @Override
   protected TestType createStringType() {
     return TestTypeFactory.STRING_TEST_TYPE;
+  }
+
+  @Override
+  protected TestType createFloatType() {
+    return TestTypeFactory.FLOAT_TEST_TYPE;
+  }
+
+  @Override
+  protected TestType createDoubleType() {
+    return TestTypeFactory.DOUBLE_TEST_TYPE;
+  }
+
+  @Override
+  protected TestType createBytesType() {
+    return TestTypeFactory.BYTES_TEST_TYPE;
   }
 
   @Override

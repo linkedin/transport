@@ -14,6 +14,9 @@ public class TestTypeFactory {
   public static final TestType INTEGER_TEST_TYPE = new IntegerTestType();
   public static final TestType LONG_TEST_TYPE = new LongTestType();
   public static final TestType STRING_TEST_TYPE = new StringTestType();
+  public static final TestType FLOAT_TEST_TYPE = new FloatTestType();
+  public static final TestType DOUBLE_TEST_TYPE = new DoubleTestType();
+  public static final TestType BYTES_TEST_TYPE = new BytesTestType();
   public static final TestType UNKNOWN_TEST_TYPE = new UnknownTestType();
 
   private TestTypeFactory() {

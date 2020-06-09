@@ -49,6 +49,18 @@ public abstract class AbstractBoundVariables<T> {
     return _typeSystem.isStringType(dataType);
   }
 
+  private boolean isFloatType(T dataType) {
+    return _typeSystem.isFloatType(dataType);
+  }
+
+  private boolean isDoubleType(T dataType) {
+    return _typeSystem.isDoubleType(dataType);
+  }
+
+  private boolean isBytesType(T dataType) {
+    return _typeSystem.isBytesType(dataType);
+  }
+
   private boolean isArrayType(T dataType) {
     return _typeSystem.isArrayType(dataType);
   }
@@ -129,6 +141,21 @@ public abstract class AbstractBoundVariables<T> {
             break;
           case STRING:
             if (!isStringType(dataType)) {
+              typeMismatch = true;
+            }
+            break;
+          case FLOAT:
+            if (!isFloatType(dataType)) {
+              typeMismatch = true;
+            }
+            break;
+          case DOUBLE:
+            if (!isDoubleType(dataType)) {
+              typeMismatch = true;
+            }
+            break;
+          case BYTES:
+            if (!isBytesType(dataType)) {
               typeMismatch = true;
             }
             break;

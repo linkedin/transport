@@ -6,6 +6,8 @@
 package com.linkedin.transport.spark.data
 
 import java.lang
+import java.nio.ByteBuffer
+import java.nio.charset.Charset
 
 import com.linkedin.transport.api.data._
 import com.linkedin.transport.spark.{SparkFactory, SparkWrapper}
@@ -49,6 +51,30 @@ class TestSparkPrimitives {
     val stdString = SparkWrapper.createStdData(stringData, DataTypes.StringType).asInstanceOf[StdString]
     assertEquals(stdString.get(), "test")
     assertSame(stdString.asInstanceOf[PlatformData].getUnderlyingData, stringData)
+  }
+
+  @Test
+  def testCreateSparkFloat(): Unit = {
+    val floatData = new lang.Float(1.0f)
+    val stdFloat = SparkWrapper.createStdData(floatData, DataTypes.FloatType).asInstanceOf[StdFloat]
+    assertEquals(stdFloat.get(), 1.0f)
+    assertSame(stdFloat.asInstanceOf[PlatformData].getUnderlyingData, floatData)
+  }
+
+  @Test
+  def testCreateSparkDouble(): Unit = {
+    val doubleData = new lang.Double(2.0)
+    val stdDouble = SparkWrapper.createStdData(doubleData, DataTypes.DoubleType).asInstanceOf[StdDouble]
+    assertEquals(stdDouble.get(), 2.0)
+    assertSame(stdDouble.asInstanceOf[PlatformData].getUnderlyingData, doubleData)
+  }
+
+  @Test
+  def testCreateSparkBytes(): Unit = {
+    val bytesData = ByteBuffer.wrap("foo".getBytes(Charset.forName("UTF-8")))
+    val stdByte = SparkWrapper.createStdData(bytesData, DataTypes.BinaryType).asInstanceOf[StdBytes]
+    assertEquals(stdByte.get(), bytesData)
+    assertSame(stdByte.asInstanceOf[PlatformData].getUnderlyingData, bytesData.array())
   }
 
 }

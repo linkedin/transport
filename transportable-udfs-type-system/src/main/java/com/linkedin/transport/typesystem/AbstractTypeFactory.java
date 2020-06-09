@@ -35,6 +35,18 @@ public abstract class AbstractTypeFactory<T> {
     return _typeSystem.createStringType();
   }
 
+  private T createFloatType() {
+    return _typeSystem.createFloatType();
+  }
+
+  private T createDoubleType() {
+    return _typeSystem.createDoubleType();
+  }
+
+  private T createBytesType() {
+    return _typeSystem.createBytesType();
+  }
+
   private T createUnknownType() {
     return _typeSystem.createUnknownType();
   }
@@ -71,6 +83,12 @@ public abstract class AbstractTypeFactory<T> {
             return createLongType();
           case STRING:
             return createStringType();
+          case FLOAT:
+            return createFloatType();
+          case DOUBLE:
+            return createDoubleType();
+          case BYTES:
+            return createBytesType();
           case UNKNOWN:
             return createUnknownType();
           default:

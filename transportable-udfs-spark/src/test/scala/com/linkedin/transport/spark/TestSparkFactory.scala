@@ -5,6 +5,9 @@
  */
 package com.linkedin.transport.spark
 
+import java.nio.ByteBuffer
+import java.nio.charset.Charset
+
 import com.linkedin.transport.api.data.PlatformData
 import com.linkedin.transport.spark.typesystem.{SparkBoundVariables, SparkTypeFactory}
 import org.apache.spark.sql.catalyst.InternalRow
@@ -26,6 +29,10 @@ class TestSparkFactory {
     assertEquals(stdFactory.createLong(1L).get(), 1L)
     assertEquals(stdFactory.createBoolean(true).get(), true)
     assertEquals(stdFactory.createString("").get(), "")
+    assertEquals(stdFactory.createFloat(2.0f).get(), 2.0f)
+    assertEquals(stdFactory.createDouble(3.0).get(), 3.0)
+    val byteArray = "foo".getBytes(Charset.forName("UTF-8"))
+    assertEquals(stdFactory.createBytes(ByteBuffer.wrap(byteArray)).get().array(), byteArray)
   }
 
   @Test
@@ -54,38 +61,40 @@ class TestSparkFactory {
 
   @Test
   def testCreateStructFromStdType(): Unit = {
-    val fieldNames = Array("strField", "intField", "longField", "boolField", "arrField")
-    val fieldTypes = Array("varchar", "integer", "bigint", "boolean", "array(integer)")
+    val fieldNames = Array("strField", "intField", "longField", "boolField", "floatField", "doubleField",
+      "bytesField", "arrField")
+    val fieldTypes = Array("varchar", "integer", "bigint", "boolean", "real", "double", "bytes", "array(integer)")
 
     val stdStruct = stdFactory.createStruct(stdFactory.createStdType(fieldNames.zip(fieldTypes).map(x => x._1 + " " + x._2).mkString("row(", ", ", ")")))
     val internalRow = stdStruct.asInstanceOf[PlatformData].getUnderlyingData.asInstanceOf[InternalRow]
     assertEquals(internalRow.numFields, fieldTypes.length)
-    (0 until 5).foreach(idx => {
+    (0 until 8).foreach(idx => {
       assertEquals(internalRow.get(idx, stdFactory.createStdType(fieldTypes(idx)).underlyingType().asInstanceOf[DataType]), null)
     })
   }
 
   @Test
   def testCreateStructFromFieldNamesAndTypes(): Unit = {
-    val fieldNames = Array("strField", "intField", "longField", "boolField", "arrField")
-    val fieldTypes = Array("varchar", "integer", "bigint", "boolean", "array(integer)")
+    val fieldNames = Array("strField", "intField", "longField", "boolField", "floatField", "doubleField",
+      "bytesField", "arrField")
+    val fieldTypes = Array("varchar", "integer", "bigint", "boolean", "real", "double", "bytes", "array(integer)")
 
     val stdStruct = stdFactory.createStruct(fieldNames.toList.asJava, fieldTypes.map(stdFactory.createStdType).toList.asJava)
     val internalRow = stdStruct.asInstanceOf[PlatformData].getUnderlyingData.asInstanceOf[InternalRow]
     assertEquals(internalRow.numFields, fieldTypes.length)
-    (0 until 5).foreach(idx => {
+    (0 until 8).foreach(idx => {
       assertEquals(internalRow.get(idx, stdFactory.createStdType(fieldTypes(idx)).underlyingType().asInstanceOf[DataType]), null)
     })
   }
 
   @Test
   def testCreateStructFromFieldTypes(): Unit = {
-    val fieldTypes = Array("varchar", "integer", "bigint", "boolean", "array(integer)")
+    val fieldTypes = Array("varchar", "integer", "bigint", "boolean", "real", "double", "bytes", "array(integer)")
 
     val stdStruct = stdFactory.createStruct(fieldTypes.map(stdFactory.createStdType).toList.asJava)
     val internalRow = stdStruct.asInstanceOf[PlatformData].getUnderlyingData.asInstanceOf[InternalRow]
     assertEquals(internalRow.numFields, fieldTypes.length)
-    (0 until 5).foreach(idx => {
+    (0 until 8).foreach(idx => {
       assertEquals(internalRow.get(idx, stdFactory.createStdType(fieldTypes(idx)).underlyingType().asInstanceOf[DataType]), null)
     })
   }

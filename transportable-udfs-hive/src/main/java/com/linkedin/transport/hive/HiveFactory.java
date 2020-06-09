@@ -9,6 +9,9 @@ import com.google.common.base.Preconditions;
 import com.linkedin.transport.api.StdFactory;
 import com.linkedin.transport.api.data.StdArray;
 import com.linkedin.transport.api.data.StdBoolean;
+import com.linkedin.transport.api.data.StdBytes;
+import com.linkedin.transport.api.data.StdDouble;
+import com.linkedin.transport.api.data.StdFloat;
 import com.linkedin.transport.api.data.StdInteger;
 import com.linkedin.transport.api.data.StdLong;
 import com.linkedin.transport.api.data.StdMap;
@@ -17,6 +20,9 @@ import com.linkedin.transport.api.data.StdStruct;
 import com.linkedin.transport.api.types.StdType;
 import com.linkedin.transport.hive.data.HiveArray;
 import com.linkedin.transport.hive.data.HiveBoolean;
+import com.linkedin.transport.hive.data.HiveBytes;
+import com.linkedin.transport.hive.data.HiveDouble;
+import com.linkedin.transport.hive.data.HiveFloat;
 import com.linkedin.transport.hive.data.HiveInteger;
 import com.linkedin.transport.hive.data.HiveLong;
 import com.linkedin.transport.hive.data.HiveMap;
@@ -26,6 +32,7 @@ import com.linkedin.transport.hive.types.objectinspector.CacheableObjectInspecto
 import com.linkedin.transport.hive.typesystem.HiveTypeFactory;
 import com.linkedin.transport.typesystem.AbstractBoundVariables;
 import com.linkedin.transport.typesystem.TypeSignature;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -72,6 +79,21 @@ public class HiveFactory implements StdFactory {
   public StdString createString(String value) {
     Preconditions.checkNotNull(value, "Cannot create a null StdString");
     return new HiveString(value, PrimitiveObjectInspectorFactory.javaStringObjectInspector, this);
+  }
+
+  @Override
+  public StdFloat createFloat(float value) {
+    return new HiveFloat(value, PrimitiveObjectInspectorFactory.javaFloatObjectInspector, this);
+  }
+
+  @Override
+  public StdDouble createDouble(double value) {
+    return new HiveDouble(value, PrimitiveObjectInspectorFactory.javaDoubleObjectInspector, this);
+  }
+
+  @Override
+  public StdBytes createBytes(ByteBuffer value) {
+    return new HiveBytes(value.array(), PrimitiveObjectInspectorFactory.javaByteArrayObjectInspector, this);
   }
 
   @Override

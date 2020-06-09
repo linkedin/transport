@@ -8,6 +8,9 @@ package com.linkedin.transport.avro;
 import com.linkedin.transport.api.StdFactory;
 import com.linkedin.transport.api.data.StdArray;
 import com.linkedin.transport.api.data.StdBoolean;
+import com.linkedin.transport.api.data.StdBytes;
+import com.linkedin.transport.api.data.StdDouble;
+import com.linkedin.transport.api.data.StdFloat;
 import com.linkedin.transport.api.data.StdInteger;
 import com.linkedin.transport.api.data.StdLong;
 import com.linkedin.transport.api.data.StdMap;
@@ -16,6 +19,9 @@ import com.linkedin.transport.api.data.StdStruct;
 import com.linkedin.transport.api.types.StdType;
 import com.linkedin.transport.avro.data.AvroArray;
 import com.linkedin.transport.avro.data.AvroBoolean;
+import com.linkedin.transport.avro.data.AvroBytes;
+import com.linkedin.transport.avro.data.AvroDouble;
+import com.linkedin.transport.avro.data.AvroFloat;
 import com.linkedin.transport.avro.data.AvroInteger;
 import com.linkedin.transport.avro.data.AvroLong;
 import com.linkedin.transport.avro.data.AvroMap;
@@ -24,6 +30,7 @@ import com.linkedin.transport.avro.data.AvroStruct;
 import com.linkedin.transport.avro.typesystem.AvroTypeFactory;
 import com.linkedin.transport.typesystem.AbstractBoundVariables;
 import com.linkedin.transport.typesystem.TypeSignature;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -62,6 +69,21 @@ public class AvroFactory implements StdFactory {
   @Override
   public StdString createString(String value) {
     return new AvroString(new Utf8(value));
+  }
+
+  @Override
+  public StdFloat createFloat(float value) {
+    return new AvroFloat(value);
+  }
+
+  @Override
+  public StdDouble createDouble(double value) {
+    return new AvroDouble(value);
+  }
+
+  @Override
+  public StdBytes createBytes(ByteBuffer value) {
+    return new AvroBytes(value);
   }
 
   @Override

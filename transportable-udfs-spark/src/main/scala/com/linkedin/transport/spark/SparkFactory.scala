@@ -5,6 +5,7 @@
  */
 package com.linkedin.transport.spark
 
+import java.nio.ByteBuffer
 import java.util.{List => JavaList}
 
 import com.google.common.base.Preconditions
@@ -30,6 +31,15 @@ class SparkFactory(private val _boundVariables: AbstractBoundVariables[DataType]
   override def createString(value: String): StdString = {
     Preconditions.checkNotNull(value, "Cannot create a null StdString".asInstanceOf[Any])
     SparkString(UTF8String.fromString(value))
+  }
+
+  override def createFloat(value: Float): StdFloat = SparkFloat(value)
+
+  override def createDouble(value: Double): StdDouble = SparkDouble(value)
+
+  override def createBytes(value: ByteBuffer): StdBytes = {
+    Preconditions.checkNotNull(value, "Cannot create a null StdBytes".asInstanceOf[Any])
+    SparkBytes(value.array())
   }
 
   override def createArray(stdType: StdType): StdArray = createArray(stdType, 0)

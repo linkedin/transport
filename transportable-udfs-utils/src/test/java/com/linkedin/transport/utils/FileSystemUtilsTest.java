@@ -9,7 +9,6 @@ package com.linkedin.transport.utils;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.file.Paths;
-import org.apache.hadoop.fs.FileSystem;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 

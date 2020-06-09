@@ -9,6 +9,9 @@ import com.google.common.base.Preconditions;
 import com.linkedin.transport.api.StdFactory;
 import com.linkedin.transport.api.data.StdArray;
 import com.linkedin.transport.api.data.StdBoolean;
+import com.linkedin.transport.api.data.StdBytes;
+import com.linkedin.transport.api.data.StdDouble;
+import com.linkedin.transport.api.data.StdFloat;
 import com.linkedin.transport.api.data.StdInteger;
 import com.linkedin.transport.api.data.StdLong;
 import com.linkedin.transport.api.data.StdMap;
@@ -17,6 +20,9 @@ import com.linkedin.transport.api.data.StdStruct;
 import com.linkedin.transport.api.types.StdType;
 import com.linkedin.transport.test.generic.data.GenericArray;
 import com.linkedin.transport.test.generic.data.GenericBoolean;
+import com.linkedin.transport.test.generic.data.GenericBytes;
+import com.linkedin.transport.test.generic.data.GenericDouble;
+import com.linkedin.transport.test.generic.data.GenericFloat;
 import com.linkedin.transport.test.generic.data.GenericInteger;
 import com.linkedin.transport.test.generic.data.GenericLong;
 import com.linkedin.transport.test.generic.data.GenericMap;
@@ -27,6 +33,7 @@ import com.linkedin.transport.test.spi.types.TestType;
 import com.linkedin.transport.test.spi.types.TestTypeFactory;
 import com.linkedin.transport.typesystem.AbstractBoundVariables;
 import com.linkedin.transport.typesystem.TypeSignature;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -61,6 +68,21 @@ public class GenericFactory implements StdFactory {
   public StdString createString(String value) {
     Preconditions.checkNotNull(value, "Cannot create a null StdString");
     return new GenericString(value);
+  }
+
+  @Override
+  public StdFloat createFloat(float value) {
+    return new GenericFloat(value);
+  }
+
+  @Override
+  public StdDouble createDouble(double value) {
+    return new GenericDouble(value);
+  }
+
+  @Override
+  public StdBytes createBytes(ByteBuffer value) {
+    return new GenericBytes(value);
   }
 
   @Override

@@ -28,6 +28,12 @@ public abstract class AbstractTypeSystem<T> {
 
   protected abstract boolean isStringType(T dataType);
 
+  protected abstract boolean isFloatType(T dataType);
+
+  protected abstract boolean isDoubleType(T dataType);
+
+  protected abstract boolean isBytesType(T dataType);
+
   protected abstract boolean isArrayType(T dataType);
 
   protected abstract boolean isMapType(T dataType);
@@ -41,6 +47,12 @@ public abstract class AbstractTypeSystem<T> {
   protected abstract T createLongType();
 
   protected abstract T createStringType();
+
+  protected abstract T createFloatType();
+
+  protected abstract T createDoubleType();
+
+  protected abstract T createBytesType();
 
   protected abstract T createUnknownType();
 

@@ -67,7 +67,7 @@ public abstract class StdUdfWrapper extends SqlScalarFunction {
                     ((TopLevelStdUDF) stdUDF).getFunctionName(),
                     getTypeVariableConstraintsForStdUdf(stdUDF),
                     ImmutableList.of(),
-                    parseTypeSignature(stdUDF.getOutputParameterSignature(),ImmutableSet.of()),
+                    parseTypeSignature(stdUDF.getOutputParameterSignature(), ImmutableSet.of()),
                     stdUDF.getInputParameterSignatures().stream()
                             .map(typeSignature -> parseTypeSignature(typeSignature, ImmutableSet.of()))
                             .collect(Collectors.toList()),
