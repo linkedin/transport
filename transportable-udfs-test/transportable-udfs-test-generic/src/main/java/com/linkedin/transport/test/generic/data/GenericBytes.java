@@ -11,6 +11,7 @@ import java.nio.ByteBuffer;
 
 
 public class GenericBytes implements StdBytes, PlatformData {
+
   private ByteBuffer _byteBuffer;
 
   public GenericBytes(ByteBuffer aByteBuffer) {

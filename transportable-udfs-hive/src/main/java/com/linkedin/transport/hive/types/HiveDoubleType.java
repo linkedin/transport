@@ -10,7 +10,8 @@ import org.apache.hadoop.hive.serde2.objectinspector.primitive.DoubleObjectInspe
 
 
 public class HiveDoubleType implements StdDoubleType {
-  final DoubleObjectInspector _doubleObjectInspector;
+
+  private final DoubleObjectInspector _doubleObjectInspector;
 
   public HiveDoubleType(DoubleObjectInspector doubleObjectInspector) {
     _doubleObjectInspector = doubleObjectInspector;

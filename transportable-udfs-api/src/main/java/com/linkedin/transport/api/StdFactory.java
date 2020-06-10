@@ -67,10 +67,28 @@ public interface StdFactory extends Serializable {
    */
   StdString createString(String value);
 
+  /**
+   * Creates a {@link StdFloat} representing a given float value.
+   *
+   * @param value  the input float value
+   * @return {@link StdFloat} with the given float value
+   */
   StdFloat createFloat(float value);
 
+  /**
+   * Creates a {@link StdDouble} representing a given double value.
+   *
+   * @param value  the input double value
+   * @return {@link StdDouble} with the given double value
+   */
   StdDouble createDouble(double value);
 
+  /**
+   * Creates a {@link StdBytes} representing a given {@link ByteBuffer} value.
+   *
+   * @param value  the input {@link ByteBuffer} value
+   * @return {@link StdBytes} with the given {@link ByteBuffer} value
+   */
   StdBytes createBytes(ByteBuffer value);
 
   /**

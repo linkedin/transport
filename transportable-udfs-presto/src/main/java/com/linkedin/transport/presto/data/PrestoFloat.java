@@ -10,6 +10,7 @@ import io.prestosql.spi.block.BlockBuilder;
 
 
 public class PrestoFloat extends PrestoData implements StdFloat {
+
   private float _float;
 
   public PrestoFloat(float aFloat) {

@@ -10,6 +10,7 @@ import com.linkedin.transport.api.data.StdFloat;
 
 
 public class GenericFloat implements StdFloat, PlatformData {
+
   private Float _float;
 
   public GenericFloat(Float aFloat) {

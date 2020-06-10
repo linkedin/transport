@@ -12,7 +12,8 @@ import org.apache.hadoop.hive.serde2.objectinspector.primitive.FloatObjectInspec
 
 
 public class HiveFloat extends HiveData implements StdFloat {
-  final FloatObjectInspector _floatObjectInspector;
+
+  private final FloatObjectInspector _floatObjectInspector;
 
   public HiveFloat(Object object, FloatObjectInspector floatObjectInspector, StdFactory stdFactory) {
     super(stdFactory);

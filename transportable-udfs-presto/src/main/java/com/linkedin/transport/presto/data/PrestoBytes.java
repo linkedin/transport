@@ -14,7 +14,7 @@ import static io.prestosql.spi.type.VarbinaryType.*;
 
 public class PrestoBytes extends PrestoData implements StdBytes {
 
-  Slice _slice;
+  private Slice _slice;
 
   public PrestoBytes(Slice slice) {
     _slice = slice;

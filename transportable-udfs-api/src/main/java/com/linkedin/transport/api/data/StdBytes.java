@@ -9,5 +9,7 @@ import java.nio.ByteBuffer;
 
 /** A Standard UDF data type for representing binary objects. */
 public interface StdBytes extends StdData {
+
+  /** Returns the underlying {@link ByteBuffer} value. */
   ByteBuffer get();
 }

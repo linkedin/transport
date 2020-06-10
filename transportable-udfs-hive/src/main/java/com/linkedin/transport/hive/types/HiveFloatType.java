@@ -10,7 +10,8 @@ import org.apache.hadoop.hive.serde2.objectinspector.primitive.FloatObjectInspec
 
 
 public class HiveFloatType implements StdFloatType {
-  final FloatObjectInspector _floatObjectInspector;
+
+  private final FloatObjectInspector _floatObjectInspector;
 
   public HiveFloatType(FloatObjectInspector floatObjectInspector) {
     _floatObjectInspector = floatObjectInspector;

@@ -12,6 +12,7 @@ import static io.prestosql.spi.type.DoubleType.*;
 
 
 public class PrestoDouble extends PrestoData implements StdDouble {
+
   private double _double;
 
   public PrestoDouble(double aDouble) {

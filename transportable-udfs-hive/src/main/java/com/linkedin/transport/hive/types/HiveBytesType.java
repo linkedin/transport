@@ -10,7 +10,8 @@ import org.apache.hadoop.hive.serde2.objectinspector.primitive.BinaryObjectInspe
 
 
 public class HiveBytesType implements StdBytesType {
-  final BinaryObjectInspector _binaryObjectInspector;
+
+  private final BinaryObjectInspector _binaryObjectInspector;
 
   public HiveBytesType(BinaryObjectInspector binaryObjectInspector) {
     _binaryObjectInspector = binaryObjectInspector;

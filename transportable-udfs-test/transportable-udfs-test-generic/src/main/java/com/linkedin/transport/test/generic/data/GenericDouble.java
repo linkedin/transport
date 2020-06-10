@@ -10,6 +10,7 @@ import com.linkedin.transport.api.data.StdDouble;
 
 
 public class GenericDouble implements StdDouble, PlatformData {
+
   private Double _double;
 
   public GenericDouble(Double aDouble) {

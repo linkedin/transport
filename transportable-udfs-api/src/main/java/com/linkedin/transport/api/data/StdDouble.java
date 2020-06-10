@@ -7,5 +7,7 @@ package com.linkedin.transport.api.data;
 
 /** A Standard UDF data type for representing doubles. */
 public interface StdDouble extends StdData {
+
+  /** Returns the underlying double value. */
   double get();
 }

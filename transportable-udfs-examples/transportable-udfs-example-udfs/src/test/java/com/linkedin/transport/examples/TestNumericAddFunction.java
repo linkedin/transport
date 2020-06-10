@@ -35,10 +35,12 @@ public class TestNumericAddFunction extends AbstractStdUDFTest {
     tester.check(functionCall("numeric_add", 1, 2), 3, "integer");
     tester.check(functionCall("numeric_add", 1L, 2L), 3L, "bigint");
     if (testerClassName.contains("GenericTester")) {
+      // Add floats only works with GenericTester due to the float literal representation in SQL
       tester.check(functionCall("numeric_add", 2.0f, 3.0f), 5.0f, "real");
     }
 
     if (testerClassName.contains("GenericTester") || testerClassName.contains("HiveTester")) {
+      // Add floats only works with GenericTester and HiveTester due to the double literal representation in SQL
       tester.check(functionCall("numeric_add", 3.0, 4.0), 7.0, "double");
     }
   }

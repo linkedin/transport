@@ -9,11 +9,11 @@ import java.nio.ByteBuffer
 
 import com.linkedin.transport.api.data.{PlatformData, StdBytes}
 
-case class SparkBytes(private var _str: Array[Byte]) extends StdBytes with PlatformData {
+case class SparkBytes(private var _bytes: Array[Byte]) extends StdBytes with PlatformData {
 
-  override def get(): ByteBuffer = ByteBuffer.wrap(_str)
+  override def get(): ByteBuffer = ByteBuffer.wrap(_bytes)
 
-  override def getUnderlyingData: AnyRef = _str
+  override def getUnderlyingData: AnyRef = _bytes
 
-  override def setUnderlyingData(value: scala.Any): Unit = _str = value.asInstanceOf[ByteBuffer].array()
+  override def setUnderlyingData(value: scala.Any): Unit = _bytes = value.asInstanceOf[ByteBuffer].array()
 }

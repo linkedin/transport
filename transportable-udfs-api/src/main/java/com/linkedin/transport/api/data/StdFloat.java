@@ -7,5 +7,7 @@ package com.linkedin.transport.api.data;
 
 /** A Standard UDF data type for representing floats. */
 public interface StdFloat extends StdData {
+
+  /** Returns the underlying float value. */
   float get();
 }

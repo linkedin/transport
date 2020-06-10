@@ -11,7 +11,7 @@ import io.prestosql.spi.type.VarbinaryType;
 
 public class PrestoBytesType implements StdDoubleType {
 
-  final VarbinaryType varbinaryType;
+  private final VarbinaryType varbinaryType;
 
   public PrestoBytesType(VarbinaryType varbinaryType) {
     this.varbinaryType = varbinaryType;

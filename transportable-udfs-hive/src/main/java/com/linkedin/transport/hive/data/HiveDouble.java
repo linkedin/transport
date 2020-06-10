@@ -12,7 +12,8 @@ import org.apache.hadoop.hive.serde2.objectinspector.primitive.DoubleObjectInspe
 
 
 public class HiveDouble extends HiveData implements StdDouble {
-  final DoubleObjectInspector _doubleObjectInspector;
+
+  private final DoubleObjectInspector _doubleObjectInspector;
 
   public HiveDouble(Object object, DoubleObjectInspector floatObjectInspector, StdFactory stdFactory) {
     super(stdFactory);

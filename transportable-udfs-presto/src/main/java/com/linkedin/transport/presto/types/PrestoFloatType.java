@@ -11,7 +11,7 @@ import io.prestosql.spi.type.RealType;
 
 public class PrestoFloatType implements StdFloatType {
 
-  final RealType floatType;
+  private final RealType floatType;
 
   public PrestoFloatType(RealType floatType) {
     this.floatType = floatType;

@@ -27,6 +27,7 @@ public class TestBinaryObjectSizeFunction extends AbstractStdUDFTest {
   public void tesBinaryObjectSize() {
     StdTester tester = getTester();
     if (tester.getClass().getCanonicalName().contains("GenericTester")) {
+      // Binary object size only works with GenericTester due to the binary literal representation in SQL
       ByteBuffer argTest1 = ByteBuffer.wrap("foo".getBytes());
       ByteBuffer argTest2 = ByteBuffer.wrap("".getBytes());
       ByteBuffer argTest3 = ByteBuffer.wrap("fooBar".getBytes());

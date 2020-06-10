@@ -13,7 +13,8 @@ import org.apache.hadoop.hive.serde2.objectinspector.primitive.BinaryObjectInspe
 
 
 public class HiveBytes extends HiveData implements StdBytes {
-  final BinaryObjectInspector _binaryObjectInspector;
+
+  private final BinaryObjectInspector _binaryObjectInspector;
 
   public HiveBytes(Object object, BinaryObjectInspector binaryObjectInspector, StdFactory stdFactory) {
     super(stdFactory);

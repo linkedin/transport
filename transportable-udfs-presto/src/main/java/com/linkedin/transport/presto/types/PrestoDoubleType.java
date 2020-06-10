@@ -11,7 +11,7 @@ import io.prestosql.spi.type.DoubleType;
 
 public class PrestoDoubleType implements StdDoubleType {
 
-  final DoubleType doubleType;
+  private final DoubleType doubleType;
 
   public PrestoDoubleType(DoubleType doubleType) {
     this.doubleType = doubleType;
