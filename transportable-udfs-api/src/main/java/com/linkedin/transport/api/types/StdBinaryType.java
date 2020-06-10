@@ -6,5 +6,5 @@
 package com.linkedin.transport.api.types;
 
 /** A {@link StdType} representing a {@link java.nio.ByteBuffer} type. */
-public interface StdBytesType extends StdType {
+public interface StdBinaryType extends StdType {
 }

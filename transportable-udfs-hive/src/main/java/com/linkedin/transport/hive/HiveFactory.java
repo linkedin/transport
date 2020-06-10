@@ -9,7 +9,7 @@ import com.google.common.base.Preconditions;
 import com.linkedin.transport.api.StdFactory;
 import com.linkedin.transport.api.data.StdArray;
 import com.linkedin.transport.api.data.StdBoolean;
-import com.linkedin.transport.api.data.StdBytes;
+import com.linkedin.transport.api.data.StdBinary;
 import com.linkedin.transport.api.data.StdDouble;
 import com.linkedin.transport.api.data.StdFloat;
 import com.linkedin.transport.api.data.StdInteger;
@@ -20,7 +20,7 @@ import com.linkedin.transport.api.data.StdStruct;
 import com.linkedin.transport.api.types.StdType;
 import com.linkedin.transport.hive.data.HiveArray;
 import com.linkedin.transport.hive.data.HiveBoolean;
-import com.linkedin.transport.hive.data.HiveBytes;
+import com.linkedin.transport.hive.data.HiveBinary;
 import com.linkedin.transport.hive.data.HiveDouble;
 import com.linkedin.transport.hive.data.HiveFloat;
 import com.linkedin.transport.hive.data.HiveInteger;
@@ -92,8 +92,8 @@ public class HiveFactory implements StdFactory {
   }
 
   @Override
-  public StdBytes createBytes(ByteBuffer value) {
-    return new HiveBytes(value.array(), PrimitiveObjectInspectorFactory.javaByteArrayObjectInspector, this);
+  public StdBinary createBinary(ByteBuffer value) {
+    return new HiveBinary(value.array(), PrimitiveObjectInspectorFactory.javaByteArrayObjectInspector, this);
   }
 
   @Override

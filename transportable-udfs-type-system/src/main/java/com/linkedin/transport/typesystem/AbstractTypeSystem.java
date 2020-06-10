@@ -32,7 +32,7 @@ public abstract class AbstractTypeSystem<T> {
 
   protected abstract boolean isDoubleType(T dataType);
 
-  protected abstract boolean isBytesType(T dataType);
+  protected abstract boolean isBinaryType(T dataType);
 
   protected abstract boolean isArrayType(T dataType);
 
@@ -52,7 +52,7 @@ public abstract class AbstractTypeSystem<T> {
 
   protected abstract T createDoubleType();
 
-  protected abstract T createBytesType();
+  protected abstract T createBinaryType();
 
   protected abstract T createUnknownType();
 

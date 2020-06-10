@@ -60,8 +60,8 @@ public abstract class AbstractTypeInference<T> {
     return _typeSystem.isDoubleType(dataType);
   }
 
-  private boolean isBytesType(T dataType) {
-    return _typeSystem.isBytesType(dataType);
+  private boolean isBinaryType(T dataType) {
+    return _typeSystem.isBinaryType(dataType);
   }
 
   private boolean isArrayType(T dataType) {
@@ -154,8 +154,8 @@ public abstract class AbstractTypeInference<T> {
       return "real";
     } else if (isDoubleType(dataType)) {
       return "double";
-    } else if (isBytesType(dataType)) {
-      return "bytes";
+    } else if (isBinaryType(dataType)) {
+      return "binary";
     } else if (isUnknownType(dataType)) {
       return "unknown";
     } else if (isArrayType(dataType)) {

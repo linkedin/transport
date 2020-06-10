@@ -7,9 +7,9 @@ package com.linkedin.transport.spark.data
 
 import java.nio.ByteBuffer
 
-import com.linkedin.transport.api.data.{PlatformData, StdBytes}
+import com.linkedin.transport.api.data.{PlatformData, StdBinary}
 
-case class SparkBytes(private var _bytes: Array[Byte]) extends StdBytes with PlatformData {
+case class SparkBinary(private var _bytes: Array[Byte]) extends StdBinary with PlatformData {
 
   override def get(): ByteBuffer = ByteBuffer.wrap(_bytes)
 

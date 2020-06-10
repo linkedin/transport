@@ -28,7 +28,7 @@ public class TestTypeSignature {
 
     Assert.assertEquals(TypeSignature.parse("double"), DOUBLE);
 
-    Assert.assertEquals(TypeSignature.parse("bytes"), BYTES);
+    Assert.assertEquals(TypeSignature.parse("binary"), BINARY);
 
     Assert.assertEquals(TypeSignature.parse("array(bigint)"), array(LONG));
 
@@ -37,8 +37,8 @@ public class TestTypeSignature {
     Assert.assertEquals(TypeSignature.parse("array(map(varchar,boolean))"), array(map(STRING, BOOLEAN)));
 
     Assert.assertEquals(
-        TypeSignature.parse("array(row(varchar,boolean,integer,real,double,bytes))"),
-        array(struct(STRING, BOOLEAN, INTEGER, FLOAT, DOUBLE, BYTES)));
+        TypeSignature.parse("array(row(varchar,boolean,integer,real,double,binary))"),
+        array(struct(STRING, BOOLEAN, INTEGER, FLOAT, DOUBLE, BINARY)));
   }
 
   @Test

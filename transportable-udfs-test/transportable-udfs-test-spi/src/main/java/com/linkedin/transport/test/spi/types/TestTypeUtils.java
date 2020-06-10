@@ -35,7 +35,7 @@ public class TestTypeUtils {
     } else if (data instanceof Double) {
       return TestTypeFactory.DOUBLE_TEST_TYPE;
     } else if (data instanceof ByteBuffer) {
-      return TestTypeFactory.BYTES_TEST_TYPE;
+      return TestTypeFactory.BINARY_TEST_TYPE;
     } else if (data instanceof List) {
       return TestTypeFactory.array(inferCollectionTypeFromData((List) data, "array elements"));
     } else if (data instanceof Map) {

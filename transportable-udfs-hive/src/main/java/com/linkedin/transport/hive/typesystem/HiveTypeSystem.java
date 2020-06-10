@@ -83,7 +83,7 @@ public class HiveTypeSystem extends AbstractTypeSystem<ObjectInspector> {
   }
 
   @Override
-  protected boolean isBytesType(ObjectInspector dataType) {
+  protected boolean isBinaryType(ObjectInspector dataType) {
     return dataType instanceof BinaryObjectInspector;
   }
 
@@ -133,7 +133,7 @@ public class HiveTypeSystem extends AbstractTypeSystem<ObjectInspector> {
   }
 
   @Override
-  protected ObjectInspector createBytesType() {
+  protected ObjectInspector createBinaryType() {
     return PrimitiveObjectInspectorFactory.javaByteArrayObjectInspector;
   }
 

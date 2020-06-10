@@ -71,7 +71,7 @@ public class AvroTypeSystem extends AbstractTypeSystem<Schema> {
   }
 
   @Override
-  protected boolean isBytesType(Schema dataType) {
+  protected boolean isBinaryType(Schema dataType) {
     return dataType.getType() == BYTES;
   }
 
@@ -121,7 +121,7 @@ public class AvroTypeSystem extends AbstractTypeSystem<Schema> {
   }
 
   @Override
-  protected Schema createBytesType() {
+  protected Schema createBinaryType() {
     return Schema.create(BYTES);
   }
 

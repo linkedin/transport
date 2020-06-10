@@ -5,18 +5,18 @@
  */
 package com.linkedin.transport.presto.data;
 
-import com.linkedin.transport.api.data.StdBytes;
+import com.linkedin.transport.api.data.StdBinary;
 import io.airlift.slice.Slice;
 import io.prestosql.spi.block.BlockBuilder;
 import java.nio.ByteBuffer;
 
 import static io.prestosql.spi.type.VarbinaryType.*;
 
-public class PrestoBytes extends PrestoData implements StdBytes {
+public class PrestoBinary extends PrestoData implements StdBinary {
 
   private Slice _slice;
 
-  public PrestoBytes(Slice slice) {
+  public PrestoBinary(Slice slice) {
     _slice = slice;
   }
 

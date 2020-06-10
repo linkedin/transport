@@ -6,15 +6,15 @@
 package com.linkedin.transport.test.generic.data;
 
 import com.linkedin.transport.api.data.PlatformData;
-import com.linkedin.transport.api.data.StdBytes;
+import com.linkedin.transport.api.data.StdBinary;
 import java.nio.ByteBuffer;
 
 
-public class GenericBytes implements StdBytes, PlatformData {
+public class GenericBinary implements StdBinary, PlatformData {
 
   private ByteBuffer _byteBuffer;
 
-  public GenericBytes(ByteBuffer aByteBuffer) {
+  public GenericBinary(ByteBuffer aByteBuffer) {
     _byteBuffer = aByteBuffer;
   }
 

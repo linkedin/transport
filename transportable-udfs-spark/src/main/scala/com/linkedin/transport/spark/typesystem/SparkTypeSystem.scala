@@ -37,7 +37,7 @@ class SparkTypeSystem extends AbstractTypeSystem[DataType] {
 
   override protected def createDoubleType(): DataType = DoubleType
 
-  override protected def createBytesType(): DataType = BinaryType
+  override protected def createBinaryType(): DataType = BinaryType
 
   override protected def createUnknownType(): DataType = NullType
 
@@ -76,5 +76,5 @@ class SparkTypeSystem extends AbstractTypeSystem[DataType] {
 
   override protected def isDoubleType(dataType: DataType): Boolean = dataType.isInstanceOf[DoubleType]
 
-  override protected def isBytesType(dataType: DataType): Boolean = dataType.isInstanceOf[BinaryType]
+  override protected def isBinaryType(dataType: DataType): Boolean = dataType.isInstanceOf[BinaryType]
 }

@@ -6,17 +6,17 @@
 package com.linkedin.transport.hive.data;
 
 import com.linkedin.transport.api.StdFactory;
-import com.linkedin.transport.api.data.StdBytes;
+import com.linkedin.transport.api.data.StdBinary;
 import java.nio.ByteBuffer;
 import org.apache.hadoop.hive.serde2.objectinspector.ObjectInspector;
 import org.apache.hadoop.hive.serde2.objectinspector.primitive.BinaryObjectInspector;
 
 
-public class HiveBytes extends HiveData implements StdBytes {
+public class HiveBinary extends HiveData implements StdBinary {
 
   private final BinaryObjectInspector _binaryObjectInspector;
 
-  public HiveBytes(Object object, BinaryObjectInspector binaryObjectInspector, StdFactory stdFactory) {
+  public HiveBinary(Object object, BinaryObjectInspector binaryObjectInspector, StdFactory stdFactory) {
     super(stdFactory);
     _object = object;
     _binaryObjectInspector = binaryObjectInspector;

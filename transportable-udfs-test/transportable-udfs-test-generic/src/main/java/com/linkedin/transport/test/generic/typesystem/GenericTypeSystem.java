@@ -7,7 +7,7 @@ package com.linkedin.transport.test.generic.typesystem;
 
 import com.linkedin.transport.test.spi.types.ArrayTestType;
 import com.linkedin.transport.test.spi.types.BooleanTestType;
-import com.linkedin.transport.test.spi.types.BytesTestType;
+import com.linkedin.transport.test.spi.types.BinaryTestType;
 import com.linkedin.transport.test.spi.types.DoubleTestType;
 import com.linkedin.transport.test.spi.types.FloatTestType;
 import com.linkedin.transport.test.spi.types.IntegerTestType;
@@ -80,8 +80,8 @@ public class GenericTypeSystem extends AbstractTypeSystem<TestType> {
   }
 
   @Override
-  protected boolean isBytesType(TestType dataType) {
-    return dataType instanceof BytesTestType;
+  protected boolean isBinaryType(TestType dataType) {
+    return dataType instanceof BinaryTestType;
   }
 
   @Override
@@ -130,8 +130,8 @@ public class GenericTypeSystem extends AbstractTypeSystem<TestType> {
   }
 
   @Override
-  protected TestType createBytesType() {
-    return TestTypeFactory.BYTES_TEST_TYPE;
+  protected TestType createBinaryType() {
+    return TestTypeFactory.BINARY_TEST_TYPE;
   }
 
   @Override

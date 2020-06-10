@@ -57,8 +57,8 @@ public abstract class AbstractBoundVariables<T> {
     return _typeSystem.isDoubleType(dataType);
   }
 
-  private boolean isBytesType(T dataType) {
-    return _typeSystem.isBytesType(dataType);
+  private boolean isBinaryType(T dataType) {
+    return _typeSystem.isBinaryType(dataType);
   }
 
   private boolean isArrayType(T dataType) {
@@ -154,8 +154,8 @@ public abstract class AbstractBoundVariables<T> {
               typeMismatch = true;
             }
             break;
-          case BYTES:
-            if (!isBytesType(dataType)) {
+          case BINARY:
+            if (!isBinaryType(dataType)) {
               typeMismatch = true;
             }
             break;

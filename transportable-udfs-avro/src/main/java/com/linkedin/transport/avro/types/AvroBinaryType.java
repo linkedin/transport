@@ -5,14 +5,14 @@
  */
 package com.linkedin.transport.avro.types;
 
-import com.linkedin.transport.api.types.StdBytesType;
+import com.linkedin.transport.api.types.StdBinaryType;
 import org.apache.avro.Schema;
 
 
-public class AvroBytesType implements StdBytesType {
+public class AvroBinaryType implements StdBinaryType {
   final private Schema _schema;
 
-  public AvroBytesType(Schema schema) {
+  public AvroBinaryType(Schema schema) {
     _schema = schema;
   }
 

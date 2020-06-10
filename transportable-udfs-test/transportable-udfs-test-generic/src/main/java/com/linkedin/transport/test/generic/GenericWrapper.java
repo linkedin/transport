@@ -9,7 +9,7 @@ import com.linkedin.transport.api.data.StdData;
 import com.linkedin.transport.api.types.StdType;
 import com.linkedin.transport.test.generic.data.GenericArray;
 import com.linkedin.transport.test.generic.data.GenericBoolean;
-import com.linkedin.transport.test.generic.data.GenericBytes;
+import com.linkedin.transport.test.generic.data.GenericBinary;
 import com.linkedin.transport.test.generic.data.GenericDouble;
 import com.linkedin.transport.test.generic.data.GenericFloat;
 import com.linkedin.transport.test.generic.data.GenericInteger;
@@ -20,7 +20,7 @@ import com.linkedin.transport.test.generic.data.GenericStruct;
 import com.linkedin.transport.test.spi.Row;
 import com.linkedin.transport.test.spi.types.ArrayTestType;
 import com.linkedin.transport.test.spi.types.BooleanTestType;
-import com.linkedin.transport.test.spi.types.BytesTestType;
+import com.linkedin.transport.test.spi.types.BinaryTestType;
 import com.linkedin.transport.test.spi.types.DoubleTestType;
 import com.linkedin.transport.test.spi.types.FloatTestType;
 import com.linkedin.transport.test.spi.types.IntegerTestType;
@@ -55,8 +55,8 @@ public class GenericWrapper {
       return new GenericFloat((Float) data);
     } else if (dataType instanceof DoubleTestType) {
       return new GenericDouble((Double) data);
-    } else if (dataType instanceof BytesTestType) {
-      return new GenericBytes((ByteBuffer) data);
+    } else if (dataType instanceof BinaryTestType) {
+      return new GenericBinary((ByteBuffer) data);
     } else if (dataType instanceof ArrayTestType) {
       return new GenericArray((List<Object>) data, dataType);
     } else if (dataType instanceof MapTestType) {

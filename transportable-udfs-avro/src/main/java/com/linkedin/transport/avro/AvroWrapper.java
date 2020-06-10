@@ -9,7 +9,7 @@ import com.linkedin.transport.api.data.StdData;
 import com.linkedin.transport.api.types.StdType;
 import com.linkedin.transport.avro.data.AvroArray;
 import com.linkedin.transport.avro.data.AvroBoolean;
-import com.linkedin.transport.avro.data.AvroBytes;
+import com.linkedin.transport.avro.data.AvroBinary;
 import com.linkedin.transport.avro.data.AvroDouble;
 import com.linkedin.transport.avro.data.AvroFloat;
 import com.linkedin.transport.avro.data.AvroInteger;
@@ -19,7 +19,7 @@ import com.linkedin.transport.avro.data.AvroString;
 import com.linkedin.transport.avro.data.AvroStruct;
 import com.linkedin.transport.avro.types.AvroArrayType;
 import com.linkedin.transport.avro.types.AvroBooleanType;
-import com.linkedin.transport.avro.types.AvroBytesType;
+import com.linkedin.transport.avro.types.AvroBinaryType;
 import com.linkedin.transport.avro.types.AvroDoubleType;
 import com.linkedin.transport.avro.types.AvroFloatType;
 import com.linkedin.transport.avro.types.AvroIntegerType;
@@ -55,7 +55,7 @@ public class AvroWrapper {
       case DOUBLE:
         return new AvroDouble((Double) avroData);
       case BYTES:
-        return new AvroBytes((ByteBuffer) avroData);
+        return new AvroBinary((ByteBuffer) avroData);
       case ARRAY:
         return new AvroArray((GenericArray<Object>) avroData, avroSchema);
       case MAP:
@@ -84,7 +84,7 @@ public class AvroWrapper {
       case DOUBLE:
         return new AvroDoubleType(avroSchema);
       case BYTES:
-        return new AvroBytesType(avroSchema);
+        return new AvroBinaryType(avroSchema);
       case ARRAY:
         return new AvroArrayType(avroSchema);
       case MAP:

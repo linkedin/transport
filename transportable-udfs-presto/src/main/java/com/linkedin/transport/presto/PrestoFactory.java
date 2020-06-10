@@ -10,7 +10,7 @@ import com.google.common.collect.ImmutableSet;
 import com.linkedin.transport.api.StdFactory;
 import com.linkedin.transport.api.data.StdArray;
 import com.linkedin.transport.api.data.StdBoolean;
-import com.linkedin.transport.api.data.StdBytes;
+import com.linkedin.transport.api.data.StdBinary;
 import com.linkedin.transport.api.data.StdDouble;
 import com.linkedin.transport.api.data.StdFloat;
 import com.linkedin.transport.api.data.StdInteger;
@@ -21,7 +21,7 @@ import com.linkedin.transport.api.data.StdStruct;
 import com.linkedin.transport.api.types.StdType;
 import com.linkedin.transport.presto.data.PrestoArray;
 import com.linkedin.transport.presto.data.PrestoBoolean;
-import com.linkedin.transport.presto.data.PrestoBytes;
+import com.linkedin.transport.presto.data.PrestoBinary;
 import com.linkedin.transport.presto.data.PrestoDouble;
 import com.linkedin.transport.presto.data.PrestoFloat;
 import com.linkedin.transport.presto.data.PrestoInteger;
@@ -89,8 +89,8 @@ public class PrestoFactory implements StdFactory {
   }
 
   @Override
-  public StdBytes createBytes(ByteBuffer value) {
-    return new PrestoBytes(Slices.wrappedBuffer(value.array()));
+  public StdBinary createBinary(ByteBuffer value) {
+    return new PrestoBinary(Slices.wrappedBuffer(value.array()));
   }
 
   @Override

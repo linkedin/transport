@@ -5,15 +5,15 @@
  */
 package com.linkedin.transport.hive.types;
 
-import com.linkedin.transport.api.types.StdBytesType;
+import com.linkedin.transport.api.types.StdBinaryType;
 import org.apache.hadoop.hive.serde2.objectinspector.primitive.BinaryObjectInspector;
 
 
-public class HiveBytesType implements StdBytesType {
+public class HiveBinaryType implements StdBinaryType {
 
   private final BinaryObjectInspector _binaryObjectInspector;
 
-  public HiveBytesType(BinaryObjectInspector binaryObjectInspector) {
+  public HiveBinaryType(BinaryObjectInspector binaryObjectInspector) {
     _binaryObjectInspector = binaryObjectInspector;
   }
 

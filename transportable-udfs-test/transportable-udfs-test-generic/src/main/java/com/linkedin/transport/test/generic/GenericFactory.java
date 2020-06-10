@@ -9,7 +9,7 @@ import com.google.common.base.Preconditions;
 import com.linkedin.transport.api.StdFactory;
 import com.linkedin.transport.api.data.StdArray;
 import com.linkedin.transport.api.data.StdBoolean;
-import com.linkedin.transport.api.data.StdBytes;
+import com.linkedin.transport.api.data.StdBinary;
 import com.linkedin.transport.api.data.StdDouble;
 import com.linkedin.transport.api.data.StdFloat;
 import com.linkedin.transport.api.data.StdInteger;
@@ -20,7 +20,7 @@ import com.linkedin.transport.api.data.StdStruct;
 import com.linkedin.transport.api.types.StdType;
 import com.linkedin.transport.test.generic.data.GenericArray;
 import com.linkedin.transport.test.generic.data.GenericBoolean;
-import com.linkedin.transport.test.generic.data.GenericBytes;
+import com.linkedin.transport.test.generic.data.GenericBinary;
 import com.linkedin.transport.test.generic.data.GenericDouble;
 import com.linkedin.transport.test.generic.data.GenericFloat;
 import com.linkedin.transport.test.generic.data.GenericInteger;
@@ -81,8 +81,8 @@ public class GenericFactory implements StdFactory {
   }
 
   @Override
-  public StdBytes createBytes(ByteBuffer value) {
-    return new GenericBytes(value);
+  public StdBinary createBinary(ByteBuffer value) {
+    return new GenericBinary(value);
   }
 
   @Override

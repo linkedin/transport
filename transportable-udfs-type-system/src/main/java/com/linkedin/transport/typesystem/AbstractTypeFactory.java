@@ -43,8 +43,8 @@ public abstract class AbstractTypeFactory<T> {
     return _typeSystem.createDoubleType();
   }
 
-  private T createBytesType() {
-    return _typeSystem.createBytesType();
+  private T createBinaryType() {
+    return _typeSystem.createBinaryType();
   }
 
   private T createUnknownType() {
@@ -87,8 +87,8 @@ public abstract class AbstractTypeFactory<T> {
             return createFloatType();
           case DOUBLE:
             return createDoubleType();
-          case BYTES:
-            return createBytesType();
+          case BINARY:
+            return createBinaryType();
           case UNKNOWN:
             return createUnknownType();
           default:

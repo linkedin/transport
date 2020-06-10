@@ -10,7 +10,7 @@ import com.linkedin.transport.api.data.StdData;
 import com.linkedin.transport.api.types.StdType;
 import com.linkedin.transport.presto.data.PrestoArray;
 import com.linkedin.transport.presto.data.PrestoBoolean;
-import com.linkedin.transport.presto.data.PrestoBytes;
+import com.linkedin.transport.presto.data.PrestoBinary;
 import com.linkedin.transport.presto.data.PrestoDouble;
 import com.linkedin.transport.presto.data.PrestoFloat;
 import com.linkedin.transport.presto.data.PrestoInteger;
@@ -20,7 +20,7 @@ import com.linkedin.transport.presto.data.PrestoString;
 import com.linkedin.transport.presto.data.PrestoStruct;
 import com.linkedin.transport.presto.types.PrestoArrayType;
 import com.linkedin.transport.presto.types.PrestoBooleanType;
-import com.linkedin.transport.presto.types.PrestoBytesType;
+import com.linkedin.transport.presto.types.PrestoBinaryType;
 import com.linkedin.transport.presto.types.PrestoDoubleType;
 import com.linkedin.transport.presto.types.PrestoFloatType;
 import com.linkedin.transport.presto.types.PrestoIntegerType;
@@ -72,7 +72,7 @@ public final class PrestoWrapper {
     } else if (prestoType instanceof DoubleType) {
       return new PrestoDouble((double) prestoData);
     } else if (prestoType instanceof VarbinaryType) {
-      return new PrestoBytes((Slice) prestoData);
+      return new PrestoBinary((Slice) prestoData);
     } else if (prestoType instanceof ArrayType) {
       return new PrestoArray((Block) prestoData, (ArrayType) prestoType, stdFactory);
     } else if (prestoType instanceof MapType) {
@@ -98,7 +98,7 @@ public final class PrestoWrapper {
     } else if (prestoType instanceof DoubleType) {
       return new PrestoDoubleType((DoubleType) prestoType);
     } else if (prestoType instanceof VarbinaryType) {
-      return new PrestoBytesType((VarbinaryType) prestoType);
+      return new PrestoBinaryType((VarbinaryType) prestoType);
     } else if (prestoType instanceof ArrayType) {
       return new PrestoArrayType((ArrayType) prestoType);
     } else if (prestoType instanceof MapType) {

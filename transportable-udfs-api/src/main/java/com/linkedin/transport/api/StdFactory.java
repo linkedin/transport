@@ -7,7 +7,7 @@ package com.linkedin.transport.api;
 
 import com.linkedin.transport.api.data.StdArray;
 import com.linkedin.transport.api.data.StdBoolean;
-import com.linkedin.transport.api.data.StdBytes;
+import com.linkedin.transport.api.data.StdBinary;
 import com.linkedin.transport.api.data.StdData;
 import com.linkedin.transport.api.data.StdDouble;
 import com.linkedin.transport.api.data.StdFloat;
@@ -84,12 +84,12 @@ public interface StdFactory extends Serializable {
   StdDouble createDouble(double value);
 
   /**
-   * Creates a {@link StdBytes} representing a given {@link ByteBuffer} value.
+   * Creates a {@link StdBinary} representing a given {@link ByteBuffer} value.
    *
    * @param value  the input {@link ByteBuffer} value
-   * @return {@link StdBytes} with the given {@link ByteBuffer} value
+   * @return {@link StdBinary} with the given {@link ByteBuffer} value
    */
-  StdBytes createBytes(ByteBuffer value);
+  StdBinary createBinary(ByteBuffer value);
 
   /**
    * Creates an empty {@link StdArray} whose type is given by the given {@link StdType}.

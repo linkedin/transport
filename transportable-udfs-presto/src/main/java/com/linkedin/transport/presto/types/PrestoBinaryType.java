@@ -5,15 +5,16 @@
  */
 package com.linkedin.transport.presto.types;
 
+import com.linkedin.transport.api.types.StdBinaryType;
 import com.linkedin.transport.api.types.StdDoubleType;
 import io.prestosql.spi.type.VarbinaryType;
 
 
-public class PrestoBytesType implements StdDoubleType {
+public class PrestoBinaryType implements StdBinaryType {
 
   private final VarbinaryType varbinaryType;
 
-  public PrestoBytesType(VarbinaryType varbinaryType) {
+  public PrestoBinaryType(VarbinaryType varbinaryType) {
     this.varbinaryType = varbinaryType;
   }
 

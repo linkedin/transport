@@ -7,7 +7,7 @@ package com.linkedin.transport.test.spi;
 
 import com.linkedin.transport.test.spi.types.ArrayTestType;
 import com.linkedin.transport.test.spi.types.BooleanTestType;
-import com.linkedin.transport.test.spi.types.BytesTestType;
+import com.linkedin.transport.test.spi.types.BinaryTestType;
 import com.linkedin.transport.test.spi.types.DoubleTestType;
 import com.linkedin.transport.test.spi.types.FloatTestType;
 import com.linkedin.transport.test.spi.types.IntegerTestType;
@@ -43,8 +43,8 @@ public interface ToPlatformTestOutputConverter {
       return getFloatData((Float) data);
     } else if (dataType instanceof DoubleTestType) {
       return getDoubleData((Double) data);
-    } else if (dataType instanceof BytesTestType) {
-      return getBytesData((ByteBuffer) data);
+    } else if (dataType instanceof BinaryTestType) {
+      return getBinaryData((ByteBuffer) data);
     } else if (dataType instanceof ArrayTestType) {
       return getArrayData((List<Object>) data, ((ArrayTestType) dataType).getElementType());
     } else if (dataType instanceof MapTestType) {
@@ -86,7 +86,7 @@ public interface ToPlatformTestOutputConverter {
     return value;
   }
 
-  default Object getBytesData(ByteBuffer value) {
+  default Object getBinaryData(ByteBuffer value) {
     return value;
   }
 

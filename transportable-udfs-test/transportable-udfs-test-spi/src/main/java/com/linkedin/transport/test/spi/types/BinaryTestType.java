@@ -5,5 +5,5 @@
  */
 package com.linkedin.transport.test.spi.types;
 
-public class BytesTestType implements TestType {
+public class BinaryTestType implements TestType {
 }

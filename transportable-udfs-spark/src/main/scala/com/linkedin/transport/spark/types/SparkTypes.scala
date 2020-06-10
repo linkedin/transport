@@ -39,7 +39,7 @@ case class SparkDoubleType(doubleType: DoubleType) extends StdDoubleType {
   override def underlyingType(): DataType = doubleType
 }
 
-case class SparkBytesType(bytesType: BinaryType) extends StdBytesType {
+case class SparkBinaryType(bytesType: BinaryType) extends StdBinaryType {
 
   override def underlyingType(): DataType = bytesType
 }

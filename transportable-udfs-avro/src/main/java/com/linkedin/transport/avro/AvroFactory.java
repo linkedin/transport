@@ -8,7 +8,7 @@ package com.linkedin.transport.avro;
 import com.linkedin.transport.api.StdFactory;
 import com.linkedin.transport.api.data.StdArray;
 import com.linkedin.transport.api.data.StdBoolean;
-import com.linkedin.transport.api.data.StdBytes;
+import com.linkedin.transport.api.data.StdBinary;
 import com.linkedin.transport.api.data.StdDouble;
 import com.linkedin.transport.api.data.StdFloat;
 import com.linkedin.transport.api.data.StdInteger;
@@ -19,7 +19,7 @@ import com.linkedin.transport.api.data.StdStruct;
 import com.linkedin.transport.api.types.StdType;
 import com.linkedin.transport.avro.data.AvroArray;
 import com.linkedin.transport.avro.data.AvroBoolean;
-import com.linkedin.transport.avro.data.AvroBytes;
+import com.linkedin.transport.avro.data.AvroBinary;
 import com.linkedin.transport.avro.data.AvroDouble;
 import com.linkedin.transport.avro.data.AvroFloat;
 import com.linkedin.transport.avro.data.AvroInteger;
@@ -82,8 +82,8 @@ public class AvroFactory implements StdFactory {
   }
 
   @Override
-  public StdBytes createBytes(ByteBuffer value) {
-    return new AvroBytes(value);
+  public StdBinary createBinary(ByteBuffer value) {
+    return new AvroBinary(value);
   }
 
   @Override

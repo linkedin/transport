@@ -10,7 +10,7 @@ import com.linkedin.transport.api.data.StdData;
 import com.linkedin.transport.api.types.StdType;
 import com.linkedin.transport.hive.data.HiveArray;
 import com.linkedin.transport.hive.data.HiveBoolean;
-import com.linkedin.transport.hive.data.HiveBytes;
+import com.linkedin.transport.hive.data.HiveBinary;
 import com.linkedin.transport.hive.data.HiveDouble;
 import com.linkedin.transport.hive.data.HiveFloat;
 import com.linkedin.transport.hive.data.HiveInteger;
@@ -20,7 +20,7 @@ import com.linkedin.transport.hive.data.HiveString;
 import com.linkedin.transport.hive.data.HiveStruct;
 import com.linkedin.transport.hive.types.HiveArrayType;
 import com.linkedin.transport.hive.types.HiveBooleanType;
-import com.linkedin.transport.hive.types.HiveBytesType;
+import com.linkedin.transport.hive.types.HiveBinaryType;
 import com.linkedin.transport.hive.types.HiveDoubleType;
 import com.linkedin.transport.hive.types.HiveFloatType;
 import com.linkedin.transport.hive.types.HiveIntegerType;
@@ -62,7 +62,7 @@ public final class HiveWrapper {
     } else if (hiveObjectInspector instanceof DoubleObjectInspector) {
       return new HiveDouble(hiveData, (DoubleObjectInspector) hiveObjectInspector, stdFactory);
     } else if (hiveObjectInspector instanceof BinaryObjectInspector) {
-      return new HiveBytes(hiveData, (BinaryObjectInspector) hiveObjectInspector, stdFactory);
+      return new HiveBinary(hiveData, (BinaryObjectInspector) hiveObjectInspector, stdFactory);
     } else if (hiveObjectInspector instanceof ListObjectInspector) {
       ListObjectInspector listObjectInspector = (ListObjectInspector) hiveObjectInspector;
       return new HiveArray(hiveData, listObjectInspector, stdFactory);
@@ -92,7 +92,7 @@ public final class HiveWrapper {
     } else if (hiveObjectInspector instanceof DoubleObjectInspector) {
       return new HiveDoubleType((DoubleObjectInspector) hiveObjectInspector);
     } else if (hiveObjectInspector instanceof BinaryObjectInspector) {
-      return new HiveBytesType((BinaryObjectInspector) hiveObjectInspector);
+      return new HiveBinaryType((BinaryObjectInspector) hiveObjectInspector);
     } else if (hiveObjectInspector instanceof ListObjectInspector) {
       return new HiveArrayType((ListObjectInspector) hiveObjectInspector);
     } else if (hiveObjectInspector instanceof MapObjectInspector) {

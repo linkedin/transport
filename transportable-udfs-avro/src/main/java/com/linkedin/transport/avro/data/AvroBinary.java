@@ -6,14 +6,14 @@
 package com.linkedin.transport.avro.data;
 
 import com.linkedin.transport.api.data.PlatformData;
-import com.linkedin.transport.api.data.StdBytes;
+import com.linkedin.transport.api.data.StdBinary;
 import java.nio.ByteBuffer;
 
 
-public class AvroBytes implements StdBytes, PlatformData {
+public class AvroBinary implements StdBinary, PlatformData {
   private ByteBuffer _byteBuffer;
 
-  public AvroBytes(ByteBuffer aByteBuffer) {
+  public AvroBinary(ByteBuffer aByteBuffer) {
     _byteBuffer = aByteBuffer;
   }
 

@@ -165,8 +165,8 @@ public class TypeSignature {
         case "double":
           currentBaseElement = ConcreteTypeSignatureElement.DOUBLE;
           break;
-        case "bytes":
-          currentBaseElement = ConcreteTypeSignatureElement.BYTES;
+        case "binary":
+          currentBaseElement = ConcreteTypeSignatureElement.BINARY;
           break;
         case "unknown":
           currentBaseElement = ConcreteTypeSignatureElement.UNKNOWN;
