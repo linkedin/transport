@@ -9,7 +9,8 @@ The `StdType` interface is the parent class of all type objects that
 are used to describe the schema of the data objects that can be
 manipulated by `StdUDFs`. Sub-interfaces of this interface include
 `StdIntegerType`, `StdBooleanType`, `StdLongType`, `StdStringType`,
-`StdArrayType`, `StdMapType`, `StdStructType`. Each sub-interface is
+`StdDoubleType`, `StdFloatType`, `StdBinaryType`, `StdArrayType`,
+`StdMapType`, and `StdStructType`. Each sub-interface is
 defined by methods that are specific to the corresponding type. For
 example, `StdMapType` interface is defined by the two methods shown
 below. The `keyType()` and `valueType()` methods can be used to obtain
@@ -39,9 +40,10 @@ public interface StdStructType extends StdType {
 manipulated by Transport UDFs. As a top-level interface, `StdData`
 itself does not contain any methods. A number of type-specific
 interfaces extend `StdData`, such as `StdInteger`, `StdLong`,
-`StdBoolean`, `StdString`, `StdArray`, `StdMap`, `StdStruct` to
-represent `INTEGER`, `LONG`, `BOOLEAN`, `VARCHAR`, `ARRAY`, `MAP`,
-`STRUCT` SQL types respectively. Each of those interfaces exposes
+`StdBoolean`, `StdString`, `StdDouble`, `StdFloat`, `StdBinary`,
+`StdArray`, `StdMap`, and `StdStruct` to represent `INTEGER`,
+`LONG`, `BOOLEAN`, `VARCHAR`, `DOUBLE`, `REAL`, `BINARY`, `ARRAY`, `MAP`,
+and `STRUCT` SQL types respectively. Each of those interfaces exposes
 operations that can manipulate that type of data. For example,
 `StdMap` interface is defined by the following methods:
 
@@ -108,6 +110,12 @@ definition:
   is StdInteger.
 * `"boolean"`: to represent SQL Boolean type. The respective Standard
   Type is StdBoolean.
+* `"double"`: to represent SQL Double type. The respective Standard
+  Type is StdDouble.
+* `"real"`: to represent SQL Real type. The respective Standard
+  Type is StdFloat.
+* `"binary"`: to represent SQL Binary type. The respective Standard
+  Type is StdBinary.
 * `"array(T)"`: to represent SQL Array type, with elements of type
   T. The respective Standard Type is StdArray.
 * `"map(K,V)"`: to represent SQL Map type, with keys of type K and
@@ -132,6 +140,9 @@ public interface StdFactory {
   StdLong createLong(long value);
   StdBoolean createBoolean(boolean value);
   StdString createString(String value);
+  StdDouble createDouble(double value);
+  StdFloat createFloat(float value);
+  StdBinary createBinary(ByteBuffer value);
   StdArray createArray(StdType stdType, int expectedSize);
   StdArray createArray(StdType stdType);
   StdMap createMap(StdType stdType);

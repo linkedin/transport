@@ -38,7 +38,7 @@ class SparkFactory(private val _boundVariables: AbstractBoundVariables[DataType]
   override def createDouble(value: Double): StdDouble = SparkDouble(value)
 
   override def createBinary(value: ByteBuffer): StdBinary = {
-    Preconditions.checkNotNull(value, "Cannot create a null StdBytes".asInstanceOf[Any])
+    Preconditions.checkNotNull(value, "Cannot create a null StdBinary".asInstanceOf[Any])
     SparkBinary(value.array())
   }
 
