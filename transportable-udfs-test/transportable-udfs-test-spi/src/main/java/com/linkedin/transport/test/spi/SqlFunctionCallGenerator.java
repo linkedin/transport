@@ -101,13 +101,11 @@ public interface SqlFunctionCallGenerator {
   }
 
   default String getFloatArgumentString(Float value) {
-    // Note that this does not work for PrestoSQL
     return "CAST(" + value + " AS float)";
   }
 
 
   default String getBinaryArgumentString(ByteBuffer value) {
-    // Note that this does not work for PrestoSQL
     return "CAST('" + new String(value.array(), StandardCharsets.UTF_8) + "' AS BINARY)";
   }
 

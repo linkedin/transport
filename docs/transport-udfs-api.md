@@ -42,7 +42,7 @@ itself does not contain any methods. A number of type-specific
 interfaces extend `StdData`, such as `StdInteger`, `StdLong`,
 `StdBoolean`, `StdString`, `StdDouble`, `StdFloat`, `StdBinary`,
 `StdArray`, `StdMap`, and `StdStruct` to represent `INTEGER`,
-`LONG`, `BOOLEAN`, `VARCHAR`, `DOUBLE`, `REAL`, `BINARY`, `ARRAY`, `MAP`,
+`LONG`, `BOOLEAN`, `VARCHAR`, `DOUBLE`, `REAL`, `VARBINARY`, `ARRAY`, `MAP`,
 and `STRUCT` SQL types respectively. Each of those interfaces exposes
 operations that can manipulate that type of data. For example,
 `StdMap` interface is defined by the following methods:
@@ -114,7 +114,7 @@ definition:
   Type is StdDouble.
 * `"real"`: to represent SQL Real type. The respective Standard
   Type is StdFloat.
-* `"binary"`: to represent SQL Binary type. The respective Standard
+* `"varbinary"`: to represent SQL Binary type. The respective Standard
   Type is StdBinary.
 * `"array(T)"`: to represent SQL Array type, with elements of type
   T. The respective Standard Type is StdArray.
