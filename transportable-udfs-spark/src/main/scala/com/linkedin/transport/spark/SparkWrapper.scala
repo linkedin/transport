@@ -29,7 +29,7 @@ object SparkWrapper {
         case _: StringType => SparkString(data.asInstanceOf[UTF8String])
         case _: FloatType => SparkFloat(data.asInstanceOf[java.lang.Float])
         case _: DoubleType => SparkDouble(data.asInstanceOf[java.lang.Double])
-        case _: BinaryType => SparkBinary(data.asInstanceOf[ByteBuffer].array())
+        case _: BinaryType => SparkBinary(data.asInstanceOf[Array[Byte]])
         case _: ArrayType => SparkArray(data.asInstanceOf[ArrayData], dataType.asInstanceOf[ArrayType])
         case _: MapType => SparkMap(data.asInstanceOf[MapData], dataType.asInstanceOf[MapType])
         case _: StructType => SparkStruct(data.asInstanceOf[InternalRow], dataType.asInstanceOf[StructType])

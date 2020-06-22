@@ -34,14 +34,17 @@ public class TestNumericAddFunction extends AbstractStdUDFTest {
     String testerClassName = tester.getClass().getCanonicalName();
     tester.check(functionCall("numeric_add", 1, 2), 3, "integer");
     tester.check(functionCall("numeric_add", 1L, 2L), 3L, "bigint");
-    if (testerClassName.contains("GenericTester")) {
-      // Add floats only works with GenericTester due to the float literal representation in SQL
-      tester.check(functionCall("numeric_add", 2.0f, 3.0f), 5.0f, "real");
-    }
+    tester.check(functionCall("numeric_add", 3.0, 4.0), 7.0, "double");
 
-    if (testerClassName.contains("GenericTester") || testerClassName.contains("HiveTester")) {
-      // Add floats only works with GenericTester and HiveTester due to the double literal representation in SQL
-      tester.check(functionCall("numeric_add", 3.0, 4.0), 7.0, "double");
+    if (!testerClassName.contains("PrestoTester")) {
+      Object expectedResult;
+      if (testerClassName.contains("HiveTester")) {
+        // Note that org.apache.hive.service.cli.Column.addValue() convert result type of float to double
+        expectedResult = 5.0;
+      } else {
+        expectedResult = 5.0f;
+      }
+      tester.check(functionCall("numeric_add", 2.0f, 3.0f), expectedResult, "real");
     }
   }
 }

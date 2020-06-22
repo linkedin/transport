@@ -72,7 +72,7 @@ class TestSparkPrimitives {
   @Test
   def testCreateSparkBinary(): Unit = {
     val bytesData = ByteBuffer.wrap("foo".getBytes(Charset.forName("UTF-8")))
-    val stdByte = SparkWrapper.createStdData(bytesData, DataTypes.BinaryType).asInstanceOf[StdBinary]
+    val stdByte = SparkWrapper.createStdData(bytesData.array(), DataTypes.BinaryType).asInstanceOf[StdBinary]
     assertEquals(stdByte.get(), bytesData)
     assertSame(stdByte.asInstanceOf[PlatformData].getUnderlyingData, bytesData.array())
   }

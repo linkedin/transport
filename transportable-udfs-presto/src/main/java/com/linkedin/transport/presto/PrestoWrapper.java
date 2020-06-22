@@ -63,7 +63,7 @@ public final class PrestoWrapper {
       return new PrestoInteger(((Long) prestoData).intValue());
     } else if (prestoType instanceof BigintType) {
       return new PrestoLong((long) prestoData);
-    } else if (prestoType instanceof BooleanType) {
+    } else if (prestoType.getJavaType() == boolean.class) {
       return new PrestoBoolean((boolean) prestoData);
     } else if (prestoType instanceof VarcharType) {
       return new PrestoString((Slice) prestoData);

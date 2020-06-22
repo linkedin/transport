@@ -6,7 +6,6 @@
 package com.linkedin.transport.presto.types;
 
 import com.linkedin.transport.api.types.StdBinaryType;
-import com.linkedin.transport.api.types.StdDoubleType;
 import io.prestosql.spi.type.VarbinaryType;
 
 
