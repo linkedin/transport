@@ -60,7 +60,7 @@ public abstract class AbstractTestTypeFactory<T> {
     assertCreateType("varchar", STRING);
     assertCreateType("real", FLOAT);
     assertCreateType("double", DOUBLE);
-    assertCreateType("binary", BINARY);
+    assertCreateType("varbinary", BINARY);
     assertCreateType("unknown", NULL);
   }
 
@@ -83,7 +83,7 @@ public abstract class AbstractTestTypeFactory<T> {
     assertCreateType("row(arrField array(integer), strField varchar, mapField map(varchar,varchar), rowField row(integer))",
         struct(Arrays.asList("arrField", "strField", "mapField", "rowField"), array(INTEGER), STRING, map(STRING, STRING), struct(INTEGER))
     );
-    assertCreateType("row(integer, bigint, varchar, boolean, real, double, binary, unknown)",
+    assertCreateType("row(integer, bigint, varchar, boolean, real, double, varbinary, unknown)",
         struct(INTEGER, LONG, STRING, BOOLEAN, FLOAT, DOUBLE, BINARY, NULL));
   }
 }

@@ -63,7 +63,7 @@ class TestSparkFactory {
   def testCreateStructFromStdType(): Unit = {
     val fieldNames = Array("strField", "intField", "longField", "boolField", "floatField", "doubleField",
       "bytesField", "arrField")
-    val fieldTypes = Array("varchar", "integer", "bigint", "boolean", "real", "double", "binary", "array(integer)")
+    val fieldTypes = Array("varchar", "integer", "bigint", "boolean", "real", "double", "varbinary", "array(integer)")
 
     val stdStruct = stdFactory.createStruct(stdFactory.createStdType(fieldNames.zip(fieldTypes).map(x => x._1 + " " + x._2).mkString("row(", ", ", ")")))
     val internalRow = stdStruct.asInstanceOf[PlatformData].getUnderlyingData.asInstanceOf[InternalRow]
@@ -77,7 +77,7 @@ class TestSparkFactory {
   def testCreateStructFromFieldNamesAndTypes(): Unit = {
     val fieldNames = Array("strField", "intField", "longField", "boolField", "floatField", "doubleField",
       "bytesField", "arrField")
-    val fieldTypes = Array("varchar", "integer", "bigint", "boolean", "real", "double", "binary", "array(integer)")
+    val fieldTypes = Array("varchar", "integer", "bigint", "boolean", "real", "double", "varbinary", "array(integer)")
 
     val stdStruct = stdFactory.createStruct(fieldNames.toList.asJava, fieldTypes.map(stdFactory.createStdType).toList.asJava)
     val internalRow = stdStruct.asInstanceOf[PlatformData].getUnderlyingData.asInstanceOf[InternalRow]
@@ -89,7 +89,7 @@ class TestSparkFactory {
 
   @Test
   def testCreateStructFromFieldTypes(): Unit = {
-    val fieldTypes = Array("varchar", "integer", "bigint", "boolean", "real", "double", "binary ", "array(integer)")
+    val fieldTypes = Array("varchar", "integer", "bigint", "boolean", "real", "double", "varbinary ", "array(integer)")
 
     val stdStruct = stdFactory.createStruct(fieldTypes.map(stdFactory.createStdType).toList.asJava)
     val internalRow = stdStruct.asInstanceOf[PlatformData].getUnderlyingData.asInstanceOf[InternalRow]

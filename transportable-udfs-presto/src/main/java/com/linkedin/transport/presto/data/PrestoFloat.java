@@ -8,6 +8,8 @@ package com.linkedin.transport.presto.data;
 import com.linkedin.transport.api.data.StdFloat;
 import io.prestosql.spi.block.BlockBuilder;
 
+import static java.lang.Float.*;
+
 
 public class PrestoFloat extends PrestoData implements StdFloat {
 
@@ -24,7 +26,7 @@ public class PrestoFloat extends PrestoData implements StdFloat {
 
   @Override
   public Object getUnderlyingData() {
-    return _float;
+    return (long) floatToIntBits(_float);
   }
 
   @Override
@@ -34,6 +36,6 @@ public class PrestoFloat extends PrestoData implements StdFloat {
 
   @Override
   public void writeToBlock(BlockBuilder blockBuilder) {
-    blockBuilder.writeInt(Float.floatToIntBits(_float));
+    blockBuilder.writeInt(floatToIntBits(_float));
   }
 }

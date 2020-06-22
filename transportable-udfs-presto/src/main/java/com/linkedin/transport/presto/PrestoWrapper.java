@@ -30,6 +30,7 @@ import com.linkedin.transport.presto.types.PrestoStringType;
 import com.linkedin.transport.presto.types.PrestoStructType;
 import com.linkedin.transport.presto.types.PrestoUnknownType;
 import io.airlift.slice.Slice;
+import io.prestosql.spi.PrestoException;
 import io.prestosql.spi.block.Block;
 import io.prestosql.spi.type.ArrayType;
 import io.prestosql.spi.type.BigintType;
@@ -44,7 +45,10 @@ import io.prestosql.spi.type.VarbinaryType;
 import io.prestosql.spi.type.VarcharType;
 import io.prestosql.type.UnknownType;
 
+import static io.prestosql.spi.StandardErrorCode.*;
+import static java.lang.Float.*;
 import static java.lang.Math.*;
+import static java.lang.String.*;
 
 
 public final class PrestoWrapper {
@@ -68,7 +72,19 @@ public final class PrestoWrapper {
     } else if (prestoType instanceof VarcharType) {
       return new PrestoString((Slice) prestoData);
     } else if (prestoType instanceof RealType) {
-      return new PrestoFloat((float) prestoData);
+      // Presto represents SQL Reals (i.e., corresponding to RealType above) as long or Long
+      // Therefore, to pass it to the PrestoFloat class, we first cast it to Long, extract
+      // the int value and convert it the int bits to float.
+      long value = (long) prestoData;
+      int floatValue;
+      try {
+        floatValue = toIntExact(value);
+      }
+      catch (ArithmeticException e) {
+        throw new PrestoException(GENERIC_INTERNAL_ERROR,
+            format("Value (%sb) is not a valid single-precision float", Long.toBinaryString(value)));
+      }
+      return new PrestoFloat(intBitsToFloat(floatValue));
     } else if (prestoType instanceof DoubleType) {
       return new PrestoDouble((double) prestoData);
     } else if (prestoType instanceof VarbinaryType) {

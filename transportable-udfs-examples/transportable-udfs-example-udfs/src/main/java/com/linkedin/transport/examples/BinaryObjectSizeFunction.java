@@ -21,7 +21,7 @@ public class BinaryObjectSizeFunction extends StdUDF1<StdBinary, StdInteger> imp
 
   @Override
   public List<String> getInputParameterSignatures() {
-    return ImmutableList.of("binary");
+    return ImmutableList.of("varbinary");
   }
 
   @Override

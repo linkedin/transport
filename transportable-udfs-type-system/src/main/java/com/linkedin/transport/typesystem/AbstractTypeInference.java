@@ -155,7 +155,7 @@ public abstract class AbstractTypeInference<T> {
     } else if (isDoubleType(dataType)) {
       return "double";
     } else if (isBinaryType(dataType)) {
-      return "binary";
+      return "varbinary";
     } else if (isUnknownType(dataType)) {
       return "unknown";
     } else if (isArrayType(dataType)) {

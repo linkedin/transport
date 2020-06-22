@@ -165,7 +165,7 @@ public class TypeSignature {
         case "double":
           currentBaseElement = ConcreteTypeSignatureElement.DOUBLE;
           break;
-        case "binary":
+        case "varbinary":
           currentBaseElement = ConcreteTypeSignatureElement.BINARY;
           break;
         case "unknown":

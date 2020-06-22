@@ -8,6 +8,8 @@ package com.linkedin.transport.test.presto;
 import com.linkedin.transport.test.spi.Row;
 import com.linkedin.transport.test.spi.SqlFunctionCallGenerator;
 import com.linkedin.transport.test.spi.types.TestType;
+import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -17,6 +19,11 @@ import java.util.stream.IntStream;
 public class PrestoSqlFunctionCallGenerator implements SqlFunctionCallGenerator {
 
   @Override
+  public String getFloatArgumentString(Float value) {
+    return "REAL '" + value + "'";
+  }
+
+  @Override
   public String getLongArgumentString(Long value) {
     return "CAST(" + String.valueOf(value) + " AS BIGINT)";
   }
@@ -24,6 +31,12 @@ public class PrestoSqlFunctionCallGenerator implements SqlFunctionCallGenerator 
   @Override
   public String getStringArgumentString(String value) {
     return "CAST('" + String.valueOf(value) + "' AS VARCHAR)";
+  }
+
+  @Override
+  public String getBinaryArgumentString(ByteBuffer value) {
+    // Note that this does not work for PrestoSQL
+    return "CAST('" + new String(value.array(), StandardCharsets.UTF_8) + "' AS VARBINARY)";
   }
 
   @Override
