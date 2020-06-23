@@ -10,6 +10,9 @@ import com.linkedin.transport.api.data.StdData;
 import com.linkedin.transport.api.types.StdType;
 import com.linkedin.transport.presto.data.PrestoArray;
 import com.linkedin.transport.presto.data.PrestoBoolean;
+import com.linkedin.transport.presto.data.PrestoBinary;
+import com.linkedin.transport.presto.data.PrestoDouble;
+import com.linkedin.transport.presto.data.PrestoFloat;
 import com.linkedin.transport.presto.data.PrestoInteger;
 import com.linkedin.transport.presto.data.PrestoLong;
 import com.linkedin.transport.presto.data.PrestoMap;
@@ -17,6 +20,9 @@ import com.linkedin.transport.presto.data.PrestoString;
 import com.linkedin.transport.presto.data.PrestoStruct;
 import com.linkedin.transport.presto.types.PrestoArrayType;
 import com.linkedin.transport.presto.types.PrestoBooleanType;
+import com.linkedin.transport.presto.types.PrestoBinaryType;
+import com.linkedin.transport.presto.types.PrestoDoubleType;
+import com.linkedin.transport.presto.types.PrestoFloatType;
 import com.linkedin.transport.presto.types.PrestoIntegerType;
 import com.linkedin.transport.presto.types.PrestoLongType;
 import com.linkedin.transport.presto.types.PrestoMapType;
@@ -24,18 +30,25 @@ import com.linkedin.transport.presto.types.PrestoStringType;
 import com.linkedin.transport.presto.types.PrestoStructType;
 import com.linkedin.transport.presto.types.PrestoUnknownType;
 import io.airlift.slice.Slice;
+import io.prestosql.spi.PrestoException;
 import io.prestosql.spi.block.Block;
 import io.prestosql.spi.type.ArrayType;
 import io.prestosql.spi.type.BigintType;
 import io.prestosql.spi.type.BooleanType;
+import io.prestosql.spi.type.DoubleType;
 import io.prestosql.spi.type.IntegerType;
 import io.prestosql.spi.type.MapType;
+import io.prestosql.spi.type.RealType;
 import io.prestosql.spi.type.RowType;
 import io.prestosql.spi.type.Type;
+import io.prestosql.spi.type.VarbinaryType;
 import io.prestosql.spi.type.VarcharType;
 import io.prestosql.type.UnknownType;
 
+import static io.prestosql.spi.StandardErrorCode.*;
+import static java.lang.Float.*;
 import static java.lang.Math.*;
+import static java.lang.String.*;
 
 
 public final class PrestoWrapper {
@@ -56,8 +69,26 @@ public final class PrestoWrapper {
       return new PrestoLong((long) prestoData);
     } else if (prestoType.getJavaType() == boolean.class) {
       return new PrestoBoolean((boolean) prestoData);
-    } else if (prestoType.getJavaType() == Slice.class) {
+    } else if (prestoType instanceof VarcharType) {
       return new PrestoString((Slice) prestoData);
+    } else if (prestoType instanceof RealType) {
+      // Presto represents SQL Reals (i.e., corresponding to RealType above) as long or Long
+      // Therefore, to pass it to the PrestoFloat class, we first cast it to Long, extract
+      // the int value and convert it the int bits to float.
+      long value = (long) prestoData;
+      int floatValue;
+      try {
+        floatValue = toIntExact(value);
+      }
+      catch (ArithmeticException e) {
+        throw new PrestoException(GENERIC_INTERNAL_ERROR,
+            format("Value (%sb) is not a valid single-precision float", Long.toBinaryString(value)));
+      }
+      return new PrestoFloat(intBitsToFloat(floatValue));
+    } else if (prestoType instanceof DoubleType) {
+      return new PrestoDouble((double) prestoData);
+    } else if (prestoType instanceof VarbinaryType) {
+      return new PrestoBinary((Slice) prestoData);
     } else if (prestoType instanceof ArrayType) {
       return new PrestoArray((Block) prestoData, (ArrayType) prestoType, stdFactory);
     } else if (prestoType instanceof MapType) {
@@ -78,6 +109,12 @@ public final class PrestoWrapper {
       return new PrestoBooleanType((BooleanType) prestoType);
     } else if (prestoType instanceof VarcharType) {
       return new PrestoStringType((VarcharType) prestoType);
+    } else if (prestoType instanceof RealType) {
+      return new PrestoFloatType((RealType) prestoType);
+    } else if (prestoType instanceof DoubleType) {
+      return new PrestoDoubleType((DoubleType) prestoType);
+    } else if (prestoType instanceof VarbinaryType) {
+      return new PrestoBinaryType((VarbinaryType) prestoType);
     } else if (prestoType instanceof ArrayType) {
       return new PrestoArrayType((ArrayType) prestoType);
     } else if (prestoType instanceof MapType) {

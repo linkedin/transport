@@ -17,6 +17,6 @@ public interface NumericAddFunction extends TopLevelStdUDF {
 
   @Override
   default String getFunctionDescription() {
-    return "Adds two integers or longs";
+    return "Adds two integers, longs, reals, or doubles";
   }
 }

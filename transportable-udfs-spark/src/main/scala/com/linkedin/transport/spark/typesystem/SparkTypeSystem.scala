@@ -33,6 +33,12 @@ class SparkTypeSystem extends AbstractTypeSystem[DataType] {
 
   override protected def createStringType(): DataType = StringType
 
+  override protected def createFloatType(): DataType = FloatType
+
+  override protected def createDoubleType(): DataType = DoubleType
+
+  override protected def createBinaryType(): DataType = BinaryType
+
   override protected def createUnknownType(): DataType = NullType
 
   override protected def createArrayType(elementType: DataType): DataType =
@@ -65,4 +71,10 @@ class SparkTypeSystem extends AbstractTypeSystem[DataType] {
   override protected def isMapType(dataType: DataType): Boolean = dataType.isInstanceOf[MapType]
 
   override protected def isStructType(dataType: DataType): Boolean = dataType.isInstanceOf[StructType]
+
+  override protected def isFloatType(dataType: DataType): Boolean = dataType.isInstanceOf[FloatType]
+
+  override protected def isDoubleType(dataType: DataType): Boolean = dataType.isInstanceOf[DoubleType]
+
+  override protected def isBinaryType(dataType: DataType): Boolean = dataType.isInstanceOf[BinaryType]
 }

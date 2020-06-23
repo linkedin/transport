@@ -7,7 +7,10 @@ package com.linkedin.transport.api;
 
 import com.linkedin.transport.api.data.StdArray;
 import com.linkedin.transport.api.data.StdBoolean;
+import com.linkedin.transport.api.data.StdBinary;
 import com.linkedin.transport.api.data.StdData;
+import com.linkedin.transport.api.data.StdDouble;
+import com.linkedin.transport.api.data.StdFloat;
 import com.linkedin.transport.api.data.StdInteger;
 import com.linkedin.transport.api.data.StdLong;
 import com.linkedin.transport.api.data.StdMap;
@@ -19,6 +22,7 @@ import com.linkedin.transport.api.types.StdStructType;
 import com.linkedin.transport.api.types.StdType;
 import com.linkedin.transport.api.udf.StdUDF;
 import java.io.Serializable;
+import java.nio.ByteBuffer;
 import java.util.List;
 
 
@@ -62,6 +66,30 @@ public interface StdFactory extends Serializable {
    * @return {@link StdString} with the given {@link String} value
    */
   StdString createString(String value);
+
+  /**
+   * Creates a {@link StdFloat} representing a given float value.
+   *
+   * @param value  the input float value
+   * @return {@link StdFloat} with the given float value
+   */
+  StdFloat createFloat(float value);
+
+  /**
+   * Creates a {@link StdDouble} representing a given double value.
+   *
+   * @param value  the input double value
+   * @return {@link StdDouble} with the given double value
+   */
+  StdDouble createDouble(double value);
+
+  /**
+   * Creates a {@link StdBinary} representing a given {@link ByteBuffer} value.
+   *
+   * @param value  the input {@link ByteBuffer} value
+   * @return {@link StdBinary} with the given {@link ByteBuffer} value
+   */
+  StdBinary createBinary(ByteBuffer value);
 
   /**
    * Creates an empty {@link StdArray} whose type is given by the given {@link StdType}.

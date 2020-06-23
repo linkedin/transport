@@ -61,6 +61,21 @@ public class AvroTypeSystem extends AbstractTypeSystem<Schema> {
   }
 
   @Override
+  protected boolean isFloatType(Schema dataType) {
+    return dataType.getType() == FLOAT;
+  }
+
+  @Override
+  protected boolean isDoubleType(Schema dataType) {
+    return dataType.getType() == DOUBLE;
+  }
+
+  @Override
+  protected boolean isBinaryType(Schema dataType) {
+    return dataType.getType() == BYTES;
+  }
+
+  @Override
   protected boolean isArrayType(Schema dataType) {
     return dataType.getType() == ARRAY;
   }
@@ -93,6 +108,21 @@ public class AvroTypeSystem extends AbstractTypeSystem<Schema> {
   @Override
   protected Schema createStringType() {
     return Schema.create(STRING);
+  }
+
+  @Override
+  protected Schema createFloatType() {
+    return Schema.create(FLOAT);
+  }
+
+  @Override
+  protected Schema createDoubleType() {
+    return Schema.create(DOUBLE);
+  }
+
+  @Override
+  protected Schema createBinaryType() {
+    return Schema.create(BYTES);
   }
 
   @Override

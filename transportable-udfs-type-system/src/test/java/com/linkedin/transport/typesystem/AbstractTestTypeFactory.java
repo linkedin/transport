@@ -19,6 +19,9 @@ public abstract class AbstractTestTypeFactory<T> {
   final private T LONG = getTypeSystem().createLongType();
   final private T INTEGER = getTypeSystem().createIntegerType();
   final private T STRING = getTypeSystem().createStringType();
+  final private T FLOAT = getTypeSystem().createFloatType();
+  final private T DOUBLE = getTypeSystem().createDoubleType();
+  final private T BINARY = getTypeSystem().createBinaryType();
   final private T BOOLEAN = getTypeSystem().createBooleanType();
   final private T NULL = getTypeSystem().createUnknownType();
 
@@ -55,6 +58,9 @@ public abstract class AbstractTestTypeFactory<T> {
     assertCreateType("boolean", BOOLEAN);
     assertCreateType("bigint", LONG);
     assertCreateType("varchar", STRING);
+    assertCreateType("real", FLOAT);
+    assertCreateType("double", DOUBLE);
+    assertCreateType("varbinary", BINARY);
     assertCreateType("unknown", NULL);
   }
 
@@ -77,5 +83,7 @@ public abstract class AbstractTestTypeFactory<T> {
     assertCreateType("row(arrField array(integer), strField varchar, mapField map(varchar,varchar), rowField row(integer))",
         struct(Arrays.asList("arrField", "strField", "mapField", "rowField"), array(INTEGER), STRING, map(STRING, STRING), struct(INTEGER))
     );
+    assertCreateType("row(integer, bigint, varchar, boolean, real, double, varbinary, unknown)",
+        struct(INTEGER, LONG, STRING, BOOLEAN, FLOAT, DOUBLE, BINARY, NULL));
   }
 }
