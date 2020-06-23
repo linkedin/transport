@@ -14,6 +14,7 @@ import com.linkedin.transport.test.spi.TestCase;
 import com.linkedin.transport.test.spi.types.TestType;
 import com.linkedin.transport.typesystem.TypeSignature;
 import java.lang.reflect.InvocationTargetException;
+import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -51,6 +52,12 @@ public class GenericTester implements StdTester {
     Pair<TestType, Object> result = _executor.executeQuery(testCase.getFunctionCall());
     Assert.assertEquals(result.getLeft(),
         _typeFactory.createType(TypeSignature.parse(testCase.getExpectedOutputType()), _boundVariables));
-    Assert.assertEquals(result.getRight(), testCase.getExpectedOutput());
+    if (testCase.getExpectedOutput() instanceof ByteBuffer) {
+      byte[] expected = ((ByteBuffer) testCase.getExpectedOutput()).array();
+      byte[] actual = ((ByteBuffer) result.getRight()).array();
+      Assert.assertEquals(actual, expected);
+    } else {
+      Assert.assertEquals(result.getRight(), testCase.getExpectedOutput());
+    }
   }
 }

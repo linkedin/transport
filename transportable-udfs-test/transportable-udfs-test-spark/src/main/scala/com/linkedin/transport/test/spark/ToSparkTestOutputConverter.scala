@@ -5,6 +5,7 @@
  */
 package com.linkedin.transport.test.spark
 
+import java.nio.ByteBuffer
 import java.util
 
 import com.linkedin.transport.test.spi.{Row, ToPlatformTestOutputConverter}
@@ -38,4 +39,6 @@ class ToSparkTestOutputConverter extends ToPlatformTestOutputConverter {
     new GenericRow(0.until(struct.getFields.size).map(i => convertToTestOutput(
       struct.getFields.get(i), fieldTypes.get(i))).toArray[Any])
   }
+
+  override def getBinaryData(value: ByteBuffer): AnyRef = value.array()
 }
