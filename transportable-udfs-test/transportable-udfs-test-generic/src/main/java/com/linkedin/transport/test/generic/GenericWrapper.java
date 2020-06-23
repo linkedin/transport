@@ -9,6 +9,9 @@ import com.linkedin.transport.api.data.StdData;
 import com.linkedin.transport.api.types.StdType;
 import com.linkedin.transport.test.generic.data.GenericArray;
 import com.linkedin.transport.test.generic.data.GenericBoolean;
+import com.linkedin.transport.test.generic.data.GenericBinary;
+import com.linkedin.transport.test.generic.data.GenericDouble;
+import com.linkedin.transport.test.generic.data.GenericFloat;
 import com.linkedin.transport.test.generic.data.GenericInteger;
 import com.linkedin.transport.test.generic.data.GenericLong;
 import com.linkedin.transport.test.generic.data.GenericMap;
@@ -17,6 +20,9 @@ import com.linkedin.transport.test.generic.data.GenericStruct;
 import com.linkedin.transport.test.spi.Row;
 import com.linkedin.transport.test.spi.types.ArrayTestType;
 import com.linkedin.transport.test.spi.types.BooleanTestType;
+import com.linkedin.transport.test.spi.types.BinaryTestType;
+import com.linkedin.transport.test.spi.types.DoubleTestType;
+import com.linkedin.transport.test.spi.types.FloatTestType;
 import com.linkedin.transport.test.spi.types.IntegerTestType;
 import com.linkedin.transport.test.spi.types.LongTestType;
 import com.linkedin.transport.test.spi.types.MapTestType;
@@ -24,6 +30,7 @@ import com.linkedin.transport.test.spi.types.StringTestType;
 import com.linkedin.transport.test.spi.types.StructTestType;
 import com.linkedin.transport.test.spi.types.TestType;
 import com.linkedin.transport.test.spi.types.UnknownTestType;
+import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.Map;
 
@@ -44,6 +51,12 @@ public class GenericWrapper {
       return new GenericBoolean((Boolean) data);
     } else if (dataType instanceof StringTestType) {
       return new GenericString((String) data);
+    } else if (dataType instanceof FloatTestType) {
+      return new GenericFloat((Float) data);
+    } else if (dataType instanceof DoubleTestType) {
+      return new GenericDouble((Double) data);
+    } else if (dataType instanceof BinaryTestType) {
+      return new GenericBinary((ByteBuffer) data);
     } else if (dataType instanceof ArrayTestType) {
       return new GenericArray((List<Object>) data, dataType);
     } else if (dataType instanceof MapTestType) {

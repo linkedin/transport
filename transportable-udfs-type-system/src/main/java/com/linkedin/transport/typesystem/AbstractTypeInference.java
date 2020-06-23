@@ -52,6 +52,18 @@ public abstract class AbstractTypeInference<T> {
     return _typeSystem.isStringType(dataType);
   }
 
+  private boolean isFloatType(T dataType) {
+    return _typeSystem.isFloatType(dataType);
+  }
+
+  private boolean isDoubleType(T dataType) {
+    return _typeSystem.isDoubleType(dataType);
+  }
+
+  private boolean isBinaryType(T dataType) {
+    return _typeSystem.isBinaryType(dataType);
+  }
+
   private boolean isArrayType(T dataType) {
     return _typeSystem.isArrayType(dataType);
   }
@@ -138,6 +150,12 @@ public abstract class AbstractTypeInference<T> {
       return "bigint";
     } else if (isStringType(dataType)) {
       return "varchar";
+    } else if (isFloatType(dataType)) {
+      return "real";
+    } else if (isDoubleType(dataType)) {
+      return "double";
+    } else if (isBinaryType(dataType)) {
+      return "varbinary";
     } else if (isUnknownType(dataType)) {
       return "unknown";
     } else if (isArrayType(dataType)) {

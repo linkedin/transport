@@ -9,6 +9,9 @@ import com.linkedin.transport.test.spi.FunctionCall;
 import com.linkedin.transport.test.spi.Row;
 import com.linkedin.transport.test.spi.types.ArrayTestType;
 import com.linkedin.transport.test.spi.types.BooleanTestType;
+import com.linkedin.transport.test.spi.types.BinaryTestType;
+import com.linkedin.transport.test.spi.types.DoubleTestType;
+import com.linkedin.transport.test.spi.types.FloatTestType;
 import com.linkedin.transport.test.spi.types.IntegerTestType;
 import com.linkedin.transport.test.spi.types.LongTestType;
 import com.linkedin.transport.test.spi.types.MapTestType;
@@ -62,9 +65,15 @@ class GenericQueryExecutor {
   private Pair<TestType, Object> resolveParameter(Object argument, TestType argumentType) {
     if (argument instanceof FunctionCall) {
       return resolveFunctionCall((FunctionCall) argument);
-    } else if (argument == null || argumentType instanceof UnknownTestType || argumentType instanceof IntegerTestType
-        || argumentType instanceof LongTestType || argumentType instanceof BooleanTestType
-        || argumentType instanceof StringTestType) {
+    } else if (argument == null
+        || argumentType instanceof UnknownTestType
+        || argumentType instanceof IntegerTestType
+        || argumentType instanceof LongTestType
+        || argumentType instanceof BooleanTestType
+        || argumentType instanceof StringTestType
+        || argumentType instanceof FloatTestType
+        || argumentType instanceof DoubleTestType
+        || argumentType instanceof BinaryTestType) {
       return Pair.of(argumentType, argument);
     } else if (argumentType instanceof ArrayTestType) {
       return resolveArray((List<Object>) argument, ((ArrayTestType) argumentType).getElementType());

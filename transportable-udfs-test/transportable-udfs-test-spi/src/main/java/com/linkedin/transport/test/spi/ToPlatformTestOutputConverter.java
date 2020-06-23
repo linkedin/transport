@@ -7,6 +7,9 @@ package com.linkedin.transport.test.spi;
 
 import com.linkedin.transport.test.spi.types.ArrayTestType;
 import com.linkedin.transport.test.spi.types.BooleanTestType;
+import com.linkedin.transport.test.spi.types.BinaryTestType;
+import com.linkedin.transport.test.spi.types.DoubleTestType;
+import com.linkedin.transport.test.spi.types.FloatTestType;
 import com.linkedin.transport.test.spi.types.IntegerTestType;
 import com.linkedin.transport.test.spi.types.LongTestType;
 import com.linkedin.transport.test.spi.types.MapTestType;
@@ -14,6 +17,7 @@ import com.linkedin.transport.test.spi.types.StringTestType;
 import com.linkedin.transport.test.spi.types.StructTestType;
 import com.linkedin.transport.test.spi.types.TestType;
 import com.linkedin.transport.test.spi.types.UnknownTestType;
+import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.Map;
 
@@ -35,6 +39,12 @@ public interface ToPlatformTestOutputConverter {
       return getBooleanData((Boolean) data);
     } else if (dataType instanceof StringTestType) {
       return getStringData((String) data);
+    } else if (dataType instanceof FloatTestType) {
+      return getFloatData((Float) data);
+    } else if (dataType instanceof DoubleTestType) {
+      return getDoubleData((Double) data);
+    } else if (dataType instanceof BinaryTestType) {
+      return getBinaryData((ByteBuffer) data);
     } else if (dataType instanceof ArrayTestType) {
       return getArrayData((List<Object>) data, ((ArrayTestType) dataType).getElementType());
     } else if (dataType instanceof MapTestType) {
@@ -65,6 +75,18 @@ public interface ToPlatformTestOutputConverter {
   }
 
   default Object getStringData(String value) {
+    return value;
+  }
+
+  default Object getFloatData(Float value) {
+    return value;
+  }
+
+  default Object getDoubleData(Double value) {
+    return value;
+  }
+
+  default Object getBinaryData(ByteBuffer value) {
     return value;
   }
 

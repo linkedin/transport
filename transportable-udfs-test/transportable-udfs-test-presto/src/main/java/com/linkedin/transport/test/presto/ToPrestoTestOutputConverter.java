@@ -8,6 +8,8 @@ package com.linkedin.transport.test.presto;
 import com.linkedin.transport.test.spi.Row;
 import com.linkedin.transport.test.spi.ToPlatformTestOutputConverter;
 import com.linkedin.transport.test.spi.types.TestType;
+import io.prestosql.spi.type.SqlVarbinary;
+import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -45,5 +47,10 @@ public class ToPrestoTestOutputConverter implements ToPlatformTestOutputConverte
     return IntStream.range(0, struct.getFields().size())
         .mapToObj(idx -> convertToTestOutput(struct.getFields().get(idx), fieldTypes.get(idx)))
         .collect(Collectors.toList());
+  }
+
+  @Override
+  public Object getBinaryData(ByteBuffer value) {
+    return new SqlVarbinary(value.array());
   }
 }

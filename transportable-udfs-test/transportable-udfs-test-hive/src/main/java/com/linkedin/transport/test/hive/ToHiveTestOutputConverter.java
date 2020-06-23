@@ -9,6 +9,7 @@ import com.linkedin.transport.test.spi.Row;
 import com.linkedin.transport.test.spi.ToPlatformTestOutputConverter;
 import com.linkedin.transport.test.spi.types.StringTestType;
 import com.linkedin.transport.test.spi.types.TestType;
+import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -48,6 +49,11 @@ public class ToHiveTestOutputConverter implements ToPlatformTestOutputConverter 
         .mapToObj(idx -> "\"" + ((fieldNames != null) ? fieldNames.get(idx) : "field" + idx) + "\":"
             + getHiveTestOutputInComplexTypes(struct.getFields().get(idx), fieldTypes.get(idx)))
         .collect(Collectors.joining(",", "{", "}"));
+  }
+
+  @Override
+  public Object getBinaryData(ByteBuffer value) {
+    return value.array();
   }
 
   /**

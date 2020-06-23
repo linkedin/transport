@@ -10,6 +10,9 @@ import com.google.common.collect.ImmutableSet;
 import com.linkedin.transport.api.StdFactory;
 import com.linkedin.transport.api.data.StdArray;
 import com.linkedin.transport.api.data.StdBoolean;
+import com.linkedin.transport.api.data.StdBinary;
+import com.linkedin.transport.api.data.StdDouble;
+import com.linkedin.transport.api.data.StdFloat;
 import com.linkedin.transport.api.data.StdInteger;
 import com.linkedin.transport.api.data.StdLong;
 import com.linkedin.transport.api.data.StdMap;
@@ -18,6 +21,9 @@ import com.linkedin.transport.api.data.StdStruct;
 import com.linkedin.transport.api.types.StdType;
 import com.linkedin.transport.presto.data.PrestoArray;
 import com.linkedin.transport.presto.data.PrestoBoolean;
+import com.linkedin.transport.presto.data.PrestoBinary;
+import com.linkedin.transport.presto.data.PrestoDouble;
+import com.linkedin.transport.presto.data.PrestoFloat;
 import com.linkedin.transport.presto.data.PrestoInteger;
 import com.linkedin.transport.presto.data.PrestoLong;
 import com.linkedin.transport.presto.data.PrestoMap;
@@ -34,11 +40,12 @@ import io.prestosql.spi.type.ArrayType;
 import io.prestosql.spi.type.MapType;
 import io.prestosql.spi.type.RowType;
 import io.prestosql.spi.type.Type;
+import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import static io.prestosql.metadata.SignatureBinder.*;
-import static io.prestosql.operator.TypeSignatureParser.parseTypeSignature;
+import static io.prestosql.operator.TypeSignatureParser.*;
 
 public class PrestoFactory implements StdFactory {
 
@@ -69,6 +76,21 @@ public class PrestoFactory implements StdFactory {
   public StdString createString(String value) {
     Preconditions.checkNotNull(value, "Cannot create a null StdString");
     return new PrestoString(Slices.utf8Slice(value));
+  }
+
+  @Override
+  public StdFloat createFloat(float value) {
+    return new PrestoFloat(value);
+  }
+
+  @Override
+  public StdDouble createDouble(double value) {
+    return new PrestoDouble(value);
+  }
+
+  @Override
+  public StdBinary createBinary(ByteBuffer value) {
+    return new PrestoBinary(Slices.wrappedBuffer(value.array()));
   }
 
   @Override

@@ -5,6 +5,8 @@
  */
 package com.linkedin.transport.spark
 
+import java.nio.ByteBuffer
+
 import com.linkedin.transport.api.data.StdData
 import com.linkedin.transport.api.types.StdType
 import com.linkedin.transport.spark.data._
@@ -25,6 +27,9 @@ object SparkWrapper {
         case _: LongType => SparkLong(data.asInstanceOf[java.lang.Long])
         case _: BooleanType => SparkBoolean(data.asInstanceOf[java.lang.Boolean])
         case _: StringType => SparkString(data.asInstanceOf[UTF8String])
+        case _: FloatType => SparkFloat(data.asInstanceOf[java.lang.Float])
+        case _: DoubleType => SparkDouble(data.asInstanceOf[java.lang.Double])
+        case _: BinaryType => SparkBinary(data.asInstanceOf[Array[Byte]])
         case _: ArrayType => SparkArray(data.asInstanceOf[ArrayData], dataType.asInstanceOf[ArrayType])
         case _: MapType => SparkMap(data.asInstanceOf[MapData], dataType.asInstanceOf[MapType])
         case _: StructType => SparkStruct(data.asInstanceOf[InternalRow], dataType.asInstanceOf[StructType])
@@ -39,6 +44,9 @@ object SparkWrapper {
     case _: LongType => SparkLongType(dataType.asInstanceOf[LongType])
     case _: BooleanType => SparkBooleanType(dataType.asInstanceOf[BooleanType])
     case _: StringType => SparkStringType(dataType.asInstanceOf[StringType])
+    case _: FloatType => SparkFloatType(dataType.asInstanceOf[FloatType])
+    case _: DoubleType => SparkDoubleType(dataType.asInstanceOf[DoubleType])
+    case _: BinaryType => SparkBinaryType(dataType.asInstanceOf[BinaryType])
     case _: ArrayType => SparkArrayType(dataType.asInstanceOf[ArrayType])
     case _: MapType => SparkMapType(dataType.asInstanceOf[MapType])
     case _: StructType => SparkStructType(dataType.asInstanceOf[StructType])

@@ -9,6 +9,9 @@ import com.linkedin.transport.api.data.StdData;
 import com.linkedin.transport.api.types.StdType;
 import com.linkedin.transport.avro.data.AvroArray;
 import com.linkedin.transport.avro.data.AvroBoolean;
+import com.linkedin.transport.avro.data.AvroBinary;
+import com.linkedin.transport.avro.data.AvroDouble;
+import com.linkedin.transport.avro.data.AvroFloat;
 import com.linkedin.transport.avro.data.AvroInteger;
 import com.linkedin.transport.avro.data.AvroLong;
 import com.linkedin.transport.avro.data.AvroMap;
@@ -16,11 +19,15 @@ import com.linkedin.transport.avro.data.AvroString;
 import com.linkedin.transport.avro.data.AvroStruct;
 import com.linkedin.transport.avro.types.AvroArrayType;
 import com.linkedin.transport.avro.types.AvroBooleanType;
+import com.linkedin.transport.avro.types.AvroBinaryType;
+import com.linkedin.transport.avro.types.AvroDoubleType;
+import com.linkedin.transport.avro.types.AvroFloatType;
 import com.linkedin.transport.avro.types.AvroIntegerType;
 import com.linkedin.transport.avro.types.AvroLongType;
 import com.linkedin.transport.avro.types.AvroMapType;
 import com.linkedin.transport.avro.types.AvroStringType;
 import com.linkedin.transport.avro.types.AvroStructType;
+import java.nio.ByteBuffer;
 import java.util.Map;
 import org.apache.avro.Schema;
 import org.apache.avro.generic.GenericArray;
@@ -43,6 +50,12 @@ public class AvroWrapper {
         return new AvroBoolean((Boolean) avroData);
       case STRING:
         return new AvroString((Utf8) avroData);
+      case FLOAT:
+        return new AvroFloat((Float) avroData);
+      case DOUBLE:
+        return new AvroDouble((Double) avroData);
+      case BYTES:
+        return new AvroBinary((ByteBuffer) avroData);
       case ARRAY:
         return new AvroArray((GenericArray<Object>) avroData, avroSchema);
       case MAP:
@@ -66,6 +79,12 @@ public class AvroWrapper {
         return new AvroBooleanType(avroSchema);
       case STRING:
         return new AvroStringType(avroSchema);
+      case FLOAT:
+        return new AvroFloatType(avroSchema);
+      case DOUBLE:
+        return new AvroDoubleType(avroSchema);
+      case BYTES:
+        return new AvroBinaryType(avroSchema);
       case ARRAY:
         return new AvroArrayType(avroSchema);
       case MAP:

@@ -29,6 +29,21 @@ case class SparkStringType(stringType: StringType) extends StdStringType {
   override def underlyingType(): DataType = stringType
 }
 
+case class SparkFloatType(floatType: FloatType) extends StdFloatType {
+
+  override def underlyingType(): DataType = floatType
+}
+
+case class SparkDoubleType(doubleType: DoubleType) extends StdDoubleType {
+
+  override def underlyingType(): DataType = doubleType
+}
+
+case class SparkBinaryType(bytesType: BinaryType) extends StdBinaryType {
+
+  override def underlyingType(): DataType = bytesType
+}
+
 case class SparkBooleanType(booleanType: BooleanType) extends StdBooleanType {
 
   override def underlyingType(): DataType = booleanType
