@@ -48,7 +48,7 @@ public class TransportPlugin implements Plugin<Project> {
 
   public void apply(Project project) {
 
-    TransportPluginConfig extension = project.getExtensions().create("transportPlugin", TransportPluginConfig.class, project);
+    TransportPluginConfig extension = project.getExtensions().create("transport", TransportPluginConfig.class, project);
 
     project.getPlugins().withType(JavaPlugin.class, (javaPlugin) -> {
       project.getPlugins().apply(ScalaPlugin.class);
