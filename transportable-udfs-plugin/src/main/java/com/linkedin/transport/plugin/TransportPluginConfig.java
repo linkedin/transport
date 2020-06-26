@@ -19,7 +19,7 @@ public class TransportPluginConfig {
    */
   private static final String MAIN_SOURCE_SET_NAME_PROP = "transport-plugin-main-source-set";
   private static final String TEST_SOURCE_SET_NAME_PROP = "transport-plugin-test-source-set";
-  private static final String OUTPUT_DIR_PROP = "transport-plugin-test-output-dir";
+  private static final String OUTPUT_DIR_PROP = "transport-plugin-output-dir";
 
   /**
    * The main source set used by the plugin.
@@ -43,7 +43,7 @@ public class TransportPluginConfig {
     mainSourceSetName = getPropertyOrDefault(project, MAIN_SOURCE_SET_NAME_PROP, "main");
     testSourceSetName = getPropertyOrDefault(project, TEST_SOURCE_SET_NAME_PROP, "test");
     outputDirFile = project.hasProperty(OUTPUT_DIR_PROP)
-        ? new File(String.join(File.separator, project.getProjectDir().toString(), project.property(OUTPUT_DIR_PROP).toString()))
+        ? project.file(project.property(OUTPUT_DIR_PROP).toString())
         : project.getBuildDir(); // Build dir by default
   }
 
@@ -52,7 +52,7 @@ public class TransportPluginConfig {
    */
   private String getPropertyOrDefault(Project project, String propertyName, String defaultValue) {
     return project.hasProperty(propertyName)
-        ? project.property(MAIN_SOURCE_SET_NAME_PROP).toString()
+        ? project.property(propertyName).toString()
         : defaultValue;
   }
 }
