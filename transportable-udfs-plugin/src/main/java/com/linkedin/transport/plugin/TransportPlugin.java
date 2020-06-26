@@ -47,18 +47,21 @@ import static com.linkedin.transport.plugin.SourceSetUtils.*;
 public class TransportPlugin implements Plugin<Project> {
 
   public void apply(Project project) {
+
+    TransportPluginConfig extension = project.getExtensions().create("transport", TransportPluginConfig.class, project);
+
     project.getPlugins().withType(JavaPlugin.class, (javaPlugin) -> {
       project.getPlugins().apply(ScalaPlugin.class);
       project.getPlugins().apply(DistributionPlugin.class);
       project.getConfigurations().create(ShadowBasePlugin.getCONFIGURATION_NAME());
 
       JavaPluginConvention javaConvention = project.getConvention().getPlugin(JavaPluginConvention.class);
-      SourceSet mainSourceSet = javaConvention.getSourceSets().getByName("main");
-      SourceSet testSourceSet = javaConvention.getSourceSets().getByName("test");
+      SourceSet mainSourceSet = javaConvention.getSourceSets().getByName(extension.mainSourceSetName);
+      SourceSet testSourceSet = javaConvention.getSourceSets().getByName(extension.testSourceSetName);
 
       configureBaseSourceSets(project, mainSourceSet, testSourceSet);
       Defaults.DEFAULT_PLATFORMS.forEach(
-          platform -> configurePlatform(project, platform, mainSourceSet, testSourceSet));
+          platform -> configurePlatform(project, platform, mainSourceSet, testSourceSet, extension.outputDirFile));
     });
     // Disable Jacoco for platform test tasks as it is known to cause issues with Presto and Hive tests
     project.getPlugins().withType(JacocoPlugin.class, (jacocoPlugin) -> {
@@ -90,8 +93,9 @@ public class TransportPlugin implements Plugin<Project> {
   /**
    * Configures SourceSets, dependencies and tasks related to each Transport UDF platform
    */
-  private void configurePlatform(Project project, Platform platform, SourceSet mainSourceSet, SourceSet testSourceSet) {
-    SourceSet sourceSet = configureSourceSet(project, platform, mainSourceSet);
+  private void configurePlatform(Project project, Platform platform, SourceSet mainSourceSet, SourceSet testSourceSet,
+      File baseOutputDir) {
+    SourceSet sourceSet = configureSourceSet(project, platform, mainSourceSet, baseOutputDir);
     configureGenerateWrappersTask(project, platform, mainSourceSet, sourceSet);
     List<TaskProvider<? extends Task>> packagingTasks =
         configurePackagingTasks(project, platform, sourceSet, mainSourceSet);
@@ -107,9 +111,9 @@ public class TransportPlugin implements Plugin<Project> {
    * configurations and configures the default dependencies required for compilation and runtime of the wrapper
    * SourceSet
    */
-  private SourceSet configureSourceSet(Project project, Platform platform, SourceSet mainSourceSet) {
+  private SourceSet configureSourceSet(Project project, Platform platform, SourceSet mainSourceSet, File baseOutputDir) {
     JavaPluginConvention javaConvention = project.getConvention().getPlugin(JavaPluginConvention.class);
-    Path platformBaseDir = Paths.get(project.getBuildDir().toString(), "generatedWrappers", platform.getName());
+    Path platformBaseDir = Paths.get(baseOutputDir.toString(), "generatedWrappers", platform.getName());
     Path wrapperSourceOutputDir = platformBaseDir.resolve("sources");
     Path wrapperResourceOutputDir = platformBaseDir.resolve("resources");
 
