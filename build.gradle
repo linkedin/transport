@@ -48,11 +48,20 @@ subprojects {
     strictCheck true
   }
 
+  configurations {
+    all {
+      exclude group: 'org.slf4j', module: 'slf4j-log4j12'
+    }
+  }
+
   plugins.withType(JavaPlugin) {
     project.apply(plugin: 'checkstyle')
 
     dependencies {
+      compile 'org.slf4j:slf4j-api:1.7.25'
+
       testCompile 'org.testng:testng:6.11'
+      testCompile 'org.slf4j:slf4j-simple:1.7.25'
     }
 
     test {
