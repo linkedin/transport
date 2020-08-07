@@ -73,7 +73,7 @@ public class DistributionPackaging implements Packaging {
         }
       */
 
-    return project.getTasks().register(sourceSet.getTaskName(null, "thinJar"), Jar.class, task -> {
+    return project.getTasks().register(sourceSet.getTaskName(null, "distThinJar"), Jar.class, task -> {
       task.dependsOn(project.getTasks().named(sourceSet.getClassesTaskName()));
       task.setDescription("Assembles a thin jar archive containing the " + platformName
           + " classes to be included in the distribution");
