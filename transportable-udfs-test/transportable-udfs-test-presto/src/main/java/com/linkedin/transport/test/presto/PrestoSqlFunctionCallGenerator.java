@@ -9,7 +9,6 @@ import com.linkedin.transport.test.spi.Row;
 import com.linkedin.transport.test.spi.SqlFunctionCallGenerator;
 import com.linkedin.transport.test.spi.types.TestType;
 import java.nio.ByteBuffer;
-import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -35,8 +34,8 @@ public class PrestoSqlFunctionCallGenerator implements SqlFunctionCallGenerator 
 
   @Override
   public String getBinaryArgumentString(ByteBuffer value) {
-    // Note that this does not work for PrestoSQL
-    return "CAST('" + new String(value.array(), StandardCharsets.UTF_8) + "' AS VARBINARY)";
+    String base64EncodedValue = BASE64_ENCODER.encodeToString(value.array());
+    return "from_base64('" + base64EncodedValue + "')";
   }
 
   @Override
