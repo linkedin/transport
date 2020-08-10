@@ -66,18 +66,18 @@ public class DistributionPackaging implements Packaging {
    */
   private TaskProvider<Jar> createThinJarTask(Project project, SourceSet sourceSet, String platformName) {
       /*
-        task <platformName>ThinJar(type: Jar, dependsOn: prestoClasses) {
-          classifier 'platformName'
+        task <platformName>DistThinJar(type: Jar, dependsOn: prestoClasses) {
+          classifier '<platformName>-dist-thin'
           from sourceSets.<platform>.output
           from sourceSets.<platform>.resources
         }
       */
 
-    return project.getTasks().register(sourceSet.getTaskName(null, "thinJar"), Jar.class, task -> {
+    return project.getTasks().register(sourceSet.getTaskName(null, "distThinJar"), Jar.class, task -> {
       task.dependsOn(project.getTasks().named(sourceSet.getClassesTaskName()));
       task.setDescription("Assembles a thin jar archive containing the " + platformName
           + " classes to be included in the distribution");
-      task.setClassifier(platformName + "Thin");
+      task.setClassifier(platformName + "-dist-thin");
       task.from(sourceSet.getOutput());
       task.from(sourceSet.getResources());
     });
