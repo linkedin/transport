@@ -12,6 +12,7 @@ import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.stream.Collectors;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
@@ -203,7 +204,9 @@ public class TransportPlugin implements Plugin<Project> {
    */
   private List<TaskProvider<? extends Task>> configurePackagingTasks(Project project, Platform platform,
       SourceSet sourceSet, SourceSet mainSourceSet) {
-    return platform.getPackaging().configurePackagingTasks(project, platform, sourceSet, mainSourceSet);
+    return platform.getPackaging().stream()
+        .flatMap(p -> p.configurePackagingTasks(project, platform, sourceSet, mainSourceSet).stream())
+        .collect(Collectors.toList());
   }
 
   /**

@@ -11,6 +11,7 @@ import com.linkedin.transport.codegen.PrestoWrapperGenerator;
 import com.linkedin.transport.codegen.SparkWrapperGenerator;
 import com.linkedin.transport.plugin.packaging.DistributionPackaging;
 import com.linkedin.transport.plugin.packaging.ShadedJarPackaging;
+import com.linkedin.transport.plugin.packaging.ThinJarPackaging;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
@@ -72,7 +73,7 @@ class Defaults {
               // converters drop dependencies with classifiers, so we apply this dependency explicitly
               getDependencyConfiguration(RUNTIME_ONLY, "io.prestosql:presto-main", "presto", "tests")
           ),
-          new DistributionPackaging()),
+          ImmutableList.of(new ThinJarPackaging(), new DistributionPackaging())),
       new Platform(
           "hive",
           Language.JAVA,
@@ -85,7 +86,7 @@ class Defaults {
               getDependencyConfiguration(RUNTIME_ONLY, "com.linkedin.transport:transportable-udfs-test-hive",
                   "transport")
           ),
-          new ShadedJarPackaging(ImmutableList.of("org.apache.hadoop", "org.apache.hive"), null)),
+          ImmutableList.of(new ShadedJarPackaging(ImmutableList.of("org.apache.hadoop", "org.apache.hive"), null))),
       new Platform(
           "spark",
           Language.SCALA,
@@ -99,9 +100,9 @@ class Defaults {
               getDependencyConfiguration(RUNTIME_ONLY, "com.linkedin.transport:transportable-udfs-test-spark",
                   "transport")
           ),
-          new ShadedJarPackaging(
+          ImmutableList.of(new ShadedJarPackaging(
               ImmutableList.of("org.apache.hadoop", "org.apache.spark"),
-              ImmutableList.of("com.linkedin.transport.spark.**"))
+              ImmutableList.of("com.linkedin.transport.spark.**")))
       )
   );
 
