@@ -20,11 +20,11 @@ public class Platform {
   private final Class<? extends WrapperGenerator> _wrapperGeneratorClass;
   private final List<DependencyConfiguration> _defaultWrapperDependencyConfigurations;
   private final List<DependencyConfiguration> _defaultTestDependencyConfigurations;
-  private final Packaging _packaging;
+  private final List<Packaging> _packaging;
 
   public Platform(String name, Language language, Class<? extends WrapperGenerator> wrapperGeneratorClass,
       List<DependencyConfiguration> defaultWrapperDependencyConfigurations,
-      List<DependencyConfiguration> defaultTestDependencyConfigurations, Packaging packaging) {
+      List<DependencyConfiguration> defaultTestDependencyConfigurations, List<Packaging> packaging) {
     _name = name;
     _language = language;
     _wrapperGeneratorClass = wrapperGeneratorClass;
@@ -53,7 +53,7 @@ public class Platform {
     return _defaultTestDependencyConfigurations;
   }
 
-  public Packaging getPackaging() {
+  public List<Packaging> getPackaging() {
     return _packaging;
   }
 }
