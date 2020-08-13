@@ -69,8 +69,7 @@ public final class HiveWrapper {
     } else if (hiveObjectInspector instanceof MapObjectInspector) {
       return new HiveMap(hiveData, hiveObjectInspector, stdFactory);
     } else if (hiveObjectInspector instanceof StructObjectInspector) {
-      return new HiveStruct(((StructObjectInspector) hiveObjectInspector).getStructFieldsDataAsList(hiveData).toArray(),
-          hiveObjectInspector, stdFactory);
+      return new HiveStruct(hiveData, hiveObjectInspector, stdFactory);
     } else if (hiveObjectInspector instanceof VoidObjectInspector) {
       return null;
     }
