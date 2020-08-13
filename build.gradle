@@ -48,11 +48,24 @@ subprojects {
     strictCheck true
   }
 
+  configurations {
+    all {
+      // Transport as a library should only expose slf4j-api to its consumers and should not keep any SLF4J bindings
+      // in its dependency graph
+      // Quote from http://www.slf4j.org/faq.html#maven2
+      //   "Thus, as far as your users are concerned you are exporting slf4j-api as a transitive dependency of your
+      //    library, but not any SLF4J-binding or any underlying logging system."
+      // Our dependencies (e.g. hadoop-common) do bring in slf4j-log4j12 in their dependency graph so we exclude them
+      exclude group: 'org.slf4j', module: 'slf4j-log4j12'
+    }
+  }
+
   plugins.withType(JavaPlugin) {
     project.apply(plugin: 'checkstyle')
 
     dependencies {
       testCompile 'org.testng:testng:6.11'
+      testCompile 'org.slf4j:slf4j-simple:1.7.25'
     }
 
     test {
