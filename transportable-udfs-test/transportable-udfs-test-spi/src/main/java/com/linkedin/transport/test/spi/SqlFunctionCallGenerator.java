@@ -18,7 +18,7 @@ import com.linkedin.transport.test.spi.types.StructTestType;
 import com.linkedin.transport.test.spi.types.TestType;
 import com.linkedin.transport.test.spi.types.UnknownTestType;
 import java.nio.ByteBuffer;
-import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -29,6 +29,7 @@ import java.util.stream.IntStream;
  * Creates a SQL function call string for the given function name and the function arguments
  */
 public interface SqlFunctionCallGenerator {
+  Base64.Encoder BASE64_ENCODER = Base64.getEncoder();
 
   /**
    * Returns SQL function call string of the format {@code functionName(argument1, argument2, argument3, ...)}
@@ -104,9 +105,9 @@ public interface SqlFunctionCallGenerator {
     return "CAST(" + value + " AS float)";
   }
 
-
   default String getBinaryArgumentString(ByteBuffer value) {
-    return "CAST('" + new String(value.array(), StandardCharsets.UTF_8) + "' AS BINARY)";
+    String base64EncodedValue = BASE64_ENCODER.encodeToString(value.array());
+    return "unbase64('" + base64EncodedValue + "')";
   }
 
   /**

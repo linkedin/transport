@@ -24,16 +24,36 @@ public class TestBinaryDuplicateFunction extends AbstractStdUDFTest {
   }
 
   @Test
-  public void tesBinaryDuplicate() {
+  public void testBinaryDuplicateASCII() {
     StdTester tester = getTester();
-    tesBinaryDuplicateHelper(tester, "bar", "barbar");
-    tesBinaryDuplicateHelper(tester, "", "");
-    tesBinaryDuplicateHelper(tester, "foobar", "foobarfoobar");
+    testBinaryDuplicateStringHelper(tester, "bar", "barbar");
+    testBinaryDuplicateStringHelper(tester, "", "");
+    testBinaryDuplicateStringHelper(tester, "foobar", "foobarfoobar");
   }
 
-  private void tesBinaryDuplicateHelper(StdTester tester, String input, String expectedOutput) {
-    ByteBuffer argTest1 = ByteBuffer.wrap(input.getBytes());
+  @Test
+  public void testBinaryDuplicateUnicode() {
+    StdTester tester = getTester();
+    testBinaryDuplicateStringHelper(tester, "こんにちは世界", "こんにちは世界こんにちは世界");
+    testBinaryDuplicateStringHelper(tester, "\uD83D\uDE02", "\uD83D\uDE02\uD83D\uDE02");
+  }
+
+  private void testBinaryDuplicateStringHelper(StdTester tester, String input, String expectedOutput) {
+    ByteBuffer inputBuffer = ByteBuffer.wrap(input.getBytes());
     ByteBuffer expected = ByteBuffer.wrap(expectedOutput.getBytes());
-    tester.check(functionCall("binary_duplicate", argTest1), expected, "varbinary");
+    tester.check(functionCall("binary_duplicate", inputBuffer), expected, "varbinary");
+  }
+
+  @Test
+  public void testBinaryDuplicate() {
+    StdTester tester = getTester();
+    testBinaryDuplicateHelper(tester, new byte[] {1, 2, 3}, new byte[] {1, 2, 3, 1, 2, 3});
+    testBinaryDuplicateHelper(tester, new byte[] {-1, -2, -3}, new byte[] {-1, -2, -3, -1, -2, -3});
+  }
+
+  private void testBinaryDuplicateHelper(StdTester tester, byte[] input, byte[] expectedOutput) {
+    ByteBuffer inputBuffer = ByteBuffer.wrap(input);
+    ByteBuffer expected = ByteBuffer.wrap(expectedOutput);
+    tester.check(functionCall("binary_duplicate", inputBuffer), expected, "varbinary");
   }
 }
