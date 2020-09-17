@@ -5,6 +5,7 @@
  */
 package com.linkedin.transport.test.spi;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
@@ -12,13 +13,23 @@ import java.util.Objects;
 public class Row {
 
   private final List<Object> _fields;
+  private List<String> _fieldNames;
 
   public Row(List<Object> fields) {
     _fields = fields;
   }
 
+  public Row fieldNames(String... fieldNames) {
+    this._fieldNames = Arrays.asList(fieldNames);
+    return this;
+  }
+
   public List<Object> getFields() {
     return _fields;
+  }
+
+  public List<String> getFieldNames() {
+    return this._fieldNames;
   }
 
   @Override
@@ -30,11 +41,29 @@ public class Row {
       return false;
     }
     Row row = (Row) o;
-    return Objects.equals(_fields, row._fields);
+    // note: we don't use field names to match here because hive's org.apache.hadoop.hive.ql.exec.FetchFormatter
+    // put's field0, field1 whenever you don't specify the column names of your struct in your output type.
+    // however, if hive does that, standard transport testing framework can't match field names reliably
+    boolean isEquals = Objects.equals(_fields, row._fields);
+    return isEquals;
   }
 
   @Override
   public int hashCode() {
     return Objects.hash(_fields);
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder stringBuilder = new StringBuilder();
+    stringBuilder.append("{");
+    stringBuilder.append("fieldNames: ");
+    if (this._fieldNames != null) {
+      stringBuilder.append(_fieldNames.toString());
+    }
+    stringBuilder.append(", ");
+    stringBuilder.append("fieldValues: ");
+    stringBuilder.append(_fields.toString());
+    return stringBuilder.toString();
   }
 }

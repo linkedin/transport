@@ -6,4 +6,8 @@
 package com.linkedin.transport.test.spi.types;
 
 public class StringTestType implements TestType {
+  @Override
+  public String toString() {
+    return "type=string";
+  }
 }
