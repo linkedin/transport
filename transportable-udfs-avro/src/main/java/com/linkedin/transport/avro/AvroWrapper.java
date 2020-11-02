@@ -28,6 +28,7 @@ import com.linkedin.transport.avro.types.AvroMapType;
 import com.linkedin.transport.avro.types.AvroStringType;
 import com.linkedin.transport.avro.types.AvroStructType;
 import java.nio.ByteBuffer;
+import java.util.List;
 import java.util.Map;
 import org.apache.avro.Schema;
 import org.apache.avro.generic.GenericArray;
@@ -62,11 +63,40 @@ public class AvroWrapper {
         return new AvroMap((Map<Object, Object>) avroData, avroSchema);
       case RECORD:
         return new AvroStruct((GenericRecord) avroData, avroSchema);
+      case UNION:{
+        Schema nonNullableType = getNonNullComponent(avroSchema);
+        if (nonNullableType == null) {
+          throw new RuntimeException("Unsupported union type: " + avroSchema);
+        }
+        if (avroData == null) {
+          return null;
+        }
+        return createStdData(avroData, nonNullableType);
+      }
       case NULL:
         return null;
       default:
         throw new RuntimeException("Unrecognized Avro Schema: " + avroSchema.getClass());
     }
+  }
+
+  /**
+   * Returns a non null component of a simple union schema. The supported union schema must have
+   * only two fields where one of them is null type, the other is returned. Returns null if not
+   * qualified.
+   */
+  private static Schema getNonNullComponent(Schema unionSchema) {
+    List<Schema> types = unionSchema.getTypes();
+    if (types.size() == 2) {
+      if (types.get(0).getType().equals(Schema.Type.NULL)) {
+        return types.get(1);
+      }
+
+      if (types.get(1).getType().equals(Schema.Type.NULL)) {
+        return types.get(0);
+      }
+    }
+    return null;
   }
 
   public static StdType createStdType(Schema avroSchema) {
@@ -91,6 +121,13 @@ public class AvroWrapper {
         return new AvroMapType(avroSchema);
       case RECORD:
         return new AvroStructType(avroSchema);
+      case UNION: {
+        Schema nonNullableType = getNonNullComponent(avroSchema);
+        if (nonNullableType == null) {
+          throw new RuntimeException("Unsupported union type: " + avroSchema);
+        }
+        return createStdType(nonNullableType);
+      }
       default:
         throw new RuntimeException("Unrecognized Avro Schema: " + avroSchema.getClass());
     }
