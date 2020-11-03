@@ -8,8 +8,8 @@ package com.linkedin.transport.avro;
 import com.linkedin.transport.api.data.StdData;
 import com.linkedin.transport.api.types.StdType;
 import com.linkedin.transport.avro.data.AvroArray;
-import com.linkedin.transport.avro.data.AvroBoolean;
 import com.linkedin.transport.avro.data.AvroBinary;
+import com.linkedin.transport.avro.data.AvroBoolean;
 import com.linkedin.transport.avro.data.AvroDouble;
 import com.linkedin.transport.avro.data.AvroFloat;
 import com.linkedin.transport.avro.data.AvroInteger;
@@ -18,8 +18,8 @@ import com.linkedin.transport.avro.data.AvroMap;
 import com.linkedin.transport.avro.data.AvroString;
 import com.linkedin.transport.avro.data.AvroStruct;
 import com.linkedin.transport.avro.types.AvroArrayType;
-import com.linkedin.transport.avro.types.AvroBooleanType;
 import com.linkedin.transport.avro.types.AvroBinaryType;
+import com.linkedin.transport.avro.types.AvroBooleanType;
 import com.linkedin.transport.avro.types.AvroDoubleType;
 import com.linkedin.transport.avro.types.AvroFloatType;
 import com.linkedin.transport.avro.types.AvroIntegerType;
@@ -65,9 +65,6 @@ public class AvroWrapper {
         return new AvroStruct((GenericRecord) avroData, avroSchema);
       case UNION:{
         Schema nonNullableType = getNonNullComponent(avroSchema);
-        if (nonNullableType == null) {
-          throw new RuntimeException("Unsupported union type: " + avroSchema);
-        }
         if (avroData == null) {
           return null;
         }
@@ -82,8 +79,7 @@ public class AvroWrapper {
 
   /**
    * Returns a non null component of a simple union schema. The supported union schema must have
-   * only two fields where one of them is null type, the other is returned. Returns null if not
-   * qualified.
+   * only two fields where one of them is null type, the other is returned.
    */
   private static Schema getNonNullComponent(Schema unionSchema) {
     List<Schema> types = unionSchema.getTypes();
@@ -96,7 +92,7 @@ public class AvroWrapper {
         return types.get(0);
       }
     }
-    return null;
+    throw new RuntimeException("Unsupported union type: " + unionSchema);
   }
 
   public static StdType createStdType(Schema avroSchema) {
@@ -123,9 +119,6 @@ public class AvroWrapper {
         return new AvroStructType(avroSchema);
       case UNION: {
         Schema nonNullableType = getNonNullComponent(avroSchema);
-        if (nonNullableType == null) {
-          throw new RuntimeException("Unsupported union type: " + avroSchema);
-        }
         return createStdType(nonNullableType);
       }
       default:

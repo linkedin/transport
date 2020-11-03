@@ -165,7 +165,7 @@ public class TestAvroWrapper {
   }
 
   @Test
-  public void testUnionType() {
+  public void testValidUnionType() {
     Schema nonNullType = createSchema("\"long\"");
     Schema unionSchema = Schema.createUnion(Arrays.asList(nonNullType, Schema.create(Schema.Type.NULL)));
 
@@ -179,6 +179,26 @@ public class TestAvroWrapper {
 
     StdData stdNullData = AvroWrapper.createStdData(null, unionSchema);
     assertNull(stdNullData);
+  }
+
+  @Test(expectedExceptions = RuntimeException.class)
+  public void testInValidUnionType1() {
+    Schema nonNullType = createSchema("\"long\"");
+    Schema unionSchema = Schema.createUnion(Arrays.asList(nonNullType));
+    AvroWrapper.createStdType(unionSchema);
+  }
+
+  @Test(expectedExceptions = RuntimeException.class)
+  public void testInValidUnionType2() {
+    Schema nonNullType1 = createSchema("\"long\"");
+    Schema nonNullType2 = createSchema("\"int\"");
+    Schema unionSchema = Schema.createUnion(Arrays.asList(nonNullType1, nonNullType2));
+    AvroWrapper.createStdData(1L, unionSchema);
+  }
+
+  @Test(expectedExceptions = RuntimeException.class)
+  public void testUnsupportedType1() {
+    AvroWrapper.createStdData("test", Schema.create(Schema.Type.ENUM));
   }
 
   @Test
