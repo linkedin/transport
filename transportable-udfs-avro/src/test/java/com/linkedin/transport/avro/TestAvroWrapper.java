@@ -54,96 +54,53 @@ public class TestAvroWrapper {
         String.format("{\"name\": \"%s\",\"type\": %s}", fieldName, typeName));
   }
 
+  private void testSimpleType(String typeName, Class<? extends StdType> expectedAvroTypeClass,
+      Object testData, Class<? extends StdData> expectedDataClass) {
+    Schema avroSchema = createSchema(String.format("\"%s\"", typeName));
+
+    StdType stdType = AvroWrapper.createStdType(avroSchema);
+    assertTrue(expectedAvroTypeClass.isAssignableFrom(stdType.getClass()));
+    assertEquals(avroSchema, stdType.underlyingType());
+
+    StdData stdData = AvroWrapper.createStdData(testData, avroSchema);
+    assertNotNull(stdData);
+    assertTrue(expectedDataClass.isAssignableFrom(stdData.getClass()));
+    assertEquals(testData, ((PlatformData) stdData).getUnderlyingData());
+  }
+
   @Test
   public void testBooleanType() {
-    Schema boolSchema = createSchema("\"boolean\"");
-
-    StdType stdBoolType = AvroWrapper.createStdType(boolSchema);
-    assertTrue(stdBoolType instanceof AvroBooleanType);
-    assertEquals(boolSchema, stdBoolType.underlyingType());
-
-    StdData stdBoolData = AvroWrapper.createStdData(true, boolSchema);
-    assertTrue(stdBoolData instanceof AvroBoolean);
-    assertEquals(true, ((AvroBoolean) stdBoolData).get());
+    testSimpleType("boolean", AvroBooleanType.class, true, AvroBoolean.class);
   }
 
   @Test
   public void testIntegerType() {
-    Schema intSchema = createSchema("\"int\"");
-
-    StdType stdIntType = AvroWrapper.createStdType(intSchema);
-    assertTrue(stdIntType instanceof AvroIntegerType);
-    assertEquals(intSchema, stdIntType.underlyingType());
-
-    StdData stdIntData = AvroWrapper.createStdData(1, intSchema);
-    assertTrue(stdIntData instanceof AvroInteger);
-    assertEquals(1, ((AvroInteger) stdIntData).get());
+    testSimpleType("int", AvroIntegerType.class, 1, AvroInteger.class);
   }
 
   @Test
   public void testLongType() {
-    Schema longSchema = createSchema("\"long\"");
-
-    StdType stdLongType = AvroWrapper.createStdType(longSchema);
-    assertTrue(stdLongType instanceof AvroLongType);
-    assertEquals(longSchema, stdLongType.underlyingType());
-
-    StdData stdLongData = AvroWrapper.createStdData(1L, longSchema);
-    assertTrue(stdLongData instanceof AvroLong);
-    assertEquals(1L, ((AvroLong) stdLongData).get());
+    testSimpleType("long", AvroLongType.class, 1L, AvroLong.class);
   }
 
   @Test
   public void testFloatType() {
-    Schema floatSchema = createSchema("\"float\"");
-
-    StdType stdFloatType = AvroWrapper.createStdType(floatSchema);
-    assertTrue(stdFloatType instanceof AvroFloatType);
-    assertEquals(floatSchema, stdFloatType.underlyingType());
-
-    StdData stdFloatData = AvroWrapper.createStdData(1.0f, floatSchema);
-    assertTrue(stdFloatData instanceof AvroFloat);
-    assertEquals(1.0f, ((AvroFloat) stdFloatData).get());
+    testSimpleType("float", AvroFloatType.class, 1.0f, AvroFloat.class);
   }
 
   @Test
   public void testDoubleType() {
-    Schema doubleSchema = createSchema("\"double\"");
-
-    StdType stdDoubleType = AvroWrapper.createStdType(doubleSchema);
-    assertTrue(stdDoubleType instanceof AvroDoubleType);
-    assertEquals(doubleSchema, stdDoubleType.underlyingType());
-
-    StdData stdDoubleData = AvroWrapper.createStdData(1.0, doubleSchema);
-    assertTrue(stdDoubleData instanceof AvroDouble);
-    assertEquals(1.0, ((AvroDouble) stdDoubleData).get());
+    testSimpleType("double", AvroDoubleType.class, 1.0, AvroDouble.class);
   }
 
   @Test
   public void testStringType() {
-    Schema stringSchema = createSchema("\"string\"");
-
-    StdType stdStringType = AvroWrapper.createStdType(stringSchema);
-    assertTrue(stdStringType instanceof AvroStringType);
-    assertEquals(stringSchema, stdStringType.underlyingType());
-
-    StdData stdStringData = AvroWrapper.createStdData(new Utf8("foo"), stringSchema);
-    assertTrue(stdStringData instanceof AvroString);
-    assertEquals("foo", ((AvroString) stdStringData).get());
+    testSimpleType("string", AvroStringType.class, new Utf8("foo"), AvroString.class);
   }
 
   @Test
   public void testBinaryType() {
-    Schema binarySchema = createSchema("\"bytes\"");
-
-    StdType stdBinaryType = AvroWrapper.createStdType(binarySchema);
-    assertTrue(stdBinaryType instanceof AvroBinaryType);
-    assertEquals(binarySchema, stdBinaryType.underlyingType());
-
-    ByteBuffer value = ByteBuffer.wrap("bar".getBytes());
-    StdData stdBinaryData = AvroWrapper.createStdData(value, binarySchema);
-    assertTrue(stdBinaryData instanceof AvroBinary);
-    assertEquals(value, ((AvroBinary) stdBinaryData).get());
+    testSimpleType("bytes", AvroBinaryType.class, ByteBuffer.wrap("bar".getBytes()), AvroBinary.class);
   }
 
   @Test
