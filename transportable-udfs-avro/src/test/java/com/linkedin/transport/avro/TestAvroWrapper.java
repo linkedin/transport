@@ -182,14 +182,14 @@ public class TestAvroWrapper {
   }
 
   @Test(expectedExceptions = RuntimeException.class)
-  public void testInValidUnionType1() {
+  public void testInvalidUnionType1() {
     Schema nonNullType = createSchema("\"long\"");
     Schema unionSchema = Schema.createUnion(Arrays.asList(nonNullType));
     AvroWrapper.createStdType(unionSchema);
   }
 
   @Test(expectedExceptions = RuntimeException.class)
-  public void testInValidUnionType2() {
+  public void testInvalidUnionType2() {
     Schema nonNullType1 = createSchema("\"long\"");
     Schema nonNullType2 = createSchema("\"int\"");
     Schema unionSchema = Schema.createUnion(Arrays.asList(nonNullType1, nonNullType2));
