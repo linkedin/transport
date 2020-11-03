@@ -9,8 +9,10 @@ import com.linkedin.transport.typesystem.AbstractBoundVariables;
 import com.linkedin.transport.typesystem.AbstractTestBoundVariables;
 import com.linkedin.transport.typesystem.AbstractTypeSystem;
 import org.apache.avro.Schema;
+import org.testng.annotations.Test;
 
 
+@Test
 public class TestAvroBoundVariables extends AbstractTestBoundVariables<Schema> {
 
   @Override
