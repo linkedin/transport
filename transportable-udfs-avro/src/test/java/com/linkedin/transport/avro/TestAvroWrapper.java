@@ -99,12 +99,8 @@ public class TestAvroWrapper {
   }
 
   @Test
-  public void testStringTypeUtf8() {
-    testSimpleType("string", AvroStringType.class, new Utf8("foo"), AvroString.class);
-  }
-
-  @Test
   public void testStringType() {
+    testSimpleType("string", AvroStringType.class, new Utf8("foo"), AvroString.class);
     testSimpleType("string", AvroStringType.class, "foo", AvroString.class);
   }
 
