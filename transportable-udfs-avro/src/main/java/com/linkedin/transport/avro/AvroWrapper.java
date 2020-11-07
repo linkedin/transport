@@ -49,8 +49,13 @@ public class AvroWrapper {
         return new AvroLong((Long) avroData);
       case BOOLEAN:
         return new AvroBoolean((Boolean) avroData);
-      case STRING:
-        return new AvroString((Utf8) avroData);
+      case STRING: {
+        if (avroData instanceof Utf8) {
+          return new AvroString((Utf8) avroData);
+        } else if (avroData instanceof String) {
+          return new AvroString(new Utf8((String) avroData));
+        }
+      }
       case FLOAT:
         return new AvroFloat((Float) avroData);
       case DOUBLE:
