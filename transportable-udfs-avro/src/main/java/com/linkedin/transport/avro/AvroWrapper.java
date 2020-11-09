@@ -43,24 +43,12 @@ public class AvroWrapper {
 
   public static StdData createStdData(Object avroData, Schema avroSchema) {
     switch (avroSchema.getType()) {
-      case INT: {
-        if (!(avroData instanceof Integer)) {
-          throw new IllegalArgumentException("Unsupported type for Avro integer: " + avroData.getClass());
-        }
+      case INT:
         return new AvroInteger((Integer) avroData);
-      }
-      case LONG: {
-        if (!(avroData instanceof Long)) {
-          throw new IllegalArgumentException("Unsupported type for Avro long: " + avroData.getClass());
-        }
+      case LONG:
         return new AvroLong((Long) avroData);
-      }
-      case BOOLEAN: {
-        if (!(avroData instanceof Boolean)) {
-          throw new IllegalArgumentException("Unsupported type for Avro boolean: " + avroData.getClass());
-        }
+      case BOOLEAN:
         return new AvroBoolean((Boolean) avroData);
-      }
       case STRING: {
         if (avroData instanceof Utf8) {
           return new AvroString((Utf8) avroData);
@@ -69,42 +57,18 @@ public class AvroWrapper {
         }
         throw new IllegalArgumentException("Unsupported type for Avro string: " + avroData.getClass());
       }
-      case FLOAT: {
-        if (!(avroData instanceof Float)) {
-          throw new IllegalArgumentException("Unsupported type for Avro float: " + avroData.getClass());
-        }
+      case FLOAT:
         return new AvroFloat((Float) avroData);
-      }
-      case DOUBLE: {
-        if (!(avroData instanceof Double)) {
-          throw new IllegalArgumentException("Unsupported type for Avro double: " + avroData.getClass());
-        }
+      case DOUBLE:
         return new AvroDouble((Double) avroData);
-      }
-      case BYTES: {
-        if (!(avroData instanceof ByteBuffer)) {
-          throw new IllegalArgumentException("Unsupported type for Avro bytes: " + avroData.getClass());
-        }
+      case BYTES:
         return new AvroBinary((ByteBuffer) avroData);
-      }
-      case ARRAY: {
-        if (!(avroData instanceof GenericArray)) {
-          throw new IllegalArgumentException("Unsupported type for Avro array: " + avroData.getClass());
-        }
+      case ARRAY:
         return new AvroArray((GenericArray<Object>) avroData, avroSchema);
-      }
-      case MAP: {
-        if (!(avroData instanceof Map)) {
-          throw new IllegalArgumentException("Unsupported type for Avro map: " + avroData.getClass());
-        }
+      case MAP:
         return new AvroMap((Map<Object, Object>) avroData, avroSchema);
-      }
-      case RECORD: {
-        if (!(avroData instanceof GenericRecord)) {
-          throw new IllegalArgumentException("Unsupported type for Avro record: " + avroData.getClass());
-        }
+      case RECORD:
         return new AvroStruct((GenericRecord) avroData, avroSchema);
-      }
       case UNION: {
         Schema nonNullableType = getNonNullComponent(avroSchema);
         if (avroData == null) {
