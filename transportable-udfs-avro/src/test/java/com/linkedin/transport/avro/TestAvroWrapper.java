@@ -65,7 +65,12 @@ public class TestAvroWrapper {
     StdData stdData = AvroWrapper.createStdData(testData, avroSchema);
     assertNotNull(stdData);
     assertTrue(expectedDataClass.isAssignableFrom(stdData.getClass()));
-    assertEquals(testData, ((PlatformData) stdData).getUnderlyingData());
+    if ("string".equals(typeName)) {
+      // Use String values for equality assertion as we support both Utf8 and String input types
+      assertEquals(testData.toString(), ((PlatformData) stdData).getUnderlyingData().toString());
+    } else {
+      assertEquals(testData, ((PlatformData) stdData).getUnderlyingData());
+    }
   }
 
   @Test
@@ -96,6 +101,7 @@ public class TestAvroWrapper {
   @Test
   public void testStringType() {
     testSimpleType("string", AvroStringType.class, new Utf8("foo"), AvroString.class);
+    testSimpleType("string", AvroStringType.class, "foo", AvroString.class);
   }
 
   @Test

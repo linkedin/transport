@@ -49,8 +49,14 @@ public class AvroWrapper {
         return new AvroLong((Long) avroData);
       case BOOLEAN:
         return new AvroBoolean((Boolean) avroData);
-      case STRING:
-        return new AvroString((Utf8) avroData);
+      case STRING: {
+        if (avroData instanceof Utf8) {
+          return new AvroString((Utf8) avroData);
+        } else if (avroData instanceof String) {
+          return new AvroString(new Utf8((String) avroData));
+        }
+        throw new IllegalArgumentException("Unsupported type for Avro string: " + avroData.getClass());
+      }
       case FLOAT:
         return new AvroFloat((Float) avroData);
       case DOUBLE:
@@ -63,7 +69,7 @@ public class AvroWrapper {
         return new AvroMap((Map<Object, Object>) avroData, avroSchema);
       case RECORD:
         return new AvroStruct((GenericRecord) avroData, avroSchema);
-      case UNION:{
+      case UNION: {
         Schema nonNullableType = getNonNullComponent(avroSchema);
         if (avroData == null) {
           return null;
