@@ -32,6 +32,7 @@ import java.util.List;
 import java.util.Map;
 import org.apache.avro.Schema;
 import org.apache.avro.generic.GenericArray;
+import org.apache.avro.generic.GenericEnumSymbol;
 import org.apache.avro.generic.GenericRecord;
 import org.apache.avro.util.Utf8;
 
@@ -49,7 +50,23 @@ public class AvroWrapper {
         return new AvroLong((Long) avroData);
       case BOOLEAN:
         return new AvroBoolean((Boolean) avroData);
+      case ENUM: {
+        if (avroData == null) {
+          return new AvroString(null);
+        }
+
+        if (avroData instanceof String) {
+          return new AvroString(new Utf8((String) avroData));
+        } else if (avroData instanceof GenericEnumSymbol) {
+          return new AvroString(new Utf8(((GenericEnumSymbol) avroData).toString()));
+        }
+        throw new IllegalArgumentException("Unsupported type for Avro enum: " + avroData.getClass());
+      }
       case STRING: {
+        if (avroData == null) {
+          return new AvroString(null);
+        }
+
         if (avroData instanceof Utf8) {
           return new AvroString((Utf8) avroData);
         } else if (avroData instanceof String) {
