@@ -110,6 +110,32 @@ public class TestAvroWrapper {
   }
 
   @Test
+  public void testEnumType() {
+    Schema field1 = createSchema("field1", ""
+        + "\"enum\","
+        + "\"name\":\"SampleEnum\","
+        + "\"doc\":\"\","
+        + "\"symbols\":[\"A\",\"B\"]");
+    Schema structSchema = Schema.createRecord(ImmutableList.of(
+        new Schema.Field("field1", field1, null, null)
+    ));
+
+    GenericRecord record1 = new GenericData.Record(structSchema);
+    record1.put("field1", "A");
+    StdData stdEnumData1 = AvroWrapper.createStdData(record1.get("field1"),
+        Schema.createEnum("SampleEnum", "", "", Arrays.asList("A", "B")));
+    assertTrue(stdEnumData1 instanceof AvroString);
+    assertEquals("A", ((AvroString) stdEnumData1).get());
+
+    GenericRecord record2 = new GenericData.Record(structSchema);
+    record1.put("field1", new GenericData.EnumSymbol(field1, "A"));
+    StdData stdEnumData2 = AvroWrapper.createStdData(record1.get("field1"),
+        Schema.createEnum("SampleEnum", "", "", Arrays.asList("A", "B")));
+    assertTrue(stdEnumData2 instanceof AvroString);
+    assertEquals("A", ((AvroString) stdEnumData2).get());
+  }
+
+  @Test
   public void testArrayType() {
     Schema elementType = createSchema("\"int\"");
     Schema arraySchema = Schema.createArray(elementType);
@@ -200,11 +226,6 @@ public class TestAvroWrapper {
     Schema nonNullType2 = createSchema("\"int\"");
     Schema unionSchema = Schema.createUnion(Arrays.asList(nonNullType1, nonNullType2));
     AvroWrapper.createStdData(1L, unionSchema);
-  }
-
-  @Test(expectedExceptions = RuntimeException.class)
-  public void testUnsupportedType1() {
-    AvroWrapper.createStdData("test", Schema.create(Schema.Type.ENUM));
   }
 
   @Test
