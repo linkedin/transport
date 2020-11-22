@@ -79,8 +79,7 @@ public final class PrestoWrapper {
       int floatValue;
       try {
         floatValue = toIntExact(value);
-      }
-      catch (ArithmeticException e) {
+      } catch (ArithmeticException e) {
         throw new PrestoException(GENERIC_INTERNAL_ERROR,
             format("Value (%sb) is not a valid single-precision float", Long.toBinaryString(value)));
       }
