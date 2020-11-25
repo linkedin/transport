@@ -19,6 +19,7 @@ buildscript {
 
 plugins {
   id "org.shipkit.java" version "2.3.4"
+  id "checkstyle"
 }
 
 allprojects {
@@ -73,7 +74,9 @@ subprojects {
     }
 
     checkstyle {
-      configFile = file("${rootDir}/gradle/checkstyle/linkedin-checkstyle.xml")
+      configFile = file("${rootDir}/gradle/checkstyle/checkstyle.xml")
+      configProperties = ['config_loc' : "${rootDir}/gradle/checkstyle/"]
+      toolVersion '8.23'
     }
   }
 
