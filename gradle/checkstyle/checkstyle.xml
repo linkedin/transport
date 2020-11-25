@@ -8,7 +8,7 @@
 LinkedIn Java style.
 -->
 <module name="Checker">
-  <property name="severity" value="warning"/>
+  <property name="severity" value="error"/>
   <property name="fileExtensions" value="java"/>
 
   <module name="TreeWalker">
@@ -189,11 +189,11 @@ LinkedIn Java style.
   <!-- Read checker suppressions from a file -->
   <!-- Uncomment this to enable reading Checkstyle suppressions from the suppressions.xml file.
        Before uncommenting this please read the "Suppression File" section of http://go/checkstyle
-       to prevent error events in IntelliJ IDEA.
+       to prevent error events in IntelliJ IDEA. -->
   <module name="SuppressionFilter">
     <property name="file" value="${config_loc}/suppressions.xml"/>
   </module>
-  -->
+
   <!-- Allow Checkstyle warnings to be suppressed using block comments -->
   <module name="SuppressWithPlainTextCommentFilter"/>
   <!-- Allow SuppressWarnings annotation to suppress Checkstyle issues -->

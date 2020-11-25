@@ -62,7 +62,9 @@ subprojects {
     }
 
     checkstyle {
-      configFile = file("${rootDir}/../gradle/checkstyle/linkedin-checkstyle.xml")
+      configFile = file("${rootDir}/../gradle/checkstyle/checkstyle.xml")
+      configProperties = ['config_loc' : "${rootDir}/../gradle/checkstyle/"]
+      toolVersion '8.23'
     }
   }
 
