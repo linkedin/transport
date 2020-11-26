@@ -20,7 +20,7 @@ branches:
 script:
   # Print output every minute to avoid travis timeout
   - while sleep 1m; do echo "=====[ $SECONDS seconds elapsed -- still running ]====="; done &
-  # With the exception of release commands, all build logic goes in build.sh
+  # With the exception of release commands, all build logic goes in travis-build.sh
   - ./travis-build.sh && ./gradlew ciPerformRelease -s
   # Killing background sleep loop
   - kill %1
