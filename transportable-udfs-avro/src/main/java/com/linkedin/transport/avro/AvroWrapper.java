@@ -7,8 +7,6 @@ package com.linkedin.transport.avro;
 
 import com.linkedin.transport.api.data.PlatformData;
 import com.linkedin.transport.api.types.StdType;
-import com.linkedin.transport.avro.data.AvroBinary;
-import com.linkedin.transport.avro.data.AvroDouble;
 import com.linkedin.transport.avro.data.AvroArrayData;
 import com.linkedin.transport.avro.data.AvroMapData;
 import com.linkedin.transport.avro.data.AvroRowData;
@@ -27,7 +25,6 @@ import java.util.List;
 import java.util.Map;
 import org.apache.avro.Schema;
 import org.apache.avro.generic.GenericArray;
-import org.apache.avro.generic.GenericEnumSymbol;
 import org.apache.avro.generic.GenericRecord;
 import org.apache.avro.util.Utf8;
 

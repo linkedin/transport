@@ -9,14 +9,10 @@ import com.linkedin.transport.api.StdFactory;
 import com.linkedin.transport.api.data.ArrayData;
 import com.linkedin.transport.api.data.MapData;
 import com.linkedin.transport.api.data.RowData;
-import com.linkedin.transport.api.data.StdBoolean;
-import com.linkedin.transport.api.data.StdBinary;
 import com.linkedin.transport.api.types.StdType;
 import com.linkedin.transport.avro.data.AvroArrayData;
 import com.linkedin.transport.avro.data.AvroMapData;
 import com.linkedin.transport.avro.data.AvroRowData;
-import com.linkedin.transport.avro.data.AvroBoolean;
-import com.linkedin.transport.avro.data.AvroBinary;
 import com.linkedin.transport.avro.typesystem.AvroTypeFactory;
 import com.linkedin.transport.typesystem.AbstractBoundVariables;
 import com.linkedin.transport.typesystem.TypeSignature;
@@ -43,21 +39,6 @@ public class AvroFactory implements StdFactory {
   @Override
   public ArrayData createArray(StdType stdType, int size) {
     return new AvroArrayData((Schema) stdType.underlyingType(), size);
-  }
-
-  @Override
-  public StdFloat createFloat(float value) {
-    return new AvroFloat(value);
-  }
-
-  @Override
-  public StdDouble createDouble(double value) {
-    return new AvroDouble(value);
-  }
-
-  @Override
-  public StdBinary createBinary(ByteBuffer value) {
-    return new AvroBinary(value);
   }
 
   @Override
