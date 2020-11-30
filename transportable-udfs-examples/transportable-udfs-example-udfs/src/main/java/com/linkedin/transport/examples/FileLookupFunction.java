@@ -7,9 +7,6 @@ package com.linkedin.transport.examples;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
-import com.linkedin.transport.api.data.StdBoolean;
-import com.linkedin.transport.api.data.StdInteger;
-import com.linkedin.transport.api.data.StdString;
 import com.linkedin.transport.api.udf.StdUDF2;
 import com.linkedin.transport.api.udf.TopLevelStdUDF;
 import java.io.BufferedReader;
@@ -21,14 +18,14 @@ import java.util.Set;
 import org.apache.commons.io.IOUtils;
 
 
-public class FileLookupFunction extends StdUDF2<StdString, StdInteger, StdBoolean> implements TopLevelStdUDF {
+public class FileLookupFunction extends StdUDF2<String, Integer, Boolean> implements TopLevelStdUDF {
 
   private Set<Integer> ids;
 
   @Override
-  public StdBoolean eval(StdString filename, StdInteger intToCheck) {
+  public Boolean eval(String filename, Integer intToCheck) {
     Preconditions.checkNotNull(intToCheck, "Integer to check should not be null");
-    return getStdFactory().createBoolean(ids.contains(intToCheck.get()));
+    return ids.contains(intToCheck);
   }
 
   @Override
@@ -57,8 +54,8 @@ public class FileLookupFunction extends StdUDF2<StdString, StdInteger, StdBoolea
   }
 
   @Override
-  public String[] getRequiredFiles(StdString filename, StdInteger intToCheck) {
-    return new String[]{filename.get()};
+  public String[] getRequiredFiles(String filename, Integer intToCheck) {
+    return new String[]{filename};
   }
 
   public void processRequiredFiles(String[] localPaths) {

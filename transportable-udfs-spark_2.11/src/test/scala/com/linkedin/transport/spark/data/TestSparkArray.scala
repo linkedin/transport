@@ -5,6 +5,7 @@
  */
 package com.linkedin.transport.spark.data
 
+import com.linkedin.transport.api.data
 import com.linkedin.transport.api.data.{PlatformData, StdArray}
 import com.linkedin.transport.spark.{SparkFactory, SparkWrapper}
 import org.apache.spark.sql.catalyst.util.ArrayData
@@ -20,14 +21,14 @@ class TestSparkArray {
 
   @Test
   def testCreateSparkArray(): Unit = {
-    val stdArray = SparkWrapper.createStdData(arrayData, arrayType).asInstanceOf[StdArray]
+    val stdArray = SparkWrapper.createStdData(arrayData, arrayType).asInstanceOf[data.ArrayData]
     assertEquals(stdArray.size(), arrayData.numElements())
     assertSame(stdArray.asInstanceOf[PlatformData].getUnderlyingData, arrayData)
   }
 
   @Test
   def testSparkArrayGet(): Unit = {
-    val stdArray = SparkWrapper.createStdData(arrayData, arrayType).asInstanceOf[StdArray]
+    val stdArray = SparkWrapper.createStdData(arrayData, arrayType).asInstanceOf[data.ArrayData]
     (0 until stdArray.size).foreach(idx => {
       assertEquals(stdArray.get(idx).asInstanceOf[SparkInteger].get(), idx)
     })
@@ -35,7 +36,7 @@ class TestSparkArray {
 
   @Test
   def testSparkArrayAdd(): Unit = {
-    val stdArray = SparkWrapper.createStdData(arrayData, arrayType).asInstanceOf[StdArray]
+    val stdArray = SparkWrapper.createStdData(arrayData, arrayType).asInstanceOf[data.ArrayData]
     val insert = stdFactory.createInteger(5) // scalastyle:ignore magic.number
     stdArray.add(insert)
     // Since original ArrayData is immutable, a mutable ArrayBuffer should be created and set as the underlying object
@@ -46,7 +47,7 @@ class TestSparkArray {
 
   @Test
   def testSparkArrayMutabilityReset(): Unit = {
-    val stdArray = SparkWrapper.createStdData(arrayData, arrayType).asInstanceOf[StdArray]
+    val stdArray = SparkWrapper.createStdData(arrayData, arrayType).asInstanceOf[data.ArrayData]
     val insert = stdFactory.createInteger(5) // scalastyle:ignore magic.number
     stdArray.add(insert)
     stdArray.asInstanceOf[PlatformData].setUnderlyingData(arrayData)

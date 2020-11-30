@@ -5,15 +5,13 @@
  */
 package com.linkedin.transport.api.udf;
 
-import com.linkedin.transport.api.data.StdData;
-
 
 /**
  * A Standard UDF with zero input arguments.
  *
  * @param <O>  the type of the return value of the {@link StdUDF}
  */
-public abstract class StdUDF0<O extends StdData> extends StdUDF {
+public abstract class StdUDF0<O> extends StdUDF {
 
   /**
    * Returns the output of the {@link StdUDF} given the input arguments.

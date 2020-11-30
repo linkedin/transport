@@ -5,7 +5,7 @@
  */
 package com.linkedin.transport.trino.types;
 
-import com.linkedin.transport.api.types.StdStructType;
+import com.linkedin.transport.api.types.RowType;
 import com.linkedin.transport.api.types.StdType;
 import com.linkedin.transport.trino.TrinoWrapper;
 import io.trino.spi.type.RowType;
@@ -13,9 +13,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 
-public class TrinoStructType implements StdStructType {
-
-  final RowType rowType;
+public class TrinoStructType implements RowType {
+  final io.prestosql.spi.type.RowType rowType;
 
   public TrinoStructType(RowType rowType) {
     this.rowType = rowType;

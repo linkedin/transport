@@ -59,10 +59,6 @@ public abstract class HiveData implements PlatformData {
         getUnderlyingObjectInspector(), ObjectInspectorUtils.ObjectInspectorCopyOption.WRITABLE);
   }
 
-  public Object getStandardObject() {
-    return getUnderlyingDataForObjectInspector(getStandardObjectInspector());
-  }
-
   private Object getObjectFromCache(ObjectInspector oi) {
     if (_isObjectModified) {
       _cachedObjectsForObjectInspectors.clear();

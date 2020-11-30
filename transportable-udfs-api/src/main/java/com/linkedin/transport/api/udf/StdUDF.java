@@ -19,7 +19,7 @@ import java.util.List;
  * abstract class for UDFs expecting {@code i} arguments. Similar to lambda expressions, StdUDF(i) abstract classes are
  * type-parameterized by the input types and output type of the eval function. Each class is type-parameterized by
  * {@code (i+1)} type parameters; {@code i} type parameters for the UDF input types, and one type parameter for the
- * output type. All types (both input and output types) must extend the {@link StdData}
+ * output type. All types (both input and output types) must extend the {@linkObject}
  * interface.
  */
 public abstract class StdUDF {
@@ -40,7 +40,7 @@ public abstract class StdUDF {
    * of contained UDF.
    *
    * @param stdFactory  a {@link StdFactory} object which can be used to create
-   * {@link StdData} and {@link StdType} objects
+   * {@linkObject} and {@link StdType} objects
    */
   public void init(StdFactory stdFactory) {
     _stdFactory = stdFactory;
@@ -85,7 +85,7 @@ public abstract class StdUDF {
   protected abstract int numberOfArguments();
 
   /**
-   * Returns a {@link StdFactory} object which can be used to create {@link StdData} and
+   * Returns a {@link StdFactory} object which can be used to create {@linkObject} and
    * {@link StdType} objects
    */
   public StdFactory getStdFactory() {

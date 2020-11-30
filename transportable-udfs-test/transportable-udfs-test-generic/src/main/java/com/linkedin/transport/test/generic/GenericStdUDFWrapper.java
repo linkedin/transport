@@ -7,7 +7,6 @@ package com.linkedin.transport.test.generic;
 
 import com.linkedin.transport.api.StdFactory;
 import com.linkedin.transport.api.data.PlatformData;
-import com.linkedin.transport.api.data.StdData;
 import com.linkedin.transport.api.udf.StdUDF;
 import com.linkedin.transport.api.udf.StdUDF0;
 import com.linkedin.transport.api.udf.StdUDF1;
@@ -42,7 +41,7 @@ public class GenericStdUDFWrapper {
   protected boolean _requiredFilesProcessed;
   protected StdFactory _stdFactory;
   private boolean[] _nullableArguments;
-  private StdData[] _args;
+  private Object[] _args;
   private Class<? extends TopLevelStdUDF> _topLevelUdfClass;
   private List<Class<? extends StdUDF>> _stdUdfImplementations;
   private String[] _localFiles;
@@ -83,12 +82,16 @@ public class GenericStdUDFWrapper {
     return false;
   }
 
-  protected StdData wrap(Object argument, StdData stdData) {
-    if (argument != null) {
-      ((PlatformData) stdData).setUnderlyingData(argument);
-      return stdData;
-    } else {
+  protected Object wrap(Object argument, Object stdData) {
+    if (argument == null) {
       return null;
+    } else {
+      if (argument instanceof Integer || argument instanceof Long || argument instanceof Boolean || argument instanceof String) {
+        return argument;
+      } else {
+        ((PlatformData) stdData).setUnderlyingData(argument);
+        return stdData;
+      }
     }
   }
 
@@ -107,26 +110,26 @@ public class GenericStdUDFWrapper {
   }
 
   protected void createStdData() {
-    _args = new StdData[_inputTypes.length];
+    _args = new Object[_inputTypes.length];
     for (int i = 0; i < _inputTypes.length; i++) {
       _args[i] = GenericWrapper.createStdData(null, _inputTypes[i]);
     }
   }
 
-  private StdData[] wrapArguments(Object[] arguments) {
-    return IntStream.range(0, _args.length).mapToObj(i -> wrap(arguments[i], _args[i])).toArray(StdData[]::new);
+  private Object[] wrapArguments(Object[] arguments) {
+    return IntStream.range(0, _args.length).mapToObj(i -> wrap(arguments[i], _args[i])).toArray(Object[]::new);
   }
 
   public Object evaluate(Object[] arguments) {
     if (containsNullValuedNonNullableArgument(arguments)) {
       return null;
     }
-    StdData[] args = wrapArguments(arguments);
+    Object[] args = wrapArguments(arguments);
     if (!_requiredFilesProcessed) {
       String[] requiredFiles = getRequiredFiles(args);
       processRequiredFiles(requiredFiles);
     }
-    StdData result;
+    Object result;
     switch (args.length) {
       case 0:
         result = ((StdUDF0) _stdUdf).eval();
@@ -158,10 +161,10 @@ public class GenericStdUDFWrapper {
       default:
         throw new UnsupportedOperationException("eval not yet supported for StdUDF" + args.length);
     }
-    return result == null ? null : ((PlatformData) result).getUnderlyingData();
+    return GenericWrapper.getPlatformData(result);
   }
 
-  public String[] getRequiredFiles(StdData[] args) {
+  public String[] getRequiredFiles(Object[] args) {
     String[] requiredFiles;
     switch (args.length) {
       case 0:

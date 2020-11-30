@@ -5,7 +5,7 @@
  */
 package com.linkedin.transport.spark.data
 
-import com.linkedin.transport.api.data.{PlatformData, StdMap, StdString}
+import com.linkedin.transport.api.data.{MapData, PlatformData, StdMap, StdString}
 import com.linkedin.transport.spark.{SparkFactory, SparkWrapper}
 import org.apache.spark.sql.catalyst.util.ArrayBasedMapData
 import org.apache.spark.sql.types.{DataTypes, MapType}
@@ -23,45 +23,45 @@ class TestSparkMap {
 
   @Test
   def testCreateSparkMap(): Unit = {
-    val stdMap = SparkWrapper.createStdData(mapData, mapType).asInstanceOf[StdMap]
+    val stdMap = SparkWrapper.createStdData(mapData, mapType).asInstanceOf[MapData]
     assertEquals(stdMap.size(), mapData.numElements())
     assertSame(stdMap.asInstanceOf[PlatformData].getUnderlyingData, mapData)
   }
 
   @Test
   def testSparkMapKeySet(): Unit = {
-    val stdMap = SparkWrapper.createStdData(mapData, mapType).asInstanceOf[StdMap]
+    val stdMap = SparkWrapper.createStdData(mapData, mapType).asInstanceOf[MapData]
     assertEqualsNoOrder(stdMap.keySet().toArray, mapData.keyArray.array.map(s => stdFactory.createString(s.toString)))
   }
 
   @Test
   def testSparkMapValues(): Unit = {
-    val stdMap = SparkWrapper.createStdData(mapData, mapType).asInstanceOf[StdMap]
+    val stdMap = SparkWrapper.createStdData(mapData, mapType).asInstanceOf[MapData]
     assertEqualsNoOrder(stdMap.values().toArray, mapData.valueArray.array.map(s => stdFactory.createString(s.toString)))
   }
 
   @Test
   def testSparkMapGet(): Unit = {
-    val stdMap = SparkWrapper.createStdData(mapData, mapType).asInstanceOf[StdMap]
+    val stdMap = SparkWrapper.createStdData(mapData, mapType).asInstanceOf[MapData]
     mapData.keyArray.foreach(mapType.keyType, (idx, key) => {
       assertEquals(stdMap.get(stdFactory.createString(key.toString)).asInstanceOf[StdString].get,
         mapData.valueArray.array(idx).toString)
     })
     assertEquals(stdMap.containsKey(stdFactory.createString("nonExistentKey")), false)
-    // Even for a get in SparkMap we create mutable Map since Spark's Impl is based of arrays. So underlying object should change
+    // Even for a get in SparkMapData we create mutable Map since Spark's Impl is based of arrays. So underlying object should change
     assertNotSame(stdMap.asInstanceOf[PlatformData].getUnderlyingData, mapData)
   }
 
   @Test
   def testSparkMapContainsKey(): Unit = {
-    val stdMap = SparkWrapper.createStdData(mapData, mapType).asInstanceOf[StdMap]
+    val stdMap = SparkWrapper.createStdData(mapData, mapType).asInstanceOf[MapData]
     assertEquals(stdMap.containsKey(stdFactory.createString("k3")), true)
     assertEquals(stdMap.containsKey(stdFactory.createString("k4")), false)
   }
 
   @Test
   def testSparkMapPut(): Unit = {
-    val stdMap = SparkWrapper.createStdData(mapData, mapType).asInstanceOf[StdMap]
+    val stdMap = SparkWrapper.createStdData(mapData, mapType).asInstanceOf[MapData]
     val insertKey = stdFactory.createString("k4")
     val insertVal = stdFactory.createString("v4")
     stdMap.put(insertKey, insertVal)
@@ -71,7 +71,7 @@ class TestSparkMap {
 
   @Test
   def testSparkMapMutabilityReset(): Unit = {
-    val stdMap = SparkWrapper.createStdData(mapData, mapType).asInstanceOf[StdMap]
+    val stdMap = SparkWrapper.createStdData(mapData, mapType).asInstanceOf[MapData]
     val insertKey = stdFactory.createString("k4")
     val insertVal = stdFactory.createString("v4")
     stdMap.put(insertKey, insertVal)
