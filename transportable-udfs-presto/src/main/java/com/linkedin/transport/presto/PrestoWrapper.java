@@ -44,7 +44,9 @@ import java.nio.ByteBuffer;
 
 import static io.prestosql.spi.type.BigintType.*;
 import static io.prestosql.spi.type.BooleanType.*;
+import static io.prestosql.spi.type.DoubleType.*;
 import static io.prestosql.spi.type.IntegerType.*;
+import static io.prestosql.spi.type.VarbinaryType.*;
 import static io.prestosql.spi.type.VarcharType.*;
 import static io.prestosql.spi.StandardErrorCode.*;
 import static java.lang.Float.*;

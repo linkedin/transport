@@ -5,6 +5,7 @@
  */
 package com.linkedin.transport.presto;
 
+import com.google.common.collect.ImmutableSet;
 import com.linkedin.transport.api.StdFactory;
 import com.linkedin.transport.api.data.ArrayData;
 import com.linkedin.transport.api.data.MapData;
