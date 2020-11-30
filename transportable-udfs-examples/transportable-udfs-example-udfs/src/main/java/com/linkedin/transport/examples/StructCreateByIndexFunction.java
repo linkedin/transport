@@ -7,15 +7,14 @@ package com.linkedin.transport.examples;
 
 import com.google.common.collect.ImmutableList;
 import com.linkedin.transport.api.StdFactory;
-import com.linkedin.transport.api.data.StdData;
-import com.linkedin.transport.api.data.StdStruct;
+import com.linkedin.transport.api.data.RowData;
 import com.linkedin.transport.api.types.StdType;
 import com.linkedin.transport.api.udf.StdUDF2;
 import com.linkedin.transport.api.udf.TopLevelStdUDF;
 import java.util.List;
 
 
-public class StructCreateByIndexFunction extends StdUDF2<StdData, StdData, StdStruct> implements TopLevelStdUDF {
+public class StructCreateByIndexFunction extends StdUDF2<Object, Object, RowData> implements TopLevelStdUDF {
 
   private StdType _field1Type;
   private StdType _field2Type;
@@ -41,11 +40,11 @@ public class StructCreateByIndexFunction extends StdUDF2<StdData, StdData, StdSt
   }
 
   @Override
-  public StdStruct eval(StdData field1Value, StdData field2Value) {
-    StdStruct struct = getStdFactory().createStruct(ImmutableList.of(_field1Type, _field2Type));
-    struct.setField(0, field1Value);
-    struct.setField(1, field2Value);
-    return struct;
+  public RowData eval(Object field1Value, Object field2Value) {
+    RowData row = getStdFactory().createStruct(ImmutableList.of(_field1Type, _field2Type));
+    row.setField(0, field1Value);
+    row.setField(1, field2Value);
+    return row;
   }
 
   @Override

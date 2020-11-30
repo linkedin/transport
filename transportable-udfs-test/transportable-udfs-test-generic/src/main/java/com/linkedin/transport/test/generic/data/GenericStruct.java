@@ -6,8 +6,7 @@
 package com.linkedin.transport.test.generic.data;
 
 import com.linkedin.transport.api.data.PlatformData;
-import com.linkedin.transport.api.data.StdData;
-import com.linkedin.transport.api.data.StdStruct;
+import com.linkedin.transport.api.data.RowData;
 import com.linkedin.transport.test.generic.GenericWrapper;
 import com.linkedin.transport.test.spi.Row;
 import com.linkedin.transport.test.spi.types.StructTestType;
@@ -19,7 +18,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 
-public class GenericStruct implements StdStruct, PlatformData {
+public class GenericStruct implements RowData, PlatformData {
 
   private Row _struct;
   private final List<String> _fieldNames;
@@ -46,27 +45,27 @@ public class GenericStruct implements StdStruct, PlatformData {
   }
 
   @Override
-  public StdData getField(int index) {
+  public Object getField(int index) {
     return GenericWrapper.createStdData(_struct.getFields().get(index), _fieldTypes.get(index));
   }
 
   @Override
-  public StdData getField(String name) {
+  public Object getField(String name) {
     return getField(_fieldNames.indexOf(name));
   }
 
   @Override
-  public void setField(int index, StdData value) {
-    _struct.getFields().set(index, ((PlatformData) value).getUnderlyingData());
+  public void setField(int index, Object value) {
+    _struct.getFields().set(index, GenericWrapper.getPlatformData(value));
   }
 
   @Override
-  public void setField(String name, StdData value) {
+  public void setField(String name, Object value) {
     setField(_fieldNames.indexOf(name), value);
   }
 
   @Override
-  public List<StdData> fields() {
+  public List<Object> fields() {
     return IntStream.range(0, _struct.getFields().size()).mapToObj(this::getField).collect(Collectors.toList());
   }
 }

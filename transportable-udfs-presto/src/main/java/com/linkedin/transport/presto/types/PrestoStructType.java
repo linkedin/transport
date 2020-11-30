@@ -5,19 +5,18 @@
  */
 package com.linkedin.transport.presto.types;
 
-import com.linkedin.transport.api.types.StdStructType;
+import com.linkedin.transport.api.types.RowType;
 import com.linkedin.transport.api.types.StdType;
 import com.linkedin.transport.presto.PrestoWrapper;
-import io.prestosql.spi.type.RowType;
 import java.util.List;
 import java.util.stream.Collectors;
 
 
-public class PrestoStructType implements StdStructType {
+public class PrestoStructType implements RowType {
 
-  final RowType rowType;
+  final io.prestosql.spi.type.RowType rowType;
 
-  public PrestoStructType(RowType rowType) {
+  public PrestoStructType(io.prestosql.spi.type.RowType rowType) {
     this.rowType = rowType;
   }
 

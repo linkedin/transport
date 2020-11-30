@@ -6,8 +6,7 @@
 package com.linkedin.transport.hive.data;
 
 import com.linkedin.transport.api.StdFactory;
-import com.linkedin.transport.api.data.StdData;
-import com.linkedin.transport.api.data.StdStruct;
+import com.linkedin.transport.api.data.RowData;
 import com.linkedin.transport.hive.HiveWrapper;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -18,18 +17,18 @@ import org.apache.hadoop.hive.serde2.objectinspector.StructField;
 import org.apache.hadoop.hive.serde2.objectinspector.StructObjectInspector;
 
 
-public class HiveStruct extends HiveData implements StdStruct {
+public class HiveRowData extends HiveData implements RowData {
 
   StructObjectInspector _structObjectInspector;
 
-  public HiveStruct(Object object, ObjectInspector objectInspector, StdFactory stdFactory) {
+  public HiveRowData(Object object, ObjectInspector objectInspector, StdFactory stdFactory) {
     super(stdFactory);
     _object = object;
     _structObjectInspector = (StructObjectInspector) objectInspector;
   }
 
   @Override
-  public StdData getField(int index) {
+  public Object getField(int index) {
     StructField structField = _structObjectInspector.getAllStructFieldRefs().get(index);
     return HiveWrapper.createStdData(
         _structObjectInspector.getStructFieldData(_object, structField),
@@ -38,7 +37,7 @@ public class HiveStruct extends HiveData implements StdStruct {
   }
 
   @Override
-  public StdData getField(String name) {
+  public Object getField(String name) {
     StructField structField = _structObjectInspector.getStructFieldRef(name);
     return HiveWrapper.createStdData(
         _structObjectInspector.getStructFieldData(_object, structField),
@@ -47,11 +46,11 @@ public class HiveStruct extends HiveData implements StdStruct {
   }
 
   @Override
-  public void setField(int index, StdData value) {
+  public void setField(int index, Object value) {
     if (_structObjectInspector instanceof SettableStructObjectInspector) {
       StructField field = _structObjectInspector.getAllStructFieldRefs().get(index);
       ((SettableStructObjectInspector) _structObjectInspector).setStructFieldData(_object,
-          field, ((HiveData) value).getUnderlyingDataForObjectInspector(field.getFieldObjectInspector())
+          field, HiveWrapper.getPlatformDataForObjectInspector(value, field.getFieldObjectInspector())
       );
       _isObjectModified = true;
     } else {
@@ -61,11 +60,11 @@ public class HiveStruct extends HiveData implements StdStruct {
   }
 
   @Override
-  public void setField(String name, StdData value) {
+  public void setField(String name, Object value) {
     if (_structObjectInspector instanceof SettableStructObjectInspector) {
       StructField field = _structObjectInspector.getStructFieldRef(name);
       ((SettableStructObjectInspector) _structObjectInspector).setStructFieldData(_object,
-          field, ((HiveData) value).getUnderlyingDataForObjectInspector(field.getFieldObjectInspector()));
+          field, HiveWrapper.getPlatformDataForObjectInspector(value, field.getFieldObjectInspector()));
       _isObjectModified = true;
     } else {
       throw new RuntimeException("Attempt to modify an immutable Hive object of type: "
@@ -74,7 +73,7 @@ public class HiveStruct extends HiveData implements StdStruct {
   }
 
   @Override
-  public List<StdData> fields() {
+  public List<Object> fields() {
     return IntStream.range(0, _structObjectInspector.getAllStructFieldRefs().size()).mapToObj(i -> getField(i))
         .collect(Collectors.toList());
   }

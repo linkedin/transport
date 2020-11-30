@@ -9,8 +9,7 @@ import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableList;
 import com.linkedin.transport.api.StdFactory;
 import com.linkedin.transport.api.data.PlatformData;
-import com.linkedin.transport.api.data.StdData;
-import com.linkedin.transport.api.data.StdMap;
+import com.linkedin.transport.api.data.MapData;
 import com.linkedin.transport.presto.PrestoFactory;
 import com.linkedin.transport.presto.PrestoWrapper;
 import io.prestosql.spi.PrestoException;
@@ -31,7 +30,7 @@ import static io.prestosql.spi.StandardErrorCode.*;
 import static io.prestosql.spi.type.TypeUtils.*;
 
 
-public class PrestoMap extends PrestoData implements StdMap {
+public class PrestoMapData<K, V> extends PrestoData implements MapData<K, V> {
 
   final Type _keyType;
   final Type _valueType;
@@ -40,7 +39,7 @@ public class PrestoMap extends PrestoData implements StdMap {
   final StdFactory _stdFactory;
   Block _block;
 
-  public PrestoMap(Type mapType, StdFactory stdFactory) {
+  public PrestoMapData(Type mapType, StdFactory stdFactory) {
     BlockBuilder mutable = mapType.createBlockBuilder(new PageBuilderStatus().createBlockBuilderStatus(), 1);
     mutable.beginBlockEntry();
     mutable.closeEntry();
@@ -56,7 +55,7 @@ public class PrestoMap extends PrestoData implements StdMap {
         .getMethodHandle();
   }
 
-  public PrestoMap(Block block, Type mapType, StdFactory stdFactory) {
+  public PrestoMapData(Block block, Type mapType, StdFactory stdFactory) {
     this(mapType, stdFactory);
     _block = block;
   }
@@ -67,13 +66,12 @@ public class PrestoMap extends PrestoData implements StdMap {
   }
 
   @Override
-  public StdData get(StdData key) {
-    Object prestoKey = ((PlatformData) key).getUnderlyingData();
+  public V get(K key) {
+    Object prestoKey = PrestoWrapper.getPlatformData(key);
     int i = seekKey(prestoKey);
     if (i != -1) {
       Object value = readNativeValue(_valueType, _block, i);
-      StdData stdValue = PrestoWrapper.createStdData(value, _valueType, _stdFactory);
-      return stdValue;
+      return (V) PrestoWrapper.createStdData(value, _valueType, _stdFactory);
     } else {
       return null;
     }
@@ -82,10 +80,10 @@ public class PrestoMap extends PrestoData implements StdMap {
   // TODO: Do not copy the _mutable BlockBuilder on every update. As long as updates are append-only or for fixed-size
   // types, we can skip copying.
   @Override
-  public void put(StdData key, StdData value) {
+  public void put(K key, V value) {
     BlockBuilder mutable = _mapType.createBlockBuilder(new PageBuilderStatus().createBlockBuilderStatus(), 1);
     BlockBuilder entryBuilder = mutable.beginBlockEntry();
-    Object prestoKey = ((PlatformData) key).getUnderlyingData();
+    Object prestoKey = PrestoWrapper.getPlatformData(key);
     int valuePosition = seekKey(prestoKey);
     for (int i = 0; i < _block.getPositionCount(); i += 2) {
       // Write the current key to the map
@@ -93,26 +91,26 @@ public class PrestoMap extends PrestoData implements StdMap {
       // Find out if we need to change the corresponding value
       if (i == valuePosition - 1) {
         // Use the user-supplied value
-        ((PrestoData) value).writeToBlock(entryBuilder);
+        PrestoWrapper.writeToBlock(value, entryBuilder);
       } else {
         // Use the existing value in original _block
         _valueType.appendTo(_block, i + 1, entryBuilder);
       }
     }
     if (valuePosition == -1) {
-      ((PrestoData) key).writeToBlock(entryBuilder);
-      ((PrestoData) value).writeToBlock(entryBuilder);
+      PrestoWrapper.writeToBlock(key, entryBuilder);
+      PrestoWrapper.writeToBlock(value, entryBuilder);
     }
 
     mutable.closeEntry();
     _block = ((MapType) _mapType).getObject(mutable.build(), 0);
   }
 
-  public Set<StdData> keySet() {
-    return new AbstractSet<StdData>() {
+  public Set<K> keySet() {
+    return new AbstractSet<K>() {
       @Override
-      public Iterator<StdData> iterator() {
-        return new Iterator<StdData>() {
+      public Iterator<K> iterator() {
+        return new Iterator<K>() {
           int i = -2;
 
           @Override
@@ -121,27 +119,27 @@ public class PrestoMap extends PrestoData implements StdMap {
           }
 
           @Override
-          public StdData next() {
+          public K next() {
             i += 2;
-            return PrestoWrapper.createStdData(readNativeValue(_keyType, _block, i), _keyType, _stdFactory);
+            return (K) PrestoWrapper.createStdData(readNativeValue(_keyType, _block, i), _keyType, _stdFactory);
           }
         };
       }
 
       @Override
       public int size() {
-        return PrestoMap.this.size();
+        return PrestoMapData.this.size();
       }
     };
   }
 
   @Override
-  public Collection<StdData> values() {
-    return new AbstractCollection<StdData>() {
+  public Collection<V> values() {
+    return new AbstractCollection<V>() {
 
       @Override
-      public Iterator<StdData> iterator() {
-        return new Iterator<StdData>() {
+      public Iterator<V> iterator() {
+        return new Iterator<V>() {
           int i = -2;
 
           @Override
@@ -150,22 +148,25 @@ public class PrestoMap extends PrestoData implements StdMap {
           }
 
           @Override
-          public StdData next() {
+          public V next() {
             i += 2;
-            return PrestoWrapper.createStdData(readNativeValue(_valueType, _block, i + 1), _valueType, _stdFactory);
+            return
+                (V) PrestoWrapper.createStdData(
+                    readNativeValue(_valueType, _block, i + 1), _valueType, _stdFactory
+                );
           }
         };
       }
 
       @Override
       public int size() {
-        return PrestoMap.this.size();
+        return PrestoMapData.this.size();
       }
     };
   }
 
   @Override
-  public boolean containsKey(StdData key) {
+  public boolean containsKey(K key) {
     return get(key) != null;
   }
 

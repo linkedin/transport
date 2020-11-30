@@ -6,8 +6,7 @@
 package com.linkedin.transport.avro.data;
 
 import com.linkedin.transport.api.data.PlatformData;
-import com.linkedin.transport.api.data.StdData;
-import com.linkedin.transport.api.data.StdMap;
+import com.linkedin.transport.api.data.MapData;
 import com.linkedin.transport.avro.AvroWrapper;
 import java.util.AbstractSet;
 import java.util.Collection;
@@ -21,18 +20,18 @@ import org.apache.avro.Schema;
 import static org.apache.avro.Schema.Type.*;
 
 
-public class AvroMap implements StdMap, PlatformData {
+public class AvroMapData<K, V> implements MapData<K, V>, PlatformData {
   private Map<Object, Object> _map;
   private final Schema _keySchema;
   private final Schema _valueSchema;
 
-  public AvroMap(Map<Object, Object> map, Schema mapSchema) {
+  public AvroMapData(Map<Object, Object> map, Schema mapSchema) {
     _map = map;
     _keySchema = Schema.create(STRING);
     _valueSchema = mapSchema.getValueType();
   }
 
-  public AvroMap(Schema mapSchema) {
+  public AvroMapData(Schema mapSchema) {
     _map = new LinkedHashMap<>();
     _keySchema = Schema.create(STRING);
     _valueSchema = mapSchema.getValueType();
@@ -54,21 +53,21 @@ public class AvroMap implements StdMap, PlatformData {
   }
 
   @Override
-  public StdData get(StdData key) {
-    return AvroWrapper.createStdData(_map.get(((PlatformData) key).getUnderlyingData()), _valueSchema);
+  public V get(K key) {
+    return (V) AvroWrapper.createStdData(_map.get(AvroWrapper.getPlatformData(key)), _valueSchema);
   }
 
   @Override
-  public void put(StdData key, StdData value) {
-    _map.put(((PlatformData) key).getUnderlyingData(), ((PlatformData) value).getUnderlyingData());
+  public void put(K key, V value) {
+    _map.put(AvroWrapper.getPlatformData(key), AvroWrapper.getPlatformData(value));
   }
 
   @Override
-  public Set<StdData> keySet() {
-    return new AbstractSet<StdData>() {
+  public Set<K> keySet() {
+    return new AbstractSet<K>() {
       @Override
-      public Iterator<StdData> iterator() {
-        return new Iterator<StdData>() {
+      public Iterator<K> iterator() {
+        return new Iterator<K>() {
           Iterator<Object> keySet = _map.keySet().iterator();
           @Override
           public boolean hasNext() {
@@ -76,8 +75,8 @@ public class AvroMap implements StdMap, PlatformData {
           }
 
           @Override
-          public StdData next() {
-            return AvroWrapper.createStdData(keySet.next(), _keySchema);
+          public K next() {
+            return (K) AvroWrapper.createStdData(keySet.next(), _keySchema);
           }
         };
       }
@@ -90,12 +89,12 @@ public class AvroMap implements StdMap, PlatformData {
   }
 
   @Override
-  public Collection<StdData> values() {
-    return _map.values().stream().map(v -> AvroWrapper.createStdData(v, _valueSchema)).collect(Collectors.toList());
+  public Collection<V> values() {
+    return _map.values().stream().map(v -> (V) AvroWrapper.createStdData(v, _valueSchema)).collect(Collectors.toList());
   }
 
   @Override
-  public boolean containsKey(StdData key) {
-    return _map.containsKey(((PlatformData) key).getUnderlyingData());
+  public boolean containsKey(K key) {
+    return _map.containsKey(AvroWrapper.getPlatformData(key));
   }
 }

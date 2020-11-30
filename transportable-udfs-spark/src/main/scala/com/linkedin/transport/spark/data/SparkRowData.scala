@@ -7,7 +7,7 @@ package com.linkedin.transport.spark.data
 
 import java.util.{List => JavaList}
 
-import com.linkedin.transport.api.data.{PlatformData, StdData, StdStruct}
+import com.linkedin.transport.api.data.{PlatformData, RowData}
 import com.linkedin.transport.spark.SparkWrapper
 import org.apache.spark.sql.catalyst.InternalRow
 import org.apache.spark.sql.types.StructType
@@ -16,14 +16,14 @@ import scala.collection.JavaConverters._
 import scala.collection.mutable.ArrayBuffer
 
 
-case class SparkStruct(private var _row: InternalRow,
-                       private val _structType: StructType) extends StdStruct with PlatformData {
+case class SparkRowData(private var _row: InternalRow,
+                       private val _structType: StructType) extends RowData with PlatformData {
 
   private var _mutableBuffer: ArrayBuffer[Any] = if (_row == null) createMutableStruct() else null
 
-  override def getField(name: String): StdData = getField(_structType.fieldIndex(name))
+  override def getField(name: String): Object = getField(_structType.fieldIndex(name))
 
-  override def getField(index: Int): StdData = {
+  override def getField(index: Int): Object = {
     val fieldDataType = _structType(index).dataType
     if (_mutableBuffer == null) {
       SparkWrapper.createStdData(_row.get(index, fieldDataType), fieldDataType)
@@ -32,15 +32,15 @@ case class SparkStruct(private var _row: InternalRow,
     }
   }
 
-  override def setField(name: String, value: StdData): Unit = {
+  override def setField(name: String, value: Object): Unit = {
     setField(_structType.fieldIndex(name), value)
   }
 
-  override def setField(index: Int, value: StdData): Unit = {
+  override def setField(index: Int, value: Object): Unit = {
     if (_mutableBuffer == null) {
       _mutableBuffer = createMutableStruct()
     }
-    _mutableBuffer(index) = value.asInstanceOf[PlatformData].getUnderlyingData
+    _mutableBuffer(index) = SparkWrapper.getPlatformData(value)
   }
 
   private def createMutableStruct() = {
@@ -51,7 +51,7 @@ case class SparkStruct(private var _row: InternalRow,
     }
   }
 
-  override def fields(): JavaList[StdData] = {
+  override def fields(): JavaList[Object] = {
     _structType.indices.map(getField).asJava
   }
 

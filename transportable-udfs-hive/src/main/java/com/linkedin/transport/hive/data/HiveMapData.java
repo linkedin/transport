@@ -6,8 +6,7 @@
 package com.linkedin.transport.hive.data;
 
 import com.linkedin.transport.api.StdFactory;
-import com.linkedin.transport.api.data.StdData;
-import com.linkedin.transport.api.data.StdMap;
+import com.linkedin.transport.api.data.MapData;
 import com.linkedin.transport.hive.HiveWrapper;
 import java.util.AbstractCollection;
 import java.util.AbstractSet;
@@ -20,13 +19,13 @@ import org.apache.hadoop.hive.serde2.objectinspector.ObjectInspector;
 import org.apache.hadoop.hive.serde2.objectinspector.SettableMapObjectInspector;
 
 
-public class HiveMap extends HiveData implements StdMap {
+public class HiveMapData<K, V> extends HiveData implements MapData<K, V> {
 
   final MapObjectInspector _mapObjectInspector;
   final ObjectInspector _keyObjectInspector;
   final ObjectInspector _valueObjectInspector;
 
-  public HiveMap(Object object, ObjectInspector objectInspector, StdFactory stdFactory) {
+  public HiveMapData(Object object, ObjectInspector objectInspector, StdFactory stdFactory) {
     super(stdFactory);
     _object = object;
     _mapObjectInspector = (MapObjectInspector) objectInspector;
@@ -40,30 +39,30 @@ public class HiveMap extends HiveData implements StdMap {
   }
 
   @Override
-  public StdData get(StdData key) {
+  public V get(K key) {
     MapObjectInspector mapOI = _mapObjectInspector;
     Object mapObj = _object;
     Object keyObj;
     try {
-      keyObj = ((HiveData) key).getUnderlyingDataForObjectInspector(_keyObjectInspector);
+      keyObj = HiveWrapper.getPlatformDataForObjectInspector(key, _keyObjectInspector);
     } catch (RuntimeException e) {
       // Cannot convert key argument to Map's KeyOI. So convert both the map and the key arg to
       // objects having standard OIs
       mapOI = (MapObjectInspector) getStandardObjectInspector();
-      mapObj = getStandardObject();
-      keyObj = ((HiveData) key).getStandardObject();
+      mapObj = HiveWrapper.getStandardObject(this);
+      keyObj = HiveWrapper.getStandardObject(key);
     }
 
-    return HiveWrapper.createStdData(
+    return (V) HiveWrapper.createStdData(
         mapOI.getMapValueElement(mapObj, keyObj),
         mapOI.getMapValueObjectInspector(), _stdFactory);
   }
 
   @Override
-  public void put(StdData key, StdData value) {
+  public void put(K key, V value) {
     if (_mapObjectInspector instanceof SettableMapObjectInspector) {
-      Object keyObj = ((HiveData) key).getUnderlyingDataForObjectInspector(_keyObjectInspector);
-      Object valueObj = ((HiveData) value).getUnderlyingDataForObjectInspector(_valueObjectInspector);
+      Object keyObj = HiveWrapper.getPlatformDataForObjectInspector(key, _keyObjectInspector);
+      Object valueObj = HiveWrapper.getPlatformDataForObjectInspector(value, _valueObjectInspector);
 
       ((SettableMapObjectInspector) _mapObjectInspector).put(
           _object,
@@ -79,11 +78,11 @@ public class HiveMap extends HiveData implements StdMap {
 
   //TODO: Cache the result of .getMap(_object) below for subsequent calls.
   @Override
-  public Set<StdData> keySet() {
-    return new AbstractSet<StdData>() {
+  public Set<K> keySet() {
+    return new AbstractSet<K>() {
       @Override
-      public Iterator<StdData> iterator() {
-        return new Iterator<StdData>() {
+      public Iterator<K> iterator() {
+        return new Iterator<K>() {
           Iterator mapKeyIterator = _mapObjectInspector.getMap(_object).keySet().iterator();
 
           @Override
@@ -92,26 +91,26 @@ public class HiveMap extends HiveData implements StdMap {
           }
 
           @Override
-          public StdData next() {
-            return HiveWrapper.createStdData(mapKeyIterator.next(), _keyObjectInspector, _stdFactory);
+          public K next() {
+            return (K) HiveWrapper.createStdData(mapKeyIterator.next(), _keyObjectInspector, _stdFactory);
           }
         };
       }
 
       @Override
       public int size() {
-        return HiveMap.this.size();
+        return HiveMapData.this.size();
       }
     };
   }
 
   //TODO: Cache the result of .getMap(_object) below for subsequent calls.
   @Override
-  public Collection<StdData> values() {
-    return new AbstractCollection<StdData>() {
+  public Collection<V> values() {
+    return new AbstractCollection<V>() {
       @Override
-      public Iterator<StdData> iterator() {
-        return new Iterator<StdData>() {
+      public Iterator<V> iterator() {
+        return new Iterator<V>() {
           Iterator mapValueIterator = _mapObjectInspector.getMap(_object).values().iterator();
 
           @Override
@@ -120,30 +119,30 @@ public class HiveMap extends HiveData implements StdMap {
           }
 
           @Override
-          public StdData next() {
-            return HiveWrapper.createStdData(mapValueIterator.next(), _valueObjectInspector, _stdFactory);
+          public V next() {
+            return (V) HiveWrapper.createStdData(mapValueIterator.next(), _valueObjectInspector, _stdFactory);
           }
         };
       }
 
       @Override
       public int size() {
-        return HiveMap.this.size();
+        return HiveMapData.this.size();
       }
     };
   }
 
   @Override
-  public boolean containsKey(StdData key) {
+  public boolean containsKey(K key) {
     Object mapObj = _object;
     Object keyObj;
     try {
-      keyObj = ((HiveData) key).getUnderlyingDataForObjectInspector(_keyObjectInspector);
+      keyObj = HiveWrapper.getPlatformDataForObjectInspector(key, _keyObjectInspector);
     } catch (RuntimeException e) {
       // Cannot convert key argument to Map's KeyOI. So convertboth the map and the key arg to
       // objects having standard OIs
-      mapObj = getStandardObject();
-      keyObj = ((HiveData) key).getStandardObject();
+      mapObj = HiveWrapper.getStandardObject(this);
+      keyObj = HiveWrapper.getStandardObject(key);
     }
 
     return ((Map) mapObj).containsKey(keyObj);

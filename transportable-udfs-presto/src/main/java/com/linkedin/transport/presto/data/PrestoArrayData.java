@@ -6,8 +6,7 @@
 package com.linkedin.transport.presto.data;
 
 import com.linkedin.transport.api.StdFactory;
-import com.linkedin.transport.api.data.StdArray;
-import com.linkedin.transport.api.data.StdData;
+import com.linkedin.transport.api.data.ArrayData;
 import com.linkedin.transport.presto.PrestoWrapper;
 import io.prestosql.spi.block.Block;
 import io.prestosql.spi.block.BlockBuilder;
@@ -19,7 +18,7 @@ import java.util.Iterator;
 import static io.prestosql.spi.type.TypeUtils.*;
 
 
-public class PrestoArray extends PrestoData implements StdArray {
+public class PrestoArrayData<E> extends PrestoData implements ArrayData<E> {
 
   private final StdFactory _stdFactory;
   private final ArrayType _arrayType;
@@ -28,14 +27,14 @@ public class PrestoArray extends PrestoData implements StdArray {
   private Block _block;
   private BlockBuilder _mutable;
 
-  public PrestoArray(Block block, ArrayType arrayType, StdFactory stdFactory) {
+  public PrestoArrayData(Block block, ArrayType arrayType, StdFactory stdFactory) {
     _block = block;
     _arrayType = arrayType;
     _elementType = arrayType.getElementType();
     _stdFactory = stdFactory;
   }
 
-  public PrestoArray(ArrayType arrayType, int expectedEntries, StdFactory stdFactory) {
+  public PrestoArrayData(ArrayType arrayType, int expectedEntries, StdFactory stdFactory) {
     _block = null;
     _elementType = arrayType.getElementType();
     _mutable = _elementType.createBlockBuilder(new PageBuilderStatus().createBlockBuilderStatus(), expectedEntries);
@@ -49,19 +48,19 @@ public class PrestoArray extends PrestoData implements StdArray {
   }
 
   @Override
-  public StdData get(int idx) {
+  public E get(int idx) {
     Block sourceBlock = _mutable == null ? _block : _mutable;
     int position = PrestoWrapper.checkedIndexToBlockPosition(sourceBlock, idx);
     Object element = readNativeValue(_elementType, sourceBlock, position);
-    return PrestoWrapper.createStdData(element, _elementType, _stdFactory);
+    return (E) PrestoWrapper.createStdData(element, _elementType, _stdFactory);
   }
 
   @Override
-  public void add(StdData e) {
+  public void add(E e) {
     if (_mutable == null) {
       _mutable = _elementType.createBlockBuilder(new PageBuilderStatus().createBlockBuilderStatus(), 1);
     }
-    ((PrestoData) e).writeToBlock(_mutable);
+    PrestoWrapper.writeToBlock(e, _mutable);
   }
 
   @Override
@@ -75,10 +74,10 @@ public class PrestoArray extends PrestoData implements StdArray {
   }
 
   @Override
-  public Iterator<StdData> iterator() {
-    return new Iterator<StdData>() {
+  public Iterator<E> iterator() {
+    return new Iterator<E>() {
       Block sourceBlock = _mutable == null ? _block : _mutable;
-      int size = PrestoArray.this.size();
+      int size = PrestoArrayData.this.size();
       int position = 0;
 
       @Override
@@ -87,10 +86,10 @@ public class PrestoArray extends PrestoData implements StdArray {
       }
 
       @Override
-      public StdData next() {
+      public E next() {
         Object element = readNativeValue(_elementType, sourceBlock, position);
         position++;
-        return PrestoWrapper.createStdData(element, _elementType, _stdFactory);
+        return (E) PrestoWrapper.createStdData(element, _elementType, _stdFactory);
       }
     };
   }

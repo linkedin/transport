@@ -6,7 +6,7 @@
 package com.linkedin.transport.hive.data;
 
 import com.linkedin.transport.api.StdFactory;
-import com.linkedin.transport.api.data.StdArray;
+import com.linkedin.transport.api.data.ArrayData;
 import com.linkedin.transport.api.data.StdData;
 import com.linkedin.transport.hive.HiveWrapper;
 import java.util.Iterator;
@@ -15,12 +15,12 @@ import org.apache.hadoop.hive.serde2.objectinspector.ObjectInspector;
 import org.apache.hadoop.hive.serde2.objectinspector.SettableListObjectInspector;
 
 
-public class HiveArray extends HiveData implements StdArray {
+public class HiveArrayData<E> extends HiveData implements ArrayData<E> {
 
   final ListObjectInspector _listObjectInspector;
   final ObjectInspector _elementObjectInspector;
 
-  public HiveArray(Object object, ObjectInspector objectInspector, StdFactory stdFactory) {
+  public HiveArrayData(Object object, ObjectInspector objectInspector, StdFactory stdFactory) {
     super(stdFactory);
     _object = object;
     _listObjectInspector = (ListObjectInspector) objectInspector;
@@ -33,19 +33,21 @@ public class HiveArray extends HiveData implements StdArray {
   }
 
   @Override
-  public StdData get(int idx) {
-    return HiveWrapper.createStdData(_listObjectInspector.getListElement(_object, idx), _elementObjectInspector,
+  public E get(int idx) {
+    return (E) HiveWrapper.createStdData(
+        _listObjectInspector.getListElement(_object, idx),
+        _elementObjectInspector,
         _stdFactory);
   }
 
   @Override
-  public void add(StdData e) {
+  public void add(E e) {
     if (_listObjectInspector instanceof SettableListObjectInspector) {
       SettableListObjectInspector settableListObjectInspector = (SettableListObjectInspector) _listObjectInspector;
       int originalSize = size();
       settableListObjectInspector.resize(_object, originalSize + 1);
       settableListObjectInspector.set(_object, originalSize,
-          ((HiveData) e).getUnderlyingDataForObjectInspector(_elementObjectInspector));
+          HiveWrapper.getPlatformDataForObjectInspector(e, _elementObjectInspector));
       _isObjectModified = true;
     } else {
       throw new RuntimeException("Attempt to modify an immutable Hive object of type: "
@@ -59,8 +61,8 @@ public class HiveArray extends HiveData implements StdArray {
   }
 
   @Override
-  public Iterator<StdData> iterator() {
-    return new Iterator<StdData>() {
+  public Iterator<E> iterator() {
+    return new Iterator<E>() {
       int size = size();
       int currentIndex = 0;
 
@@ -70,8 +72,8 @@ public class HiveArray extends HiveData implements StdArray {
       }
 
       @Override
-      public StdData next() {
-        StdData element = HiveWrapper.createStdData(_listObjectInspector.getListElement(_object, currentIndex),
+      public E next() {
+        E element = (E) HiveWrapper.createStdData(_listObjectInspector.getListElement(_object, currentIndex),
             _elementObjectInspector, _stdFactory);
         currentIndex++;
         return element;
