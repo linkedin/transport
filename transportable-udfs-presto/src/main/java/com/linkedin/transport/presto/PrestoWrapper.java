@@ -115,7 +115,7 @@ public final class PrestoWrapper {
     } else if (transportData instanceof String) {
       return Slices.utf8Slice((String) transportData);
     } else if (transportData instanceof ByteBuffer) {
-      return Slices.wrappedBuffer((ByteBuffer) transportData);
+      return Slices.wrappedBuffer(((ByteBuffer) transportData).array());
     } else {
       return ((PlatformData) transportData).getUnderlyingData();
     }

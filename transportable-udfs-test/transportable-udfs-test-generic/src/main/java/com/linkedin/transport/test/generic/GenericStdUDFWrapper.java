@@ -23,6 +23,7 @@ import com.linkedin.transport.test.spi.types.TestType;
 import com.linkedin.transport.utils.FileSystemUtils;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
+import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -86,7 +87,9 @@ public class GenericStdUDFWrapper {
     if (argument == null) {
       return null;
     } else {
-      if (argument instanceof Integer || argument instanceof Long || argument instanceof Boolean || argument instanceof String) {
+      if (argument instanceof Integer || argument instanceof Long || argument instanceof Boolean ||
+          argument instanceof String || argument instanceof Double || argument instanceof Float ||
+          argument instanceof ByteBuffer) {
         return argument;
       } else {
         ((PlatformData) stdData).setUnderlyingData(argument);

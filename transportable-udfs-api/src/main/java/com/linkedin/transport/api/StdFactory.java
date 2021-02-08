@@ -8,7 +8,6 @@ package com.linkedin.transport.api;
 import com.linkedin.transport.api.data.ArrayData;
 import com.linkedin.transport.api.data.MapData;
 import com.linkedin.transport.api.data.RowData;
-import com.linkedin.transport.api.data.StdData;
 import com.linkedin.transport.api.types.StdArrayType;
 import com.linkedin.transport.api.types.StdMapType;
 import com.linkedin.transport.api.types.StdType;
