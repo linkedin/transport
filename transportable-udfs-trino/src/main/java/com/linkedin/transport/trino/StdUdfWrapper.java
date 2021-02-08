@@ -7,6 +7,8 @@ package com.linkedin.transport.trino;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.primitives.Booleans;
 import com.linkedin.transport.api.StdFactory;
 import com.linkedin.transport.api.udf.StdUDF;
 import com.linkedin.transport.api.udf.StdUDF0;
@@ -43,6 +45,7 @@ import java.util.List;
 import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import org.apache.commons.lang3.ClassUtils;
@@ -186,7 +189,7 @@ public abstract class StdUdfWrapper extends SqlScalarFunction {
 
   protected Object eval(StdUDF stdUDF, Type[] types, boolean isIntegerReturnType,
       AtomicLong requiredFilesNextRefreshTime, Object... arguments) {
-    StdData[] args = wrapArguments(stdUDF, types, arguments);
+    Object[] args = wrapArguments(stdUDF, types, arguments);
     if (requiredFilesNextRefreshTime.get() <= System.currentTimeMillis()) {
       String[] requiredFiles = getRequiredFiles(stdUDF, args);
       processRequiredFiles(stdUDF, requiredFiles, requiredFilesNextRefreshTime);

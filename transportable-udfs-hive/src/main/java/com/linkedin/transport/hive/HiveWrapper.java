@@ -59,7 +59,7 @@ public final class HiveWrapper {
       return ((PrimitiveObjectInspector) hiveObjectInspector).getPrimitiveJavaObject(hiveData);
     } else if (hiveObjectInspector instanceof BinaryObjectInspector) {
       BinaryObjectInspector binaryObjectInspector = (BinaryObjectInspector) hiveObjectInspector;
-      return ByteBuffer.wrap(binaryObjectInspector.getPrimitiveJavaObject(hiveData));
+      return hiveData == null ? null : ByteBuffer.wrap(binaryObjectInspector.getPrimitiveJavaObject(hiveData));
     } else if (hiveObjectInspector instanceof ListObjectInspector) {
       ListObjectInspector listObjectInspector = (ListObjectInspector) hiveObjectInspector;
       return new HiveArrayData(hiveData, listObjectInspector, stdFactory);

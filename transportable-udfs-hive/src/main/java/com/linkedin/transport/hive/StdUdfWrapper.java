@@ -22,6 +22,7 @@ import com.linkedin.transport.hive.typesystem.HiveTypeInference;
 import com.linkedin.transport.utils.FileSystemUtils;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.IntStream;
@@ -35,6 +36,7 @@ import org.apache.hadoop.hive.ql.udf.generic.GenericUDF;
 import org.apache.hadoop.hive.serde2.objectinspector.ConstantObjectInspector;
 import org.apache.hadoop.hive.serde2.objectinspector.ObjectInspector;
 import org.apache.hadoop.hive.serde2.objectinspector.PrimitiveObjectInspector;
+import org.apache.hadoop.hive.serde2.objectinspector.primitive.BinaryObjectInspector;
 import org.apache.hadoop.hive.serde2.objectinspector.primitive.PrimitiveObjectInspectorFactory;
 
 
@@ -114,6 +116,11 @@ public abstract class StdUdfWrapper extends GenericUDF {
   protected Object wrap(DeferredObject hiveDeferredObject, ObjectInspector inputObjectInspector, Object stdData) {
     try {
       Object hiveObject = hiveDeferredObject.get();
+      if (inputObjectInspector instanceof BinaryObjectInspector) {
+        return hiveObject == null ? null : ByteBuffer.wrap(
+            ((BinaryObjectInspector) inputObjectInspector).getPrimitiveJavaObject(hiveObject)
+        );
+      }
       if (inputObjectInspector instanceof PrimitiveObjectInspector) {
         return ((PrimitiveObjectInspector) inputObjectInspector).getPrimitiveJavaObject(hiveObject);
       } else {
@@ -144,7 +151,8 @@ public abstract class StdUdfWrapper extends GenericUDF {
     if (transportData == null) {
       return null;
     } else if (transportData instanceof Integer || transportData instanceof Long || transportData instanceof Boolean
-      || transportData instanceof String) {
+      || transportData instanceof String || transportData instanceof Float || transportData instanceof Double ||
+        transportData instanceof ByteBuffer) {
       return HiveWrapper.getPlatformDataForObjectInspector(transportData, _outputObjectInspector);
     } else {
       return ((PlatformData) transportData).getUnderlyingData();

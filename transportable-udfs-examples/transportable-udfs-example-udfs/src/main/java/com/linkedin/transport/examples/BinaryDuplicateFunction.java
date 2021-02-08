@@ -6,24 +6,22 @@
 package com.linkedin.transport.examples;
 
 import com.google.common.collect.ImmutableList;
-import com.linkedin.transport.api.data.StdBinary;
 import com.linkedin.transport.api.udf.StdUDF1;
 import com.linkedin.transport.api.udf.TopLevelStdUDF;
 import java.nio.ByteBuffer;
 import java.util.List;
 
 
-public class BinaryDuplicateFunction extends StdUDF1<StdBinary, StdBinary> implements TopLevelStdUDF  {
+public class BinaryDuplicateFunction extends StdUDF1<ByteBuffer, ByteBuffer> implements TopLevelStdUDF  {
   @Override
-  public StdBinary eval(StdBinary binaryObject) {
-    ByteBuffer byteBuffer = binaryObject.get();
+  public ByteBuffer eval(ByteBuffer byteBuffer) {
     ByteBuffer results = ByteBuffer.allocate(2 * byteBuffer.array().length);
     for (int i = 0; i < 2; i++) {
       for (byte b : byteBuffer.array()) {
         results.put(b);
       }
     }
-    return getStdFactory().createBinary(results);
+    return results;
   }
 
   @Override
