@@ -4,13 +4,13 @@
 **Transport** is a framework for writing performant user-defined
 functions (UDFs) that are portable across a variety of engines
 including [Apache Spark](https://spark.apache.org/), [Apache Hive](https://hive.apache.org/), and
-[Presto](https://prestodb.io/). Transport UDFs are also
+[Trino](https://trinodb.io/). Transport UDFs are also
 capable of directly processing data stored in serialization formats such as
 Apache Avro. With Transport, developers only need to implement their UDF
 logic once using the Transport API. Transport then takes care of
 translating the UDF to native UDF version targeted at various engines
 or formats. Currently, Transport is capable of generating
-engine-artifacts for Spark, Hive, and Presto, and format-artifacts for
+engine-artifacts for Spark, Hive, and Trino, and format-artifacts for
 Avro. Further details on Transport can be found in this [LinkedIn Engineering blog post](https://engineering.linkedin.com/blog/2018/11/using-translatable-portable-UDFs).
 
 ## Documentation
@@ -127,7 +127,7 @@ to familiarize yourself with the API, and how to write new UDFs.
  to find out how to write UDF tests in a unified testing API, but have the framework test them on multiple platforms.
 
 * Root [`build.gradle`](transportable-udfs-examples/build.gradle) file
-to find out how to apply the `transport` plugin, which enables generating Hive, Spark, and Presto UDFs out of
+to find out how to apply the `transport` plugin, which enables generating Hive, Spark, and Trino UDFs out of
 the transportable UDFs you define once you build your project. To see that in action:
 
 Change directory to `transportable-udfs-examples`:
@@ -153,7 +153,7 @@ The results should be like:
 
 ```
 transportable-udfs-example-udfs-hive.jar
-transportable-udfs-example-udfs-presto.jar
+transportable-udfs-example-udfs-trino.jar
 transportable-udfs-example-udfs-spark.jar
 transportable-udfs-example-udfs.jar
 ```
@@ -162,13 +162,13 @@ That is it! While only one version of the UDFs is implemented, multiple jars are
 Each of those jars uses native platform APIs and data models to implement the UDFs. So from an execution engine's perspective,
 there is no data transformation needed for interoperability or portability. Only suitable classes are used for each engine.
 
-To call those jars from your SQL engine (i.e., Hive, Spark, or Presto), the standard process for deploying UDF jars is followed
+To call those jars from your SQL engine (i.e., Hive, Spark, or Trino), the standard process for deploying UDF jars is followed
 for each engine. For example, in Hive, you add the jar to the classpath using the `ADD JAR` statement,
  and register the UDF using `CREATE FUNCTION` statement.
-In Presto, the jar is deployed to the `plugin` directory. However, a small patch is required for the Presto
-engine to recognize the jar as a plugin, since the generated Presto UDFs implement the `SqlScalarFunction` API, 
-which is currently not part of Presto's SPI architecture. You can find the patch [here](docs/transport-udfs-presto.patch) and apply it
- before deploying your UDFs jar to the Presto engine.
+In Trino, the jar is deployed to the `plugin` directory. However, a small patch is required for the Trino
+engine to recognize the jar as a plugin, since the generated Trino UDFs implement the `SqlScalarFunction` API,
+which is currently not part of Trino's SPI architecture. You can find the patch [here](docs/transport-udfs-trino.patch) and apply it
+ before deploying your UDFs jar to the Trino engine.
  
 ## Contributing
 The project is under active development and we welcome contributions of different forms:

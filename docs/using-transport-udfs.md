@@ -11,19 +11,19 @@ The Transport framework automatically generates UDF artifacts for each supported
 - [Using the UDF artifacts](#using-the-udf-artifacts)
     - [Hive](#hive)
     - [Spark](#spark)
-    - [Presto](#presto)
+    - [Trino](#trino)
 
 ## Identifying platform-specific UDF artifacts
 
 ### Platform-specific artifact file
 
-As mentioned above, the Transport Plugin will automatically generate artifacts for each platform. Once these artifacts are published to a ivy repository, you can consume them using the corresponding ivy coordinates using the platform name as a maven classifier. E.g. if the UDF has an ivy coordinate `com.linkedin.transport-example:example-udf:1.0.0`, then the coordinate for the platform-specific UDF would be `com.linkedin.transport-example:example-udf:1.0.0?classifier=PLATFORM-NAME` where `PLATFORM-NAME` is `hive`, `presto` or `spark`.
+As mentioned above, the Transport Plugin will automatically generate artifacts for each platform. Once these artifacts are published to a ivy repository, you can consume them using the corresponding ivy coordinates using the platform name as a maven classifier. E.g. if the UDF has an ivy coordinate `com.linkedin.transport-example:example-udf:1.0.0`, then the coordinate for the platform-specific UDF would be `com.linkedin.transport-example:example-udf:1.0.0?classifier=PLATFORM-NAME` where `PLATFORM-NAME` is `hive`, `trino` or `spark`.
 
-If you are building the UDF project locally, the platform-specific artifacts are built alongside the UDF artifact in the output directory with the platform name as a file suffix. If the built UDF is located at `/path/to/example-udf.ext` then the platform-specific artifact is located at `/path/to/example-udf-PLATFORM-NAME.ext` where `PLATFORM-NAME` is `hive`, `presto` or `spark`.
+If you are building the UDF project locally, the platform-specific artifacts are built alongside the UDF artifact in the output directory with the platform name as a file suffix. If the built UDF is located at `/path/to/example-udf.ext` then the platform-specific artifact is located at `/path/to/example-udf-PLATFORM-NAME.ext` where `PLATFORM-NAME` is `hive`, `trino` or `spark`.
 
 ### Platform-specific UDF class
 
-If the UDF class is `com.linkedin.transport.example.ExampleUDF` then the platform-specific UDF class will be `com.linkedin.transport.example.PLATFORM-NAME.ExampleUDF` where `PLATFORM-NAME` is `hive`, `presto` or `spark`.
+If the UDF class is `com.linkedin.transport.example.ExampleUDF` then the platform-specific UDF class will be `com.linkedin.transport.example.PLATFORM-NAME.ExampleUDF` where `PLATFORM-NAME` is `hive`, `trino` or `spark`.
 
 ## Using the UDF artifacts
 
@@ -80,16 +80,16 @@ If the UDF class is `com.linkedin.transport.example.ExampleUDF` then the platfor
         )
         ```
 
-### Presto
+### Trino
 
-1. Add the UDF to the Presto installation  
-Unlike Hive and Spark, Presto currently does not allow dynamically loading jar files once the Presto server has started.
-In Presto, the jar is deployed to the `plugin` directory.
-However, a small patch is required for the Presto engine to recognize the jar as a plugin, since the generated Presto UDFs implement the `SqlScalarFunction` API, which is currently not part of Presto's SPI architecture.
-You can find the patch [here](transport-udfs-presto.patch) and apply it before deploying your UDFs jar to the Presto engine.
+1. Add the UDF to the Trino installation
+Unlike Hive and Spark, Trino currently does not allow dynamically loading jar files once the Trino server has started.
+In Trino, the jar is deployed to the `plugin` directory.
+However, a small patch is required for the Trino engine to recognize the jar as a plugin, since the generated Trino UDFs implement the `SqlScalarFunction` API, which is currently not part of Trino's SPI architecture.
+You can find the patch [here](transport-udfs-trino.patch) and apply it before deploying your UDFs jar to the Trino engine.
 
 2. Call the UDF in a query  
     To call the UDF, you will need to use the function name defined in the Transport UDF definition.
     ```
-    presto-cli> SELECT example_udf(some_column, 'some_constant');
+    trino-cli> SELECT example_udf(some_column, 'some_constant');
     ```

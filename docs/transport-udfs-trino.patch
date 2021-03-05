@@ -1,0 +1,71 @@
+diff --git a/trino-main/src/main/java/io/trino/server/PluginManager.java b/trino-main/src/main/java/io/trino/server/PluginManager.java
+index abcd001031..053c17aeed 100644
+--- a/trino-main/src/main/java/io/trino/server/PluginManager.java
++++ b/trino-main/src/main/java/io/trino/server/PluginManager.java
+@@ -23,6 +23,7 @@ import io.trino.connector.ConnectorManager;
+ import io.trino.eventlistener.EventListenerManager;
+ import io.trino.execution.resourcegroups.ResourceGroupManager;
+ import io.trino.metadata.MetadataManager;
++import io.trino.metadata.SqlScalarFunction;
+ import io.trino.security.AccessControlManager;
+ import io.trino.security.GroupProviderManager;
+ import io.trino.server.security.PasswordAuthenticatorManager;
+@@ -54,6 +55,7 @@ import java.util.ServiceLoader;
+ import java.util.Set;
+ import java.util.concurrent.atomic.AtomicBoolean;
+ import java.util.function.Supplier;
++import java.util.stream.Collectors;
+
+ import static com.google.common.base.Preconditions.checkState;
+ import static io.trino.metadata.FunctionExtractor.extractFunctions;
+@@ -64,8 +66,22 @@ import static java.util.Objects.requireNonNull;
+ @ThreadSafe
+ public class PluginManager
+ {
++    // As part of enabling SqlScalarFunctions to be loaded as Plugins, we introduce two changes to this
++    // class: 1) adding more packages to the SPI_PACKAGES list so that SqlScalarFunction class and its
++    // dependencies are visible to the PluginClassLoader (which is responsible of resolving Plugin dependencies)
++    // 2) registering SqlScalarFunction classes found in the plugin directory jars (or expressed as pom files)
++    // as it is the case with vanilla plugins.
++    // JIRA: https://jira01.corp.linkedin.com:8443/browse/LIHADOOP-34269
+     private static final ImmutableList<String> SPI_PACKAGES = ImmutableList.<String>builder()
++            // io.trino.metadata is required for SqlScalarFunction and FunctionRegistry classes
++            .add("io.trino.metadata.")
++            // io.trino.operator. is required for ScalarFunctionImplementation and TypeSignatureParser
++            .add("io.trino.operator.")
+             .add("io.trino.spi.")
++            // io.trino.type is required for TypeManager, and all supported types
++            .add("io.trino.type.")
++            // io.trino.util is required for Reflection
++            .add("io.trino.util.")
+             .add("com.fasterxml.jackson.annotation.")
+             .add("io.airlift.slice.")
+             .add("org.openjdk.jol.")
+@@ -159,11 +175,22 @@ public class PluginManager
+     {
+         ServiceLoader<Plugin> serviceLoader = ServiceLoader.load(Plugin.class, pluginClassLoader);
+         List<Plugin> plugins = ImmutableList.copyOf(serviceLoader);
+-        checkState(!plugins.isEmpty(), "No service providers of type %s", Plugin.class.getName());
++
++        ServiceLoader<SqlScalarFunction> sqlScalarFunctionsServiceLoader = ServiceLoader.load(SqlScalarFunction.class,
++                pluginClassLoader);
++        List<SqlScalarFunction> sqlScalarFunctions = ImmutableList.copyOf(sqlScalarFunctionsServiceLoader);
++
++        checkState(!plugins.isEmpty() || !sqlScalarFunctions.isEmpty(), "No service providers of type %s or %s", Plugin.class.getName(), SqlScalarFunction.class.getName());
++
+         for (Plugin plugin : plugins) {
+             log.info("Installing %s", plugin.getClass().getName());
+             installPlugin(plugin, pluginClassLoader::duplicate);
+         }
++
++        for (SqlScalarFunction sqlScalarFunction : sqlScalarFunctions) {
++            log.info("Registering function %s(%s)",
++                    sqlScalarFunction.getFunctionMetadata().getSignature().getName(),
++                    sqlScalarFunction.getFunctionMetadata().getSignature().getArgumentTypes().stream()
++                            .map(e -> e.toString())
++                            .collect(Collectors.joining(", ")));
++            metadataManager.addFunctions(ImmutableList.of(sqlScalarFunction));
++        }
+     }
+
+     public void installPlugin(Plugin plugin, Supplier<ClassLoader> duplicatePluginClassLoaderFactory)

@@ -25,7 +25,7 @@ public class ThinJarPackaging implements Packaging {
   public List<TaskProvider<? extends Task>> configurePackagingTasks(Project project, Platform platform,
       SourceSet platformSourceSet, SourceSet mainSourceSet) {
     /*
-      task <platformName>ThinJar(type: Jar, dependsOn: prestoClasses) {
+      task <platformName>ThinJar(type: Jar, dependsOn: trinoClasses) {
         classifier '<platformName>-thin'
         from sourceSets.<platform>.output
         from sourceSets.<platform>.resources

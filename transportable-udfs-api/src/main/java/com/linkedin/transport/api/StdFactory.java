@@ -29,7 +29,7 @@ import java.util.List;
 /**
  * {@link StdFactory} is used to create {@link StdData} and {@link StdType} objects inside Standard UDFs.
  *
- * Specific APIs of {@link StdFactory} are implemented by each target platform (e.g., Spark, Presto, Hive) individually.
+ * Specific APIs of {@link StdFactory} are implemented by each target platform (e.g., Spark, Trino, Hive) individually.
  * A {@link StdFactory} object is available inside Standard UDFs using {@link StdUDF#getStdFactory()}.
  * The Standard UDF framework is responsible for providing the correct platform specific implementation at runtime.
  */
