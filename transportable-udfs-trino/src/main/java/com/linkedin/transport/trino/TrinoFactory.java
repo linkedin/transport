@@ -30,30 +30,40 @@ import com.linkedin.transport.trino.data.TrinoMap;
 import com.linkedin.transport.trino.data.TrinoString;
 import com.linkedin.transport.trino.data.TrinoStruct;
 import io.airlift.slice.Slices;
-import io.trino.metadata.BoundVariables;
+import io.trino.metadata.FunctionBinding;
+import io.trino.metadata.FunctionDependencies;
 import io.trino.metadata.Metadata;
 import io.trino.metadata.OperatorNotFoundException;
-import io.trino.metadata.ResolvedFunction;
-import io.trino.operator.scalar.ScalarFunctionImplementation;
+import io.trino.spi.function.InvocationConvention;
 import io.trino.spi.function.OperatorType;
 import io.trino.spi.type.ArrayType;
 import io.trino.spi.type.MapType;
 import io.trino.spi.type.RowType;
 import io.trino.spi.type.Type;
+import java.lang.invoke.MethodHandle;
 import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import static io.trino.metadata.SignatureBinder.*;
-import static io.trino.operator.TypeSignatureParser.*;
+import static io.trino.sql.analyzer.TypeSignatureTranslator.*;
+
 
 public class TrinoFactory implements StdFactory {
 
-  final BoundVariables boundVariables;
+  final FunctionBinding functionBinding;
+  final FunctionDependencies functionDependencies;
   final Metadata metadata;
 
-  public TrinoFactory(BoundVariables boundVariables, Metadata metadata) {
-    this.boundVariables = boundVariables;
+  public TrinoFactory(FunctionBinding functionBinding, FunctionDependencies functionDependencies) {
+    this.functionBinding = functionBinding;
+    this.functionDependencies = functionDependencies;
+    this.metadata = null;
+  }
+
+  public TrinoFactory(FunctionBinding functionBinding, Metadata metadata) {
+    this.functionBinding = functionBinding;
+    this.functionDependencies = null;
     this.metadata = metadata;
   }
 
@@ -127,15 +137,22 @@ public class TrinoFactory implements StdFactory {
 
   @Override
   public StdType createStdType(String typeSignature) {
+    if (metadata != null) {
+      return TrinoWrapper.createStdType(
+          metadata.getType(applyBoundVariables(parseTypeSignature(typeSignature, ImmutableSet.of()), functionBinding)));
+    }
     return TrinoWrapper.createStdType(
-        metadata.getType(applyBoundVariables(parseTypeSignature(typeSignature, ImmutableSet.of()), boundVariables)));
+          functionDependencies.getType(applyBoundVariables(parseTypeSignature(typeSignature, ImmutableSet.of()), functionBinding)));
   }
 
-  public ScalarFunctionImplementation getScalarFunctionImplementation(ResolvedFunction resolvedFunction) {
-    return metadata.getScalarFunctionImplementation(resolvedFunction);
-  }
-
-  public ResolvedFunction resolveOperator(OperatorType operatorType, List<? extends Type> argumentTypes) throws OperatorNotFoundException {
-    return metadata.resolveOperator(operatorType, argumentTypes);
+  public MethodHandle getOperatorHandle(
+      OperatorType operatorType,
+      List<Type> argumentTypes,
+      InvocationConvention invocationConvention) throws OperatorNotFoundException {
+    if (metadata != null) {
+      return metadata.getScalarFunctionInvoker(metadata.resolveOperator(operatorType, argumentTypes),
+          invocationConvention).getMethodHandle();
+    }
+    return functionDependencies.getOperatorInvoker(operatorType, argumentTypes, invocationConvention).getMethodHandle();
   }
 }

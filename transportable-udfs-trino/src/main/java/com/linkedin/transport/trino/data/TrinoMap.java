@@ -28,6 +28,9 @@ import java.util.Iterator;
 import java.util.Set;
 
 import static io.trino.spi.StandardErrorCode.*;
+import static io.trino.spi.function.InvocationConvention.simpleConvention;
+import static io.trino.spi.function.InvocationConvention.InvocationArgumentConvention.NEVER_NULL;
+import static io.trino.spi.function.InvocationConvention.InvocationReturnConvention.NULLABLE_RETURN;
 import static io.trino.spi.type.TypeUtils.*;
 
 
@@ -51,9 +54,8 @@ public class TrinoMap extends TrinoData implements StdMap {
     _mapType = mapType;
 
     _stdFactory = stdFactory;
-    _keyEqualsMethod = ((TrinoFactory) stdFactory).getScalarFunctionImplementation(
-            ((TrinoFactory) stdFactory).resolveOperator(OperatorType.EQUAL, ImmutableList.of(_keyType, _keyType)))
-        .getMethodHandle();
+    _keyEqualsMethod = ((TrinoFactory) stdFactory).getOperatorHandle(
+        OperatorType.EQUAL, ImmutableList.of(_keyType, _keyType), simpleConvention(NULLABLE_RETURN, NEVER_NULL, NEVER_NULL));
   }
 
   public TrinoMap(Block block, Type mapType, StdFactory stdFactory) {

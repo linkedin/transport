@@ -29,12 +29,16 @@ index abcd001031..053c17aeed 100644
 +    // as it is the case with vanilla plugins.
 +    // JIRA: https://jira01.corp.linkedin.com:8443/browse/LIHADOOP-34269
      private static final ImmutableList<String> SPI_PACKAGES = ImmutableList.<String>builder()
-+            // io.trino.metadata is required for SqlScalarFunction and FunctionRegistry classes
++            // io.trino.metadata is required for SqlScalarFunction, Metadata, MetadataManager, FunctionBinding,
++            // FunctionDependencies, TypeVariableConstraint, FunctionArgumentDefinition, FunctionKind, FunctionMetadata,
++            // Signature and SignatureBinder classes
 +            .add("io.trino.metadata.")
-+            // io.trino.operator. is required for ScalarFunctionImplementation and TypeSignatureParser
++            // io.trino.operator. is required for AbstractTestFunctions, ScalarFunctionImplementation & ChoicesScalarFunctionImplementation
 +            .add("io.trino.operator.")
++            // io.trino.sql.analyzer is required for parseTypeSignature
++            .add("io.trino.sql.analyzer")
              .add("io.trino.spi.")
-+            // io.trino.type is required for TypeManager, and all supported types
++            // io.trino.type is required for UnknownType
 +            .add("io.trino.type.")
 +            // io.trino.util is required for Reflection
 +            .add("io.trino.util.")

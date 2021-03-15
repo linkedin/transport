@@ -7,8 +7,8 @@ package com.linkedin.transport.plugin;
 
 import com.google.common.collect.ImmutableList;
 import com.linkedin.transport.codegen.HiveWrapperGenerator;
-import com.linkedin.transport.codegen.TrinoWrapperGenerator;
 import com.linkedin.transport.codegen.SparkWrapperGenerator;
+import com.linkedin.transport.codegen.TrinoWrapperGenerator;
 import com.linkedin.transport.plugin.packaging.DistributionPackaging;
 import com.linkedin.transport.plugin.packaging.ShadedJarPackaging;
 import com.linkedin.transport.plugin.packaging.ThinJarPackaging;
