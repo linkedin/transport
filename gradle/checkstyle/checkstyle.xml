@@ -191,7 +191,8 @@ LinkedIn Java style.
        Before uncommenting this please read the "Suppression File" section of http://go/checkstyle
        to prevent error events in IntelliJ IDEA. -->
   <module name="SuppressionFilter">
-    <property name="file" value="${config_loc}/suppressions.xml"/>
+    <property name="file" value="${configDir}/suppressions.xml"/>
+    <property name="optional" value="false"/>
   </module>
 
   <!-- Allow Checkstyle warnings to be suppressed using block comments -->

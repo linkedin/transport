@@ -167,7 +167,7 @@ for each engine. For example, in Hive, you add the jar to the classpath using th
  and register the UDF using `CREATE FUNCTION` statement.
 In Presto, the jar is deployed to the `plugin` directory. However, a small patch is required for the Presto
 engine to recognize the jar as a plugin, since the generated Presto UDFs implement the `SqlScalarFunction` API, 
-which is currently not part of Presto's SPI architecture. You can find the patch [here](transportable-udfs-documentation/transport-udfs-presto.patch) and apply it
+which is currently not part of Presto's SPI architecture. You can find the patch [here](docs/transport-udfs-presto.patch) and apply it
  before deploying your UDFs jar to the Presto engine.
  
 ## Contributing
