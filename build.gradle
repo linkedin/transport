@@ -74,8 +74,11 @@ subprojects {
     }
 
     checkstyle {
-      configFile = file("${rootDir}/gradle/checkstyle/checkstyle.xml")
-      configProperties = ['config_loc' : "${rootDir}/gradle/checkstyle/"]
+      configFile = rootProject.file('gradle/checkstyle/checkstyle.xml')
+      configProperties = [
+          'configDir': rootProject.file('gradle/checkstyle'),
+          'baseDir': rootDir
+      ]
       toolVersion '8.23'
     }
   }
