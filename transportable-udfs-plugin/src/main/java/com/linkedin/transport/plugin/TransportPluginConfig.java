@@ -6,6 +6,7 @@
 package com.linkedin.transport.plugin;
 
 import java.io.File;
+import java.util.List;
 import org.gradle.api.Project;
 
 
@@ -33,6 +34,11 @@ public class TransportPluginConfig {
    * The output code-gen directory, relative the to the project directory.
    */
   public File outputDirFile;
+  /**
+   * The execution engines for which the udf artifacts need to be built.
+   * (The client configures this while applying the transport plugin)
+   */
+  public List<String> engines;
 
   /**
    * Create a config object from the gradle {@link Project}.
