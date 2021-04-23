@@ -11,11 +11,8 @@ import com.linkedin.transport.plugin.tasks.GenerateWrappersTask;
 import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Arrays;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
-import org.gradle.api.InvalidUserDataException;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
@@ -26,9 +23,10 @@ import org.gradle.api.plugins.JavaPlugin;
 import org.gradle.api.plugins.JavaPluginConvention;
 import org.gradle.api.plugins.scala.ScalaPlugin;
 import org.gradle.api.tasks.SourceSet;
-import org.gradle.api.tasks.SourceSetContainer;
 import org.gradle.api.tasks.TaskProvider;
+import org.gradle.api.tasks.compile.JavaCompile;
 import org.gradle.api.tasks.testing.Test;
+import org.gradle.jvm.toolchain.JavaToolchainService;
 import org.gradle.language.base.plugins.LifecycleBasePlugin;
 import org.gradle.testing.jacoco.plugins.JacocoPlugin;
 import org.gradle.testing.jacoco.plugins.JacocoTaskExtension;
@@ -51,31 +49,27 @@ import static com.linkedin.transport.plugin.SourceSetUtils.*;
  */
 public class TransportPlugin implements Plugin<Project> {
 
-  private static final String HIVE_ENGINE = "hive";
-  private static final String SPARK_ENGINE = "spark";
-  private static final String PRESTO_ENGINE = "presto";
-
   public void apply(Project project) {
 
     TransportPluginConfig extension = project.getExtensions().create("transport", TransportPluginConfig.class, project);
-    AtomicReference<SourceSet> mainSourceSet = new AtomicReference<>();
-    AtomicReference<SourceSet> testSourceSet = new AtomicReference<>();
 
     project.getPlugins().withType(JavaPlugin.class, (javaPlugin) -> {
       project.getPlugins().apply(ScalaPlugin.class);
       project.getPlugins().apply(DistributionPlugin.class);
       project.getConfigurations().create(ShadowBasePlugin.getCONFIGURATION_NAME());
 
-      SourceSetContainer sourceSets = project.getConvention().getPlugin(JavaPluginConvention.class).getSourceSets();
-      mainSourceSet.set(sourceSets.getByName(extension.mainSourceSetName));
-      testSourceSet.set(sourceSets.getByName(extension.testSourceSetName));
+      JavaPluginConvention javaConvention = project.getConvention().getPlugin(JavaPluginConvention.class);
+      SourceSet mainSourceSet = javaConvention.getSourceSets().getByName(extension.mainSourceSetName);
+      SourceSet testSourceSet = javaConvention.getSourceSets().getByName(extension.testSourceSetName);
 
-      configureBaseSourceSets(project, mainSourceSet.get(), testSourceSet.get());
+      configureBaseSourceSets(project, mainSourceSet, testSourceSet);
+      Defaults.DEFAULT_PLATFORMS.forEach(
+          platform -> configurePlatform(project, platform, mainSourceSet, testSourceSet, extension.outputDirFile));
     });
 
     // Disable Jacoco for platform test tasks as it is known to cause issues with Presto and Hive tests
     project.getPlugins().withType(JacocoPlugin.class, (jacocoPlugin) -> {
-      Arrays.asList(Defaults.PRESTO_PLATFORM, Defaults.HIVE_PLATFORM).forEach(platform -> {
+        Defaults.DEFAULT_PLATFORMS.forEach(platform -> {
           project.getTasksByName(testTaskName(platform), true).forEach(task -> {
             JacocoTaskExtension jacocoExtension = task.getExtensions().findByType(JacocoTaskExtension.class);
             if (jacocoExtension != null) {
@@ -83,32 +77,6 @@ public class TransportPlugin implements Plugin<Project> {
             }
           });
         });
-    });
-
-    // Process this after the client configures the 'engine' plugin parameter
-    project.afterEvaluate(p -> {
-      if (extension.engines == null || extension.engines.isEmpty()) {
-        throw new InvalidUserDataException("Please specify engines");
-      }
-
-      // Isolate engine/platform dependencies
-      extension.engines.forEach(engine -> {
-        if (engine.equalsIgnoreCase(HIVE_ENGINE)) {
-          project.getPlugins().withType(JavaPlugin.class, (javaPlugin) -> {
-            configurePlatform(project, Defaults.HIVE_PLATFORM, mainSourceSet.get(), testSourceSet.get(), extension.outputDirFile);
-          });
-
-        } else if (engine.equalsIgnoreCase(SPARK_ENGINE)) {
-          project.getPlugins().withType(JavaPlugin.class, (javaPlugin) -> {
-            configurePlatform(project, Defaults.SPARK_PLATFORM, mainSourceSet.get(), testSourceSet.get(), extension.outputDirFile);
-          });
-
-        } else if (engine.equalsIgnoreCase(PRESTO_ENGINE)) {
-          project.getPlugins().withType(JavaPlugin.class, (javaPlugin) -> {
-            configurePlatform(project, Defaults.PRESTO_PLATFORM, mainSourceSet.get(), testSourceSet.get(), extension.outputDirFile);
-          });
-        }
-      });
     });
   }
 
@@ -154,6 +122,7 @@ public class TransportPlugin implements Plugin<Project> {
     Path wrapperResourceOutputDir = platformBaseDir.resolve("resources");
 
     return javaConvention.getSourceSets().create(platform.getName(), sourceSet -> {
+
       /*
         Creates a SourceSet and set the source directories for a given platform. E.g. For the Presto platform,
 
@@ -227,9 +196,32 @@ public class TransportPlugin implements Plugin<Project> {
           task.dependsOn(project.getTasks().named(inputSourceSet.getClassesTaskName()));
         });
 
-    project.getTasks()
-        .named(outputSourceSet.getCompileTaskName(platform.getLanguage().toString()))
-        .configure(task -> task.dependsOn(generateWrappersTask));
+
+    switch (platform.getLanguage()) {
+      case JAVA:
+        project.getTasks()
+            .named(outputSourceSet.getCompileTaskName(platform.getLanguage().toString()), JavaCompile.class)
+            .configure(task -> {
+              task.dependsOn(generateWrappersTask);
+              // configure compile task to run with platform specific jdk
+              JavaToolchainService javaToolchains = project.getExtensions().getByType(JavaToolchainService.class);
+              task.getJavaCompiler().set(javaToolchains.compilerFor(toolChainSpec -> {
+                toolChainSpec.getLanguageVersion().set(platform.getJavaLanguageVersion());
+              }));
+            });
+        break;
+      case SCALA:
+        project.getTasks()
+            .named(outputSourceSet.getCompileTaskName(platform.getLanguage().toString()))
+            .configure(task -> {
+              task.dependsOn(generateWrappersTask);
+              // todo: configure task to run with platform specific jdk (currently picks from local env)
+              // Toolchain support is only available in the Java plugins and for the tasks they define.
+              // Support for the Scala plugin is not released yet.
+              // Ref: https://docs.gradle.org/7.0/userguide/toolchains.html#sec:consuming
+            });
+        break;
+    }
 
     return generateWrappersTask;
   }
@@ -292,6 +284,12 @@ public class TransportPlugin implements Plugin<Project> {
       task.setClasspath(testClasspath);
       task.useTestNG();
       task.mustRunAfter(project.getTasks().named("test"));
+
+      // configure test task to run with platform specific jdk
+      JavaToolchainService javaToolchains = project.getExtensions().getByType(JavaToolchainService.class);
+      task.getJavaLauncher().set(javaToolchains.launcherFor(toolChainSpec -> {
+        toolChainSpec.getLanguageVersion().set(platform.getJavaLanguageVersion());
+      }));
     });
   }
 

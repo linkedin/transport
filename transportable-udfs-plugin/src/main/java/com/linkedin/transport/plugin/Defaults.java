@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 import java.util.Properties;
+import org.gradle.jvm.toolchain.JavaLanguageVersion;
 
 import static com.linkedin.transport.plugin.ConfigurationType.*;
 
@@ -56,11 +57,12 @@ class Defaults {
       getDependencyConfiguration(RUNTIME_ONLY, "com.linkedin.transport:transportable-udfs-test-generic", "transport")
   );
 
-  static final Platform PRESTO_PLATFORM =
+  static final List<Platform> DEFAULT_PLATFORMS = ImmutableList.of(
       new Platform(
           "presto",
           Language.JAVA,
           PrestoWrapperGenerator.class,
+          JavaLanguageVersion.of(11),
           ImmutableList.of(
               getDependencyConfiguration(IMPLEMENTATION, "com.linkedin.transport:transportable-udfs-presto",
                   "transport"),
@@ -73,13 +75,12 @@ class Defaults {
               // converters drop dependencies with classifiers, so we apply this dependency explicitly
               getDependencyConfiguration(RUNTIME_ONLY, "io.prestosql:presto-main", "presto", "tests")
           ),
-          ImmutableList.of(new ThinJarPackaging(), new DistributionPackaging()));
-
-  static final Platform HIVE_PLATFORM =
+          ImmutableList.of(new ThinJarPackaging(), new DistributionPackaging())),
       new Platform(
           "hive",
           Language.JAVA,
           HiveWrapperGenerator.class,
+          JavaLanguageVersion.of(8),
           ImmutableList.of(
               getDependencyConfiguration(IMPLEMENTATION, "com.linkedin.transport:transportable-udfs-hive", "transport"),
               getDependencyConfiguration(COMPILE_ONLY, "org.apache.hive:hive-exec", "hive")
@@ -88,13 +89,12 @@ class Defaults {
               getDependencyConfiguration(RUNTIME_ONLY, "com.linkedin.transport:transportable-udfs-test-hive",
                   "transport")
           ),
-          ImmutableList.of(new ShadedJarPackaging(ImmutableList.of("org.apache.hadoop", "org.apache.hive"), null)));
-
-  static final Platform SPARK_PLATFORM =
+          ImmutableList.of(new ShadedJarPackaging(ImmutableList.of("org.apache.hadoop", "org.apache.hive"), null))),
       new Platform(
           "spark",
           Language.SCALA,
           SparkWrapperGenerator.class,
+          JavaLanguageVersion.of(8),
           ImmutableList.of(
               getDependencyConfiguration(IMPLEMENTATION, "com.linkedin.transport:transportable-udfs-spark",
                   "transport"),
@@ -106,7 +106,9 @@ class Defaults {
           ),
           ImmutableList.of(new ShadedJarPackaging(
               ImmutableList.of("org.apache.hadoop", "org.apache.spark"),
-              ImmutableList.of("com.linkedin.transport.spark.**"))));
+              ImmutableList.of("com.linkedin.transport.spark.**")))
+      )
+  );
 
   private static DependencyConfiguration getDependencyConfiguration(ConfigurationType configurationType,
       String module, String platform) {
