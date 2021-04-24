@@ -211,6 +211,7 @@ public class TransportPlugin implements Plugin<Project> {
             });
         break;
       case SCALA:
+      default:
         project.getTasks()
             .named(outputSourceSet.getCompileTaskName(platform.getLanguage().toString()))
             .configure(task -> {
