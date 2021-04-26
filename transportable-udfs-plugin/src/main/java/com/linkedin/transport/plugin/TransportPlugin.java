@@ -32,6 +32,7 @@ import org.gradle.testing.jacoco.plugins.JacocoPlugin;
 import org.gradle.testing.jacoco.plugins.JacocoTaskExtension;
 
 import static com.linkedin.transport.plugin.ConfigurationType.*;
+import static com.linkedin.transport.plugin.Language.*;
 import static com.linkedin.transport.plugin.SourceSetUtils.*;
 
 
@@ -196,33 +197,26 @@ public class TransportPlugin implements Plugin<Project> {
           task.dependsOn(project.getTasks().named(inputSourceSet.getClassesTaskName()));
         });
 
-
-    switch (platform.getLanguage()) {
-      case JAVA:
-        project.getTasks()
-            .named(outputSourceSet.getCompileTaskName(platform.getLanguage().toString()), JavaCompile.class)
-            .configure(task -> {
-              task.dependsOn(generateWrappersTask);
-              // configure compile task to run with platform specific jdk
-              JavaToolchainService javaToolchains = project.getExtensions().getByType(JavaToolchainService.class);
-              task.getJavaCompiler().set(javaToolchains.compilerFor(toolChainSpec -> {
-                toolChainSpec.getLanguageVersion().set(platform.getJavaLanguageVersion());
-              }));
-            });
-        break;
-      case SCALA:
-      default:
-        project.getTasks()
-            .named(outputSourceSet.getCompileTaskName(platform.getLanguage().toString()))
-            .configure(task -> {
-              task.dependsOn(generateWrappersTask);
-              // todo: configure task to run with platform specific jdk (currently picks from local env)
-              // Toolchain support is only available in the Java plugins and for the tasks they define.
-              // Support for the Scala plugin is not released yet.
-              // Ref: https://docs.gradle.org/7.0/userguide/toolchains.html#sec:consuming
-            });
-        break;
+    // todo: configure task to run with platform specific jdk (currently picks from local env)
+    // Toolchain support is only available in the Java plugins and for the tasks they define.
+    // Support for the Scala plugin is not released yet.
+    // Ref: https://docs.gradle.org/7.0/userguide/toolchains.html#sec:consuming
+    if (platform.getLanguage() == JAVA) {
+      project.getTasks()
+          .named(outputSourceSet.getCompileTaskName(platform.getLanguage().toString()), JavaCompile.class, task -> {
+            // configure compile task to run with platform specific jdk
+            JavaToolchainService javaToolchains = project.getExtensions().getByType(JavaToolchainService.class);
+            task.getJavaCompiler().set(javaToolchains.compilerFor(toolChainSpec -> {
+              toolChainSpec.getLanguageVersion().set(platform.getJavaLanguageVersion());
+            }));
+          });
     }
+
+    project.getTasks()
+        .named(outputSourceSet.getCompileTaskName(platform.getLanguage().toString()))
+        .configure(task -> {
+          task.dependsOn(generateWrappersTask);
+        });
 
     return generateWrappersTask;
   }
