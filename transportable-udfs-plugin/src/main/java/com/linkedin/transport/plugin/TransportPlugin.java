@@ -67,7 +67,6 @@ public class TransportPlugin implements Plugin<Project> {
       Defaults.DEFAULT_PLATFORMS.forEach(
           platform -> configurePlatform(project, platform, mainSourceSet, testSourceSet, extension.outputDirFile));
     });
-
     // Disable Jacoco for platform test tasks as it is known to cause issues with Presto and Hive tests
     project.getPlugins().withType(JacocoPlugin.class, (jacocoPlugin) -> {
         Defaults.DEFAULT_PLATFORMS.forEach(platform -> {
@@ -123,7 +122,6 @@ public class TransportPlugin implements Plugin<Project> {
     Path wrapperResourceOutputDir = platformBaseDir.resolve("resources");
 
     return javaConvention.getSourceSets().create(platform.getName(), sourceSet -> {
-
       /*
         Creates a SourceSet and set the source directories for a given platform. E.g. For the Presto platform,
 
@@ -197,14 +195,11 @@ public class TransportPlugin implements Plugin<Project> {
           task.dependsOn(project.getTasks().named(inputSourceSet.getClassesTaskName()));
         });
 
-    // todo: configure task to run with platform specific jdk (currently picks from local env)
-    // Toolchain support is only available in the Java plugins and for the tasks they define.
-    // Support for the Scala plugin is not released yet.
-    // Ref: https://docs.gradle.org/7.0/userguide/toolchains.html#sec:consuming
+    // Configure Java compile tasks to run with platform specific jdk
+    // TODO: set platform specific jdks/toolchain for scala tasks when support is available
     if (platform.getLanguage() == JAVA) {
       project.getTasks()
           .named(outputSourceSet.getCompileTaskName(platform.getLanguage().toString()), JavaCompile.class, task -> {
-            // configure compile task to run with platform specific jdk
             JavaToolchainService javaToolchains = project.getExtensions().getByType(JavaToolchainService.class);
             task.getJavaCompiler().set(javaToolchains.compilerFor(toolChainSpec -> {
               toolChainSpec.getLanguageVersion().set(platform.getJavaLanguageVersion());
@@ -214,9 +209,7 @@ public class TransportPlugin implements Plugin<Project> {
 
     project.getTasks()
         .named(outputSourceSet.getCompileTaskName(platform.getLanguage().toString()))
-        .configure(task -> {
-          task.dependsOn(generateWrappersTask);
-        });
+        .configure(task -> task.dependsOn(generateWrappersTask));
 
     return generateWrappersTask;
   }
