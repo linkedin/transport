@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 import java.util.Properties;
+import org.gradle.jvm.toolchain.JavaLanguageVersion;
 
 import static com.linkedin.transport.plugin.ConfigurationType.*;
 
@@ -61,6 +62,7 @@ class Defaults {
           "presto",
           Language.JAVA,
           PrestoWrapperGenerator.class,
+          JavaLanguageVersion.of(11),
           ImmutableList.of(
               getDependencyConfiguration(IMPLEMENTATION, "com.linkedin.transport:transportable-udfs-presto",
                   "transport"),
@@ -78,6 +80,7 @@ class Defaults {
           "hive",
           Language.JAVA,
           HiveWrapperGenerator.class,
+          JavaLanguageVersion.of(8),
           ImmutableList.of(
               getDependencyConfiguration(IMPLEMENTATION, "com.linkedin.transport:transportable-udfs-hive", "transport"),
               getDependencyConfiguration(COMPILE_ONLY, "org.apache.hive:hive-exec", "hive")
@@ -91,6 +94,7 @@ class Defaults {
           "spark",
           Language.SCALA,
           SparkWrapperGenerator.class,
+          JavaLanguageVersion.of(8),
           ImmutableList.of(
               getDependencyConfiguration(IMPLEMENTATION, "com.linkedin.transport:transportable-udfs-spark",
                   "transport"),
