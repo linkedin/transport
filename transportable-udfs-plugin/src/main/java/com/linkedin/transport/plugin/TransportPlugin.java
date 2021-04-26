@@ -24,12 +24,15 @@ import org.gradle.api.plugins.JavaPluginConvention;
 import org.gradle.api.plugins.scala.ScalaPlugin;
 import org.gradle.api.tasks.SourceSet;
 import org.gradle.api.tasks.TaskProvider;
+import org.gradle.api.tasks.compile.JavaCompile;
 import org.gradle.api.tasks.testing.Test;
+import org.gradle.jvm.toolchain.JavaToolchainService;
 import org.gradle.language.base.plugins.LifecycleBasePlugin;
 import org.gradle.testing.jacoco.plugins.JacocoPlugin;
 import org.gradle.testing.jacoco.plugins.JacocoTaskExtension;
 
 import static com.linkedin.transport.plugin.ConfigurationType.*;
+import static com.linkedin.transport.plugin.Language.*;
 import static com.linkedin.transport.plugin.SourceSetUtils.*;
 
 
@@ -192,6 +195,18 @@ public class TransportPlugin implements Plugin<Project> {
           task.dependsOn(project.getTasks().named(inputSourceSet.getClassesTaskName()));
         });
 
+    // Configure Java compile tasks to run with platform specific jdk
+    // TODO: set platform specific jdks/toolchain for scala tasks when support is available
+    if (platform.getLanguage() == JAVA) {
+      project.getTasks()
+          .named(outputSourceSet.getCompileTaskName(platform.getLanguage().toString()), JavaCompile.class, task -> {
+            JavaToolchainService javaToolchains = project.getExtensions().getByType(JavaToolchainService.class);
+            task.getJavaCompiler().set(javaToolchains.compilerFor(toolChainSpec -> {
+              toolChainSpec.getLanguageVersion().set(platform.getJavaLanguageVersion());
+            }));
+          });
+    }
+
     project.getTasks()
         .named(outputSourceSet.getCompileTaskName(platform.getLanguage().toString()))
         .configure(task -> task.dependsOn(generateWrappersTask));
@@ -257,6 +272,12 @@ public class TransportPlugin implements Plugin<Project> {
       task.setClasspath(testClasspath);
       task.useTestNG();
       task.mustRunAfter(project.getTasks().named("test"));
+
+      // configure test task to run with platform specific jdk
+      JavaToolchainService javaToolchains = project.getExtensions().getByType(JavaToolchainService.class);
+      task.getJavaLauncher().set(javaToolchains.launcherFor(toolChainSpec -> {
+        toolChainSpec.getLanguageVersion().set(platform.getJavaLanguageVersion());
+      }));
     });
   }
 

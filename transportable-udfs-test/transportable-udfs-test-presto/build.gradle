@@ -1,5 +1,9 @@
 apply plugin: 'java'
 
+java {
+  toolchain.languageVersion.set(JavaLanguageVersion.of(11))
+}
+
 dependencies {
   compile project(":transportable-udfs-api")
   compile project(":transportable-udfs-test:transportable-udfs-test-api")
