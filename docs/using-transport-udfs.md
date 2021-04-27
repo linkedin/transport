@@ -82,7 +82,7 @@ If the UDF class is `com.linkedin.transport.example.ExampleUDF` then the platfor
 
 ### Trino
 
-1. Add the UDF to the Trino installation
+1. Add the UDF to the Trino installation  
 Unlike Hive and Spark, Trino currently does not allow dynamically loading jar files once the Trino server has started.
 In Trino, the jar is deployed to the `plugin` directory.
 However, a small patch is required for the Trino engine to recognize the jar as a plugin, since the generated Trino UDFs implement the `SqlScalarFunction` API, which is currently not part of Trino's SPI architecture.

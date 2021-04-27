@@ -4,7 +4,7 @@
 **Transport** is a framework for writing performant user-defined
 functions (UDFs) that are portable across a variety of engines
 including [Apache Spark](https://spark.apache.org/), [Apache Hive](https://hive.apache.org/), and
-[Trino](https://trinodb.io/). Transport UDFs are also
+[Trino](https://trino.io/). Transport UDFs are also
 capable of directly processing data stored in serialization formats such as
 Apache Avro. With Transport, developers only need to implement their UDF
 logic once using the Transport API. Transport then takes care of

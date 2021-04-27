@@ -40,7 +40,6 @@ import io.trino.spi.function.InvocationConvention;
 import io.trino.spi.type.IntegerType;
 import io.trino.spi.type.MapType;
 import io.trino.spi.type.Type;
-import io.trino.spi.type.TypeSignature;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
@@ -57,7 +56,7 @@ import org.apache.commons.lang3.ClassUtils;
 
 import static io.trino.metadata.Signature.*;
 import static io.trino.spi.function.InvocationConvention.InvocationArgumentConvention.*;
-import static io.trino.spi.function.InvocationConvention.InvocationReturnConvention.FAIL_ON_NULL;
+import static io.trino.spi.function.InvocationConvention.InvocationReturnConvention.NULLABLE_RETURN;
 import static io.trino.spi.function.OperatorType.*;
 import static io.trino.sql.analyzer.TypeSignatureTranslator.parseTypeSignature;
 import static io.trino.util.Reflection.*;
@@ -109,26 +108,22 @@ public abstract class StdUdfWrapper extends SqlScalarFunction {
   public FunctionDependencyDeclaration getFunctionDependencies(FunctionBinding functionBinding) {
     FunctionDependencyDeclaration.FunctionDependencyDeclarationBuilder builder = FunctionDependencyDeclaration.builder();
 
-    List<Type> types = new ArrayList<>();
-    types.add(functionBinding.getBoundSignature().getReturnType());
-    types.addAll(functionBinding.getBoundSignature().getArgumentTypes());
+    Type returnType = functionBinding.getBoundSignature().getReturnType();
+    List<Type> argumentTypes = functionBinding.getBoundSignature().getArgumentTypes();
 
-    types.forEach(type -> builder.addType(type.getTypeSignature()));
-    if (containsMapType(types)) {
-      builder.addOperatorSignature(EQUAL, ImmutableList.of(new TypeSignature("K"), new TypeSignature("K")));
-    }
+    builder.addType(returnType.getTypeSignature());
+    argumentTypes.forEach(type -> builder.addType(type.getTypeSignature()));
 
-    return builder.build();
-  }
-
-  private boolean containsMapType(List<Type> types) {
+    List<Type> types = new ArrayList<>(argumentTypes);
+    types.add(returnType);
     for (Type type : types) {
       if (type instanceof MapType) {
-        return true;
+        Type keyType = ((MapType) type).getKeyType();
+        builder.addOperator(EQUAL, ImmutableList.of(keyType, keyType));
       }
     }
 
-    return false;
+    return builder.build();
   }
 
   @Override
@@ -146,7 +141,7 @@ public abstract class StdUdfWrapper extends SqlScalarFunction {
 
     return new ChoicesScalarFunctionImplementation(
         functionBinding,
-        FAIL_ON_NULL,
+        NULLABLE_RETURN,
         getNullConventionForArguments(nullableArguments),
         getMethodHandle(stdUDF, functionBinding, nullableArguments, requiredFilesNextRefreshTime));
   }
@@ -173,7 +168,7 @@ public abstract class StdUdfWrapper extends SqlScalarFunction {
   }
 
   private List<InvocationConvention.InvocationArgumentConvention> getNullConventionForArguments(
-    boolean[] nullableArguments) {
+      boolean[] nullableArguments) {
     return IntStream.range(0, nullableArguments.length)
         .mapToObj(idx -> nullableArguments[idx] ? BOXED_NULLABLE : NEVER_NULL)
         .collect(Collectors.toList());
