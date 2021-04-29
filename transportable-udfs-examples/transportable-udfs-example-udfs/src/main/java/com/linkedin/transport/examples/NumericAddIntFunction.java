@@ -6,16 +6,15 @@
 package com.linkedin.transport.examples;
 
 import com.google.common.collect.ImmutableList;
-import com.linkedin.transport.api.data.StdInteger;
 import com.linkedin.transport.api.udf.StdUDF2;
 import java.util.List;
 
 
-public class NumericAddIntFunction extends StdUDF2<StdInteger, StdInteger, StdInteger>
+public class NumericAddIntFunction extends StdUDF2<Integer, Integer, Integer>
     implements NumericAddFunction {
   @Override
-  public StdInteger eval(StdInteger first, StdInteger second) {
-    return getStdFactory().createInteger(first.get() + second.get());
+  public Integer eval(Integer first, Integer second) {
+    return first + second;
   }
 
   @Override

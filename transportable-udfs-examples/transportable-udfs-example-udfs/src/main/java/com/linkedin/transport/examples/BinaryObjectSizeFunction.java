@@ -6,17 +6,16 @@
 package com.linkedin.transport.examples;
 
 import com.google.common.collect.ImmutableList;
-import com.linkedin.transport.api.data.StdBinary;
-import com.linkedin.transport.api.data.StdInteger;
 import com.linkedin.transport.api.udf.StdUDF1;
 import com.linkedin.transport.api.udf.TopLevelStdUDF;
+import java.nio.ByteBuffer;
 import java.util.List;
 
 
-public class BinaryObjectSizeFunction extends StdUDF1<StdBinary, StdInteger> implements TopLevelStdUDF {
+public class BinaryObjectSizeFunction extends StdUDF1<ByteBuffer, Integer> implements TopLevelStdUDF {
   @Override
-  public StdInteger eval(StdBinary binaryObject) {
-    return getStdFactory().createInteger(binaryObject.get().array().length);
+  public Integer eval(ByteBuffer byteBuffer) {
+    return byteBuffer.array().length;
   }
 
   @Override

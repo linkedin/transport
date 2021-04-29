@@ -10,7 +10,6 @@ import java.nio.file.Paths
 import java.util.List
 
 import com.linkedin.transport.api.StdFactory
-import com.linkedin.transport.api.data.{PlatformData, StdData}
 import com.linkedin.transport.api.udf._
 import com.linkedin.transport.spark.typesystem.SparkTypeInference
 import com.linkedin.transport.utils.FileSystemUtils
@@ -64,29 +63,29 @@ abstract class StdUdfWrapper(_expressions: Seq[Expression]) extends Expression
       if (wrappedConstants != null) {
         val requiredFiles = wrappedConstants.length match {
           case 0 =>
-            _stdUdf.asInstanceOf[StdUDF0[StdData]].getRequiredFiles()
+            _stdUdf.asInstanceOf[StdUDF0[Object]].getRequiredFiles()
           case 1 =>
-            _stdUdf.asInstanceOf[StdUDF1[StdData, StdData]].getRequiredFiles(wrappedConstants(0))
+            _stdUdf.asInstanceOf[StdUDF1[Object, Object]].getRequiredFiles(wrappedConstants(0))
           case 2 =>
-            _stdUdf.asInstanceOf[StdUDF2[StdData, StdData, StdData]].getRequiredFiles(wrappedConstants(0),
+            _stdUdf.asInstanceOf[StdUDF2[Object, Object, Object]].getRequiredFiles(wrappedConstants(0),
               wrappedConstants(1))
           case 3 =>
-            _stdUdf.asInstanceOf[StdUDF3[StdData, StdData, StdData, StdData]].getRequiredFiles(wrappedConstants(0),
+            _stdUdf.asInstanceOf[StdUDF3[Object, Object, Object, Object]].getRequiredFiles(wrappedConstants(0),
               wrappedConstants(1), wrappedConstants(2))
           case 4 =>
-            _stdUdf.asInstanceOf[StdUDF4[StdData, StdData, StdData, StdData, StdData]].getRequiredFiles(wrappedConstants(0),
+            _stdUdf.asInstanceOf[StdUDF4[Object, Object, Object, Object, Object]].getRequiredFiles(wrappedConstants(0),
               wrappedConstants(1), wrappedConstants(2), wrappedConstants(3))
           case 5 =>
-            _stdUdf.asInstanceOf[StdUDF5[StdData, StdData, StdData, StdData, StdData, StdData]].getRequiredFiles(wrappedConstants(0),
+            _stdUdf.asInstanceOf[StdUDF5[Object, Object, Object, Object, Object, Object]].getRequiredFiles(wrappedConstants(0),
               wrappedConstants(1), wrappedConstants(2), wrappedConstants(3), wrappedConstants(4))
           case 6 =>
-            _stdUdf.asInstanceOf[StdUDF6[StdData, StdData, StdData, StdData, StdData, StdData, StdData]].getRequiredFiles(wrappedConstants(0),
+            _stdUdf.asInstanceOf[StdUDF6[Object, Object, Object, Object, Object, Object, Object]].getRequiredFiles(wrappedConstants(0),
               wrappedConstants(1), wrappedConstants(2), wrappedConstants(3), wrappedConstants(4), wrappedConstants(5))
           case 7 =>
-            _stdUdf.asInstanceOf[StdUDF7[StdData, StdData, StdData, StdData, StdData, StdData, StdData, StdData]].getRequiredFiles(wrappedConstants(0),
+            _stdUdf.asInstanceOf[StdUDF7[Object, Object, Object, Object, Object, Object, Object, Object]].getRequiredFiles(wrappedConstants(0),
               wrappedConstants(1), wrappedConstants(2), wrappedConstants(3), wrappedConstants(4), wrappedConstants(5), wrappedConstants(6))
           case 8 =>
-            _stdUdf.asInstanceOf[StdUDF8[StdData, StdData, StdData, StdData, StdData, StdData, StdData, StdData, StdData]].getRequiredFiles(wrappedConstants(0),
+            _stdUdf.asInstanceOf[StdUDF8[Object, Object, Object, Object, Object, Object, Object, Object, Object]].getRequiredFiles(wrappedConstants(0),
               wrappedConstants(1), wrappedConstants(2), wrappedConstants(3), wrappedConstants(4), wrappedConstants(5), wrappedConstants(6), wrappedConstants(7))
           case _ =>
             throw new UnsupportedOperationException("getRequiredFiles not yet supported for StdUDF" + _expressions.length)
@@ -108,8 +107,8 @@ abstract class StdUdfWrapper(_expressions: Seq[Expression]) extends Expression
     }
   } // scalastyle:on magic.number
 
-  private final def checkNullsAndWrapConstants(): Array[StdData] = {
-    val wrappedConstants = new Array[StdData](_expressions.length)
+  private final def checkNullsAndWrapConstants(): Array[Object] = {
+    val wrappedConstants = new Array[Object](_expressions.length)
     for (i <- _expressions.indices) {
       val constantValue = if (_expressions(i).foldable) _expressions(i).eval() else null
       if (!_nullableArguments(i) && _expressions(i).foldable && constantValue == null) {
@@ -135,42 +134,41 @@ abstract class StdUdfWrapper(_expressions: Seq[Expression]) extends Expression
       }
       val stdResult = wrappedArguments.length match {
         case 0 =>
-          _stdUdf.asInstanceOf[StdUDF0[StdData]].eval()
+          _stdUdf.asInstanceOf[StdUDF0[Object]].eval()
         case 1 =>
-          _stdUdf.asInstanceOf[StdUDF1[StdData, StdData]].eval(wrappedArguments(0))
+          _stdUdf.asInstanceOf[StdUDF1[Object, Object]].eval(wrappedArguments(0))
         case 2 =>
-          _stdUdf.asInstanceOf[StdUDF2[StdData, StdData, StdData]].eval(wrappedArguments(0), wrappedArguments(1))
+          _stdUdf.asInstanceOf[StdUDF2[Object, Object, Object]].eval(wrappedArguments(0), wrappedArguments(1))
         case 3 =>
-          _stdUdf.asInstanceOf[StdUDF3[StdData, StdData, StdData, StdData]].eval(wrappedArguments(0), wrappedArguments(1),
+          _stdUdf.asInstanceOf[StdUDF3[Object, Object, Object, Object]].eval(wrappedArguments(0), wrappedArguments(1),
             wrappedArguments(2))
         case 4 =>
-          _stdUdf.asInstanceOf[StdUDF4[StdData, StdData, StdData, StdData, StdData]].eval(wrappedArguments(0),
+          _stdUdf.asInstanceOf[StdUDF4[Object, Object, Object, Object, Object]].eval(wrappedArguments(0),
             wrappedArguments(1), wrappedArguments(2), wrappedArguments(3))
         case 5 =>
-          _stdUdf.asInstanceOf[StdUDF5[StdData, StdData, StdData, StdData, StdData, StdData]].eval(wrappedArguments(0),
+          _stdUdf.asInstanceOf[StdUDF5[Object, Object, Object, Object, Object, Object]].eval(wrappedArguments(0),
             wrappedArguments(1), wrappedArguments(2), wrappedArguments(3), wrappedArguments(4))
         case 6 =>
-          _stdUdf.asInstanceOf[StdUDF6[StdData, StdData, StdData, StdData, StdData, StdData, StdData]].eval(wrappedArguments(0),
+          _stdUdf.asInstanceOf[StdUDF6[Object, Object, Object, Object, Object, Object, Object]].eval(wrappedArguments(0),
             wrappedArguments(1), wrappedArguments(2), wrappedArguments(3), wrappedArguments(4), wrappedArguments(5))
         case 7 =>
-          _stdUdf.asInstanceOf[StdUDF7[StdData, StdData, StdData, StdData, StdData, StdData, StdData, StdData]].eval(wrappedArguments(0),
+          _stdUdf.asInstanceOf[StdUDF7[Object, Object, Object, Object, Object, Object, Object, Object]].eval(wrappedArguments(0),
             wrappedArguments(1), wrappedArguments(2), wrappedArguments(3), wrappedArguments(4), wrappedArguments(5),
             wrappedArguments(6))
         case 8 =>
-          _stdUdf.asInstanceOf[StdUDF8[StdData, StdData, StdData, StdData, StdData, StdData, StdData, StdData, StdData]].eval(wrappedArguments(0),
+          _stdUdf.asInstanceOf[StdUDF8[Object, Object, Object, Object, Object, Object, Object, Object, Object]].eval(wrappedArguments(0),
             wrappedArguments(1), wrappedArguments(2), wrappedArguments(3), wrappedArguments(4), wrappedArguments(5),
             wrappedArguments(6), wrappedArguments(7))
         case _ =>
           throw new UnsupportedOperationException("eval not yet supported for StdUDF" + _expressions.length)
       }
 
-      if (stdResult == null) null else stdResult.asInstanceOf[PlatformData].getUnderlyingData
+      SparkWrapper.getPlatformData(stdResult)
     }
   } // scalastyle:on magic.number
 
-
-  private final def checkNullsAndWrapArguments(input: InternalRow): Array[StdData] = {
-    val wrappedArguments = new Array[StdData](_expressions.length)
+  private final def checkNullsAndWrapArguments(input: InternalRow): Array[Object] = {
+    val wrappedArguments = new Array[Object](_expressions.length)
     for (i <- _expressions.indices) {
       val evaluatedExpression = _expressions(i).eval(input)
       if(!_nullableArguments(i) && evaluatedExpression == null) {

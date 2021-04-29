@@ -81,7 +81,7 @@ public class TransportProcessorTest {
         .withErrorCount(1)
         .withErrorContaining(Constants.MORE_THAN_ONE_TYPE_OVERRIDING_ERROR)
         .in(forResource("udfs/UDFWithMultipleInterfaces1.java"))
-        .onLine(14)
+        .onLine(13)
         .atColumn(8);
   }
 
@@ -96,7 +96,7 @@ public class TransportProcessorTest {
         .withErrorCount(1)
         .withErrorContaining(Constants.MORE_THAN_ONE_TYPE_OVERRIDING_ERROR)
         .in(forResource("udfs/UDFWithMultipleInterfaces2.java"))
-        .onLine(13)
+        .onLine(12)
         .atColumn(8);
   }
 
@@ -110,7 +110,7 @@ public class TransportProcessorTest {
         .withErrorCount(1)
         .withErrorContaining(Constants.MORE_THAN_ONE_TYPE_OVERRIDING_ERROR)
         .in(forResource("udfs/UDFOverridingInterfaceMethod.java"))
-        .onLine(14)
+        .onLine(13)
         .atColumn(8);
   }
 
@@ -123,7 +123,7 @@ public class TransportProcessorTest {
         .withErrorCount(1)
         .withErrorContaining(Constants.INTERFACE_NOT_IMPLEMENTED_ERROR)
         .in(forResource("udfs/UDFNotImplementingTopLevelStdUDF.java"))
-        .onLine(14)
+        .onLine(13)
         .atColumn(8);
   }
 

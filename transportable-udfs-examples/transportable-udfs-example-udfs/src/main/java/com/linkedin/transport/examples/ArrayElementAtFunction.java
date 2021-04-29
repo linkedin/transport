@@ -6,15 +6,26 @@
 package com.linkedin.transport.examples;
 
 import com.google.common.collect.ImmutableList;
-import com.linkedin.transport.api.data.StdArray;
-import com.linkedin.transport.api.data.StdData;
-import com.linkedin.transport.api.data.StdInteger;
+import com.linkedin.transport.api.data.ArrayData;
 import com.linkedin.transport.api.udf.StdUDF2;
 import com.linkedin.transport.api.udf.TopLevelStdUDF;
 import java.util.List;
 
 
-public class ArrayElementAtFunction extends StdUDF2<StdArray, StdInteger, StdData> implements TopLevelStdUDF {
+/**
+ * Another way to define this class using generics can look like this
+ *
+ * public class ArrayElementAtFunction<K> extends StdUDF2<ArrayData<K>, Integer, K> implements TopLevelStdUDF {
+ *
+ *   @Override
+ *   public K eval(ArrayData<K> a1, Integer idx) {
+ *     return a1.get(idx);
+ *   }
+ *
+ * }
+ *
+ */
+public class ArrayElementAtFunction extends StdUDF2<ArrayData, Integer, Object> implements TopLevelStdUDF {
 
   @Override
   public String getFunctionName() {
@@ -40,7 +51,7 @@ public class ArrayElementAtFunction extends StdUDF2<StdArray, StdInteger, StdDat
   }
 
   @Override
-  public StdData eval(StdArray a1, StdInteger idx) {
-    return a1.get(idx.get());
+  public Object eval(ArrayData a1, Integer idx) {
+    return a1.get(idx);
   }
 }

@@ -6,7 +6,6 @@
 package udfs;
 
 import com.google.common.collect.ImmutableList;
-import com.linkedin.transport.api.data.StdString;
 import com.linkedin.transport.api.udf.TopLevelStdUDF;
 import java.util.List;
 
@@ -34,7 +33,7 @@ public class UDFExtendingAbstractUDF extends AbstractUDF implements TopLevelStdU
   }
 
   @Override
-  public StdString eval() {
+  public String eval() {
     return null;
   }
 }

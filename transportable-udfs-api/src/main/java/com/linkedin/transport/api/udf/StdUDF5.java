@@ -5,8 +5,6 @@
  */
 package com.linkedin.transport.api.udf;
 
-import com.linkedin.transport.api.data.StdData;
-
 
 /**
  * A Standard UDF with four input arguments.
@@ -21,8 +19,8 @@ import com.linkedin.transport.api.data.StdData;
 // Suppressing class parameter type parameter name and arg naming style checks since this naming convention is more
 // suitable to Standard UDFs, and the code is more readable this way.
 @SuppressWarnings({"checkstyle:classtypeparametername", "checkstyle:regexpsinglelinejava"})
-public abstract class StdUDF5<I1 extends StdData, I2 extends StdData, I3 extends StdData, I4 extends StdData,
-    I5 extends StdData, O extends StdData> extends StdUDF {
+public abstract class StdUDF5<I1, I2, I3, I4,
+    I5, O> extends StdUDF {
 
   /**
    * Returns the output of the {@link StdUDF} given the input arguments.
@@ -47,7 +45,7 @@ public abstract class StdUDF5<I1 extends StdData, I2 extends StdData, I3 extends
    * hence obtaining the most recent version of a file.
    * Example: 'hdfs:///data/derived/dwh/prop/testMemberId/#LATEST/testMemberId.txt'
 
-   * The arguments passed to {@link #eval(StdData, StdData, StdData, StdData, StdData)} are passed to this method as
+   * The arguments passed to {@link #eval(Object,Object,Object,Object,Object)} are passed to this method as
    * well to allow users to construct required file paths from arguments passed to the UDF. Since this method is called
    * before any rows are processed, only constant UDF arguments should be used to construct the file paths. Values of
    * non-constant arguments are not deterministic, and are null for most platforms. (Constant arguments are arguments

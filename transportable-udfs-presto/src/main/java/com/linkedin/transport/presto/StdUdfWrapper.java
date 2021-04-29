@@ -10,8 +10,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.primitives.Booleans;
 import com.linkedin.transport.api.StdFactory;
-import com.linkedin.transport.api.data.PlatformData;
-import com.linkedin.transport.api.data.StdData;
 import com.linkedin.transport.api.udf.StdUDF;
 import com.linkedin.transport.api.udf.StdUDF0;
 import com.linkedin.transport.api.udf.StdUDF1;
@@ -144,9 +142,9 @@ public abstract class StdUdfWrapper extends SqlScalarFunction {
         .collect(Collectors.toList());
   }
 
-  private StdData[] wrapArguments(StdUDF stdUDF, Type[] types, Object[] arguments) {
+  private Object[] wrapArguments(StdUDF stdUDF, Type[] types, Object[] arguments) {
     StdFactory stdFactory = stdUDF.getStdFactory();
-    StdData[] stdData = new StdData[arguments.length];
+    Object[] stdData = new Object[arguments.length];
     // TODO: Reuse wrapper objects by creating them once upon initialization and reuse them here
     // along the same lines of what we do in Hive implementation.
     // JIRA: https://jira01.corp.linkedin.com:8443/browse/LIHADOOP-34894
@@ -158,12 +156,12 @@ public abstract class StdUdfWrapper extends SqlScalarFunction {
 
   protected Object eval(StdUDF stdUDF, Type[] types, boolean isIntegerReturnType,
       AtomicLong requiredFilesNextRefreshTime, Object... arguments) {
-    StdData[] args = wrapArguments(stdUDF, types, arguments);
+    Object[] args = wrapArguments(stdUDF, types, arguments);
     if (requiredFilesNextRefreshTime.get() <= System.currentTimeMillis()) {
       String[] requiredFiles = getRequiredFiles(stdUDF, args);
       processRequiredFiles(stdUDF, requiredFiles, requiredFilesNextRefreshTime);
     }
-    StdData result;
+    Object result;
     switch (args.length) {
       case 0:
         result = ((StdUDF0) stdUDF).eval();
@@ -195,16 +193,11 @@ public abstract class StdUdfWrapper extends SqlScalarFunction {
       default:
         throw new RuntimeException("eval not supported yet for StdUDF" + args.length);
     }
-    if (result == null) {
-      return null;
-    } else if (isIntegerReturnType) {
-      return ((Number) ((PlatformData) result).getUnderlyingData()).longValue();
-    } else {
-      return ((PlatformData) result).getUnderlyingData();
-    }
+
+    return PrestoWrapper.getPlatformData(result);
   }
 
-  private String[] getRequiredFiles(StdUDF stdUDF, StdData[] args) {
+  private String[] getRequiredFiles(StdUDF stdUDF, Object[] args) {
     String[] requiredFiles;
     switch (args.length) {
       case 0:

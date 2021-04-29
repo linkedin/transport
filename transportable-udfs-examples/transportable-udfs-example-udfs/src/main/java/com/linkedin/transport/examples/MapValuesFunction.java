@@ -7,16 +7,15 @@ package com.linkedin.transport.examples;
 
 import com.google.common.collect.ImmutableList;
 import com.linkedin.transport.api.StdFactory;
-import com.linkedin.transport.api.data.StdArray;
-import com.linkedin.transport.api.data.StdData;
-import com.linkedin.transport.api.data.StdMap;
+import com.linkedin.transport.api.data.ArrayData;
+import com.linkedin.transport.api.data.MapData;
 import com.linkedin.transport.api.types.StdType;
 import com.linkedin.transport.api.udf.StdUDF1;
 import com.linkedin.transport.api.udf.TopLevelStdUDF;
 import java.util.List;
 
 
-public class MapValuesFunction extends StdUDF1<StdMap, StdArray> implements TopLevelStdUDF {
+public class MapValuesFunction<K, V> extends StdUDF1<MapData<K, V>, ArrayData<V>> implements TopLevelStdUDF {
 
   private StdType _mapType;
 
@@ -39,9 +38,9 @@ public class MapValuesFunction extends StdUDF1<StdMap, StdArray> implements TopL
   }
 
   @Override
-  public StdArray eval(StdMap map) {
-    StdArray result = getStdFactory().createArray(_mapType);
-    for (StdData value : map.values()) {
+  public ArrayData<V> eval(MapData<K, V> map) {
+    ArrayData<V> result = getStdFactory().createArray(_mapType);
+    for (V value : map.values()) {
       result.add(value);
     }
     return result;
