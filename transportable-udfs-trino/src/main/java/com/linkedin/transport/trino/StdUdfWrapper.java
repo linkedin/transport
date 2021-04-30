@@ -37,13 +37,14 @@ import io.trino.operator.scalar.ChoicesScalarFunctionImplementation;
 import io.trino.operator.scalar.ScalarFunctionImplementation;
 import io.trino.spi.classloader.ThreadContextClassLoader;
 import io.trino.spi.function.InvocationConvention;
+import io.trino.spi.type.ArrayType;
 import io.trino.spi.type.IntegerType;
 import io.trino.spi.type.MapType;
+import io.trino.spi.type.RowType;
 import io.trino.spi.type.Type;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
@@ -104,24 +105,29 @@ public abstract class StdUdfWrapper extends SqlScalarFunction {
     return TimeUnit.DAYS.toMillis(DEFAULT_REFRESH_INTERVAL_DAYS);
   }
 
+  private void registerNestedDependencies(Type nestedType, FunctionDependencyDeclaration.FunctionDependencyDeclarationBuilder builder) {
+    builder.addType(nestedType.getTypeSignature());
+
+    if (nestedType instanceof RowType) {
+      nestedType.getTypeParameters().forEach(type -> registerNestedDependencies(type, builder));
+    } else if (nestedType instanceof ArrayType) {
+      registerNestedDependencies(((ArrayType) nestedType).getElementType(), builder);
+    } else if (nestedType instanceof MapType) {
+      Type keyType = ((MapType) nestedType).getKeyType();
+      Type valueType = ((MapType) nestedType).getValueType();
+      builder.addOperator(EQUAL, ImmutableList.of(keyType, keyType));
+      registerNestedDependencies(keyType, builder);
+      registerNestedDependencies(valueType, builder);
+    }
+  }
+
   @Override
   public FunctionDependencyDeclaration getFunctionDependencies(FunctionBinding functionBinding) {
     FunctionDependencyDeclaration.FunctionDependencyDeclarationBuilder builder = FunctionDependencyDeclaration.builder();
 
-    Type returnType = functionBinding.getBoundSignature().getReturnType();
+    registerNestedDependencies(functionBinding.getBoundSignature().getReturnType(), builder);
     List<Type> argumentTypes = functionBinding.getBoundSignature().getArgumentTypes();
-
-    builder.addType(returnType.getTypeSignature());
-    argumentTypes.forEach(type -> builder.addType(type.getTypeSignature()));
-
-    List<Type> types = new ArrayList<>(argumentTypes);
-    types.add(returnType);
-    for (Type type : types) {
-      if (type instanceof MapType) {
-        Type keyType = ((MapType) type).getKeyType();
-        builder.addOperator(EQUAL, ImmutableList.of(keyType, keyType));
-      }
-    }
+    argumentTypes.forEach(type -> registerNestedDependencies(type, builder));
 
     return builder.build();
   }
