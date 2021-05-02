@@ -47,9 +47,20 @@ public class NestedMapFromTwoArraysFunction extends StdUDF1<StdArray, StdArray> 
     StdArray result = getStdFactory().createArray(_arrayType);
 
     for (int i = 0; i < a1.size(); i++) {
+      if (a1.get(i) == null) {
+        return null;
+      }
       StdStruct inputRow = (StdStruct) a1.get(i);
+
+      if (inputRow.getField(0) == null || inputRow.getField(1) == null) {
+        return null;
+      }
       StdArray kValues = (StdArray) inputRow.getField(0);
       StdArray vValues = (StdArray) inputRow.getField(1);
+
+      if (kValues.size() != vValues.size()) {
+        return null;
+      }
 
       StdMap map = getStdFactory().createMap(_mapType);
       for (int j = 0; j < kValues.size(); j++) {

@@ -27,8 +27,23 @@ public class TestNestedMapFromTwoArraysFunction extends AbstractStdUDFTest {
   public void testNestedMapUnionFunction() {
     StdTester tester = getTester();
     tester.check(
-        functionCall("nested_map_from_two_arrays", array(row(array(1, 2, 3), array("a", "b", "c")))),
-        array(row(map(1, "a", 2, "b", 3, "c"))),
+        functionCall("nested_map_from_two_arrays", array(row(array(1, 2), array("a", "b")))),
+        array(row(map(1, "a", 2, "b"))),
         "array(row(map(integer,varchar)))");
+    tester.check(
+        functionCall("nested_map_from_two_arrays", array(row(array(1, 2), array("a", "b")), row(array(11, 12), array("aa", "bb")))),
+        array(row(map(1, "a", 2, "b")), row(map(11, "aa", 12, "bb"))),
+        "array(row(map(integer,varchar)))");
+    tester.check(
+        functionCall("nested_map_from_two_arrays",
+            array(row(array(array(1), array(2)), array(array("a"), array("b"))))),
+        array(row(map(array(1), array("a"), array(2), array("b")))),
+        "array(row(map(array(integer),array(varchar))))");
+    tester.check(
+        functionCall("nested_map_from_two_arrays",  array(row(array(1), array("a", "b")))),
+        null, "array(row(map(integer,varchar)))");
+    tester.check(
+        functionCall("nested_map_from_two_arrays",  array(row(null, array("a", "b")))),
+        null, "array(row(map(unknown,varchar)))");
   }
 }
