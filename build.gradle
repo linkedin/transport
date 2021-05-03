@@ -14,13 +14,17 @@ buildscript {
     classpath 'com.github.jengelman.gradle.plugins:shadow:2.0.4'
     classpath 'org.github.ngbinh.scalastyle:gradle-scalastyle-plugin_2.11:1.0.1'
     classpath 'gradle.plugin.nl.javadude.gradle.plugins:license-gradle-plugin:0.14.0'
+    classpath "io.github.gradle-nexus:publish-plugin:1.0.0"
+    classpath "org.shipkit:shipkit-auto-version:1.1.1"
+    classpath "org.shipkit:shipkit-changelog:1.1.10"
   }
 }
 
 plugins {
-  id "org.shipkit.java" version "2.3.4"
   id "checkstyle"
 }
+
+apply from: "gradle/shipkit.gradle"
 
 allprojects {
   group = 'com.linkedin.transport'

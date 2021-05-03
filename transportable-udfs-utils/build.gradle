@@ -1,4 +1,4 @@
-apply plugin: 'java'
+apply from: "$rootDir/gradle/java-publication.gradle"
 
 dependencies {
   compile('org.apache.hadoop:hadoop-common:2.7.4')

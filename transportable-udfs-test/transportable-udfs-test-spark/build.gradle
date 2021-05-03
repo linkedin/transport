@@ -1,3 +1,4 @@
+apply from: "$rootDir/gradle/java-publication.gradle"
 apply plugin: 'scala'
 
 dependencies {
