@@ -27,7 +27,7 @@ jobs:
         with:
           fetch-depth: '0' # https://github.com/shipkit/shipkit-changelog#fetch-depth-on-ci
 
-      - name: Setup Java JDK
+      - name: 2. Setup Java JDK
         uses: actions/setup-java@v2
         with:
           distribution: 'adopt'

@@ -1,5 +1,3 @@
-apply plugin: "java"
-
 def licenseSpec = copySpec {
     from project.rootDir
     include "LICENSE"

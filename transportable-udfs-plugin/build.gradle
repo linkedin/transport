@@ -1,7 +1,6 @@
 plugins {
   id 'java-gradle-plugin'
 }
-apply from: "$rootDir/gradle/java-publication.gradle"
 
 gradlePlugin {
   plugins {

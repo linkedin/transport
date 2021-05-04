@@ -1,4 +1,4 @@
-apply from: "$rootDir/gradle/java-publication.gradle"
+apply plugin: 'java'
 
 java {
   toolchain.languageVersion.set(JavaLanguageVersion.of(11))

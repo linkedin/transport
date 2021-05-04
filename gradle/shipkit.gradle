@@ -29,3 +29,9 @@ nexusPublishing {
     }
   }
 }
+
+allprojects { p ->
+  plugins.withId("java") {
+    p.apply from: "$rootDir/gradle/java-publication.gradle"
+  }
+}
