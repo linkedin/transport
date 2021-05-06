@@ -27,7 +27,7 @@ def writeVersionInfo = { file ->
   ant.propertyfile(file: file) {
     entry(key: "transport-version", value: version)
     entry(key: "hive-version", value: '1.2.2')
-    entry(key: "presto-version", value: '333')
+    entry(key: "trino-version", value: '352')
     entry(key: "spark-version", value: '2.3.0')
     entry(key: "scala-version", value: '2.11.8')
   }
