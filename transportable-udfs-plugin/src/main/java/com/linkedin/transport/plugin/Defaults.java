@@ -7,8 +7,8 @@ package com.linkedin.transport.plugin;
 
 import com.google.common.collect.ImmutableList;
 import com.linkedin.transport.codegen.HiveWrapperGenerator;
-import com.linkedin.transport.codegen.PrestoWrapperGenerator;
 import com.linkedin.transport.codegen.SparkWrapperGenerator;
+import com.linkedin.transport.codegen.TrinoWrapperGenerator;
 import com.linkedin.transport.plugin.packaging.DistributionPackaging;
 import com.linkedin.transport.plugin.packaging.ShadedJarPackaging;
 import com.linkedin.transport.plugin.packaging.ThinJarPackaging;
@@ -59,21 +59,21 @@ class Defaults {
 
   static final List<Platform> DEFAULT_PLATFORMS = ImmutableList.of(
       new Platform(
-          "presto",
+          "trino",
           Language.JAVA,
-          PrestoWrapperGenerator.class,
+          TrinoWrapperGenerator.class,
           JavaLanguageVersion.of(11),
           ImmutableList.of(
-              getDependencyConfiguration(IMPLEMENTATION, "com.linkedin.transport:transportable-udfs-presto",
+              getDependencyConfiguration(IMPLEMENTATION, "com.linkedin.transport:transportable-udfs-trino",
                   "transport"),
-              getDependencyConfiguration(COMPILE_ONLY, "io.prestosql:presto-main", "presto")
+              getDependencyConfiguration(COMPILE_ONLY, "io.trino:trino-main", "trino")
           ),
           ImmutableList.of(
-              getDependencyConfiguration(RUNTIME_ONLY, "com.linkedin.transport:transportable-udfs-test-presto",
+              getDependencyConfiguration(RUNTIME_ONLY, "com.linkedin.transport:transportable-udfs-test-trino",
                   "transport"),
-              // presto-main:tests is a transitive dependency of transportable-udfs-test-presto, but some POM -> IVY
+              // trino-main:tests is a transitive dependency of transportable-udfs-test-trino, but some POM -> IVY
               // converters drop dependencies with classifiers, so we apply this dependency explicitly
-              getDependencyConfiguration(RUNTIME_ONLY, "io.prestosql:presto-main", "presto", "tests")
+              getDependencyConfiguration(RUNTIME_ONLY, "io.trino:trino-main", "trino", "tests")
           ),
           ImmutableList.of(new ThinJarPackaging(), new DistributionPackaging())),
       new Platform(

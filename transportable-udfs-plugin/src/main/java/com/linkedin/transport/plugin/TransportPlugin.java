@@ -67,7 +67,7 @@ public class TransportPlugin implements Plugin<Project> {
       Defaults.DEFAULT_PLATFORMS.forEach(
           platform -> configurePlatform(project, platform, mainSourceSet, testSourceSet, extension.outputDirFile));
     });
-    // Disable Jacoco for platform test tasks as it is known to cause issues with Presto and Hive tests
+    // Disable Jacoco for platform test tasks as it is known to cause issues with Trino and Hive tests
     project.getPlugins().withType(JacocoPlugin.class, (jacocoPlugin) -> {
         Defaults.DEFAULT_PLATFORMS.forEach(platform -> {
           project.getTasksByName(testTaskName(platform), true).forEach(task -> {
@@ -123,9 +123,9 @@ public class TransportPlugin implements Plugin<Project> {
 
     return javaConvention.getSourceSets().create(platform.getName(), sourceSet -> {
       /*
-        Creates a SourceSet and set the source directories for a given platform. E.g. For the Presto platform,
+        Creates a SourceSet and set the source directories for a given platform. E.g. For the Trino platform,
 
-        presto {
+        trino {
           java.srcDirs = ["${buildDir}/generatedWrappers/sources"]
           resources.srcDirs = ["${buildDir}/generatedWrappers/resources"]
         }
@@ -134,11 +134,11 @@ public class TransportPlugin implements Plugin<Project> {
       sourceSet.getResources().setSrcDirs(ImmutableList.of(wrapperResourceOutputDir));
 
       /*
-        Sets up the configuration for the platform's wrapper SourceSet. E.g. For the Presto platform,
+        Sets up the configuration for the platform's wrapper SourceSet. E.g. For the Trino platform,
 
         configurations {
-          prestoImplementation.extendsFrom mainImplementation
-          prestoRuntimeOnly.extendsFrom mainRuntimeOnly
+          trinoImplementation.extendsFrom mainImplementation
+          trinoRuntimeOnly.extendsFrom mainRuntimeOnly
         }
        */
       getConfigurationForSourceSet(project, sourceSet, IMPLEMENTATION).extendsFrom(
@@ -147,12 +147,12 @@ public class TransportPlugin implements Plugin<Project> {
           getConfigurationForSourceSet(project, mainSourceSet, RUNTIME_ONLY));
 
       /*
-        Adds the default dependencies for the platform. E.g For the Presto platform,
+        Adds the default dependencies for the platform. E.g For the Trino platform,
 
         dependencies {
-          prestoImplementation project.files(project.tasks.jar)
-          prestoImplementation 'com.linkedin.transport:transportable-udfs-presto:$version'
-          prestoCompileOnly 'io.prestosql:presto-main:$version'
+          trinoImplementation project.files(project.tasks.jar)
+          trinoImplementation 'com.linkedin.transport:transportable-udfs-trino:$version'
+          trinoCompileOnly 'io.trino:trino-main:$version'
         }
        */
       addDependencyToConfiguration(project, getConfigurationForSourceSet(project, sourceSet, IMPLEMENTATION),
@@ -168,17 +168,17 @@ public class TransportPlugin implements Plugin<Project> {
       SourceSet inputSourceSet, SourceSet outputSourceSet) {
 
     /*
-      Creates a generateWrapper task for a given platform. E.g For the Presto platform,
+      Creates a generateWrapper task for a given platform. E.g For the Trino platform,
 
-      task generatePrestoWrappers {
-        generatorClass = 'com.linkedin.transport.codegen.PrestoWrapperGenerator'
+      task generateTrinoWrappers {
+        generatorClass = 'com.linkedin.transport.codegen.TrinoWrapperGenerator'
         inputClassesDirs = sourceSets.main.output.classesDirs
-        sourcesOutputDir = sourceSets.presto.java.srcDirs[0]
-        resourcesOutputDir = sourceSets.presto.resources.srcDirs[0]
+        sourcesOutputDir = sourceSets.trino.java.srcDirs[0]
+        resourcesOutputDir = sourceSets.trino.resources.srcDirs[0]
         dependsOn classes
       }
 
-      prestoClasses.dependsOn(generatePrestoWrappers)
+      trinoClasses.dependsOn(generateTrinoWrappers)
      */
     String taskName = outputSourceSet.getTaskName("generate", "Wrappers");
     File sourcesOutputDir =
@@ -231,17 +231,17 @@ public class TransportPlugin implements Plugin<Project> {
       SourceSet testSourceSet) {
 
     /*
-      Configures the classpath configuration to run platform-specific tests. E.g. For the Presto platform,
+      Configures the classpath configuration to run platform-specific tests. E.g. For the Trino platform,
 
       configurations {
-        prestoTestClasspath {
+        trinoTestClasspath {
           extendsFrom testImplementation
         }
       }
 
       dependencies {
-        prestoTestClasspath sourceSets.main.output, sourceSets.test.output
-        prestoTestClasspath 'com.linkedin.transport:transportable-udfs-test-presto'
+        trinoTestClasspath sourceSets.main.output, sourceSets.test.output
+        trinoTestClasspath 'com.linkedin.transport:transportable-udfs-test-trino'
       }
      */
     Configuration testClasspath = project.getConfigurations()
@@ -254,13 +254,13 @@ public class TransportPlugin implements Plugin<Project> {
             dependencyConfiguration.getDependencyString()));
 
     /*
-      Creates the test task for a given platform. E.g. For the Presto platform,
+      Creates the test task for a given platform. E.g. For the Trino platform,
 
-      task prestoTest(type: Test, dependsOn: test) {
+      task trinoTest(type: Test, dependsOn: test) {
         group 'Verification'
-        description 'Runs the Presto tests.'
+        description 'Runs the Trino tests.'
         testClassesDirs = sourceSets.test.output.classesDirs
-        classpath = configurations.prestoTestClasspath
+        classpath = configurations.trinoTestClasspath
         useTestNG()
       }
     */
