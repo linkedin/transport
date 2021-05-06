@@ -1,14 +1,7 @@
 plugins {
   id 'java-gradle-plugin'
-}
-
-gradlePlugin {
-  plugins {
-    simplePlugin {
-      id = 'com.linkedin.transport.plugin'
-      implementationClass = 'com.linkedin.transport.plugin.TransportPlugin'
-    }
-  }
+  id 'maven-publish'
+  id 'signing'
 }
 
 dependencies {
@@ -34,4 +27,97 @@ def writeVersionInfo = { file ->
 
 processResources.doLast {
   writeVersionInfo(new File(sourceSets.main.output.resourcesDir, "version-info.properties"))
+}
+
+def licenseSpec = copySpec {
+  from project.rootDir
+  include "LICENSE"
+}
+
+task sourcesJar(type: Jar, dependsOn: classes) {
+  classifier 'sources'
+  from sourceSets.main.allSource
+  with licenseSpec
+}
+
+task javadocJar(type: Jar, dependsOn: javadoc) {
+  classifier 'javadoc'
+  from tasks.javadoc
+  with licenseSpec
+}
+
+jar {
+  with licenseSpec
+}
+
+artifacts {
+  archives sourcesJar
+  archives javadocJar
+}
+
+signing {
+  if (System.getenv("PGP_KEY")) {
+    useInMemoryPgpKeys(System.getenv("PGP_KEY"), System.getenv("PGP_PWD"))
+    sign publishing.publications
+  }
+}
+
+gradlePlugin {
+  plugins {
+    simplePlugin {
+      id = 'com.linkedin.transport.plugin'
+      implementationClass = 'com.linkedin.transport.plugin.TransportPlugin'
+    }
+  }
+}
+
+publishing {
+  // afterEvaluate is necessary because java-gradle-plugin
+  // creates its publications in an afterEvaluate callback
+  afterEvaluate {
+    publications {
+      withType(MavenPublication) {
+        artifact sourcesJar
+        artifact javadocJar
+
+        pom {
+          name = artifactId
+          description = "A library for analyzing, processing, and rewriting views defined in the Hive Metastore, and sharing them across multiple execution engines"
+
+          url = "https://github.com/linkedin/transport"
+          licenses {
+            license {
+              name = 'BSD 2-CLAUSE LICENSE'
+              url = 'https://github.com/linkedin/transport/blob/master/LICENSE'
+              distribution = 'repo'
+            }
+          }
+          developers {
+            developer {
+              id = 'wmoustafa'
+              name = 'Walaa Eldin Moustafa'
+            }
+            developer {
+              id = 'shardulm94'
+              name = 'Shardul Mahadik'
+            }
+          }
+          scm {
+            url = 'https://github.com/linkedin/transport.git'
+          }
+          issueManagement {
+            url = 'https://github.com/linkedin/transport/issues'
+            system = 'GitHub issues'
+          }
+          ciManagement {
+            url = 'https://travis-ci.com/linkedin/transport'
+            system = 'Travis CI'
+          }
+        }
+      }
+    }
+  }
+
+  //useful for testing - running "publish" will create artifacts/pom in a local dir
+  repositories { maven { url = "$rootProject.buildDir/repo" } }
 }

@@ -30,8 +30,9 @@ nexusPublishing {
   }
 }
 
-allprojects { p ->
-  plugins.withId("java") {
+// we need to exclude the plugin module for its specific gradle configuration
+configure(allprojects - project(':transportable-udfs-plugin')) { p ->
+  plugins.withId('java') {
     p.apply from: "$rootDir/gradle/java-publication.gradle"
   }
 }
