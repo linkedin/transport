@@ -1,0 +1,3 @@
+udfs.trino.OverloadedUDFInt
+udfs.trino.OverloadedUDFString
+udfs.trino.SimpleUDF
