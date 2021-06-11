@@ -115,7 +115,7 @@ public class SourceSetUtils {
     addDependencyToConfiguration(
         getConfigurationForSourceSet(project, sourceSet, dependencyConfiguration.getConfigurationType()),
         createDependency(project, dependencyConfiguration.getDependencyString()),
-        dependencyConfiguration.getExcludedPackageModules()
+        dependencyConfiguration.getExcludedProperties()
     );
   }
 

@@ -25,14 +25,14 @@ public class DependencyConfiguration {
   private final String _module;
   private final String _version;
   private final String _classifier;
-  private final Set<Map<String, String>> _excludedPackageModules;
+  private final Set<Map<String, String>> _excludedProperties;
 
   private DependencyConfiguration(Builder builder) {
     this._configurationType = builder._configurationType;
     this._module = builder._module;
     this._version = builder._version;
     this._classifier = builder._classifier;
-    this._excludedPackageModules = builder._excludedPackageModules;
+    this._excludedProperties = builder._excludedProperties;
   }
 
   public ConfigurationType getConfigurationType() {
@@ -43,8 +43,8 @@ public class DependencyConfiguration {
     return _module + ":" + _version + Optional.ofNullable(_classifier).map(v -> ":" + v).orElse("");
   }
 
-  public Set<Map<String, String>> getExcludedPackageModules() {
-    return _excludedPackageModules;
+  public Set<Map<String, String>> getExcludedProperties() {
+    return _excludedProperties;
   }
 
   public static Builder builder(final ConfigurationType configurationType, final String module, final String version) {
@@ -56,7 +56,7 @@ public class DependencyConfiguration {
     private final String _module;
     private String _version;
     private String _classifier;
-    private Set<Map<String, String>> _excludedPackageModules;
+    private Set<Map<String, String>> _excludedProperties;
 
     public Builder(final ConfigurationType configurationType, final String module, final String version) {
       Objects.requireNonNull(configurationType);
@@ -79,10 +79,10 @@ public class DependencyConfiguration {
 
     public Builder exclude(final String group, final String module) {
       Objects.requireNonNull(group);
-      if (_excludedPackageModules == null) {
-        _excludedPackageModules = new HashSet<>();
+      if (_excludedProperties == null) {
+        _excludedProperties = new HashSet<>();
       }
-      _excludedPackageModules.add((module == null)
+      _excludedProperties.add((module == null)
           ? ImmutableMap.of(GROUP_KEY, group)
           : ImmutableMap.of(GROUP_KEY, group, MODULE_KEY, module)
       );

@@ -46,15 +46,15 @@ class Defaults {
   private static final String getVersion(final String platform) {
     return DEFAULT_VERSIONS.getProperty(platform + "-version");
   }
-  private static final String PLATFORM_HIVE = "hive";
-  private static final String PLATFORM_SPARK = "spark";
-  private static final String PLATFORM_TRINO = "trino";
+  private static final String HIVE = "hive";
+  private static final String SPARK = "spark";
+  private static final String TRINO = "trino";
 
   private static final String TRANSPORT_VERSION = getVersion("transport");
   private static final String SCALA_VERSION = getVersion("scala");
-  private static final String HIVE_VERSION = getVersion(PLATFORM_HIVE);
-  private static final String SPARK_VERSION = getVersion(PLATFORM_SPARK);
-  private static final String TRINO_VERSION = getVersion(PLATFORM_TRINO);
+  private static final String HIVE_VERSION = getVersion(HIVE);
+  private static final String SPARK_VERSION = getVersion(SPARK);
+  private static final String TRINO_VERSION = getVersion(TRINO);
 
   static final List<DependencyConfiguration> MAIN_SOURCE_SET_DEPENDENCY_CONFIGURATIONS = ImmutableList.of(
       DependencyConfiguration.builder(IMPLEMENTATION, "com.linkedin.transport:transportable-udfs-api", TRANSPORT_VERSION).build(),
@@ -70,8 +70,7 @@ class Defaults {
   );
 
   static final List<Platform> DEFAULT_PLATFORMS = ImmutableList.of(
-      new Platform(
-          PLATFORM_TRINO,
+      new Platform(TRINO,
           Language.JAVA,
           TrinoWrapperGenerator.class,
           JavaLanguageVersion.of(11),
@@ -86,8 +85,7 @@ class Defaults {
               DependencyConfiguration.builder(RUNTIME_ONLY, "io.trino:trino-main", TRINO_VERSION).classifier("tests").build()
           ),
           ImmutableList.of(new ThinJarPackaging(), new DistributionPackaging())),
-      new Platform(
-          PLATFORM_HIVE,
+      new Platform(HIVE,
           Language.JAVA,
           HiveWrapperGenerator.class,
           JavaLanguageVersion.of(8),
@@ -99,8 +97,7 @@ class Defaults {
               DependencyConfiguration.builder(RUNTIME_ONLY, "com.linkedin.transport:transportable-udfs-test-hive", TRANSPORT_VERSION).build()
           ),
           ImmutableList.of(new ShadedJarPackaging(ImmutableList.of("org.apache.hadoop", "org.apache.hive"), null))),
-      new Platform(
-          PLATFORM_SPARK,
+      new Platform(SPARK,
           Language.SCALA,
           SparkWrapperGenerator.class,
           JavaLanguageVersion.of(8),
