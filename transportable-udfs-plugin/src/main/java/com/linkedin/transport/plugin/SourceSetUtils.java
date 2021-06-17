@@ -6,9 +6,15 @@
 package com.linkedin.transport.plugin;
 
 import java.util.Collection;
+import java.util.Map;
+import java.util.Set;
+import javax.annotation.Nullable;
 import org.codehaus.groovy.runtime.InvokerHelper;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.Configuration;
+import org.gradle.api.artifacts.Dependency;
+import org.gradle.api.artifacts.ModuleDependency;
+import org.gradle.api.artifacts.dsl.DependencyHandler;
 import org.gradle.api.file.SourceDirectorySet;
 import org.gradle.api.plugins.Convention;
 import org.gradle.api.tasks.ScalaSourceSet;
@@ -75,7 +81,30 @@ public class SourceSetUtils {
    * Adds the provided dependency to the given {@link Configuration}
    */
   static void addDependencyToConfiguration(Project project, Configuration configuration, Object dependency) {
-    configuration.withDependencies(dependencySet -> dependencySet.add(project.getDependencies().create(dependency)));
+    addDependencyToConfiguration(configuration, createDependency(project, dependency), null);
+  }
+
+  /**
+   * Adds the provided dependency {@link Dependency} to the given {@link Configuration},
+   * excluding the elements in the excludeProperties
+   */
+  static void addDependencyToConfiguration(final Configuration configuration, final Dependency dependency,
+      final @Nullable Set<Map<String, String>> excludeProperties) {
+    configuration.withDependencies(dependencySet -> {
+      if (excludeProperties != null) {
+        if (dependency instanceof ModuleDependency) {
+          excludeProperties.stream().forEach(((ModuleDependency) dependency)::exclude);
+        }
+      }
+      dependencySet.add(dependency);
+    });
+  }
+
+  /**
+   * Create {@link Dependency} by {@link Project}'s {@link DependencyHandler}
+   */
+  static Dependency createDependency(final Project project, Object dependency) {
+    return project.getDependencies().create(dependency);
   }
 
   /**
@@ -83,9 +112,11 @@ public class SourceSetUtils {
    */
   static void addDependencyConfigurationToSourceSet(Project project, SourceSet sourceSet,
       DependencyConfiguration dependencyConfiguration) {
-    addDependencyToConfiguration(project,
-        SourceSetUtils.getConfigurationForSourceSet(project, sourceSet, dependencyConfiguration.getConfigurationType()),
-        dependencyConfiguration.getDependencyString());
+    addDependencyToConfiguration(
+        getConfigurationForSourceSet(project, sourceSet, dependencyConfiguration.getConfigurationType()),
+        createDependency(project, dependencyConfiguration.getDependencyString()),
+        dependencyConfiguration.getExcludedProperties()
+    );
   }
 
   /**

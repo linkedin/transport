@@ -7,10 +7,12 @@ dependencies {
   compile('org.apache.hadoop:hadoop-common:2.7.4')
   compileOnly('org.apache.hive:hive-exec:1.2.2') {
     exclude group: 'org.apache.avro'
+    exclude group: 'org.apache.calcite'
   }
   testCompile project(path: ':transportable-udfs-type-system', configuration: 'tests')
   testCompile('org.apache.hive:hive-exec:1.2.2') {
     exclude group: 'org.apache.avro'
+    exclude group: 'org.apache.calcite'
   }
 }
 

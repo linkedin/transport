@@ -43,82 +43,74 @@ class Defaults {
     }
   }
 
+  private static final String getVersion(final String platform) {
+    return DEFAULT_VERSIONS.getProperty(platform + "-version");
+  }
+  private static final String HIVE = "hive";
+  private static final String SPARK = "spark";
+  private static final String TRINO = "trino";
+
+  private static final String TRANSPORT_VERSION = getVersion("transport");
+  private static final String SCALA_VERSION = getVersion("scala");
+  private static final String HIVE_VERSION = getVersion(HIVE);
+  private static final String SPARK_VERSION = getVersion(SPARK);
+  private static final String TRINO_VERSION = getVersion(TRINO);
+
   static final List<DependencyConfiguration> MAIN_SOURCE_SET_DEPENDENCY_CONFIGURATIONS = ImmutableList.of(
-      getDependencyConfiguration(IMPLEMENTATION, "com.linkedin.transport:transportable-udfs-api", "transport"),
-      getDependencyConfiguration(ANNOTATION_PROCESSOR, "com.linkedin.transport:transportable-udfs-annotation-processor",
-          "transport"),
+      DependencyConfiguration.builder(IMPLEMENTATION, "com.linkedin.transport:transportable-udfs-api", TRANSPORT_VERSION).build(),
+      DependencyConfiguration.builder(ANNOTATION_PROCESSOR, "com.linkedin.transport:transportable-udfs-annotation-processor", TRANSPORT_VERSION).build(),
       // the idea plugin needs a scala-library on the classpath when the scala plugin is applied even when there are no
       // scala sources
-      getDependencyConfiguration(COMPILE_ONLY, "org.scala-lang:scala-library", "scala")
+      DependencyConfiguration.builder(COMPILE_ONLY, "org.scala-lang:scala-library", SCALA_VERSION).build()
   );
 
   static final List<DependencyConfiguration> TEST_SOURCE_SET_DEPENDENCY_CONFIGURATIONS = ImmutableList.of(
-      getDependencyConfiguration(IMPLEMENTATION, "com.linkedin.transport:transportable-udfs-test-api", "transport"),
-      getDependencyConfiguration(RUNTIME_ONLY, "com.linkedin.transport:transportable-udfs-test-generic", "transport")
+      DependencyConfiguration.builder(IMPLEMENTATION, "com.linkedin.transport:transportable-udfs-test-api", TRANSPORT_VERSION).build(),
+      DependencyConfiguration.builder(RUNTIME_ONLY, "com.linkedin.transport:transportable-udfs-test-generic", TRANSPORT_VERSION).build()
   );
 
   static final List<Platform> DEFAULT_PLATFORMS = ImmutableList.of(
-      new Platform(
-          "trino",
+      new Platform(TRINO,
           Language.JAVA,
           TrinoWrapperGenerator.class,
           JavaLanguageVersion.of(11),
           ImmutableList.of(
-              getDependencyConfiguration(IMPLEMENTATION, "com.linkedin.transport:transportable-udfs-trino",
-                  "transport"),
-              getDependencyConfiguration(COMPILE_ONLY, "io.trino:trino-main", "trino")
+              DependencyConfiguration.builder(IMPLEMENTATION, "com.linkedin.transport:transportable-udfs-trino", TRANSPORT_VERSION).build(),
+              DependencyConfiguration.builder(COMPILE_ONLY, "io.trino:trino-main", TRINO_VERSION).build()
           ),
           ImmutableList.of(
-              getDependencyConfiguration(RUNTIME_ONLY, "com.linkedin.transport:transportable-udfs-test-trino",
-                  "transport"),
+              DependencyConfiguration.builder(RUNTIME_ONLY, "com.linkedin.transport:transportable-udfs-test-trino", TRANSPORT_VERSION).build(),
               // trino-main:tests is a transitive dependency of transportable-udfs-test-trino, but some POM -> IVY
               // converters drop dependencies with classifiers, so we apply this dependency explicitly
-              getDependencyConfiguration(RUNTIME_ONLY, "io.trino:trino-main", "trino", "tests")
+              DependencyConfiguration.builder(RUNTIME_ONLY, "io.trino:trino-main", TRINO_VERSION).classifier("tests").build()
           ),
           ImmutableList.of(new ThinJarPackaging(), new DistributionPackaging())),
-      new Platform(
-          "hive",
+      new Platform(HIVE,
           Language.JAVA,
           HiveWrapperGenerator.class,
           JavaLanguageVersion.of(8),
           ImmutableList.of(
-              getDependencyConfiguration(IMPLEMENTATION, "com.linkedin.transport:transportable-udfs-hive", "transport"),
-              getDependencyConfiguration(COMPILE_ONLY, "org.apache.hive:hive-exec", "hive")
+              DependencyConfiguration.builder(IMPLEMENTATION, "com.linkedin.transport:transportable-udfs-hive", TRANSPORT_VERSION).build(),
+              DependencyConfiguration.builder(COMPILE_ONLY, "org.apache.hive:hive-exec", HIVE_VERSION).exclude("org.apache.calcite").build()
           ),
           ImmutableList.of(
-              getDependencyConfiguration(RUNTIME_ONLY, "com.linkedin.transport:transportable-udfs-test-hive",
-                  "transport")
+              DependencyConfiguration.builder(RUNTIME_ONLY, "com.linkedin.transport:transportable-udfs-test-hive", TRANSPORT_VERSION).build()
           ),
           ImmutableList.of(new ShadedJarPackaging(ImmutableList.of("org.apache.hadoop", "org.apache.hive"), null))),
-      new Platform(
-          "spark",
+      new Platform(SPARK,
           Language.SCALA,
           SparkWrapperGenerator.class,
           JavaLanguageVersion.of(8),
           ImmutableList.of(
-              getDependencyConfiguration(IMPLEMENTATION, "com.linkedin.transport:transportable-udfs-spark",
-                  "transport"),
-              getDependencyConfiguration(COMPILE_ONLY, "org.apache.spark:spark-sql_2.11", "spark")
+              DependencyConfiguration.builder(IMPLEMENTATION, "com.linkedin.transport:transportable-udfs-spark", TRANSPORT_VERSION).build(),
+              DependencyConfiguration.builder(COMPILE_ONLY, "org.apache.spark:spark-sql_2.11", SPARK_VERSION).build()
           ),
           ImmutableList.of(
-              getDependencyConfiguration(RUNTIME_ONLY, "com.linkedin.transport:transportable-udfs-test-spark",
-                  "transport")
+              DependencyConfiguration.builder(RUNTIME_ONLY, "com.linkedin.transport:transportable-udfs-test-spark", TRANSPORT_VERSION).build()
           ),
           ImmutableList.of(new ShadedJarPackaging(
               ImmutableList.of("org.apache.hadoop", "org.apache.spark"),
               ImmutableList.of("com.linkedin.transport.spark.**")))
       )
   );
-
-  private static DependencyConfiguration getDependencyConfiguration(ConfigurationType configurationType,
-      String module, String platform) {
-    return getDependencyConfiguration(configurationType, module, platform, null);
-  }
-
-  private static DependencyConfiguration getDependencyConfiguration(ConfigurationType configurationType,
-      String module, String platform, String classifier) {
-    return new DependencyConfiguration(configurationType, module
-        + ":" + DEFAULT_VERSIONS.getProperty(platform + "-version")
-        + (classifier != null ? (":" + classifier) : ""));
-  }
 }
