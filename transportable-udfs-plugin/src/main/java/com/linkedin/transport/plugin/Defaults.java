@@ -110,7 +110,11 @@ class Defaults {
           ),
           ImmutableList.of(new ShadedJarPackaging(
               ImmutableList.of("org.apache.hadoop", "org.apache.spark"),
-              ImmutableList.of("com.linkedin.transport.spark.**")))
+              ImmutableList.of(
+                  "com.linkedin.transport.spark.**",
+                  "com.linkedin.transport.api.**"
+              )
+          ))
       )
   );
 }
