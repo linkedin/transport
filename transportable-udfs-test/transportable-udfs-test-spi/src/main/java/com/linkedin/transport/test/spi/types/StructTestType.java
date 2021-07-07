@@ -43,4 +43,23 @@ public class StructTestType implements TestType {
   public int hashCode() {
     return Objects.hash(_fieldNames, _fieldTypes);
   }
+
+  @Override
+  public String toString() {
+    StringBuilder stringBuilder = new StringBuilder();
+    stringBuilder.append("{ ");
+    if (_fieldNames != null) {
+      stringBuilder.append(_fieldNames.toString());
+    } else {
+      stringBuilder.append("fieldNames=null");
+    }
+    stringBuilder.append(", ");
+    if (this._fieldTypes != null) {
+      stringBuilder.append(this._fieldTypes.toString());
+    } else {
+      stringBuilder.append("_fieldTypes=null");
+    }
+    stringBuilder.append("}; ");
+    return stringBuilder.toString();
+  }
 }

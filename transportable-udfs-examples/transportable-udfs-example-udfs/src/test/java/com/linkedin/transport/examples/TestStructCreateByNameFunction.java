@@ -26,7 +26,7 @@ public class TestStructCreateByNameFunction extends AbstractStdUDFTest {
   @Test
   public void testStructCreateByNameFunction() {
     StdTester tester = getTester();
-    tester.check(functionCall("struct_create_by_name", "a", "x", "b", "y"), row("x", "y"), "row(varchar,varchar)");
+    tester.check(functionCall("struct_create_by_name", "a", "x", "b", "y"), row("x", "y").fieldNames("a", "b"), "row(varchar, varchar)");
     tester.check(functionCall("struct_create_by_name", null, "x", "b", "y"), null, "row(varchar,varchar)");
     tester.check(functionCall("struct_create_by_name", "a", "x", null, "y"), null, "row(varchar,varchar)");
     tester.check(functionCall("struct_create_by_name", "a", null, "b", "y"), null, "row(unknown,varchar)");
