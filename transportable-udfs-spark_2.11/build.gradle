@@ -6,17 +6,17 @@ dependencies {
   compile project(':transportable-udfs-utils')
   // For spark-core and spark-sql dependencies, we exclude transitive dependency on 'jackson-module-paranamer',
   // since this is required for the LinkedIn version of spark-core and spark-sql.
-  compileOnly(group: project.ext.'spark-group', name: 'spark-core_2.11', version: project.ext.'spark-version') {
+  compileOnly(group: project.ext.'spark-group', name: 'spark-core_2.11', version: project.ext.'spark2-version') {
     exclude module: 'jackson-module-paranamer'
   }
-  compileOnly(group: project.ext.'spark-group', name: 'spark-sql_2.11', version: project.ext.'spark-version') {
+  compileOnly(group: project.ext.'spark-group', name: 'spark-sql_2.11', version: project.ext.'spark2-version') {
     exclude module: 'jackson-module-paranamer'
   }
   compileOnly('com.fasterxml.jackson.module:jackson-module-paranamer:2.6.7')
-  testCompile(group: project.ext.'spark-group', name: 'spark-core_2.11', version: project.ext.'spark-version') {
+  testCompile(group: project.ext.'spark-group', name: 'spark-core_2.11', version: project.ext.'spark2-version') {
     exclude module: 'jackson-module-paranamer'
   }
-  testCompile(group: project.ext.'spark-group', name: 'spark-sql_2.11', version: project.ext.'spark-version') {
+  testCompile(group: project.ext.'spark-group', name: 'spark-sql_2.11', version: project.ext.'spark2-version') {
     exclude module: 'jackson-module-paranamer'
   }
   testCompile('com.fasterxml.jackson.module:jackson-module-paranamer:2.6.7')

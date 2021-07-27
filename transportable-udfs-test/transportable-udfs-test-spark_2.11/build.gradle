@@ -2,14 +2,14 @@ apply plugin: 'scala'
 
 dependencies {
   compile project(":transportable-udfs-api")
-  compile project(":transportable-udfs-spark")
+  compile project(":transportable-udfs-spark_2.11")
   compile project(":transportable-udfs-test:transportable-udfs-test-api")
   compile project(":transportable-udfs-test:transportable-udfs-test-spi")
   compile('com.databricks:spark-avro_2.11:4.0.0')
-  compile(group: project.ext.'spark-group', name: 'spark-core_2.11', version: project.ext.'spark-version') {
+  compile(group: project.ext.'spark-group', name: 'spark-core_2.11', version: project.ext.'spark2-version') {
     exclude module: 'jackson-module-paranamer'
   }
-  compile(group: project.ext.'spark-group', name: 'spark-sql_2.11', version: project.ext.'spark-version') {
+  compile(group: project.ext.'spark-group', name: 'spark-sql_2.11', version: project.ext.'spark2-version') {
     exclude module: 'jackson-module-paranamer'
   }
   compile('com.fasterxml.jackson.module:jackson-module-scala_2.11:2.7.9')

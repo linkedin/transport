@@ -1,0 +1,52 @@
+apply plugin: 'scala'
+
+sourceSets {
+  main {
+    scala {
+      srcDirs = project(':transportable-udfs-spark_2.11').sourceSets.main.scala.srcDirs
+    }
+  }
+  test {
+    scala {
+      srcDirs = project(':transportable-udfs-spark_2.11').sourceSets.test.scala.srcDirs
+    }
+  }
+}
+
+dependencies {
+  compile project(':transportable-udfs-api')
+  compile project(':transportable-udfs-type-system')
+  compile project(':transportable-udfs-utils')
+  // For spark-core and spark-sql dependencies, we exclude transitive dependency on 'jackson-module-paranamer',
+  // since this is required for the LinkedIn version of spark-core and spark-sql.
+  compileOnly(group: project.ext.'spark-group', name: 'spark-core_2.12', version: project.ext.'spark3-version') {
+    exclude module: 'jackson-module-paranamer'
+  }
+  compileOnly(group: project.ext.'spark-group', name: 'spark-sql_2.12', version: project.ext.'spark3-version') {
+    exclude module: 'jackson-module-paranamer'
+  }
+  compileOnly('com.fasterxml.jackson.module:jackson-module-paranamer:2.6.7')
+  testCompile(group: project.ext.'spark-group', name: 'spark-core_2.12', version: project.ext.'spark3-version') {
+    exclude module: 'jackson-module-paranamer'
+  }
+  testCompile(group: project.ext.'spark-group', name: 'spark-sql_2.12', version: project.ext.'spark3-version') {
+    exclude module: 'jackson-module-paranamer'
+  }
+  testCompile('com.fasterxml.jackson.module:jackson-module-paranamer:2.6.7')
+  testCompile project(path: ':transportable-udfs-type-system', configuration: 'tests')
+}
+
+task jarTests(type: Jar, dependsOn: testClasses) {
+  classifier = 'tests'
+  from sourceSets.test.output
+}
+
+configurations {
+  tests {
+    extendsFrom testRuntime
+  }
+}
+
+artifacts {
+  tests jarTests
+}
