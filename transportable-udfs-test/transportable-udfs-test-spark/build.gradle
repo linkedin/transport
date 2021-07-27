@@ -5,7 +5,7 @@ dependencies {
   compile project(":transportable-udfs-spark")
   compile project(":transportable-udfs-test:transportable-udfs-test-api")
   compile project(":transportable-udfs-test:transportable-udfs-test-spi")
-  compile('com.databricks:spark-avro_2.11:4.0.0')
+  compile('org.apache.spark:spark-avro_2.12:3.1.1')
   compile(group: project.ext.'spark-group', name: 'spark-core_2.12', version: project.ext.'spark-version') {
     exclude module: 'jackson-module-paranamer'
   }
