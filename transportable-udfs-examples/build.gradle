@@ -28,6 +28,7 @@ subprojects {
     }
   }
   repositories {
+    mavenLocal()
     mavenCentral()
     maven {
       url "https://conjars.org/repo"
