@@ -103,7 +103,7 @@ class Defaults {
           JavaLanguageVersion.of(8),
           ImmutableList.of(
               DependencyConfiguration.builder(IMPLEMENTATION, "com.linkedin.transport:transportable-udfs-spark", TRANSPORT_VERSION).build(),
-              DependencyConfiguration.builder(COMPILE_ONLY, "org.apache.spark:spark-sql_2.11", SPARK_VERSION).build()
+              DependencyConfiguration.builder(COMPILE_ONLY, "org.apache.spark:spark-sql_2.12", SPARK_VERSION).build()
           ),
           ImmutableList.of(
               DependencyConfiguration.builder(RUNTIME_ONLY, "com.linkedin.transport:transportable-udfs-test-spark", TRANSPORT_VERSION).build()
