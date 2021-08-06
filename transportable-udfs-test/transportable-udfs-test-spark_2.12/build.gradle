@@ -1,0 +1,31 @@
+apply plugin: 'scala'
+
+sourceSets {
+  main {
+    scala {
+      srcDirs = project(':transportable-udfs-test:transportable-udfs-test-spark_2.11').sourceSets.main.scala.srcDirs
+    }
+    resources {
+      srcDirs = project(':transportable-udfs-test:transportable-udfs-test-spark_2.11').sourceSets.main.resources.srcDirs
+    }
+  }
+}
+
+dependencies {
+  compile project(":transportable-udfs-api")
+  compile project(":transportable-udfs-spark_2.12")
+  compile project(":transportable-udfs-test:transportable-udfs-test-api")
+  compile project(":transportable-udfs-test:transportable-udfs-test-spi")
+  compile(group: project.ext.'spark-group', name: 'spark-avro_2.12', version: project.ext.'spark3-version') {
+    exclude module: 'jackson-module-paranamer'
+  }
+  compile(group: project.ext.'spark-group', name: 'spark-core_2.12', version: project.ext.'spark3-version') {
+    exclude module: 'jackson-module-paranamer'
+  }
+  compile(group: project.ext.'spark-group', name: 'spark-sql_2.12', version: project.ext.'spark3-version') {
+    exclude module: 'jackson-module-paranamer'
+  }
+  compile('com.fasterxml.jackson.module:jackson-module-scala_2.12:2.7.9')
+  compile 'org.testng:testng:6.11'
+  compile 'org.slf4j:slf4j-simple:1.7.25'
+}
