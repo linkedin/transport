@@ -47,13 +47,15 @@ class Defaults {
     return DEFAULT_VERSIONS.getProperty(platform + "-version");
   }
   private static final String HIVE = "hive";
-  private static final String SPARK = "spark";
+  private static final String SPARK_2_11 = "spark_2.11";
+  private static final String SPARK_2_12 = "spark_2.12";
   private static final String TRINO = "trino";
 
   private static final String TRANSPORT_VERSION = getVersion("transport");
   private static final String SCALA_VERSION = getVersion("scala");
   private static final String HIVE_VERSION = getVersion(HIVE);
-  private static final String SPARK_VERSION = getVersion(SPARK);
+  private static final String SPARK_2_11_VERSION = getVersion(SPARK_2_11);
+  private static final String SPARK_2_12_VERSION = getVersion(SPARK_2_12);
   private static final String TRINO_VERSION = getVersion(TRINO);
 
   static final List<DependencyConfiguration> MAIN_SOURCE_SET_DEPENDENCY_CONFIGURATIONS = ImmutableList.of(
@@ -97,16 +99,31 @@ class Defaults {
               DependencyConfiguration.builder(RUNTIME_ONLY, "com.linkedin.transport:transportable-udfs-test-hive", TRANSPORT_VERSION).build()
           ),
           ImmutableList.of(new ShadedJarPackaging(ImmutableList.of("org.apache.hadoop", "org.apache.hive"), null))),
-      new Platform(SPARK,
+      new Platform(SPARK_2_11,
           Language.SCALA,
           SparkWrapperGenerator.class,
           JavaLanguageVersion.of(8),
           ImmutableList.of(
-              DependencyConfiguration.builder(IMPLEMENTATION, "com.linkedin.transport:transportable-udfs-spark", TRANSPORT_VERSION).build(),
-              DependencyConfiguration.builder(COMPILE_ONLY, "org.apache.spark:spark-sql_2.11", SPARK_VERSION).build()
+              DependencyConfiguration.builder(IMPLEMENTATION, "com.linkedin.transport:transportable-udfs-spark_2.11", TRANSPORT_VERSION).build(),
+              DependencyConfiguration.builder(COMPILE_ONLY, "org.apache.spark:spark-sql_2.11", SPARK_2_11_VERSION).build()
           ),
           ImmutableList.of(
-              DependencyConfiguration.builder(RUNTIME_ONLY, "com.linkedin.transport:transportable-udfs-test-spark", TRANSPORT_VERSION).build()
+              DependencyConfiguration.builder(RUNTIME_ONLY, "com.linkedin.transport:transportable-udfs-test-spark_2.11", TRANSPORT_VERSION).build()
+          ),
+          ImmutableList.of(new ShadedJarPackaging(
+              ImmutableList.of("org.apache.hadoop", "org.apache.spark"),
+              ImmutableList.of("com.linkedin.transport.spark.**")))
+          ),
+      new Platform(SPARK_2_12,
+          Language.SCALA,
+          SparkWrapperGenerator.class,
+          JavaLanguageVersion.of(8),
+          ImmutableList.of(
+              DependencyConfiguration.builder(IMPLEMENTATION, "com.linkedin.transport:transportable-udfs-spark_2.12", TRANSPORT_VERSION).build(),
+              DependencyConfiguration.builder(COMPILE_ONLY, "org.apache.spark:spark-sql_2.12", SPARK_2_12_VERSION).build()
+          ),
+          ImmutableList.of(
+              DependencyConfiguration.builder(RUNTIME_ONLY, "com.linkedin.transport:transportable-udfs-test-spark_2.12", TRANSPORT_VERSION).build()
           ),
           ImmutableList.of(new ShadedJarPackaging(
               ImmutableList.of("org.apache.hadoop", "org.apache.spark"),
