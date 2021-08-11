@@ -23,3 +23,5 @@ metastore_db/
 out/
 target/
 TempStatsStore/
+transportable-udfs-*/bin/
+transportable-udfs-test/transportable-udfs-test-*/bin/
