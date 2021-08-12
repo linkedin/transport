@@ -77,7 +77,7 @@ public interface StdFactory extends Serializable {
   /**
    * Creates a {@link RowData} whose type is given by the given {@link StdType}.
    *
-   * It is expected that the top-level {@link StdType} is a {@link RowType}.
+   * It is expected that the top-level {@link StdType} is a {@link com.linkedin.transport.api.types.RowType}.
    *
    * @param stdType  type of the struct to be created
    * @return a {@link RowData} with all fields initialized to null

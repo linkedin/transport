@@ -3,22 +3,22 @@
  * Licensed under the BSD-2 Clause license.
  * See LICENSE in the project root for license information.
  */
-package com.linkedin.transport.presto.data;
+package com.linkedin.transport.trino.data;
 
 import com.linkedin.transport.api.StdFactory;
+import com.linkedin.transport.trino.TrinoWrapper;
+import io.trino.spi.block.Block;
+import io.trino.spi.block.BlockBuilder;
+import io.trino.spi.block.PageBuilderStatus;
+import io.trino.spi.type.ArrayType;
+import io.trino.spi.type.Type;
 import com.linkedin.transport.api.data.ArrayData;
-import com.linkedin.transport.presto.PrestoWrapper;
-import io.prestosql.spi.block.Block;
-import io.prestosql.spi.block.BlockBuilder;
-import io.prestosql.spi.block.PageBuilderStatus;
-import io.prestosql.spi.type.ArrayType;
-import io.prestosql.spi.type.Type;
 import java.util.Iterator;
 
-import static io.prestosql.spi.type.TypeUtils.*;
+import static io.trino.spi.type.TypeUtils.*;
 
 
-public class PrestoArrayData<E> extends PrestoData implements ArrayData<E> {
+public class TrinoArrayData<E> extends TrinoData implements ArrayData<E> {
 
   private final StdFactory _stdFactory;
   private final ArrayType _arrayType;
@@ -27,14 +27,14 @@ public class PrestoArrayData<E> extends PrestoData implements ArrayData<E> {
   private Block _block;
   private BlockBuilder _mutable;
 
-  public PrestoArrayData(Block block, ArrayType arrayType, StdFactory stdFactory) {
+  public TrinoArrayData(Block block, ArrayType arrayType, StdFactory stdFactory) {
     _block = block;
     _arrayType = arrayType;
     _elementType = arrayType.getElementType();
     _stdFactory = stdFactory;
   }
 
-  public PrestoArrayData(ArrayType arrayType, int expectedEntries, StdFactory stdFactory) {
+  public TrinoArrayData(ArrayType arrayType, int expectedEntries, StdFactory stdFactory) {
     _block = null;
     _elementType = arrayType.getElementType();
     _mutable = _elementType.createBlockBuilder(new PageBuilderStatus().createBlockBuilderStatus(), expectedEntries);
@@ -50,9 +50,9 @@ public class PrestoArrayData<E> extends PrestoData implements ArrayData<E> {
   @Override
   public E get(int idx) {
     Block sourceBlock = _mutable == null ? _block : _mutable;
-    int position = PrestoWrapper.checkedIndexToBlockPosition(sourceBlock, idx);
+    int position = TrinoWrapper.checkedIndexToBlockPosition(sourceBlock, idx);
     Object element = readNativeValue(_elementType, sourceBlock, position);
-    return (E) PrestoWrapper.createStdData(element, _elementType, _stdFactory);
+    return (E) TrinoWrapper.createStdData(element, _elementType, _stdFactory);
   }
 
   @Override
@@ -60,7 +60,7 @@ public class PrestoArrayData<E> extends PrestoData implements ArrayData<E> {
     if (_mutable == null) {
       _mutable = _elementType.createBlockBuilder(new PageBuilderStatus().createBlockBuilderStatus(), 1);
     }
-    PrestoWrapper.writeToBlock(e, _mutable);
+    TrinoWrapper.writeToBlock(e, _mutable);
   }
 
   @Override
@@ -77,7 +77,7 @@ public class PrestoArrayData<E> extends PrestoData implements ArrayData<E> {
   public Iterator<E> iterator() {
     return new Iterator<E>() {
       Block sourceBlock = _mutable == null ? _block : _mutable;
-      int size = PrestoArrayData.this.size();
+      int size = TrinoArrayData.this.size();
       int position = 0;
 
       @Override
@@ -89,7 +89,7 @@ public class PrestoArrayData<E> extends PrestoData implements ArrayData<E> {
       public E next() {
         Object element = readNativeValue(_elementType, sourceBlock, position);
         position++;
-        return (E) PrestoWrapper.createStdData(element, _elementType, _stdFactory);
+        return (E) TrinoWrapper.createStdData(element, _elementType, _stdFactory);
       }
     };
   }

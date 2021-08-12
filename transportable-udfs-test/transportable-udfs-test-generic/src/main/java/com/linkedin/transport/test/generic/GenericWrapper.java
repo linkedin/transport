@@ -36,9 +36,9 @@ public class GenericWrapper {
   public static Object createStdData(Object data, TestType dataType) {
     if (dataType instanceof UnknownTestType) {
       return null;
-    } else if (dataType instanceof IntegerTestType || dataType instanceof LongTestType ||
-        dataType instanceof FloatTestType || dataType instanceof DoubleTestType ||
-        dataType instanceof BooleanTestType || dataType instanceof StringTestType || dataType instanceof BinaryTestType) {
+    } else if (dataType instanceof IntegerTestType || dataType instanceof LongTestType
+        || dataType instanceof FloatTestType || dataType instanceof DoubleTestType
+        || dataType instanceof BooleanTestType || dataType instanceof StringTestType || dataType instanceof BinaryTestType) {
       return data;
     } else if (dataType instanceof ArrayTestType) {
       return new GenericArrayData((List<Object>) data, dataType);
@@ -55,9 +55,9 @@ public class GenericWrapper {
     if (transportData == null) {
       return null;
     } else {
-      if (transportData instanceof Integer || transportData instanceof Long || transportData instanceof Float ||
-          transportData instanceof Double || transportData instanceof Boolean || transportData instanceof ByteBuffer ||
-          transportData instanceof String) {
+      if (transportData instanceof Integer || transportData instanceof Long || transportData instanceof Float
+          || transportData instanceof Double || transportData instanceof Boolean || transportData instanceof ByteBuffer
+          || transportData instanceof String) {
         return transportData;
       } else {
         return ((PlatformData) transportData).getUnderlyingData();

@@ -74,7 +74,7 @@ public abstract class StdUdfWrapper {
       case BOOLEAN:
         return avroObject;
       case STRING:
-        return avroObject == null? null : avroObject.toString();
+        return avroObject == null ? null : avroObject.toString();
       case ARRAY:
       case MAP:
       case RECORD:

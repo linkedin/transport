@@ -7,16 +7,16 @@ package com.linkedin.transport.examples;
 
 import com.google.common.collect.ImmutableList;
 import com.linkedin.transport.api.StdFactory;
-import com.linkedin.transport.api.data.StdArray;
-import com.linkedin.transport.api.data.StdMap;
-import com.linkedin.transport.api.data.StdStruct;
+import com.linkedin.transport.api.data.ArrayData;
+import com.linkedin.transport.api.data.MapData;
+import com.linkedin.transport.api.data.RowData;
 import com.linkedin.transport.api.types.StdType;
 import com.linkedin.transport.api.udf.StdUDF1;
 import com.linkedin.transport.api.udf.TopLevelStdUDF;
 import java.util.List;
 
 
-public class NestedMapFromTwoArraysFunction extends StdUDF1<StdArray, StdArray> implements TopLevelStdUDF {
+public class NestedMapFromTwoArraysFunction extends StdUDF1<ArrayData, ArrayData> implements TopLevelStdUDF {
 
   private StdType _arrayType;
   private StdType _mapType;
@@ -43,31 +43,31 @@ public class NestedMapFromTwoArraysFunction extends StdUDF1<StdArray, StdArray> 
   }
 
   @Override
-  public StdArray eval(StdArray a1) {
-    StdArray result = getStdFactory().createArray(_arrayType);
+  public ArrayData eval(ArrayData a1) {
+    ArrayData result = getStdFactory().createArray(_arrayType);
 
     for (int i = 0; i < a1.size(); i++) {
       if (a1.get(i) == null) {
         return null;
       }
-      StdStruct inputRow = (StdStruct) a1.get(i);
+      RowData inputRow = (RowData) a1.get(i);
 
       if (inputRow.getField(0) == null || inputRow.getField(1) == null) {
         return null;
       }
-      StdArray kValues = (StdArray) inputRow.getField(0);
-      StdArray vValues = (StdArray) inputRow.getField(1);
+      ArrayData kValues = (ArrayData) inputRow.getField(0);
+      ArrayData vValues = (ArrayData) inputRow.getField(1);
 
       if (kValues.size() != vValues.size()) {
         return null;
       }
 
-      StdMap map = getStdFactory().createMap(_mapType);
+      MapData map = getStdFactory().createMap(_mapType);
       for (int j = 0; j < kValues.size(); j++) {
         map.put(kValues.get(j), vValues.get(j));
       }
 
-      StdStruct outputRow = getStdFactory().createStruct(_rowType);
+      RowData outputRow = getStdFactory().createStruct(_rowType);
       outputRow.setField(0, map);
 
       result.add(outputRow);

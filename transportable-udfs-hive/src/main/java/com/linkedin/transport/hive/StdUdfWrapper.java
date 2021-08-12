@@ -37,8 +37,6 @@ import org.apache.hadoop.hive.serde2.objectinspector.ConstantObjectInspector;
 import org.apache.hadoop.hive.serde2.objectinspector.ObjectInspector;
 import org.apache.hadoop.hive.serde2.objectinspector.PrimitiveObjectInspector;
 import org.apache.hadoop.hive.serde2.objectinspector.primitive.BinaryObjectInspector;
-import org.apache.hadoop.hive.serde2.objectinspector.primitive.PrimitiveObjectInspectorFactory;
-
 
 /**
  * Base class for all Hive Standard UDFs. It provides a standard way of type validation, binding, and output type
@@ -74,7 +72,7 @@ public abstract class StdUdfWrapper extends GenericUDF {
     _stdUdf.init(_stdFactory);
     _requiredFilesProcessed = false;
     createStdData();
-    _outputObjectInspector= hiveTypeInference.getOutputDataType();
+    _outputObjectInspector = hiveTypeInference.getOutputDataType();
     return _outputObjectInspector;
   }
 
@@ -151,8 +149,8 @@ public abstract class StdUdfWrapper extends GenericUDF {
     if (transportData == null) {
       return null;
     } else if (transportData instanceof Integer || transportData instanceof Long || transportData instanceof Boolean
-      || transportData instanceof String || transportData instanceof Float || transportData instanceof Double ||
-        transportData instanceof ByteBuffer) {
+      || transportData instanceof String || transportData instanceof Float || transportData instanceof Double
+        || transportData instanceof ByteBuffer) {
       return HiveWrapper.getPlatformDataForObjectInspector(transportData, _outputObjectInspector);
     } else {
       return ((PlatformData) transportData).getUnderlyingData();

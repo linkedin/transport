@@ -3,23 +3,21 @@
  * Licensed under the BSD-2 Clause license.
  * See LICENSE in the project root for license information.
  */
-package com.linkedin.transport.presto.data;
+package com.linkedin.transport.trino.data;
 
 import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableList;
 import com.linkedin.transport.api.StdFactory;
-import com.linkedin.transport.api.data.PlatformData;
+import com.linkedin.transport.trino.TrinoFactory;
+import com.linkedin.transport.trino.TrinoWrapper;
+import io.trino.spi.TrinoException;
+import io.trino.spi.block.Block;
+import io.trino.spi.block.BlockBuilder;
+import io.trino.spi.block.PageBuilderStatus;
+import io.trino.spi.function.OperatorType;
+import io.trino.spi.type.MapType;
+import io.trino.spi.type.Type;
 import com.linkedin.transport.api.data.MapData;
-import com.linkedin.transport.presto.PrestoFactory;
-import com.linkedin.transport.presto.PrestoWrapper;
-import io.prestosql.spi.PrestoException;
-import io.prestosql.spi.block.Block;
-import io.prestosql.spi.block.BlockBuilder;
-import io.prestosql.spi.block.PageBuilderStatus;
-import io.prestosql.spi.function.OperatorType;
-import io.prestosql.spi.type.BooleanType;
-import io.prestosql.spi.type.MapType;
-import io.prestosql.spi.type.Type;
 import java.lang.invoke.MethodHandle;
 import java.util.AbstractCollection;
 import java.util.AbstractSet;
@@ -27,12 +25,14 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.Set;
 
-import static io.prestosql.metadata.Signature.*;
-import static io.prestosql.spi.StandardErrorCode.*;
-import static io.prestosql.spi.type.TypeUtils.*;
+import static io.trino.spi.StandardErrorCode.*;
+import static io.trino.spi.function.InvocationConvention.simpleConvention;
+import static io.trino.spi.function.InvocationConvention.InvocationArgumentConvention.NEVER_NULL;
+import static io.trino.spi.function.InvocationConvention.InvocationReturnConvention.NULLABLE_RETURN;
+import static io.trino.spi.type.TypeUtils.*;
 
 
-public class PrestoMapData<K, V> extends PrestoData implements MapData<K, V> {
+public class TrinoMapData<K, V> extends TrinoData implements MapData<K, V> {
 
   final Type _keyType;
   final Type _valueType;
@@ -41,7 +41,7 @@ public class PrestoMapData<K, V> extends PrestoData implements MapData<K, V> {
   final StdFactory _stdFactory;
   Block _block;
 
-  public PrestoMapData(Type mapType, StdFactory stdFactory) {
+  public TrinoMapData(Type mapType, StdFactory stdFactory) {
     BlockBuilder mutable = mapType.createBlockBuilder(new PageBuilderStatus().createBlockBuilderStatus(), 1);
     mutable.beginBlockEntry();
     mutable.closeEntry();
@@ -52,12 +52,11 @@ public class PrestoMapData<K, V> extends PrestoData implements MapData<K, V> {
     _mapType = mapType;
 
     _stdFactory = stdFactory;
-    _keyEqualsMethod = ((PrestoFactory) stdFactory).getScalarFunctionImplementation(
-            internalOperator(OperatorType.EQUAL, BooleanType.BOOLEAN, ImmutableList.of(_keyType, _keyType)))
-        .getMethodHandle();
+    _keyEqualsMethod = ((TrinoFactory) stdFactory).getOperatorHandle(
+        OperatorType.EQUAL, ImmutableList.of(_keyType, _keyType), simpleConvention(NULLABLE_RETURN, NEVER_NULL, NEVER_NULL));
   }
 
-  public PrestoMapData(Block block, Type mapType, StdFactory stdFactory) {
+  public TrinoMapData(Block block, Type mapType, StdFactory stdFactory) {
     this(mapType, stdFactory);
     _block = block;
   }
@@ -69,11 +68,11 @@ public class PrestoMapData<K, V> extends PrestoData implements MapData<K, V> {
 
   @Override
   public V get(K key) {
-    Object prestoKey = PrestoWrapper.getPlatformData(key);
+    Object prestoKey = TrinoWrapper.getPlatformData(key);
     int i = seekKey(prestoKey);
     if (i != -1) {
       Object value = readNativeValue(_valueType, _block, i);
-      return (V) PrestoWrapper.createStdData(value, _valueType, _stdFactory);
+      return (V) TrinoWrapper.createStdData(value, _valueType, _stdFactory);
     } else {
       return null;
     }
@@ -85,23 +84,23 @@ public class PrestoMapData<K, V> extends PrestoData implements MapData<K, V> {
   public void put(K key, V value) {
     BlockBuilder mutable = _mapType.createBlockBuilder(new PageBuilderStatus().createBlockBuilderStatus(), 1);
     BlockBuilder entryBuilder = mutable.beginBlockEntry();
-    Object prestoKey = PrestoWrapper.getPlatformData(key);
-    int valuePosition = seekKey(prestoKey);
+    Object trinoKey = TrinoWrapper.getPlatformData(key);
+    int valuePosition = seekKey(trinoKey);
     for (int i = 0; i < _block.getPositionCount(); i += 2) {
       // Write the current key to the map
       _keyType.appendTo(_block, i, entryBuilder);
       // Find out if we need to change the corresponding value
       if (i == valuePosition - 1) {
         // Use the user-supplied value
-        PrestoWrapper.writeToBlock(value, entryBuilder);
+        TrinoWrapper.writeToBlock(value, entryBuilder);
       } else {
         // Use the existing value in original _block
         _valueType.appendTo(_block, i + 1, entryBuilder);
       }
     }
     if (valuePosition == -1) {
-      PrestoWrapper.writeToBlock(key, entryBuilder);
-      PrestoWrapper.writeToBlock(value, entryBuilder);
+      TrinoWrapper.writeToBlock(key, entryBuilder);
+      TrinoWrapper.writeToBlock(value, entryBuilder);
     }
 
     mutable.closeEntry();
@@ -123,14 +122,14 @@ public class PrestoMapData<K, V> extends PrestoData implements MapData<K, V> {
           @Override
           public K next() {
             i += 2;
-            return (K) PrestoWrapper.createStdData(readNativeValue(_keyType, _block, i), _keyType, _stdFactory);
+            return (K) TrinoWrapper.createStdData(readNativeValue(_keyType, _block, i), _keyType, _stdFactory);
           }
         };
       }
 
       @Override
       public int size() {
-        return PrestoMapData.this.size();
+        return TrinoMapData.this.size();
       }
     };
   }
@@ -153,7 +152,7 @@ public class PrestoMapData<K, V> extends PrestoData implements MapData<K, V> {
           public V next() {
             i += 2;
             return
-                (V) PrestoWrapper.createStdData(
+                (V) TrinoWrapper.createStdData(
                     readNativeValue(_valueType, _block, i + 1), _valueType, _stdFactory
                 );
           }
@@ -162,7 +161,7 @@ public class PrestoMapData<K, V> extends PrestoData implements MapData<K, V> {
 
       @Override
       public int size() {
-        return PrestoMapData.this.size();
+        return TrinoMapData.this.size();
       }
     };
   }
@@ -190,8 +189,8 @@ public class PrestoMapData<K, V> extends PrestoData implements MapData<K, V> {
         }
       } catch (Throwable t) {
         Throwables.propagateIfInstanceOf(t, Error.class);
-        Throwables.propagateIfInstanceOf(t, PrestoException.class);
-        throw new PrestoException(GENERIC_INTERNAL_ERROR, t);
+        Throwables.propagateIfInstanceOf(t, TrinoException.class);
+        throw new TrinoException(GENERIC_INTERNAL_ERROR, t);
       }
     }
     return -1;

@@ -87,9 +87,9 @@ public class GenericStdUDFWrapper {
     if (argument == null) {
       return null;
     } else {
-      if (argument instanceof Integer || argument instanceof Long || argument instanceof Boolean ||
-          argument instanceof String || argument instanceof Double || argument instanceof Float ||
-          argument instanceof ByteBuffer) {
+      if (argument instanceof Integer || argument instanceof Long || argument instanceof Boolean
+          || argument instanceof String || argument instanceof Double || argument instanceof Float
+          || argument instanceof ByteBuffer) {
         return argument;
       } else {
         ((PlatformData) stdData).setUnderlyingData(argument);

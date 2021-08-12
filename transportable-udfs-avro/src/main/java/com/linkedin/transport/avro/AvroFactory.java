@@ -16,7 +16,6 @@ import com.linkedin.transport.avro.data.AvroRowData;
 import com.linkedin.transport.avro.typesystem.AvroTypeFactory;
 import com.linkedin.transport.typesystem.AbstractBoundVariables;
 import com.linkedin.transport.typesystem.TypeSignature;
-import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;

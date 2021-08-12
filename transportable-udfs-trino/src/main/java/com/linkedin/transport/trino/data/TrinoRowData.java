@@ -3,48 +3,48 @@
  * Licensed under the BSD-2 Clause license.
  * See LICENSE in the project root for license information.
  */
-package com.linkedin.transport.presto.data;
+package com.linkedin.transport.trino.data;
 
 import com.linkedin.transport.api.StdFactory;
+import com.linkedin.transport.trino.TrinoWrapper;
+import io.trino.spi.block.Block;
+import io.trino.spi.block.BlockBuilder;
+import io.trino.spi.block.BlockBuilderStatus;
+import io.trino.spi.block.PageBuilderStatus;
+import io.trino.spi.type.RowType;
+import io.trino.spi.type.Type;
 import com.linkedin.transport.api.data.RowData;
-import com.linkedin.transport.presto.PrestoWrapper;
-import io.prestosql.spi.block.Block;
-import io.prestosql.spi.block.BlockBuilder;
-import io.prestosql.spi.block.BlockBuilderStatus;
-import io.prestosql.spi.block.PageBuilderStatus;
-import io.prestosql.spi.type.RowType;
-import io.prestosql.spi.type.Type;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import static io.prestosql.spi.type.TypeUtils.*;
+import static io.trino.spi.type.TypeUtils.*;
 
 
-public class PrestoRowData extends PrestoData implements RowData {
+public class TrinoRowData extends TrinoData implements RowData {
 
   final RowType _rowType;
   final StdFactory _stdFactory;
   Block _block;
 
-  public PrestoRowData(Type rowType, StdFactory stdFactory) {
+  public TrinoRowData(Type rowType, StdFactory stdFactory) {
     _rowType = (RowType) rowType;
     _stdFactory = stdFactory;
   }
 
-  public PrestoRowData(Block block, Type rowType, StdFactory stdFactory) {
+  public TrinoRowData(Block block, Type rowType, StdFactory stdFactory) {
     this(rowType, stdFactory);
     _block = block;
   }
 
-  public PrestoRowData(List<Type> fieldTypes, StdFactory stdFactory) {
+  public TrinoRowData(List<Type> fieldTypes, StdFactory stdFactory) {
     _stdFactory = stdFactory;
     _rowType = RowType.anonymous(fieldTypes);
   }
 
-  public PrestoRowData(List<String> fieldNames, List<Type> fieldTypes, StdFactory stdFactory) {
+  public TrinoRowData(List<String> fieldNames, List<Type> fieldTypes, StdFactory stdFactory) {
     _stdFactory = stdFactory;
     List<RowType.Field> fields = IntStream.range(0, fieldNames.size())
         .mapToObj(i -> new RowType.Field(Optional.ofNullable(fieldNames.get(i)), fieldTypes.get(i)))
@@ -54,13 +54,13 @@ public class PrestoRowData extends PrestoData implements RowData {
 
   @Override
   public Object getField(int index) {
-    int position = PrestoWrapper.checkedIndexToBlockPosition(_block, index);
+    int position = TrinoWrapper.checkedIndexToBlockPosition(_block, index);
     if (position == -1) {
       return null;
     }
     Type elementType = _rowType.getFields().get(position).getType();
     Object element = readNativeValue(elementType, _block, position);
-    return PrestoWrapper.createStdData(element, elementType, _stdFactory);
+    return TrinoWrapper.createStdData(element, elementType, _stdFactory);
   }
 
   @Override
@@ -80,7 +80,7 @@ public class PrestoRowData extends PrestoData implements RowData {
       return null;
     }
     Object element = readNativeValue(elementType, _block, index);
-    return PrestoWrapper.createStdData(element, elementType, _stdFactory);
+    return TrinoWrapper.createStdData(element, elementType, _stdFactory);
   }
 
   @Override
@@ -93,7 +93,7 @@ public class PrestoRowData extends PrestoData implements RowData {
     int i = 0;
     for (RowType.Field field : _rowType.getFields()) {
       if (i == index) {
-        PrestoWrapper.writeToBlock(value, rowBlockBuilder);
+        TrinoWrapper.writeToBlock(value, rowBlockBuilder);
       } else {
         if (_block == null) {
           rowBlockBuilder.appendNull();
@@ -114,7 +114,7 @@ public class PrestoRowData extends PrestoData implements RowData {
     int i = 0;
     for (RowType.Field field : _rowType.getFields()) {
       if (field.getName().isPresent() && name.equals(field.getName().get())) {
-        PrestoWrapper.writeToBlock(value, rowBlockBuilder);
+        TrinoWrapper.writeToBlock(value, rowBlockBuilder);
       } else {
         if (_block == null) {
           rowBlockBuilder.appendNull();
@@ -134,7 +134,7 @@ public class PrestoRowData extends PrestoData implements RowData {
     for (int i = 0; i < _block.getPositionCount(); i++) {
       Type elementType = _rowType.getFields().get(i).getType();
       Object element = readNativeValue(elementType, _block, i);
-      fields.add(PrestoWrapper.createStdData(element, elementType, _stdFactory));
+      fields.add(TrinoWrapper.createStdData(element, elementType, _stdFactory));
     }
     return fields;
   }

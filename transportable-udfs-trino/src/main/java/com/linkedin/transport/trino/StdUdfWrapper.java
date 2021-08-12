@@ -35,6 +35,10 @@ import io.trino.operator.scalar.ChoicesScalarFunctionImplementation;
 import io.trino.operator.scalar.ScalarFunctionImplementation;
 import io.trino.spi.classloader.ThreadContextClassLoader;
 import io.trino.spi.function.InvocationConvention;
+import io.trino.spi.type.ArrayType;
+import io.trino.spi.type.IntegerType;
+import io.trino.spi.type.MapType;
+import io.trino.spi.type.RowType;
 import io.trino.spi.type.Type;
 
 import java.lang.invoke.MethodHandle;
@@ -227,7 +231,7 @@ public abstract class StdUdfWrapper extends SqlScalarFunction {
         throw new RuntimeException("eval not supported yet for StdUDF" + args.length);
     }
 
-    return PrestoWrapper.getPlatformData(result);
+    return TrinoWrapper.getPlatformData(result);
   }
 
   private String[] getRequiredFiles(StdUDF stdUDF, Object[] args) {

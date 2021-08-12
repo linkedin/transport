@@ -20,10 +20,11 @@ import com.linkedin.transport.avro.types.AvroLongType;
 import com.linkedin.transport.avro.types.AvroMapType;
 import com.linkedin.transport.avro.types.AvroStringType;
 import com.linkedin.transport.avro.types.AvroRowType;
+import java.nio.ByteBuffer;
+import java.util.List;
 import java.util.Map;
 import org.apache.avro.Schema;
 import org.apache.avro.generic.GenericArray;
-import org.apache.avro.generic.GenericEnumSymbol;
 import org.apache.avro.generic.GenericRecord;
 import org.apache.avro.util.Utf8;
 
@@ -70,11 +71,11 @@ public class AvroWrapper {
   }
 
   public static Object getPlatformData(Object transportData) {
-    if (transportData instanceof Integer || transportData instanceof Long || transportData instanceof Double ||
-        transportData instanceof Boolean || transportData instanceof ByteBuffer) {
+    if (transportData instanceof Integer || transportData instanceof Long || transportData instanceof Double
+        || transportData instanceof Boolean || transportData instanceof ByteBuffer) {
       return transportData;
     } else if (transportData instanceof String) {
-      return transportData == null? null : new Utf8((String) transportData);
+      return transportData == null ? null : new Utf8((String) transportData);
     } else {
       return transportData == null ? null : ((PlatformData) transportData).getUnderlyingData();
     }
