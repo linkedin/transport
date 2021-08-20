@@ -34,8 +34,9 @@ jobs:
           java-version: '8'
 
       - name: 3. Perform build
-        run: ./gradlew build
-        run: ./gradlew -p transportable-udfs-examples clean build -s
+        run: |
+           ./gradlew build
+           ./gradlew -p transportable-udfs-examples clean build -s
 
       - name: 4. Perform release
         # Release job, only for pushes to the main development branch
