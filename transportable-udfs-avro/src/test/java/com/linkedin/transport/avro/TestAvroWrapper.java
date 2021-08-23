@@ -13,23 +13,15 @@ import com.linkedin.transport.avro.data.AvroArrayData;
 import com.linkedin.transport.avro.data.AvroMapData;
 import com.linkedin.transport.avro.data.AvroRowData;
 import com.linkedin.transport.avro.types.AvroArrayType;
-/*import com.linkedin.transport.avro.types.AvroBinaryType;
-import com.linkedin.transport.avro.types.AvroBooleanType;
-import com.linkedin.transport.avro.types.AvroDoubleType;
-import com.linkedin.transport.avro.types.AvroFloatType;
-import com.linkedin.transport.avro.types.AvroIntegerType;*/
 import com.linkedin.transport.avro.types.AvroLongType;
 import com.linkedin.transport.avro.types.AvroMapType;
 import com.linkedin.transport.avro.types.AvroRowType;
-//import com.linkedin.transport.avro.types.AvroStringType;
-//import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.Map;
 import org.apache.avro.Schema;
 import org.apache.avro.generic.GenericArray;
 import org.apache.avro.generic.GenericData;
 import org.apache.avro.generic.GenericRecord;
-//import org.apache.avro.util.Utf8;
 import org.testng.annotations.Test;
 
 import static org.testng.Assert.*;
@@ -45,61 +37,6 @@ public class TestAvroWrapper {
     return new Schema.Parser().parse(
         String.format("{\"name\": \"%s\",\"type\": %s}", fieldName, typeName));
   }
-
-  private void testSimpleType(String typeName, Class<? extends StdType> expectedAvroTypeClass,
-      Object testData, Class<? extends Object> expectedDataClass) {
-    Schema avroSchema = createSchema(String.format("\"%s\"", typeName));
-
-    StdType stdType = AvroWrapper.createStdType(avroSchema);
-    assertTrue(expectedAvroTypeClass.isAssignableFrom(stdType.getClass()));
-    assertEquals(avroSchema, stdType.underlyingType());
-
-    Object stdData = AvroWrapper.createStdData(testData, avroSchema);
-    assertNotNull(stdData);
-    assertTrue(expectedDataClass.isAssignableFrom(stdData.getClass()));
-    if ("string".equals(typeName)) {
-      // Use String values for equality assertion as we support both Utf8 and String input types
-      assertEquals(testData.toString(), ((PlatformData) stdData).getUnderlyingData().toString());
-    } else {
-      assertEquals(testData, ((PlatformData) stdData).getUnderlyingData());
-    }
-  }
-
- /* @Test
-  public void testBooleanType() {
-    testSimpleType("boolean", AvroBooleanType.class, true, Boolean.class);
-  }
-
-  @Test
-  public void testIntegerType() {
-    testSimpleType("int", AvroIntegerType.class, 1, Integer.class);
-  }
-
-  @Test
-  public void testLongType() {
-    testSimpleType("long", AvroLongType.class, 1L, Long.class);
-  }
-
-  @Test
-  public void testFloatType() {
-    testSimpleType("float", AvroFloatType.class, 1.0f, Float.class);
-  }
-
-  @Test
-  public void testDoubleType() {
-    testSimpleType("double", AvroDoubleType.class, 1.0, Double.class);
-  }
-
-  @Test
-  public void testStringType() {
-    testSimpleType("string", AvroStringType.class, new Utf8("foo"), String.class);
-    testSimpleType("string", AvroStringType.class, "foo", String.class);
-  }
-
-  @Test
-  public void testBinaryType() {
-    // testSimpleType("bytes", AvroBinaryType.class, ByteBuffer.wrap("bar".getBytes()), Binary.class);
-  }*/
 
   @Test
   public void testEnumType() {
@@ -132,7 +69,7 @@ public class TestAvroWrapper {
     Schema elementType = createSchema("\"int\"");
     Schema arraySchema = Schema.createArray(elementType);
 
-    Object stdArrayType = AvroWrapper.createStdType(arraySchema);
+    StdType stdArrayType = AvroWrapper.createStdType(arraySchema);
     assertTrue(stdArrayType instanceof AvroArrayType);
     assertEquals(arraySchema, ((AvroArrayType) stdArrayType).underlyingType());
     assertEquals(elementType, ((AvroArrayType) stdArrayType).elementType().underlyingType());
