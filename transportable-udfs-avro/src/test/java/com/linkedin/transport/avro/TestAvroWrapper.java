@@ -7,7 +7,6 @@ package com.linkedin.transport.avro;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import com.linkedin.transport.api.data.PlatformData;
 import com.linkedin.transport.api.types.StdType;
 import com.linkedin.transport.avro.data.AvroArrayData;
 import com.linkedin.transport.avro.data.AvroMapData;
