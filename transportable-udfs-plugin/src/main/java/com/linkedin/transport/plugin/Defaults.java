@@ -112,8 +112,12 @@ class Defaults {
           ),
           ImmutableList.of(new ShadedJarPackaging(
               ImmutableList.of("org.apache.hadoop", "org.apache.spark"),
-              ImmutableList.of("com.linkedin.transport.spark.**")))
-          ),
+              ImmutableList.of(
+                  "com.linkedin.transport.spark.stdUDFRegistration",
+                  "com.linkedin.transport.spark.SparkStdUDF"
+              )
+          ))
+      ),
       new Platform(SPARK_2_12,
           Language.SCALA,
           SparkWrapperGenerator.class,
@@ -127,7 +131,11 @@ class Defaults {
           ),
           ImmutableList.of(new ShadedJarPackaging(
               ImmutableList.of("org.apache.hadoop", "org.apache.spark"),
-              ImmutableList.of("com.linkedin.transport.spark.**")))
+              ImmutableList.of(
+                  "com.linkedin.transport.spark.stdUDFRegistration",
+                  "com.linkedin.transport.spark.SparkStdUDF"
+              )
+          ))
       )
   );
 }
