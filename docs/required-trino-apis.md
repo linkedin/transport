@@ -1,5 +1,5 @@
 # Why is modifying the Trino SPI interface necessary for Transport to work?
-Transport requires applying this [patch](transport-udfs-trino.patch) before being able to use Transport with Trino.
+Transport requires applying this [patch](transport-udf-trino.patch) before being able to use Transport with Trino.
 This patch makes some of the internal UDF classes be visible at the SPI layer. 
 Below we explain why some Transport APIs cannot leverage the APIs offered by the [public SPI UDF model](https://trino.io/docs/current/develop/functions.html).
 
