@@ -86,7 +86,7 @@ If the UDF class is `com.linkedin.transport.example.ExampleUDF` then the platfor
 Unlike Hive and Spark, Trino currently does not allow dynamically loading jar files once the Trino server has started.
 In Trino, the jar is deployed to the `plugin` directory.
 However, a small patch is required for the Trino engine to recognize the jar as a plugin, since the generated Trino UDFs implement the `SqlScalarFunction` API, which is currently not part of Trino's SPI architecture.
-You can find the patch [here](transport-udfs-trino.patch) and apply it before deploying your UDFs jar to the Trino engine.
+You can find the patch [here](transport-udfs-trino.patch) and apply it before deploying your UDFs jar to the Trino engine ([Why is this patch needed?](required-trino-apis.md)).
 
 2. Call the UDF in a query  
     To call the UDF, you will need to use the function name defined in the Transport UDF definition.
