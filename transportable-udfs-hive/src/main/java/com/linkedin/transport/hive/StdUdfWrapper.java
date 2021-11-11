@@ -7,7 +7,6 @@ package com.linkedin.transport.hive;
 
 import com.linkedin.transport.api.StdFactory;
 import com.linkedin.transport.api.data.PlatformData;
-import com.linkedin.transport.api.data.StdData;
 import com.linkedin.transport.api.udf.StdUDF;
 import com.linkedin.transport.api.udf.StdUDF0;
 import com.linkedin.transport.api.udf.StdUDF1;
@@ -23,6 +22,7 @@ import com.linkedin.transport.hive.typesystem.HiveTypeInference;
 import com.linkedin.transport.utils.FileSystemUtils;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.IntStream;
@@ -35,7 +35,8 @@ import org.apache.hadoop.hive.ql.session.SessionState;
 import org.apache.hadoop.hive.ql.udf.generic.GenericUDF;
 import org.apache.hadoop.hive.serde2.objectinspector.ConstantObjectInspector;
 import org.apache.hadoop.hive.serde2.objectinspector.ObjectInspector;
-
+import org.apache.hadoop.hive.serde2.objectinspector.PrimitiveObjectInspector;
+import org.apache.hadoop.hive.serde2.objectinspector.primitive.BinaryObjectInspector;
 
 /**
  * Base class for all Hive Standard UDFs. It provides a standard way of type validation, binding, and output type
@@ -49,7 +50,8 @@ public abstract class StdUdfWrapper extends GenericUDF {
   protected StdFactory _stdFactory;
   private boolean[] _nullableArguments;
   private String[] _distributedCacheFiles;
-  private StdData[] _args;
+  private Object[] _args;
+  private ObjectInspector _outputObjectInspector;
 
   /**
    * Given input object inspectors, this method matches them to the expected type signatures, and finds bindings to the
@@ -70,7 +72,8 @@ public abstract class StdUdfWrapper extends GenericUDF {
     _stdUdf.init(_stdFactory);
     _requiredFilesProcessed = false;
     createStdData();
-    return hiveTypeInference.getOutputDataType();
+    _outputObjectInspector = hiveTypeInference.getOutputDataType();
+    return _outputObjectInspector;
   }
 
   @Override
@@ -108,14 +111,23 @@ public abstract class StdUdfWrapper extends GenericUDF {
     return false;
   }
 
-  protected StdData wrap(DeferredObject hiveDeferredObject, StdData stdData) {
+  protected Object wrap(DeferredObject hiveDeferredObject, ObjectInspector inputObjectInspector, Object stdData) {
     try {
       Object hiveObject = hiveDeferredObject.get();
-      if (hiveObject != null) {
-        ((PlatformData) stdData).setUnderlyingData(hiveObject);
-        return stdData;
+      if (inputObjectInspector instanceof BinaryObjectInspector) {
+        return hiveObject == null ? null : ByteBuffer.wrap(
+            ((BinaryObjectInspector) inputObjectInspector).getPrimitiveJavaObject(hiveObject)
+        );
+      }
+      if (inputObjectInspector instanceof PrimitiveObjectInspector) {
+        return ((PrimitiveObjectInspector) inputObjectInspector).getPrimitiveJavaObject(hiveObject);
       } else {
-        return null;
+        if (hiveObject != null) {
+          ((PlatformData) stdData).setUnderlyingData(hiveObject);
+          return stdData;
+        } else {
+          return null;
+        }
       }
     } catch (HiveException e) {
       throw new RuntimeException("Cannot extract Hive Object from Deferred Object");
@@ -127,21 +139,35 @@ public abstract class StdUdfWrapper extends GenericUDF {
   protected abstract Class<? extends TopLevelStdUDF> getTopLevelUdfClass();
 
   protected void createStdData() {
-    _args = new StdData[_inputObjectInspectors.length];
+    _args = new Object[_inputObjectInspectors.length];
     for (int i = 0; i < _inputObjectInspectors.length; i++) {
       _args[i] = HiveWrapper.createStdData(null, _inputObjectInspectors[i], _stdFactory);
     }
   }
 
-  private StdData[] wrapArguments(DeferredObject[] deferredObjects) {
-    return IntStream.range(0, _args.length).mapToObj(i -> wrap(deferredObjects[i], _args[i])).toArray(StdData[]::new);
+  private Object getPlatformData(Object transportData) {
+    if (transportData == null) {
+      return null;
+    } else if (transportData instanceof Integer || transportData instanceof Long || transportData instanceof Boolean
+      || transportData instanceof String || transportData instanceof Float || transportData instanceof Double
+        || transportData instanceof ByteBuffer) {
+      return HiveWrapper.getPlatformDataForObjectInspector(transportData, _outputObjectInspector);
+    } else {
+      return ((PlatformData) transportData).getUnderlyingData();
+    }
   }
 
-  private StdData[] wrapConstants() {
+  private Object[] wrapArguments(DeferredObject[] deferredObjects) {
+    return IntStream.range(0, _args.length).mapToObj(
+        i -> wrap(deferredObjects[i], _inputObjectInspectors[i], _args[i])
+    ).toArray(Object[]::new);
+  }
+
+  private Object[] wrapConstants() {
     return Arrays.stream(_inputObjectInspectors)
         .map(oi -> (oi instanceof ConstantObjectInspector) ? HiveWrapper.createStdData(
             ((ConstantObjectInspector) oi).getWritableConstantValue(), oi, _stdFactory) : null)
-        .toArray(StdData[]::new);
+        .toArray(Object[]::new);
   }
 
   @Override
@@ -152,8 +178,8 @@ public abstract class StdUdfWrapper extends GenericUDF {
     if (!_requiredFilesProcessed) {
       processRequiredFiles();
     }
-    StdData[] args = wrapArguments(arguments);
-    StdData result;
+    Object[] args = wrapArguments(arguments);
+    Object result;
     switch (args.length) {
       case 0:
         result = ((StdUDF0) _stdUdf).eval();
@@ -185,7 +211,7 @@ public abstract class StdUdfWrapper extends GenericUDF {
       default:
         throw new UnsupportedOperationException("eval not yet supported for StdUDF" + args.length);
     }
-    return result == null ? null : ((PlatformData) result).getUnderlyingData();
+    return getPlatformData(result);
   }
 
   @Override
@@ -193,7 +219,7 @@ public abstract class StdUdfWrapper extends GenericUDF {
     if (containsNullValuedNonNullableConstants()) {
       return new String[]{};
     }
-    StdData[] args = wrapConstants();
+    Object[] args = wrapConstants();
     String[] requiredFiles;
     switch (args.length) {
       case 0:

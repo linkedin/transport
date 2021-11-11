@@ -5,31 +5,16 @@
  */
 package com.linkedin.transport.trino;
 
-import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
 import com.linkedin.transport.api.StdFactory;
-import com.linkedin.transport.api.data.StdArray;
-import com.linkedin.transport.api.data.StdBoolean;
-import com.linkedin.transport.api.data.StdBinary;
-import com.linkedin.transport.api.data.StdDouble;
-import com.linkedin.transport.api.data.StdFloat;
-import com.linkedin.transport.api.data.StdInteger;
-import com.linkedin.transport.api.data.StdLong;
-import com.linkedin.transport.api.data.StdMap;
-import com.linkedin.transport.api.data.StdString;
-import com.linkedin.transport.api.data.StdStruct;
+
 import com.linkedin.transport.api.types.StdType;
-import com.linkedin.transport.trino.data.TrinoArray;
-import com.linkedin.transport.trino.data.TrinoBoolean;
-import com.linkedin.transport.trino.data.TrinoBinary;
-import com.linkedin.transport.trino.data.TrinoDouble;
-import com.linkedin.transport.trino.data.TrinoFloat;
-import com.linkedin.transport.trino.data.TrinoInteger;
-import com.linkedin.transport.trino.data.TrinoLong;
-import com.linkedin.transport.trino.data.TrinoMap;
-import com.linkedin.transport.trino.data.TrinoString;
-import com.linkedin.transport.trino.data.TrinoStruct;
-import io.airlift.slice.Slices;
+import com.linkedin.transport.api.data.ArrayData;
+import com.linkedin.transport.api.data.MapData;
+import com.linkedin.transport.api.data.RowData;
+import com.linkedin.transport.trino.data.TrinoArrayData;
+import com.linkedin.transport.trino.data.TrinoMapData;
+import com.linkedin.transport.trino.data.TrinoRowData;
 import io.trino.metadata.FunctionBinding;
 import io.trino.metadata.FunctionDependencies;
 import io.trino.metadata.Metadata;
@@ -41,7 +26,6 @@ import io.trino.spi.type.MapType;
 import io.trino.spi.type.RowType;
 import io.trino.spi.type.Type;
 import java.lang.invoke.MethodHandle;
-import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -68,71 +52,35 @@ public class TrinoFactory implements StdFactory {
   }
 
   @Override
-  public StdInteger createInteger(int value) {
-    return new TrinoInteger(value);
+  public ArrayData createArray(StdType stdType, int expectedSize) {
+    return new TrinoArrayData((ArrayType) stdType.underlyingType(), expectedSize, this);
   }
 
   @Override
-  public StdLong createLong(long value) {
-    return new TrinoLong(value);
-  }
-
-  @Override
-  public StdBoolean createBoolean(boolean value) {
-    return new TrinoBoolean(value);
-  }
-
-  @Override
-  public StdString createString(String value) {
-    Preconditions.checkNotNull(value, "Cannot create a null StdString");
-    return new TrinoString(Slices.utf8Slice(value));
-  }
-
-  @Override
-  public StdFloat createFloat(float value) {
-    return new TrinoFloat(value);
-  }
-
-  @Override
-  public StdDouble createDouble(double value) {
-    return new TrinoDouble(value);
-  }
-
-  @Override
-  public StdBinary createBinary(ByteBuffer value) {
-    return new TrinoBinary(Slices.wrappedBuffer(value.array()));
-  }
-
-  @Override
-  public StdArray createArray(StdType stdType, int expectedSize) {
-    return new TrinoArray((ArrayType) stdType.underlyingType(), expectedSize, this);
-  }
-
-  @Override
-  public StdArray createArray(StdType stdType) {
+  public ArrayData createArray(StdType stdType) {
     return createArray(stdType, 0);
   }
 
   @Override
-  public StdMap createMap(StdType stdType) {
-    return new TrinoMap((MapType) stdType.underlyingType(), this);
+  public MapData createMap(StdType stdType) {
+    return new TrinoMapData((MapType) stdType.underlyingType(), this);
   }
 
   @Override
-  public TrinoStruct createStruct(List<String> fieldNames, List<StdType> fieldTypes) {
-    return new TrinoStruct(fieldNames,
+  public TrinoRowData createStruct(List<String> fieldNames, List<StdType> fieldTypes) {
+    return new TrinoRowData(fieldNames,
         fieldTypes.stream().map(stdType -> (Type) stdType.underlyingType()).collect(Collectors.toList()), this);
   }
 
   @Override
-  public TrinoStruct createStruct(List<StdType> fieldTypes) {
-    return new TrinoStruct(
+  public TrinoRowData createStruct(List<StdType> fieldTypes) {
+    return new TrinoRowData(
         fieldTypes.stream().map(stdType -> (Type) stdType.underlyingType()).collect(Collectors.toList()), this);
   }
 
   @Override
-  public StdStruct createStruct(StdType stdType) {
-    return new TrinoStruct((RowType) stdType.underlyingType(), this);
+  public RowData createStruct(StdType stdType) {
+    return new TrinoRowData((RowType) stdType.underlyingType(), this);
   }
 
   @Override

@@ -9,14 +9,18 @@ import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.Multimap;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.Writer;
 import java.util.Collection;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 
 
@@ -26,6 +30,7 @@ import java.util.Set;
 public class TransportUDFMetadata {
   private static final Gson GSON;
   private Multimap<String, String> _udfs;
+  private Map<String, Integer> _classToNumberOfTypeParameters;
 
   static {
     GSON = new GsonBuilder().setPrettyPrinting().create();
@@ -33,14 +38,15 @@ public class TransportUDFMetadata {
 
   public TransportUDFMetadata() {
     _udfs = LinkedHashMultimap.create();
+    _classToNumberOfTypeParameters = new HashMap<>();
   }
 
   public void addUDF(String topLevelClass, String stdUDFImplementation) {
     _udfs.put(topLevelClass, stdUDFImplementation);
   }
 
-  public void addUDF(String topLevelClass, Collection<String> stdUDFImplementations) {
-    _udfs.putAll(topLevelClass, stdUDFImplementations);
+  public void setClassNumberOfTypeParameters(String clazz, int numberOfTypeParameters) {
+    _classToNumberOfTypeParameters.put(clazz, numberOfTypeParameters);
   }
 
   public Set<String> getTopLevelClasses() {
@@ -51,8 +57,12 @@ public class TransportUDFMetadata {
     return _udfs.get(topLevelClass);
   }
 
+  public Map<String, Integer> getClassToNumberOfTypeParameters() {
+    return _classToNumberOfTypeParameters;
+  }
+
   public void toJson(Writer writer) {
-    GSON.toJson(TransportUDFMetadataSerDe.fromUDFMetadata(this), writer);
+    GSON.toJson(TransportUDFMetadataSerDe.serialize(this), writer);
   }
 
   public static TransportUDFMetadata fromJsonFile(File jsonFile) {
@@ -64,50 +74,49 @@ public class TransportUDFMetadata {
   }
 
   public static TransportUDFMetadata fromJson(Reader reader) {
-    return TransportUDFMetadataSerDe.toUDFMetadata(GSON.fromJson(reader, TransportUDFMetadataJson.class));
+    return TransportUDFMetadataSerDe.deserialize(new JsonParser().parse(reader));
   }
 
-  /**
-   * Represents the JSON object structure of the Transport UDF metadata resource file
-   */
-  private static class TransportUDFMetadataJson {
-    private List<UDFInfo> udfs;
-
-    TransportUDFMetadataJson() {
-      this.udfs = new LinkedList<>();
-    }
-
-    static class UDFInfo {
-      private String topLevelClass;
-      private Collection<String> stdUDFImplementations;
-
-      UDFInfo(String topLevelClass, Collection<String> stdUDFImplementations) {
-        this.topLevelClass = topLevelClass;
-        this.stdUDFImplementations = stdUDFImplementations;
-      }
-    }
-  }
-
-  /**
-   * Converts objects between {@link TransportUDFMetadata} and {@link TransportUDFMetadataJson}
-   */
   private static class TransportUDFMetadataSerDe {
 
-    private static TransportUDFMetadataJson fromUDFMetadata(TransportUDFMetadata metadata) {
-      TransportUDFMetadataJson metadataJson = new TransportUDFMetadataJson();
-      for (String topLevelClass : metadata.getTopLevelClasses()) {
-        metadataJson.udfs.add(
-            new TransportUDFMetadataJson.UDFInfo(topLevelClass, metadata.getStdUDFImplementations(topLevelClass)));
-      }
-      return metadataJson;
+    public static TransportUDFMetadata deserialize(JsonElement json) {
+      TransportUDFMetadata metadata = new TransportUDFMetadata();
+      JsonObject root = json.getAsJsonObject();
+
+      // Deserialize udfs
+      JsonObject udfs = root.getAsJsonObject("udfs");
+      udfs.keySet().forEach(topLevelClass -> {
+        JsonArray stdUdfImplementations = udfs.getAsJsonArray(topLevelClass);
+        for (int i = 0; i < stdUdfImplementations.size(); i++) {
+          metadata.addUDF(topLevelClass, stdUdfImplementations.get(i).getAsString());
+        }
+      });
+
+      // Deserialize classToNumberOfTypeParameters
+      JsonObject classToNumberOfTypeParameters = root.getAsJsonObject("classToNumberOfTypeParameters");
+      classToNumberOfTypeParameters.entrySet().forEach(
+          e -> metadata.setClassNumberOfTypeParameters(e.getKey(), e.getValue().getAsInt())
+      );
+      return metadata;
     }
 
-    private static TransportUDFMetadata toUDFMetadata(TransportUDFMetadataJson metadataJson) {
-      TransportUDFMetadata metadata = new TransportUDFMetadata();
-      for (TransportUDFMetadataJson.UDFInfo udf : metadataJson.udfs) {
-        metadata.addUDF(udf.topLevelClass, udf.stdUDFImplementations);
+    public static JsonElement serialize(TransportUDFMetadata metadata) {
+      // Serialzie _udfs
+      JsonObject udfs = new JsonObject();
+      for (Map.Entry<String, Collection<String>> entry : metadata._udfs.asMap().entrySet()) {
+        JsonArray stdUdfImplementations = new JsonArray();
+        entry.getValue().forEach(f -> stdUdfImplementations.add(f));
+        udfs.add(entry.getKey(), stdUdfImplementations);
       }
-      return metadata;
+
+      // Serialize _classToNumberOfTypeParameters
+      JsonObject classToNumberOfTypeParameters = new JsonObject();
+      metadata._classToNumberOfTypeParameters.forEach((clazz, n) -> classToNumberOfTypeParameters.addProperty(clazz, n));
+
+      JsonObject root = new JsonObject();
+      root.add("udfs", udfs);
+      root.add("classToNumberOfTypeParameters", classToNumberOfTypeParameters);
+      return root;
     }
   }
 }

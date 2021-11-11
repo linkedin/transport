@@ -6,15 +6,14 @@
 package com.linkedin.transport.examples;
 
 import com.google.common.collect.ImmutableList;
-import com.linkedin.transport.api.data.StdFloat;
 import com.linkedin.transport.api.udf.StdUDF2;
 import java.util.List;
 
 
-public class NumericAddFloatFunction extends StdUDF2<StdFloat, StdFloat, StdFloat> implements NumericAddFunction {
+public class NumericAddFloatFunction extends StdUDF2<Float, Float, Float> implements NumericAddFunction {
   @Override
-  public StdFloat eval(StdFloat first, StdFloat second) {
-    return getStdFactory().createFloat(first.get() + second.get());
+  public Float eval(Float first, Float second) {
+    return first + second;
   }
 
   @Override

@@ -7,10 +7,9 @@ package com.linkedin.transport.test.hive.udf;
 
 import com.google.common.collect.ImmutableList;
 import com.linkedin.transport.api.StdFactory;
-import com.linkedin.transport.api.data.StdArray;
-import com.linkedin.transport.api.data.StdData;
-import com.linkedin.transport.api.data.StdMap;
-import com.linkedin.transport.api.data.StdStruct;
+import com.linkedin.transport.api.data.ArrayData;
+import com.linkedin.transport.api.data.MapData;
+import com.linkedin.transport.api.data.RowData;
 import com.linkedin.transport.api.types.StdMapType;
 import com.linkedin.transport.api.udf.StdUDF1;
 import com.linkedin.transport.api.udf.TopLevelStdUDF;
@@ -21,7 +20,7 @@ import java.util.List;
  * Hive's built-in map() UDF cannot be used to create maps with complex key types. This UDF allows you to do so.
  * This is used inside {@link com.linkedin.transport.test.hive.HiveTester} to create arbitrary map objects
  */
-public class MapFromEntries extends StdUDF1<StdArray, StdMap> implements TopLevelStdUDF {
+public class MapFromEntries extends StdUDF1<ArrayData, MapData> implements TopLevelStdUDF {
 
   private StdMapType _mapType;
 
@@ -32,10 +31,10 @@ public class MapFromEntries extends StdUDF1<StdArray, StdMap> implements TopLeve
   }
 
   @Override
-  public StdMap eval(StdArray entryArray) {
-    StdMap result = getStdFactory().createMap(_mapType);
-    for (StdData element : entryArray) {
-      StdStruct elementStruct = (StdStruct) element;
+  public MapData eval(ArrayData entryArray) {
+    MapData result = getStdFactory().createMap(_mapType);
+    for (Object element : entryArray) {
+      RowData elementStruct = (RowData) element;
       result.put(elementStruct.getField(0), elementStruct.getField(1));
     }
     return result;

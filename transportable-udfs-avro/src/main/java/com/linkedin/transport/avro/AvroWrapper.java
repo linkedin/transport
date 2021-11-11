@@ -5,18 +5,11 @@
  */
 package com.linkedin.transport.avro;
 
-import com.linkedin.transport.api.data.StdData;
+import com.linkedin.transport.api.data.PlatformData;
 import com.linkedin.transport.api.types.StdType;
-import com.linkedin.transport.avro.data.AvroArray;
-import com.linkedin.transport.avro.data.AvroBinary;
-import com.linkedin.transport.avro.data.AvroBoolean;
-import com.linkedin.transport.avro.data.AvroDouble;
-import com.linkedin.transport.avro.data.AvroFloat;
-import com.linkedin.transport.avro.data.AvroInteger;
-import com.linkedin.transport.avro.data.AvroLong;
-import com.linkedin.transport.avro.data.AvroMap;
-import com.linkedin.transport.avro.data.AvroString;
-import com.linkedin.transport.avro.data.AvroStruct;
+import com.linkedin.transport.avro.data.AvroArrayData;
+import com.linkedin.transport.avro.data.AvroMapData;
+import com.linkedin.transport.avro.data.AvroRowData;
 import com.linkedin.transport.avro.types.AvroArrayType;
 import com.linkedin.transport.avro.types.AvroBinaryType;
 import com.linkedin.transport.avro.types.AvroBooleanType;
@@ -26,13 +19,12 @@ import com.linkedin.transport.avro.types.AvroIntegerType;
 import com.linkedin.transport.avro.types.AvroLongType;
 import com.linkedin.transport.avro.types.AvroMapType;
 import com.linkedin.transport.avro.types.AvroStringType;
-import com.linkedin.transport.avro.types.AvroStructType;
+import com.linkedin.transport.avro.types.AvroRowType;
 import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.Map;
 import org.apache.avro.Schema;
 import org.apache.avro.generic.GenericArray;
-import org.apache.avro.generic.GenericEnumSymbol;
 import org.apache.avro.generic.GenericRecord;
 import org.apache.avro.util.Utf8;
 
@@ -42,50 +34,28 @@ public class AvroWrapper {
   private AvroWrapper() {
   }
 
-  public static StdData createStdData(Object avroData, Schema avroSchema) {
+  public static Object createStdData(Object avroData, Schema avroSchema) {
     switch (avroSchema.getType()) {
       case INT:
-        return new AvroInteger((Integer) avroData);
       case LONG:
-        return new AvroLong((Long) avroData);
       case BOOLEAN:
-        return new AvroBoolean((Boolean) avroData);
-      case ENUM: {
-        if (avroData == null) {
-          return new AvroString(null);
-        }
-
-        if (avroData instanceof String) {
-          return new AvroString(new Utf8((String) avroData));
-        } else if (avroData instanceof GenericEnumSymbol) {
-          return new AvroString(new Utf8(((GenericEnumSymbol) avroData).toString()));
-        }
-        throw new IllegalArgumentException("Unsupported type for Avro enum: " + avroData.getClass());
-      }
-      case STRING: {
-        if (avroData == null) {
-          return new AvroString(null);
-        }
-
-        if (avroData instanceof Utf8) {
-          return new AvroString((Utf8) avroData);
-        } else if (avroData instanceof String) {
-          return new AvroString(new Utf8((String) avroData));
-        }
-        throw new IllegalArgumentException("Unsupported type for Avro string: " + avroData.getClass());
-      }
       case FLOAT:
-        return new AvroFloat((Float) avroData);
       case DOUBLE:
-        return new AvroDouble((Double) avroData);
       case BYTES:
-        return new AvroBinary((ByteBuffer) avroData);
+        return avroData;
+      case STRING:
+      case ENUM:
+        if (avroData == null) {
+          return null;
+        } else {
+          return avroData.toString();
+        }
       case ARRAY:
-        return new AvroArray((GenericArray<Object>) avroData, avroSchema);
+        return new AvroArrayData((GenericArray<Object>) avroData, avroSchema);
       case MAP:
-        return new AvroMap((Map<Object, Object>) avroData, avroSchema);
+        return new AvroMapData((Map<Object, Object>) avroData, avroSchema);
       case RECORD:
-        return new AvroStruct((GenericRecord) avroData, avroSchema);
+        return new AvroRowData((GenericRecord) avroData, avroSchema);
       case UNION: {
         Schema nonNullableType = getNonNullComponent(avroSchema);
         if (avroData == null) {
@@ -99,6 +69,18 @@ public class AvroWrapper {
         throw new RuntimeException("Unrecognized Avro Schema: " + avroSchema.getClass());
     }
   }
+
+  public static Object getPlatformData(Object transportData) {
+    if (transportData instanceof Integer || transportData instanceof Long || transportData instanceof Double
+        || transportData instanceof Boolean || transportData instanceof ByteBuffer) {
+      return transportData;
+    } else if (transportData instanceof String) {
+      return transportData == null ? null : new Utf8((String) transportData);
+    } else {
+      return transportData == null ? null : ((PlatformData) transportData).getUnderlyingData();
+    }
+  }
+
 
   /**
    * Returns a non null component of a simple union schema. The supported union schema must have
@@ -139,7 +121,7 @@ public class AvroWrapper {
       case MAP:
         return new AvroMapType(avroSchema);
       case RECORD:
-        return new AvroStructType(avroSchema);
+        return new AvroRowType(avroSchema);
       case UNION: {
         Schema nonNullableType = getNonNullComponent(avroSchema);
         return createStdType(nonNullableType);
