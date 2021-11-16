@@ -46,7 +46,7 @@ jobs:
           && github.repository == 'linkedin/transport'
           && !contains(toJSON(github.event.commits.*.message), '[skip release]')
 
-        run: ./gradlew githubRelease closeAndReleaseStagingRepository
+        run: ./gradlew clean
         env:
           GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
           SONATYPE_USER: ${{secrets.SONATYPE_USER}}
