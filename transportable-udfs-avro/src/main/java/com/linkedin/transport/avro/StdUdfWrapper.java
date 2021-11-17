@@ -5,19 +5,19 @@
  */
 package com.linkedin.transport.avro;
 
-import com.linkedin.transport.api.StdFactory;
+import com.linkedin.transport.api.TypeFactory;
 import com.linkedin.transport.api.data.PlatformData;
-import com.linkedin.transport.api.udf.StdUDF;
-import com.linkedin.transport.api.udf.StdUDF0;
-import com.linkedin.transport.api.udf.StdUDF1;
-import com.linkedin.transport.api.udf.StdUDF2;
-import com.linkedin.transport.api.udf.StdUDF3;
-import com.linkedin.transport.api.udf.StdUDF4;
-import com.linkedin.transport.api.udf.StdUDF5;
-import com.linkedin.transport.api.udf.StdUDF6;
-import com.linkedin.transport.api.udf.StdUDF7;
-import com.linkedin.transport.api.udf.StdUDF8;
-import com.linkedin.transport.api.udf.TopLevelStdUDF;
+import com.linkedin.transport.api.udf.UDF;
+import com.linkedin.transport.api.udf.UDF0;
+import com.linkedin.transport.api.udf.UDF1;
+import com.linkedin.transport.api.udf.UDF2;
+import com.linkedin.transport.api.udf.UDF3;
+import com.linkedin.transport.api.udf.UDF4;
+import com.linkedin.transport.api.udf.UDF5;
+import com.linkedin.transport.api.udf.UDF6;
+import com.linkedin.transport.api.udf.UDF7;
+import com.linkedin.transport.api.udf.UDF8;
+import com.linkedin.transport.api.udf.TopLevelUDF;
 import com.linkedin.transport.avro.typesystem.AvroTypeInference;
 import java.util.List;
 import java.util.stream.IntStream;
@@ -31,9 +31,9 @@ import org.apache.avro.Schema;
 public abstract class StdUdfWrapper {
 
   protected Schema[] _inputSchemas;
-  protected StdUDF _stdUdf;
+  protected UDF _udf;
   protected boolean _requiredFilesProcessed;
-  protected StdFactory _stdFactory;
+  protected TypeFactory _typeFactory;
   private boolean[] _nullableArguments;
   private Object[] _args;
 
@@ -49,10 +49,10 @@ public abstract class StdUdfWrapper {
     AvroTypeInference avroTypeInference = new AvroTypeInference();
     avroTypeInference.compile(arguments, getStdUdfImplementations(), getTopLevelUdfClass());
     _inputSchemas = avroTypeInference.getInputDataTypes();
-    _stdFactory = avroTypeInference.getStdFactory();
-    _stdUdf = avroTypeInference.getStdUdf();
-    _nullableArguments = _stdUdf.getAndCheckNullableArguments();
-    _stdUdf.init(_stdFactory);
+    _typeFactory = avroTypeInference.getStdFactory();
+    _udf = avroTypeInference.getStdUdf();
+    _nullableArguments = _udf.getAndCheckNullableArguments();
+    _udf.init(_typeFactory);
     _requiredFilesProcessed = false;
     createStdData();
     return avroTypeInference.getOutputDataType();
@@ -91,9 +91,9 @@ public abstract class StdUdfWrapper {
     }
   }
 
-  protected abstract List<? extends StdUDF> getStdUdfImplementations();
+  protected abstract List<? extends UDF> getStdUdfImplementations();
 
-  protected abstract Class<? extends TopLevelStdUDF> getTopLevelUdfClass();
+  protected abstract Class<? extends TopLevelUDF> getTopLevelUdfClass();
 
   protected void createStdData() {
     _args = new Object[_inputSchemas.length];
@@ -116,31 +116,31 @@ public abstract class StdUdfWrapper {
     Object result;
     switch (args.length) {
       case 0:
-        result = ((StdUDF0) _stdUdf).eval();
+        result = ((UDF0) _udf).eval();
         break;
       case 1:
-        result = ((StdUDF1) _stdUdf).eval(args[0]);
+        result = ((UDF1) _udf).eval(args[0]);
         break;
       case 2:
-        result = ((StdUDF2) _stdUdf).eval(args[0], args[1]);
+        result = ((UDF2) _udf).eval(args[0], args[1]);
         break;
       case 3:
-        result = ((StdUDF3) _stdUdf).eval(args[0], args[1], args[2]);
+        result = ((UDF3) _udf).eval(args[0], args[1], args[2]);
         break;
       case 4:
-        result = ((StdUDF4) _stdUdf).eval(args[0], args[1], args[2], args[3]);
+        result = ((UDF4) _udf).eval(args[0], args[1], args[2], args[3]);
         break;
       case 5:
-        result = ((StdUDF5) _stdUdf).eval(args[0], args[1], args[2], args[3], args[4]);
+        result = ((UDF5) _udf).eval(args[0], args[1], args[2], args[3], args[4]);
         break;
       case 6:
-        result = ((StdUDF6) _stdUdf).eval(args[0], args[1], args[2], args[3], args[4], args[5]);
+        result = ((UDF6) _udf).eval(args[0], args[1], args[2], args[3], args[4], args[5]);
         break;
       case 7:
-        result = ((StdUDF7) _stdUdf).eval(args[0], args[1], args[2], args[3], args[4], args[5], args[6]);
+        result = ((UDF7) _udf).eval(args[0], args[1], args[2], args[3], args[4], args[5], args[6]);
         break;
       case 8:
-        result = ((StdUDF8) _stdUdf).eval(args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7]);
+        result = ((UDF8) _udf).eval(args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7]);
         break;
       default:
         throw new UnsupportedOperationException("eval not yet supported for StdUDF" + args.length);

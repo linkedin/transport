@@ -5,11 +5,11 @@
  */
 package com.linkedin.transport.hive.types;
 
-import com.linkedin.transport.api.types.StdFloatType;
+import com.linkedin.transport.api.types.FloatType;
 import org.apache.hadoop.hive.serde2.objectinspector.primitive.FloatObjectInspector;
 
 
-public class HiveFloatType implements StdFloatType {
+public class HiveFloatType implements FloatType {
 
   private final FloatObjectInspector _floatObjectInspector;
 

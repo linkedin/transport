@@ -5,10 +5,10 @@
  */
 package com.linkedin.transport.test.spark
 
-import java.util
+import com.linkedin.transport.api.{TypeFactory, types}
 
-import com.linkedin.transport.api.StdFactory
-import com.linkedin.transport.api.udf.{StdUDF, TopLevelStdUDF}
+import java.util
+import com.linkedin.transport.api.udf.{TopLevelUDF, UDF}
 import com.linkedin.transport.spark.SparkFactory
 import com.linkedin.transport.spark.typesystem.SparkBoundVariables
 import com.linkedin.transport.test.spi.{SqlFunctionCallGenerator, SqlStdTester, ToPlatformTestOutputConverter}
@@ -21,13 +21,13 @@ import scala.collection.JavaConversions._
 
 class SparkTester extends SqlStdTester {
 
-  private val _stdFactory: StdFactory = new SparkFactory(new SparkBoundVariables())
+  private val _stdFactory: TypeFactory = new SparkFactory(new SparkBoundVariables())
   private val _sparkSession: SparkSession = SparkSession.builder.master("local[1]").appName("transport-udfs").getOrCreate
   private val _sqlFunctionCallGenerator = new SparkSqlFunctionCallGenerator
   private val _testDataToOutputDataConverter = new ToSparkTestOutputConverter
 
 
-  override def getStdFactory: StdFactory = _stdFactory
+  override def getStdFactory: TypeFactory = _stdFactory
 
   override def getSqlFunctionCallGenerator: SqlFunctionCallGenerator = _sqlFunctionCallGenerator
 
@@ -45,10 +45,10 @@ class SparkTester extends SqlStdTester {
     Assert.assertEquals(getModifiedResultType(result.schema.head.dataType), expectedOutputType)
   }
 
-  override def setup(topLevelStdUDFClassesAndImplementations: util.Map[Class[_ <: TopLevelStdUDF],
-    util.List[Class[_ <: StdUDF]]]): Unit = {
+  override def setup(topLevelStdUDFClassesAndImplementations: util.Map[Class[_ <: TopLevelUDF],
+    util.List[Class[_ <: UDF]]]): Unit = {
     topLevelStdUDFClassesAndImplementations.toMap.foreach(entry => {
-      val functionName = entry._2.get(0).getConstructor().newInstance().asInstanceOf[TopLevelStdUDF].getFunctionName
+      val functionName = entry._2.get(0).getConstructor().newInstance().asInstanceOf[TopLevelUDF].getFunctionName
       StdUDFTestUtils.register(functionName, entry._1, entry._2, _sparkSession)
     })
   }
@@ -57,7 +57,7 @@ class SparkTester extends SqlStdTester {
     * Returns a modified [[DataType]] from the Spark query where nullability information is always set to true.
     * This is because the nullability information in the output [[DataType]] received from Spark is set based on the
     * runtime input values e.g. ARRAY(1, 2) will result in a [[DataType]] with `containsNull = false`.
-    * [[com.linkedin.transport.api.types.StdType]] doesn't have a way to define nullability information for complex types.
+    * [[types.DataType]] doesn't have a way to define nullability information for complex types.
     */
   private def getModifiedResultType(dataType: DataType): DataType = {
     dataType match {

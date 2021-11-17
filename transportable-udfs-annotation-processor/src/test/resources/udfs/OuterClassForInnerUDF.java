@@ -6,13 +6,13 @@
 package udfs;
 
 import com.google.common.collect.ImmutableList;
-import com.linkedin.transport.api.udf.StdUDF0;
-import com.linkedin.transport.api.udf.TopLevelStdUDF;
+import com.linkedin.transport.api.udf.UDF0;
+import com.linkedin.transport.api.udf.TopLevelUDF;
 import java.util.List;
 
 
 public class OuterClassForInnerUDF {
-  public class InnerUDF extends StdUDF0<String> implements TopLevelStdUDF {
+  public class InnerUDF extends UDF0<String> implements TopLevelUDF {
 
     @Override
     public String getFunctionName() {

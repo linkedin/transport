@@ -6,11 +6,11 @@
 package udfs;
 
 import com.google.common.collect.ImmutableList;
-import com.linkedin.transport.api.udf.StdUDF0;
+import com.linkedin.transport.api.udf.UDF0;
 import java.util.List;
 
 
-public class UDFNotImplementingTopLevelStdUDF extends StdUDF0<String> {
+public class UDFNotImplementingTopLevelStdUDF extends UDF0<String> {
 
   @Override
   public List<String> getInputParameterSignatures() {

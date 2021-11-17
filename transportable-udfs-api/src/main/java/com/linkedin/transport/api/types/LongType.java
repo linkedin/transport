@@ -5,6 +5,6 @@
  */
 package com.linkedin.transport.api.types;
 
-/** A {@link StdType} representing a double type. */
-public interface StdDoubleType extends StdType {
+/** A {@link DataType} representing a long type. */
+public interface LongType extends DataType {
 }

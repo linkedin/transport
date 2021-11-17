@@ -5,22 +5,21 @@
  */
 package com.linkedin.transport.trino.types;
 
-import com.linkedin.transport.api.types.StdArrayType;
-import com.linkedin.transport.api.types.StdType;
+import com.linkedin.transport.api.types.DataType;
+import com.linkedin.transport.api.types.ArrayType;
 import com.linkedin.transport.trino.TrinoWrapper;
-import io.trino.spi.type.ArrayType;
 
 
-public class TrinoArrayType implements StdArrayType {
+public class TrinoArrayType implements ArrayType {
 
-  final ArrayType arrayType;
+  final io.trino.spi.type.ArrayType arrayType;
 
-  public TrinoArrayType(ArrayType arrayType) {
+  public TrinoArrayType(io.trino.spi.type.ArrayType arrayType) {
     this.arrayType = arrayType;
   }
 
   @Override
-  public StdType elementType() {
+  public DataType elementType() {
     return TrinoWrapper.createStdType(arrayType.getElementType());
   }
 

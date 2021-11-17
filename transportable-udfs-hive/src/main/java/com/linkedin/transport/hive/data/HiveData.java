@@ -5,7 +5,7 @@
  */
 package com.linkedin.transport.hive.data;
 
-import com.linkedin.transport.api.StdFactory;
+import com.linkedin.transport.api.TypeFactory;
 import com.linkedin.transport.api.data.PlatformData;
 import com.linkedin.transport.hive.HiveFactory;
 import java.util.concurrent.ConcurrentHashMap;
@@ -17,12 +17,12 @@ import org.apache.hadoop.hive.serde2.objectinspector.ObjectInspectorUtils;
 public abstract class HiveData implements PlatformData {
 
   protected Object _object;
-  protected StdFactory _stdFactory;
+  protected TypeFactory _typeFactory;
   protected boolean _isObjectModified;
   private ConcurrentHashMap<ObjectInspector, Object> _cachedObjectsForObjectInspectors;
 
-  public HiveData(StdFactory stdFactory) {
-    _stdFactory = stdFactory;
+  public HiveData(TypeFactory typeFactory) {
+    _typeFactory = typeFactory;
     _isObjectModified = false;
     _cachedObjectsForObjectInspectors = new ConcurrentHashMap<>();
   }
@@ -47,7 +47,7 @@ public abstract class HiveData implements PlatformData {
 
     Object result = getObjectFromCache(oi);
     if (result == null) {
-      Converter c = ((HiveFactory) _stdFactory).getConverter(getUnderlyingObjectInspector(), oi);
+      Converter c = ((HiveFactory) _typeFactory).getConverter(getUnderlyingObjectInspector(), oi);
       result = c.convert(getUnderlyingData());
       _cachedObjectsForObjectInspectors.putIfAbsent(oi, result);
     }

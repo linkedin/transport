@@ -5,11 +5,11 @@
  */
 package com.linkedin.transport.spark
 
+import com.linkedin.transport.api.TypeFactory
+
 import java.io.{IOException, ObjectStreamException}
 import java.nio.file.Paths
 import java.util.List
-
-import com.linkedin.transport.api.StdFactory
 import com.linkedin.transport.api.udf._
 import com.linkedin.transport.spark.typesystem.SparkTypeInference
 import com.linkedin.transport.utils.FileSystemUtils
@@ -23,8 +23,8 @@ import org.apache.spark.sql.types.DataType
 abstract class StdUdfWrapper(_expressions: Seq[Expression]) extends Expression
   with CodegenFallback with Serializable {
 
-  @transient private var _stdFactory: StdFactory = _
-  @transient private var _stdUdf: StdUDF = _
+  @transient private var _stdFactory: TypeFactory = _
+  @transient private var _stdUdf: UDF = _
   @transient private var _requiredFilesProcessed: Boolean = false
   @transient private var _outputDataType: DataType = _
   private var _nullableArguments: Array[Boolean] = _
@@ -63,29 +63,29 @@ abstract class StdUdfWrapper(_expressions: Seq[Expression]) extends Expression
       if (wrappedConstants != null) {
         val requiredFiles = wrappedConstants.length match {
           case 0 =>
-            _stdUdf.asInstanceOf[StdUDF0[Object]].getRequiredFiles()
+            _stdUdf.asInstanceOf[UDF0[Object]].getRequiredFiles()
           case 1 =>
-            _stdUdf.asInstanceOf[StdUDF1[Object, Object]].getRequiredFiles(wrappedConstants(0))
+            _stdUdf.asInstanceOf[UDF1[Object, Object]].getRequiredFiles(wrappedConstants(0))
           case 2 =>
-            _stdUdf.asInstanceOf[StdUDF2[Object, Object, Object]].getRequiredFiles(wrappedConstants(0),
+            _stdUdf.asInstanceOf[UDF2[Object, Object, Object]].getRequiredFiles(wrappedConstants(0),
               wrappedConstants(1))
           case 3 =>
-            _stdUdf.asInstanceOf[StdUDF3[Object, Object, Object, Object]].getRequiredFiles(wrappedConstants(0),
+            _stdUdf.asInstanceOf[UDF3[Object, Object, Object, Object]].getRequiredFiles(wrappedConstants(0),
               wrappedConstants(1), wrappedConstants(2))
           case 4 =>
-            _stdUdf.asInstanceOf[StdUDF4[Object, Object, Object, Object, Object]].getRequiredFiles(wrappedConstants(0),
+            _stdUdf.asInstanceOf[UDF4[Object, Object, Object, Object, Object]].getRequiredFiles(wrappedConstants(0),
               wrappedConstants(1), wrappedConstants(2), wrappedConstants(3))
           case 5 =>
-            _stdUdf.asInstanceOf[StdUDF5[Object, Object, Object, Object, Object, Object]].getRequiredFiles(wrappedConstants(0),
+            _stdUdf.asInstanceOf[UDF5[Object, Object, Object, Object, Object, Object]].getRequiredFiles(wrappedConstants(0),
               wrappedConstants(1), wrappedConstants(2), wrappedConstants(3), wrappedConstants(4))
           case 6 =>
-            _stdUdf.asInstanceOf[StdUDF6[Object, Object, Object, Object, Object, Object, Object]].getRequiredFiles(wrappedConstants(0),
+            _stdUdf.asInstanceOf[UDF6[Object, Object, Object, Object, Object, Object, Object]].getRequiredFiles(wrappedConstants(0),
               wrappedConstants(1), wrappedConstants(2), wrappedConstants(3), wrappedConstants(4), wrappedConstants(5))
           case 7 =>
-            _stdUdf.asInstanceOf[StdUDF7[Object, Object, Object, Object, Object, Object, Object, Object]].getRequiredFiles(wrappedConstants(0),
+            _stdUdf.asInstanceOf[UDF7[Object, Object, Object, Object, Object, Object, Object, Object]].getRequiredFiles(wrappedConstants(0),
               wrappedConstants(1), wrappedConstants(2), wrappedConstants(3), wrappedConstants(4), wrappedConstants(5), wrappedConstants(6))
           case 8 =>
-            _stdUdf.asInstanceOf[StdUDF8[Object, Object, Object, Object, Object, Object, Object, Object, Object]].getRequiredFiles(wrappedConstants(0),
+            _stdUdf.asInstanceOf[UDF8[Object, Object, Object, Object, Object, Object, Object, Object, Object]].getRequiredFiles(wrappedConstants(0),
               wrappedConstants(1), wrappedConstants(2), wrappedConstants(3), wrappedConstants(4), wrappedConstants(5), wrappedConstants(6), wrappedConstants(7))
           case _ =>
             throw new UnsupportedOperationException("getRequiredFiles not yet supported for StdUDF" + _expressions.length)
@@ -134,29 +134,29 @@ abstract class StdUdfWrapper(_expressions: Seq[Expression]) extends Expression
       }
       val stdResult = wrappedArguments.length match {
         case 0 =>
-          _stdUdf.asInstanceOf[StdUDF0[Object]].eval()
+          _stdUdf.asInstanceOf[UDF0[Object]].eval()
         case 1 =>
-          _stdUdf.asInstanceOf[StdUDF1[Object, Object]].eval(wrappedArguments(0))
+          _stdUdf.asInstanceOf[UDF1[Object, Object]].eval(wrappedArguments(0))
         case 2 =>
-          _stdUdf.asInstanceOf[StdUDF2[Object, Object, Object]].eval(wrappedArguments(0), wrappedArguments(1))
+          _stdUdf.asInstanceOf[UDF2[Object, Object, Object]].eval(wrappedArguments(0), wrappedArguments(1))
         case 3 =>
-          _stdUdf.asInstanceOf[StdUDF3[Object, Object, Object, Object]].eval(wrappedArguments(0), wrappedArguments(1),
+          _stdUdf.asInstanceOf[UDF3[Object, Object, Object, Object]].eval(wrappedArguments(0), wrappedArguments(1),
             wrappedArguments(2))
         case 4 =>
-          _stdUdf.asInstanceOf[StdUDF4[Object, Object, Object, Object, Object]].eval(wrappedArguments(0),
+          _stdUdf.asInstanceOf[UDF4[Object, Object, Object, Object, Object]].eval(wrappedArguments(0),
             wrappedArguments(1), wrappedArguments(2), wrappedArguments(3))
         case 5 =>
-          _stdUdf.asInstanceOf[StdUDF5[Object, Object, Object, Object, Object, Object]].eval(wrappedArguments(0),
+          _stdUdf.asInstanceOf[UDF5[Object, Object, Object, Object, Object, Object]].eval(wrappedArguments(0),
             wrappedArguments(1), wrappedArguments(2), wrappedArguments(3), wrappedArguments(4))
         case 6 =>
-          _stdUdf.asInstanceOf[StdUDF6[Object, Object, Object, Object, Object, Object, Object]].eval(wrappedArguments(0),
+          _stdUdf.asInstanceOf[UDF6[Object, Object, Object, Object, Object, Object, Object]].eval(wrappedArguments(0),
             wrappedArguments(1), wrappedArguments(2), wrappedArguments(3), wrappedArguments(4), wrappedArguments(5))
         case 7 =>
-          _stdUdf.asInstanceOf[StdUDF7[Object, Object, Object, Object, Object, Object, Object, Object]].eval(wrappedArguments(0),
+          _stdUdf.asInstanceOf[UDF7[Object, Object, Object, Object, Object, Object, Object, Object]].eval(wrappedArguments(0),
             wrappedArguments(1), wrappedArguments(2), wrappedArguments(3), wrappedArguments(4), wrappedArguments(5),
             wrappedArguments(6))
         case 8 =>
-          _stdUdf.asInstanceOf[StdUDF8[Object, Object, Object, Object, Object, Object, Object, Object, Object]].eval(wrappedArguments(0),
+          _stdUdf.asInstanceOf[UDF8[Object, Object, Object, Object, Object, Object, Object, Object, Object]].eval(wrappedArguments(0),
             wrappedArguments(1), wrappedArguments(2), wrappedArguments(3), wrappedArguments(4), wrappedArguments(5),
             wrappedArguments(6), wrappedArguments(7))
         case _ =>
@@ -195,9 +195,9 @@ abstract class StdUdfWrapper(_expressions: Seq[Expression]) extends Expression
     }
   }
 
-  protected def getStdUdfImplementations: List[_ <: StdUDF]
+  protected def getStdUdfImplementations: List[_ <: UDF]
 
-  protected def getTopLevelUdfClass: Class[_ <: TopLevelStdUDF]
+  protected def getTopLevelUdfClass: Class[_ <: TopLevelUDF]
 
   override def makeCopy(newArgs: Array[AnyRef]): Expression = {
     val newInstance = super.makeCopy(newArgs).asInstanceOf[StdUdfWrapper]

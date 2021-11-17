@@ -5,11 +5,11 @@
  */
 package com.linkedin.transport.hive.types;
 
-import com.linkedin.transport.api.types.StdBooleanType;
+import com.linkedin.transport.api.types.BooleanType;
 import org.apache.hadoop.hive.serde2.objectinspector.primitive.BooleanObjectInspector;
 
 
-public class HiveBooleanType implements StdBooleanType {
+public class HiveBooleanType implements BooleanType {
 
   final BooleanObjectInspector _booleanObjectInspector;
 

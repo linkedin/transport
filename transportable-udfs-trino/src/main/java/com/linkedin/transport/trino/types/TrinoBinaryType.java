@@ -5,11 +5,11 @@
  */
 package com.linkedin.transport.trino.types;
 
-import com.linkedin.transport.api.types.StdBinaryType;
+import com.linkedin.transport.api.types.BinaryType;
 import io.trino.spi.type.VarbinaryType;
 
 
-public class TrinoBinaryType implements StdBinaryType {
+public class TrinoBinaryType implements BinaryType {
 
   private final VarbinaryType varbinaryType;
 

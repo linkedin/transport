@@ -5,8 +5,8 @@
  */
 package com.linkedin.transport.test.hive;
 
-import com.linkedin.transport.api.udf.StdUDF;
-import com.linkedin.transport.api.udf.TopLevelStdUDF;
+import com.linkedin.transport.api.udf.UDF;
+import com.linkedin.transport.api.udf.TopLevelUDF;
 import com.linkedin.transport.hive.StdUdfWrapper;
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
@@ -15,33 +15,33 @@ import org.apache.hadoop.hive.ql.exec.UDFArgumentException;
 
 
 /**
- * A {@link StdUdfWrapper} whose constructor takes enclosing {@link StdUDF} classes as parameters
+ * A {@link StdUdfWrapper} whose constructor takes enclosing {@link UDF} classes as parameters
  *
  * The wrapper's constructor here is parameterized so that the same wrapper can be used for all UDFs throughout the
  * test framework rather than generating UDF specific wrappers
  */
 public class HiveTestStdUDFWrapper extends StdUdfWrapper {
 
-  private Class<? extends TopLevelStdUDF> _topLevelStdUDFClass;
-  private List<Class<? extends StdUDF>> _stdUDFClasses;
+  private Class<? extends TopLevelUDF> _topLevelStdUDFClass;
+  private List<Class<? extends UDF>> _stdUDFClasses;
 
   // This constructor is needed as Hive calls the parameterless constructor using Reflection when cloning the UDF
   public HiveTestStdUDFWrapper() {
   }
 
-  public HiveTestStdUDFWrapper(Class<? extends TopLevelStdUDF> topLevelStdUDFClass,
-      List<Class<? extends StdUDF>> stdUDFClasses) {
+  public HiveTestStdUDFWrapper(Class<? extends TopLevelUDF> topLevelStdUDFClass,
+      List<Class<? extends UDF>> stdUDFClasses) {
     _topLevelStdUDFClass = topLevelStdUDFClass;
     _stdUDFClasses = stdUDFClasses;
   }
 
   @Override
-  protected List<? extends StdUDF> getStdUdfImplementations() {
+  protected List<? extends UDF> getStdUdfImplementations() {
     return _stdUDFClasses.stream().map(HiveTestStdUDFWrapper::createInstance).collect(Collectors.toList());
   }
 
   @Override
-  protected Class<? extends TopLevelStdUDF> getTopLevelUdfClass() {
+  protected Class<? extends TopLevelUDF> getTopLevelUdfClass() {
     return _topLevelStdUDFClass;
   }
 
@@ -53,7 +53,7 @@ public class HiveTestStdUDFWrapper extends StdUdfWrapper {
     newWrapper._topLevelStdUDFClass = _topLevelStdUDFClass;
   }
 
-  private static <K extends StdUDF> K createInstance(Class<K> udfClass) {
+  private static <K extends UDF> K createInstance(Class<K> udfClass) {
     try {
       return udfClass.getConstructor().newInstance();
     } catch (InstantiationException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {

@@ -6,19 +6,19 @@
 package com.linkedin.transport.examples;
 
 import com.google.common.collect.ImmutableList;
-import com.linkedin.transport.api.StdFactory;
+import com.linkedin.transport.api.TypeFactory;
 import com.linkedin.transport.api.data.ArrayData;
 import com.linkedin.transport.api.data.MapData;
-import com.linkedin.transport.api.types.StdType;
-import com.linkedin.transport.api.udf.StdUDF2;
-import com.linkedin.transport.api.udf.TopLevelStdUDF;
+import com.linkedin.transport.api.types.DataType;
+import com.linkedin.transport.api.udf.UDF2;
+import com.linkedin.transport.api.udf.TopLevelUDF;
 import java.util.List;
 
 
-public class MapFromTwoArraysFunction<K, V> extends StdUDF2<ArrayData<K>, ArrayData<V>, MapData<K, V>>
-    implements TopLevelStdUDF {
+public class MapFromTwoArraysFunction<K, V> extends UDF2<ArrayData<K>, ArrayData<V>, MapData<K, V>>
+    implements TopLevelUDF {
 
-  private StdType _mapType;
+  private DataType _mapType;
 
   @Override
   public List<String> getInputParameterSignatures() {
@@ -34,10 +34,10 @@ public class MapFromTwoArraysFunction<K, V> extends StdUDF2<ArrayData<K>, ArrayD
   }
 
   @Override
-  public void init(StdFactory stdFactory) {
-    super.init(stdFactory);
+  public void init(TypeFactory typeFactory) {
+    super.init(typeFactory);
     // Note: we create the _mapType once in init() and then reuse it to create MapData objects
-    _mapType = getStdFactory().createStdType(getOutputParameterSignature());
+    _mapType = getTypeFactory().createDataType(getOutputParameterSignature());
   }
 
   @Override
@@ -45,7 +45,7 @@ public class MapFromTwoArraysFunction<K, V> extends StdUDF2<ArrayData<K>, ArrayD
     if (a1.size() != a2.size()) {
       return null;
     }
-    MapData<K, V> map = getStdFactory().createMap(_mapType);
+    MapData<K, V> map = getTypeFactory().createMap(_mapType);
     for (int i = 0; i < a1.size(); i++) {
       map.put(a1.get(i), a2.get(i));
     }

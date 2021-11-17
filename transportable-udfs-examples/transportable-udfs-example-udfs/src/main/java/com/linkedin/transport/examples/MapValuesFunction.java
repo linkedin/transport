@@ -6,18 +6,18 @@
 package com.linkedin.transport.examples;
 
 import com.google.common.collect.ImmutableList;
-import com.linkedin.transport.api.StdFactory;
+import com.linkedin.transport.api.TypeFactory;
 import com.linkedin.transport.api.data.ArrayData;
 import com.linkedin.transport.api.data.MapData;
-import com.linkedin.transport.api.types.StdType;
-import com.linkedin.transport.api.udf.StdUDF1;
-import com.linkedin.transport.api.udf.TopLevelStdUDF;
+import com.linkedin.transport.api.types.DataType;
+import com.linkedin.transport.api.udf.UDF1;
+import com.linkedin.transport.api.udf.TopLevelUDF;
 import java.util.List;
 
 
-public class MapValuesFunction<K, V> extends StdUDF1<MapData<K, V>, ArrayData<V>> implements TopLevelStdUDF {
+public class MapValuesFunction<K, V> extends UDF1<MapData<K, V>, ArrayData<V>> implements TopLevelUDF {
 
-  private StdType _mapType;
+  private DataType _mapType;
 
   @Override
   public List<String> getInputParameterSignatures() {
@@ -32,14 +32,14 @@ public class MapValuesFunction<K, V> extends StdUDF1<MapData<K, V>, ArrayData<V>
   }
 
   @Override
-  public void init(StdFactory stdFactory) {
-    super.init(stdFactory);
-    _mapType = getStdFactory().createStdType(getOutputParameterSignature());
+  public void init(TypeFactory typeFactory) {
+    super.init(typeFactory);
+    _mapType = getTypeFactory().createDataType(getOutputParameterSignature());
   }
 
   @Override
   public ArrayData<V> eval(MapData<K, V> map) {
-    ArrayData<V> result = getStdFactory().createArray(_mapType);
+    ArrayData<V> result = getTypeFactory().createArray(_mapType);
     for (V value : map.values()) {
       result.add(value);
     }

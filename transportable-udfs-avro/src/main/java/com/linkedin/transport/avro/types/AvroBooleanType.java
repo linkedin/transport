@@ -5,11 +5,11 @@
  */
 package com.linkedin.transport.avro.types;
 
-import com.linkedin.transport.api.types.StdBooleanType;
+import com.linkedin.transport.api.types.BooleanType;
 import org.apache.avro.Schema;
 
 
-public class AvroBooleanType implements StdBooleanType {
+public class AvroBooleanType implements BooleanType {
   final private Schema _schema;
 
   public AvroBooleanType(Schema schema) {

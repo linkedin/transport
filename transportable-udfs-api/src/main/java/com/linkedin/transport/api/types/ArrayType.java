@@ -5,9 +5,9 @@
  */
 package com.linkedin.transport.api.types;
 
-/** A {@link StdType} representing an array type. */
-public interface StdArrayType extends StdType {
+/** A {@link DataType} representing an array type. */
+public interface ArrayType extends DataType {
 
-  /** Returns the {@link StdType} of the array elements. */
-  StdType elementType();
+  /** Returns the {@link DataType} of the array elements. */
+  DataType elementType();
 }

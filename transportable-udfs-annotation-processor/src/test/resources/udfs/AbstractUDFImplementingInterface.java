@@ -5,11 +5,11 @@
  */
 package udfs;
 
-import com.linkedin.transport.api.udf.StdUDF0;
-import com.linkedin.transport.api.udf.TopLevelStdUDF;
+import com.linkedin.transport.api.udf.UDF0;
+import com.linkedin.transport.api.udf.TopLevelUDF;
 
 
-public abstract class AbstractUDFImplementingInterface extends StdUDF0<String> implements TopLevelStdUDF {
+public abstract class AbstractUDFImplementingInterface extends UDF0<String> implements TopLevelUDF {
 
   @Override
   public String getFunctionName() {

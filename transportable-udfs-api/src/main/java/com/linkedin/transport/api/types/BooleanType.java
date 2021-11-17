@@ -5,6 +5,6 @@
  */
 package com.linkedin.transport.api.types;
 
-/** A {@link StdType} representing a long type. */
-public interface StdLongType extends StdType {
+/** A {@link DataType} representing a boolean type. */
+public interface BooleanType extends DataType {
 }

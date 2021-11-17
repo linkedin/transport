@@ -5,13 +5,13 @@
  */
 package com.linkedin.transport.avro.types;
 
-import com.linkedin.transport.api.types.StdArrayType;
-import com.linkedin.transport.api.types.StdType;
+import com.linkedin.transport.api.types.ArrayType;
+import com.linkedin.transport.api.types.DataType;
 import com.linkedin.transport.avro.AvroWrapper;
 import org.apache.avro.Schema;
 
 
-public class AvroArrayType implements StdArrayType {
+public class AvroArrayType implements ArrayType {
   private final Schema _schema;
 
   public AvroArrayType(Schema schema) {
@@ -19,7 +19,7 @@ public class AvroArrayType implements StdArrayType {
   }
 
   @Override
-  public StdType elementType() {
+  public DataType elementType() {
     return AvroWrapper.createStdType(_schema.getElementType());
   }
 

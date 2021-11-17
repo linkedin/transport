@@ -5,11 +5,11 @@
  */
 package com.linkedin.transport.trino.types;
 
-import com.linkedin.transport.api.types.StdLongType;
+import com.linkedin.transport.api.types.LongType;
 import io.trino.spi.type.BigintType;
 
 
-public class TrinoLongType implements StdLongType {
+public class TrinoLongType implements LongType {
 
   final BigintType bigintType;
 

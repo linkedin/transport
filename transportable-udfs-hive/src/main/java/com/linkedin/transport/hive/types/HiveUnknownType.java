@@ -5,11 +5,11 @@
  */
 package com.linkedin.transport.hive.types;
 
-import com.linkedin.transport.api.types.StdUnknownType;
+import com.linkedin.transport.api.types.UnknownType;
 import org.apache.hadoop.hive.serde2.objectinspector.primitive.VoidObjectInspector;
 
 
-public class HiveUnknownType implements StdUnknownType {
+public class HiveUnknownType implements UnknownType {
 
   private VoidObjectInspector _voidObjectInspector;
 

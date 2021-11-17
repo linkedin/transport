@@ -5,6 +5,6 @@
  */
 package com.linkedin.transport.api.types;
 
-/** A {@link StdType} representing an integer type. */
-public interface StdIntegerType extends StdType {
+/** A {@link DataType} representing an integer type. */
+public interface IntegerType extends DataType {
 }

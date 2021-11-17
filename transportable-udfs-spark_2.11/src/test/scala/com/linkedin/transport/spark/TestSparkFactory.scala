@@ -25,12 +25,12 @@ class TestSparkFactory {
 
   @Test
   def testCreateArray(): Unit = {
-    var stdArray = stdFactory.createArray(stdFactory.createStdType("array(integer)"))
+    var stdArray = stdFactory.createArray(stdFactory.createDataType("array(integer)"))
     assertEquals(stdArray.size(), 0)
     assertEquals(stdArray.asInstanceOf[PlatformData].getUnderlyingData.asInstanceOf[GenericArrayData].array,
       Array.empty)
     val testArraySize = 10
-    stdArray = stdFactory.createArray(stdFactory.createStdType("array(integer)"), testArraySize)
+    stdArray = stdFactory.createArray(stdFactory.createDataType("array(integer)"), testArraySize)
     // size should still be 0, since size passed in createArray is just expected number of entries in the future
     assertEquals(stdArray.size(), 0)
     assertEquals(stdArray.asInstanceOf[PlatformData].getUnderlyingData.asInstanceOf[GenericArrayData].array,
@@ -39,7 +39,7 @@ class TestSparkFactory {
 
   @Test
   def testCreateMap(): Unit = {
-    val stdMap = stdFactory.createMap(stdFactory.createStdType("map(varchar,bigint)"))
+    val stdMap = stdFactory.createMap(stdFactory.createDataType("map(varchar,bigint)"))
     assertEquals(stdMap.size(), 0)
     assertEquals(stdMap.asInstanceOf[PlatformData].getUnderlyingData.asInstanceOf[ArrayBasedMapData].keyArray.array,
       Array.empty)
@@ -53,11 +53,11 @@ class TestSparkFactory {
       "bytesField", "arrField")
     val fieldTypes = Array("varchar", "integer", "bigint", "boolean", "real", "double", "varbinary", "array(integer)")
 
-    val stdStruct = stdFactory.createStruct(stdFactory.createStdType(fieldNames.zip(fieldTypes).map(x => x._1 + " " + x._2).mkString("row(", ", ", ")")))
+    val stdStruct = stdFactory.createStruct(stdFactory.createDataType(fieldNames.zip(fieldTypes).map(x => x._1 + " " + x._2).mkString("row(", ", ", ")")))
     val internalRow = stdStruct.asInstanceOf[PlatformData].getUnderlyingData.asInstanceOf[InternalRow]
     assertEquals(internalRow.numFields, fieldTypes.length)
     (0 until 8).foreach(idx => {
-      assertEquals(internalRow.get(idx, stdFactory.createStdType(fieldTypes(idx)).underlyingType().asInstanceOf[DataType]), null)
+      assertEquals(internalRow.get(idx, stdFactory.createDataType(fieldTypes(idx)).underlyingType().asInstanceOf[DataType]), null)
     })
   }
 
@@ -67,11 +67,11 @@ class TestSparkFactory {
       "bytesField", "arrField")
     val fieldTypes = Array("varchar", "integer", "bigint", "boolean", "real", "double", "varbinary", "array(integer)")
 
-    val stdStruct = stdFactory.createStruct(fieldNames.toList.asJava, fieldTypes.map(stdFactory.createStdType).toList.asJava)
+    val stdStruct = stdFactory.createStruct(fieldNames.toList.asJava, fieldTypes.map(stdFactory.createDataType).toList.asJava)
     val internalRow = stdStruct.asInstanceOf[PlatformData].getUnderlyingData.asInstanceOf[InternalRow]
     assertEquals(internalRow.numFields, fieldTypes.length)
     (0 until 8).foreach(idx => {
-      assertEquals(internalRow.get(idx, stdFactory.createStdType(fieldTypes(idx)).underlyingType().asInstanceOf[DataType]), null)
+      assertEquals(internalRow.get(idx, stdFactory.createDataType(fieldTypes(idx)).underlyingType().asInstanceOf[DataType]), null)
     })
   }
 
@@ -79,11 +79,11 @@ class TestSparkFactory {
   def testCreateStructFromFieldTypes(): Unit = {
     val fieldTypes = Array("varchar", "integer", "bigint", "boolean", "real", "double", "varbinary ", "array(integer)")
 
-    val stdStruct = stdFactory.createStruct(fieldTypes.map(stdFactory.createStdType).toList.asJava)
+    val stdStruct = stdFactory.createStruct(fieldTypes.map(stdFactory.createDataType).toList.asJava)
     val internalRow = stdStruct.asInstanceOf[PlatformData].getUnderlyingData.asInstanceOf[InternalRow]
     assertEquals(internalRow.numFields, fieldTypes.length)
     (0 until 8).foreach(idx => {
-      assertEquals(internalRow.get(idx, stdFactory.createStdType(fieldTypes(idx)).underlyingType().asInstanceOf[DataType]), null)
+      assertEquals(internalRow.get(idx, stdFactory.createDataType(fieldTypes(idx)).underlyingType().asInstanceOf[DataType]), null)
     })
   }
 }

@@ -5,10 +5,10 @@
  */
 package com.linkedin.transport.examples;
 
-import com.linkedin.transport.api.udf.TopLevelStdUDF;
+import com.linkedin.transport.api.udf.TopLevelUDF;
 
 
-public interface NumericAddFunction extends TopLevelStdUDF {
+public interface NumericAddFunction extends TopLevelUDF {
 
   @Override
   default String getFunctionName() {

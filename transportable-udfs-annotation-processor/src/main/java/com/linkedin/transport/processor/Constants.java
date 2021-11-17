@@ -5,7 +5,7 @@
  */
 package com.linkedin.transport.processor;
 
-import com.linkedin.transport.api.udf.TopLevelStdUDF;
+import com.linkedin.transport.api.udf.TopLevelUDF;
 
 
 public class Constants {
@@ -14,12 +14,12 @@ public class Constants {
   public static final String INTERFACE_NOT_IMPLEMENTED_ERROR =
       String.format(
           "A Transport UDF should implement %s interface.",
-          TopLevelStdUDF.class.getSimpleName());
+          TopLevelUDF.class.getSimpleName());
 
   public static final String MORE_THAN_ONE_TYPE_OVERRIDING_ERROR =
       String.format(
           "%s methods should be overriden in only one class/interface in the type hierarchy.",
-          TopLevelStdUDF.class.getSimpleName());
+          TopLevelUDF.class.getSimpleName());
 
   private Constants() {
   }

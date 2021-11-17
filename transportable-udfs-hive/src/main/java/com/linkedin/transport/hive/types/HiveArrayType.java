@@ -5,13 +5,13 @@
  */
 package com.linkedin.transport.hive.types;
 
-import com.linkedin.transport.api.types.StdArrayType;
-import com.linkedin.transport.api.types.StdType;
+import com.linkedin.transport.api.types.DataType;
+import com.linkedin.transport.api.types.ArrayType;
 import com.linkedin.transport.hive.HiveWrapper;
 import org.apache.hadoop.hive.serde2.objectinspector.ListObjectInspector;
 
 
-public class HiveArrayType implements StdArrayType {
+public class HiveArrayType implements ArrayType {
 
   final ListObjectInspector _listObjectInspector;
 
@@ -25,7 +25,7 @@ public class HiveArrayType implements StdArrayType {
   }
 
   @Override
-  public StdType elementType() {
+  public DataType elementType() {
     return HiveWrapper.createStdType(_listObjectInspector.getListElementObjectInspector());
   }
 }

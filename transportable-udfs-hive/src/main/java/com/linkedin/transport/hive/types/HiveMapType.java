@@ -5,13 +5,13 @@
  */
 package com.linkedin.transport.hive.types;
 
-import com.linkedin.transport.api.types.StdMapType;
-import com.linkedin.transport.api.types.StdType;
+import com.linkedin.transport.api.types.MapType;
+import com.linkedin.transport.api.types.DataType;
 import com.linkedin.transport.hive.HiveWrapper;
 import org.apache.hadoop.hive.serde2.objectinspector.MapObjectInspector;
 
 
-public class HiveMapType implements StdMapType {
+public class HiveMapType implements MapType {
 
   final MapObjectInspector _mapObjectInspector;
 
@@ -25,12 +25,12 @@ public class HiveMapType implements StdMapType {
   }
 
   @Override
-  public StdType keyType() {
+  public DataType keyType() {
     return HiveWrapper.createStdType(_mapObjectInspector.getMapKeyObjectInspector());
   }
 
   @Override
-  public StdType valueType() {
+  public DataType valueType() {
     return HiveWrapper.createStdType(_mapObjectInspector.getMapValueObjectInspector());
   }
 }

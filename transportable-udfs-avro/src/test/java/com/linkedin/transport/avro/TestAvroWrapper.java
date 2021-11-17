@@ -7,7 +7,7 @@ package com.linkedin.transport.avro;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import com.linkedin.transport.api.types.StdType;
+import com.linkedin.transport.api.types.DataType;
 import com.linkedin.transport.avro.data.AvroArrayData;
 import com.linkedin.transport.avro.data.AvroMapData;
 import com.linkedin.transport.avro.data.AvroRowData;
@@ -68,7 +68,7 @@ public class TestAvroWrapper {
     Schema elementType = createSchema("\"int\"");
     Schema arraySchema = Schema.createArray(elementType);
 
-    StdType stdArrayType = AvroWrapper.createStdType(arraySchema);
+    DataType stdArrayType = AvroWrapper.createStdType(arraySchema);
     assertTrue(stdArrayType instanceof AvroArrayType);
     assertEquals(arraySchema, ((AvroArrayType) stdArrayType).underlyingType());
     assertEquals(elementType, ((AvroArrayType) stdArrayType).elementType().underlyingType());
@@ -85,7 +85,7 @@ public class TestAvroWrapper {
     Schema valueType = createSchema("\"long\"");
     Schema mapSchema = Schema.createMap(valueType);
 
-    StdType stdMapType = AvroWrapper.createStdType(mapSchema);
+    DataType stdMapType = AvroWrapper.createStdType(mapSchema);
     assertTrue(stdMapType instanceof AvroMapType);
     assertEquals(mapSchema, stdMapType.underlyingType());
     assertEquals(valueType, ((AvroMapType) stdMapType).valueType().underlyingType());
@@ -106,7 +106,7 @@ public class TestAvroWrapper {
         new Schema.Field("field2", field2, null, null)
     ));
 
-    StdType stdStructType = AvroWrapper.createStdType(structSchema);
+    DataType stdStructType = AvroWrapper.createStdType(structSchema);
     assertTrue(stdStructType instanceof AvroRowType);
     assertEquals(structSchema, stdStructType.underlyingType());
     assertEquals(field1, ((AvroRowType) stdStructType).fieldTypes().get(0).underlyingType());
@@ -129,7 +129,7 @@ public class TestAvroWrapper {
     Schema nonNullType = createSchema("\"long\"");
     Schema unionSchema = Schema.createUnion(Arrays.asList(nonNullType, Schema.create(Schema.Type.NULL)));
 
-    StdType stdLongType = AvroWrapper.createStdType(unionSchema);
+    DataType stdLongType = AvroWrapper.createStdType(unionSchema);
     assertTrue(stdLongType instanceof AvroLongType);
     assertEquals(nonNullType, stdLongType.underlyingType());
 

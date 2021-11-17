@@ -9,16 +9,16 @@ package com.linkedin.transport.api.udf;
 /**
  * A Standard UDF with zero input arguments.
  *
- * @param <O>  the type of the return value of the {@link StdUDF}
+ * @param <O>  the type of the return value of the {@link UDF}
  */
-public abstract class StdUDF0<O> extends StdUDF {
+public abstract class UDF0<O> extends UDF {
 
   /**
-   * Returns the output of the {@link StdUDF} given the input arguments.
+   * Returns the output of the {@link UDF} given the input arguments.
    *
    * This method is called once per input record. All UDF logic should be defined in this method.
    *
-   * @return the output of the {@link StdUDF} given the input arguments.
+   * @return the output of the {@link UDF} given the input arguments.
    */
   public abstract O eval();
 
@@ -26,7 +26,7 @@ public abstract class StdUDF0<O> extends StdUDF {
    * Returns an array of file paths to be localized at the worker nodes.
    *
    * The Standard UDF framework localizes the files passed through this method and provides the localized file paths to
-   * {@link StdUDF#processRequiredFiles(String[])} for further processing. Users can use the pattern "#LATEST" instead
+   * {@link UDF#processRequiredFiles(String[])} for further processing. Users can use the pattern "#LATEST" instead
    * of a concrete directory name in the path as a way of selecting the directory with the most recent timestamp, and
    * hence obtaining the most recent version of a file.
    * Example: 'hdfs:///data/derived/dwh/prop/testMemberId/#LATEST/testMemberId.txt'

@@ -7,8 +7,8 @@ package com.linkedin.transport.examples;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
-import com.linkedin.transport.api.udf.StdUDF2;
-import com.linkedin.transport.api.udf.TopLevelStdUDF;
+import com.linkedin.transport.api.udf.UDF2;
+import com.linkedin.transport.api.udf.TopLevelUDF;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
@@ -18,7 +18,7 @@ import java.util.Set;
 import org.apache.commons.io.IOUtils;
 
 
-public class FileLookupFunction extends StdUDF2<String, Integer, Boolean> implements TopLevelStdUDF {
+public class FileLookupFunction extends UDF2<String, Integer, Boolean> implements TopLevelUDF {
 
   private Set<Integer> ids;
 

@@ -6,11 +6,11 @@
 package com.linkedin.transport.examples;
 
 import com.google.common.collect.ImmutableList;
-import com.linkedin.transport.api.udf.StdUDF2;
+import com.linkedin.transport.api.udf.UDF2;
 import java.util.List;
 
 
-public class NumericAddLongFunction extends StdUDF2<Long, Long, Long> implements NumericAddFunction {
+public class NumericAddLongFunction extends UDF2<Long, Long, Long> implements NumericAddFunction {
   @Override
   public Long eval(Long first, Long second) {
     return first + second;

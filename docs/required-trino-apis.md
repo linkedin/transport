@@ -33,9 +33,9 @@ to call `StdUF#init()` and pass the `FunctionDependencies` and `FunctionBinding`
 ```java
 @Override
 public ScalarFunctionImplementation specialize(FunctionBinding functionBinding, FunctionDependencies functionDependencies) {
-  StdFactory stdFactory = new TrinoFactory(functionBinding, functionDependencies);
-  StdUDF stdUDF = getStdUDF();
-  stdUDF.init(stdFactory);
+  StdFactory typeFactory = new TrinoFactory(functionBinding, functionDependencies);
+  StdUDF udf = getStdUDF();
+  udf.init(typeFactory);
   ...
 }
 ```

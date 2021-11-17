@@ -5,7 +5,7 @@
  */
 package com.linkedin.transport.hive.data;
 
-import com.linkedin.transport.api.StdFactory;
+import com.linkedin.transport.api.TypeFactory;
 import com.linkedin.transport.api.data.MapData;
 import com.linkedin.transport.hive.HiveWrapper;
 import java.util.AbstractCollection;
@@ -25,8 +25,8 @@ public class HiveMapData<K, V> extends HiveData implements MapData<K, V> {
   final ObjectInspector _keyObjectInspector;
   final ObjectInspector _valueObjectInspector;
 
-  public HiveMapData(Object object, ObjectInspector objectInspector, StdFactory stdFactory) {
-    super(stdFactory);
+  public HiveMapData(Object object, ObjectInspector objectInspector, TypeFactory typeFactory) {
+    super(typeFactory);
     _object = object;
     _mapObjectInspector = (MapObjectInspector) objectInspector;
     _keyObjectInspector = _mapObjectInspector.getMapKeyObjectInspector();
@@ -55,7 +55,7 @@ public class HiveMapData<K, V> extends HiveData implements MapData<K, V> {
 
     return (V) HiveWrapper.createStdData(
         mapOI.getMapValueElement(mapObj, keyObj),
-        mapOI.getMapValueObjectInspector(), _stdFactory);
+        mapOI.getMapValueObjectInspector(), _typeFactory);
   }
 
   @Override
@@ -92,7 +92,7 @@ public class HiveMapData<K, V> extends HiveData implements MapData<K, V> {
 
           @Override
           public K next() {
-            return (K) HiveWrapper.createStdData(mapKeyIterator.next(), _keyObjectInspector, _stdFactory);
+            return (K) HiveWrapper.createStdData(mapKeyIterator.next(), _keyObjectInspector, _typeFactory);
           }
         };
       }
@@ -120,7 +120,7 @@ public class HiveMapData<K, V> extends HiveData implements MapData<K, V> {
 
           @Override
           public V next() {
-            return (V) HiveWrapper.createStdData(mapValueIterator.next(), _valueObjectInspector, _stdFactory);
+            return (V) HiveWrapper.createStdData(mapValueIterator.next(), _valueObjectInspector, _typeFactory);
           }
         };
       }

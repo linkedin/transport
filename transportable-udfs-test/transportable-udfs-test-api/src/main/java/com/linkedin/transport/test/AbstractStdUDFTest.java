@@ -9,8 +9,8 @@ import com.google.common.base.Preconditions;
 import com.linkedin.transport.api.data.ArrayData;
 import com.linkedin.transport.api.data.MapData;
 import com.linkedin.transport.api.data.RowData;
-import com.linkedin.transport.api.udf.StdUDF;
-import com.linkedin.transport.api.udf.TopLevelStdUDF;
+import com.linkedin.transport.api.udf.UDF;
+import com.linkedin.transport.api.udf.TopLevelUDF;
 import com.linkedin.transport.test.spi.FunctionCall;
 import com.linkedin.transport.test.spi.Row;
 import com.linkedin.transport.test.spi.StdTester;
@@ -45,18 +45,18 @@ public abstract class AbstractStdUDFTest {
    */
   protected StdTester getTester() {
     StdTester tester = StdTesterService.getTester();
-    validateTopLevelStdUDFClassesAndImplementations(getTopLevelStdUDFClassesAndImplementations());
-    tester.setup(getTopLevelStdUDFClassesAndImplementations());
+    validateTopLevelUDFClassesAndImplementations(getTopLevelUDFClassesAndImplementations());
+    tester.setup(getTopLevelUDFClassesAndImplementations());
     return tester;
   }
 
   /**
-   * Returns a {@link Map} of {@link TopLevelStdUDF} classes to their corresponding {@link StdUDF} implementation
+   * Returns a {@link Map} of {@link TopLevelUDF} classes to their corresponding {@link UDF} implementation
    * classes which are to be used in the test
    *
    * TODO: Auto-derive StdUDF implementation classes from the TopLevelStdUDF class
    */
-  protected abstract Map<Class<? extends TopLevelStdUDF>, List<Class<? extends StdUDF>>> getTopLevelStdUDFClassesAndImplementations();
+  protected abstract Map<Class<? extends TopLevelUDF>, List<Class<? extends UDF>>> getTopLevelUDFClassesAndImplementations();
 
   /**
    * Creates a {@link FunctionCall} for a {@link TestCase} from the provided function name and parameters
@@ -109,12 +109,12 @@ public abstract class AbstractStdUDFTest {
     return filePath;
   }
 
-  private void validateTopLevelStdUDFClassesAndImplementations(
-      Map<Class<? extends TopLevelStdUDF>, List<Class<? extends StdUDF>>> topLevelStdUDFClassesAndImplementations) {
-    topLevelStdUDFClassesAndImplementations.forEach((topLevelStdUDFClass, stdUDFImplementationClasses) -> {
-      Preconditions.checkNotNull(topLevelStdUDFClass, "TopLevelStdUDF class cannot be null");
-      Preconditions.checkArgument(stdUDFImplementationClasses.size() > 0,
-          "At least one StdUDF implementation class required for TopLevelStdUDF " + topLevelStdUDFClass);
+  private void validateTopLevelUDFClassesAndImplementations(
+      Map<Class<? extends TopLevelUDF>, List<Class<? extends UDF>>> topLevelUDFClassesAndImplementations) {
+    topLevelUDFClassesAndImplementations.forEach((topLevelUDFClass, udfImplementationClasses) -> {
+      Preconditions.checkNotNull(topLevelUDFClass, "TopLevelUDF class cannot be null");
+      Preconditions.checkArgument(udfImplementationClasses.size() > 0,
+          "At least one UDF implementation class required for TopLevelUDF " + topLevelUDFClass);
     });
   }
 }

@@ -5,19 +5,19 @@
  */
 package com.linkedin.transport.test.generic;
 
-import com.linkedin.transport.api.StdFactory;
+import com.linkedin.transport.api.TypeFactory;
 import com.linkedin.transport.api.data.PlatformData;
-import com.linkedin.transport.api.udf.StdUDF;
-import com.linkedin.transport.api.udf.StdUDF0;
-import com.linkedin.transport.api.udf.StdUDF1;
-import com.linkedin.transport.api.udf.StdUDF2;
-import com.linkedin.transport.api.udf.StdUDF3;
-import com.linkedin.transport.api.udf.StdUDF4;
-import com.linkedin.transport.api.udf.StdUDF5;
-import com.linkedin.transport.api.udf.StdUDF6;
-import com.linkedin.transport.api.udf.StdUDF7;
-import com.linkedin.transport.api.udf.StdUDF8;
-import com.linkedin.transport.api.udf.TopLevelStdUDF;
+import com.linkedin.transport.api.udf.UDF;
+import com.linkedin.transport.api.udf.UDF0;
+import com.linkedin.transport.api.udf.UDF1;
+import com.linkedin.transport.api.udf.UDF2;
+import com.linkedin.transport.api.udf.UDF3;
+import com.linkedin.transport.api.udf.UDF4;
+import com.linkedin.transport.api.udf.UDF5;
+import com.linkedin.transport.api.udf.UDF6;
+import com.linkedin.transport.api.udf.UDF7;
+import com.linkedin.transport.api.udf.UDF8;
+import com.linkedin.transport.api.udf.TopLevelUDF;
 import com.linkedin.transport.test.generic.typesystem.GenericTypeInference;
 import com.linkedin.transport.test.spi.types.TestType;
 import com.linkedin.transport.utils.FileSystemUtils;
@@ -38,17 +38,17 @@ import org.apache.hadoop.fs.Path;
 public class GenericStdUDFWrapper {
 
   protected TestType[] _inputTypes;
-  protected StdUDF _stdUdf;
+  protected UDF _udf;
   protected boolean _requiredFilesProcessed;
-  protected StdFactory _stdFactory;
+  protected TypeFactory _typeFactory;
   private boolean[] _nullableArguments;
   private Object[] _args;
-  private Class<? extends TopLevelStdUDF> _topLevelUdfClass;
-  private List<Class<? extends StdUDF>> _stdUdfImplementations;
+  private Class<? extends TopLevelUDF> _topLevelUdfClass;
+  private List<Class<? extends UDF>> _stdUdfImplementations;
   private String[] _localFiles;
 
-  public GenericStdUDFWrapper(Class<? extends TopLevelStdUDF> topLevelUdfClass,
-      List<Class<? extends StdUDF>> stdUdfImplementations) {
+  public GenericStdUDFWrapper(Class<? extends TopLevelUDF> topLevelUdfClass,
+      List<Class<? extends UDF>> stdUdfImplementations) {
     _topLevelUdfClass = topLevelUdfClass;
     _stdUdfImplementations = stdUdfImplementations;
   }
@@ -65,10 +65,10 @@ public class GenericStdUDFWrapper {
     GenericTypeInference genericTypeInference = new GenericTypeInference();
     genericTypeInference.compile(arguments, getStdUdfImplementations(), getTopLevelUdfClass());
     _inputTypes = genericTypeInference.getInputDataTypes();
-    _stdFactory = genericTypeInference.getStdFactory();
-    _stdUdf = genericTypeInference.getStdUdf();
-    _nullableArguments = _stdUdf.getAndCheckNullableArguments();
-    _stdUdf.init(_stdFactory);
+    _typeFactory = genericTypeInference.getStdFactory();
+    _udf = genericTypeInference.getStdUdf();
+    _nullableArguments = _udf.getAndCheckNullableArguments();
+    _udf.init(_typeFactory);
     _requiredFilesProcessed = false;
     createStdData();
     return genericTypeInference.getOutputDataType();
@@ -98,7 +98,7 @@ public class GenericStdUDFWrapper {
     }
   }
 
-  protected List<? extends StdUDF> getStdUdfImplementations() {
+  protected List<? extends UDF> getStdUdfImplementations() {
     return _stdUdfImplementations.stream().map(stdUdfClass -> {
       try {
         return stdUdfClass.getConstructor().newInstance();
@@ -108,7 +108,7 @@ public class GenericStdUDFWrapper {
     }).collect(Collectors.toList());
   }
 
-  protected Class<? extends TopLevelStdUDF> getTopLevelUdfClass() {
+  protected Class<? extends TopLevelUDF> getTopLevelUdfClass() {
     return _topLevelUdfClass;
   }
 
@@ -135,31 +135,31 @@ public class GenericStdUDFWrapper {
     Object result;
     switch (args.length) {
       case 0:
-        result = ((StdUDF0) _stdUdf).eval();
+        result = ((UDF0) _udf).eval();
         break;
       case 1:
-        result = ((StdUDF1) _stdUdf).eval(args[0]);
+        result = ((UDF1) _udf).eval(args[0]);
         break;
       case 2:
-        result = ((StdUDF2) _stdUdf).eval(args[0], args[1]);
+        result = ((UDF2) _udf).eval(args[0], args[1]);
         break;
       case 3:
-        result = ((StdUDF3) _stdUdf).eval(args[0], args[1], args[2]);
+        result = ((UDF3) _udf).eval(args[0], args[1], args[2]);
         break;
       case 4:
-        result = ((StdUDF4) _stdUdf).eval(args[0], args[1], args[2], args[3]);
+        result = ((UDF4) _udf).eval(args[0], args[1], args[2], args[3]);
         break;
       case 5:
-        result = ((StdUDF5) _stdUdf).eval(args[0], args[1], args[2], args[3], args[4]);
+        result = ((UDF5) _udf).eval(args[0], args[1], args[2], args[3], args[4]);
         break;
       case 6:
-        result = ((StdUDF6) _stdUdf).eval(args[0], args[1], args[2], args[3], args[4], args[5]);
+        result = ((UDF6) _udf).eval(args[0], args[1], args[2], args[3], args[4], args[5]);
         break;
       case 7:
-        result = ((StdUDF7) _stdUdf).eval(args[0], args[1], args[2], args[3], args[4], args[5], args[6]);
+        result = ((UDF7) _udf).eval(args[0], args[1], args[2], args[3], args[4], args[5], args[6]);
         break;
       case 8:
-        result = ((StdUDF8) _stdUdf).eval(args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7]);
+        result = ((UDF8) _udf).eval(args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7]);
         break;
       default:
         throw new UnsupportedOperationException("eval not yet supported for StdUDF" + args.length);
@@ -171,31 +171,31 @@ public class GenericStdUDFWrapper {
     String[] requiredFiles;
     switch (args.length) {
       case 0:
-        requiredFiles = ((StdUDF0) _stdUdf).getRequiredFiles();
+        requiredFiles = ((UDF0) _udf).getRequiredFiles();
         break;
       case 1:
-        requiredFiles = ((StdUDF1) _stdUdf).getRequiredFiles(args[0]);
+        requiredFiles = ((UDF1) _udf).getRequiredFiles(args[0]);
         break;
       case 2:
-        requiredFiles = ((StdUDF2) _stdUdf).getRequiredFiles(args[0], args[1]);
+        requiredFiles = ((UDF2) _udf).getRequiredFiles(args[0], args[1]);
         break;
       case 3:
-        requiredFiles = ((StdUDF3) _stdUdf).getRequiredFiles(args[0], args[1], args[2]);
+        requiredFiles = ((UDF3) _udf).getRequiredFiles(args[0], args[1], args[2]);
         break;
       case 4:
-        requiredFiles = ((StdUDF4) _stdUdf).getRequiredFiles(args[0], args[1], args[2], args[3]);
+        requiredFiles = ((UDF4) _udf).getRequiredFiles(args[0], args[1], args[2], args[3]);
         break;
       case 5:
-        requiredFiles = ((StdUDF5) _stdUdf).getRequiredFiles(args[0], args[1], args[2], args[3], args[4]);
+        requiredFiles = ((UDF5) _udf).getRequiredFiles(args[0], args[1], args[2], args[3], args[4]);
         break;
       case 6:
-        requiredFiles = ((StdUDF6) _stdUdf).getRequiredFiles(args[0], args[1], args[2], args[3], args[4], args[5]);
+        requiredFiles = ((UDF6) _udf).getRequiredFiles(args[0], args[1], args[2], args[3], args[4], args[5]);
         break;
       case 7:
-        requiredFiles = ((StdUDF7) _stdUdf).getRequiredFiles(args[0], args[1], args[2], args[3], args[4], args[5], args[6]);
+        requiredFiles = ((UDF7) _udf).getRequiredFiles(args[0], args[1], args[2], args[3], args[4], args[5], args[6]);
         break;
       case 8:
-        requiredFiles = ((StdUDF8) _stdUdf).getRequiredFiles(args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7]);
+        requiredFiles = ((UDF8) _udf).getRequiredFiles(args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7]);
         break;
       default:
         throw new UnsupportedOperationException("getRequiredFiles not yet supported for StdUDF" + args.length);
@@ -213,7 +213,7 @@ public class GenericStdUDFWrapper {
 
   private synchronized void processRequiredFiles(String[] requiredFiles) {
     if (!_requiredFilesProcessed) {
-      _stdUdf.processRequiredFiles(Arrays.stream(requiredFiles)
+      _udf.processRequiredFiles(Arrays.stream(requiredFiles)
           .map(path -> Path.getPathWithoutSchemeAndAuthority(new Path(path)).toString())
           .toArray(String[]::new));
       _requiredFilesProcessed = true;

@@ -6,11 +6,11 @@
 package udfs;
 
 import com.google.common.collect.ImmutableList;
-import com.linkedin.transport.api.udf.StdUDF0;
+import com.linkedin.transport.api.udf.UDF0;
 import java.util.List;
 
 
-public class UDFWithMultipleInterfaces1 extends StdUDF0<Boolean> implements OverloadedUDF1, OverloadedUDF2 {
+public class UDFWithMultipleInterfaces1 extends UDF0<Boolean> implements OverloadedUDF1, OverloadedUDF2 {
 
   @Override
   public String getFunctionName() {

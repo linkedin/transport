@@ -5,11 +5,11 @@
  */
 package com.linkedin.transport.trino.types;
 
-import com.linkedin.transport.api.types.StdFloatType;
+import com.linkedin.transport.api.types.FloatType;
 import io.trino.spi.type.RealType;
 
 
-public class TrinoFloatType implements StdFloatType {
+public class TrinoFloatType implements FloatType {
 
   private final RealType floatType;
 

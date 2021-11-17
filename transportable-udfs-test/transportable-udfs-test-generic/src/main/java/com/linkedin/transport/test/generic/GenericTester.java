@@ -5,8 +5,8 @@
  */
 package com.linkedin.transport.test.generic;
 
-import com.linkedin.transport.api.udf.StdUDF;
-import com.linkedin.transport.api.udf.TopLevelStdUDF;
+import com.linkedin.transport.api.udf.UDF;
+import com.linkedin.transport.api.udf.TopLevelUDF;
 import com.linkedin.transport.test.generic.typesystem.GenericBoundVariables;
 import com.linkedin.transport.test.generic.typesystem.GenericTypeFactory;
 import com.linkedin.transport.test.spi.StdTester;
@@ -30,7 +30,7 @@ public class GenericTester implements StdTester {
 
   @Override
   public void setup(
-      Map<Class<? extends TopLevelStdUDF>, List<Class<? extends StdUDF>>> topLevelStdUDFClassesAndImplementations) {
+      Map<Class<? extends TopLevelUDF>, List<Class<? extends UDF>>> topLevelStdUDFClassesAndImplementations) {
     _boundVariables = new GenericBoundVariables();
     _typeFactory = new GenericTypeFactory();
     Map<String, GenericStdUDFWrapper> functionNameToWrapperMap = new HashMap<>();
@@ -38,7 +38,7 @@ public class GenericTester implements StdTester {
       GenericStdUDFWrapper wrapper = new GenericStdUDFWrapper(topLevelStdUDF, stdUDFImplementations);
       try {
         String functionName =
-            ((TopLevelStdUDF) stdUDFImplementations.get(0).getConstructor().newInstance()).getFunctionName();
+            ((TopLevelUDF) stdUDFImplementations.get(0).getConstructor().newInstance()).getFunctionName();
         functionNameToWrapperMap.put(functionName, wrapper);
       } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException | InstantiationException e) {
         throw new RuntimeException("Error registering UDF " + topLevelStdUDF.getName(), e);

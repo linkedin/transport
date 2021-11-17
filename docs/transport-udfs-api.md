@@ -143,12 +143,12 @@ public interface StdFactory {
   StdDouble createDouble(double value);
   StdFloat createFloat(float value);
   StdBinary createBinary(ByteBuffer value);
-  StdArray createArray(StdType stdType, int expectedSize);
-  StdArray createArray(StdType stdType);
-  StdMap createMap(StdType stdType);
+  StdArray createArray(StdType dataType, int expectedSize);
+  StdArray createArray(StdType dataType);
+  StdMap createMap(StdType dataType);
   StdStruct createStruct(List<String> fieldNames, List<StdType> fieldTypes);
   StdStruct createStruct(List<StdType> fieldTypes);
-  StdStruct createStruct(StdType stdType);
+  StdStruct createStruct(StdType dataType);
   StdType createStdType(String typeSignature);
 }
 ```
@@ -173,8 +173,8 @@ public abstract class StdUDF {
   private StdFactory _stdFactory;
   public abstract List<String> getInputParameterSignatures();
   public abstract String getOutputParameterSignature();
-  public void init(StdFactory stdFactory) {
-    _stdFactory = stdFactory;
+  public void init(StdFactory typeFactory) {
+    _stdFactory = typeFactory;
   }
   public void processRequiredFiles(String[] localFiles) {
   }
@@ -288,8 +288,8 @@ public class MapFromTwoArraysFunction extends StdUDF2<StdArray, StdArray, StdMap
   }
 
   @Override
-  public void init(StdFactory stdFactory) {
-    super.init(stdFactory);
+  public void init(StdFactory typeFactory) {
+    super.init(typeFactory);
     _mapType = getStdFactory().createStdType(getOutputParameterSignature());
   }
 

@@ -5,7 +5,7 @@
  */
 package com.linkedin.transport.test.spi;
 
-import com.linkedin.transport.api.StdFactory;
+import com.linkedin.transport.api.TypeFactory;
 
 
 /**
@@ -13,7 +13,7 @@ import com.linkedin.transport.api.StdFactory;
  */
 public interface SqlStdTester extends StdTester {
 
-  StdFactory getStdFactory();
+  TypeFactory getStdFactory();
 
   SqlFunctionCallGenerator getSqlFunctionCallGenerator();
 
@@ -34,6 +34,6 @@ public interface SqlStdTester extends StdTester {
   }
 
   default Object getPlatformType(String typeSignature) {
-    return getStdFactory().createStdType(typeSignature).underlyingType();
+    return getStdFactory().createDataType(typeSignature).underlyingType();
   }
 }

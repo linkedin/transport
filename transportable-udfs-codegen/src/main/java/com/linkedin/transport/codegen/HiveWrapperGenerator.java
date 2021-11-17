@@ -6,8 +6,8 @@
 package com.linkedin.transport.codegen;
 
 import com.google.common.collect.ImmutableList;
-import com.linkedin.transport.api.udf.StdUDF;
-import com.linkedin.transport.api.udf.TopLevelStdUDF;
+import com.linkedin.transport.api.udf.UDF;
+import com.linkedin.transport.api.udf.TopLevelUDF;
 import com.linkedin.transport.compile.TransportUDFMetadata;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.JavaFile;
@@ -56,7 +56,7 @@ public class HiveWrapperGenerator implements WrapperGenerator {
     MethodSpec getTopLevelUdfClassMethod = MethodSpec.methodBuilder(GET_TOP_LEVEL_UDF_CLASS_METHOD)
         .addAnnotation(Override.class)
         .returns(
-            ParameterizedTypeName.get(ClassName.get(Class.class), WildcardTypeName.subtypeOf(TopLevelStdUDF.class)))
+            ParameterizedTypeName.get(ClassName.get(Class.class), WildcardTypeName.subtypeOf(TopLevelUDF.class)))
         .addModifiers(Modifier.PROTECTED)
         .addStatement("return $T.class", topLevelClassName)
         .build();
@@ -77,7 +77,7 @@ public class HiveWrapperGenerator implements WrapperGenerator {
      */
     MethodSpec getStdUdfImplementationsMethod = MethodSpec.methodBuilder(GET_STD_UDF_IMPLEMENTATIONS_METHOD)
         .addAnnotation(Override.class)
-        .returns(ParameterizedTypeName.get(ClassName.get(List.class), WildcardTypeName.subtypeOf(StdUDF.class)))
+        .returns(ParameterizedTypeName.get(ClassName.get(List.class), WildcardTypeName.subtypeOf(UDF.class)))
         .addModifiers(Modifier.PROTECTED)
         .addStatement("return $T.of($L)", ImmutableList.class, implementationClasses.stream()
             .map(clazz -> "new " + clazz + "()")

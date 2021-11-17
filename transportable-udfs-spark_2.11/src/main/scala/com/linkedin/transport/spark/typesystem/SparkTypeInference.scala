@@ -5,7 +5,7 @@
  */
 package com.linkedin.transport.spark.typesystem
 
-import com.linkedin.transport.api.StdFactory
+import com.linkedin.transport.api.TypeFactory
 import com.linkedin.transport.spark.SparkFactory
 import com.linkedin.transport.typesystem.{AbstractBoundVariables, AbstractTypeFactory, AbstractTypeInference, AbstractTypeSystem}
 import org.apache.spark.sql.types._
@@ -16,7 +16,7 @@ class SparkTypeInference extends AbstractTypeInference[DataType] {
 
   override protected def createBoundVariables(): AbstractBoundVariables[DataType] = new SparkBoundVariables
 
-  override protected def createStdFactory(boundVariables: AbstractBoundVariables[DataType]): StdFactory = new SparkFactory(boundVariables)
+  override protected def createStdFactory(boundVariables: AbstractBoundVariables[DataType]): TypeFactory = new SparkFactory(boundVariables)
 
   override protected def getTypeFactory(): AbstractTypeFactory[DataType] = new SparkTypeFactory
 }
