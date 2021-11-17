@@ -113,8 +113,8 @@ class Defaults {
           ImmutableList.of(new ShadedJarPackaging(
               ImmutableList.of("org.apache.hadoop", "org.apache.spark"),
               ImmutableList.of(
-                  "com.linkedin.transport.spark.stdUDFRegistration",
-                  "com.linkedin.transport.spark.SparkStdUDF"
+                  "com.linkedin.transport.spark.UDFRegistration",
+                  "com.linkedin.transport.spark.SparkTransportUDF"
               )
           ))
       ),
@@ -132,8 +132,8 @@ class Defaults {
           ImmutableList.of(new ShadedJarPackaging(
               ImmutableList.of("org.apache.hadoop", "org.apache.spark"),
               ImmutableList.of(
-                  "com.linkedin.transport.spark.stdUDFRegistration",
-                  "com.linkedin.transport.spark.SparkStdUDF"
+                  "com.linkedin.transport.spark.UDFRegistration",
+                  "com.linkedin.transport.spark.SparkTransportUDF"
               )
           ))
       )

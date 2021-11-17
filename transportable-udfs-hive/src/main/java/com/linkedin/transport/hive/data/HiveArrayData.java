@@ -7,7 +7,7 @@ package com.linkedin.transport.hive.data;
 
 import com.linkedin.transport.api.TypeFactory;
 import com.linkedin.transport.api.data.ArrayData;
-import com.linkedin.transport.hive.HiveWrapper;
+import com.linkedin.transport.hive.HiveConverters;
 import java.util.Iterator;
 import org.apache.hadoop.hive.serde2.objectinspector.ListObjectInspector;
 import org.apache.hadoop.hive.serde2.objectinspector.ObjectInspector;
@@ -33,7 +33,7 @@ public class HiveArrayData<E> extends HiveData implements ArrayData<E> {
 
   @Override
   public E get(int idx) {
-    return (E) HiveWrapper.createStdData(
+    return (E) HiveConverters.toTransportData(
         _listObjectInspector.getListElement(_object, idx),
         _elementObjectInspector, _typeFactory);
   }
@@ -45,7 +45,7 @@ public class HiveArrayData<E> extends HiveData implements ArrayData<E> {
       int originalSize = size();
       settableListObjectInspector.resize(_object, originalSize + 1);
       settableListObjectInspector.set(_object, originalSize,
-          HiveWrapper.getPlatformDataForObjectInspector(e, _elementObjectInspector));
+          HiveConverters.toPlatformData(e, _elementObjectInspector));
       _isObjectModified = true;
     } else {
       throw new RuntimeException("Attempt to modify an immutable Hive object of type: "
@@ -71,7 +71,7 @@ public class HiveArrayData<E> extends HiveData implements ArrayData<E> {
 
       @Override
       public E next() {
-        E element = (E) HiveWrapper.createStdData(_listObjectInspector.getListElement(_object, currentIndex),
+        E element = (E) HiveConverters.toTransportData(_listObjectInspector.getListElement(_object, currentIndex),
             _elementObjectInspector, _typeFactory);
         currentIndex++;
         return element;

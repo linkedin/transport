@@ -19,8 +19,8 @@ public class TestGetTypeVariableConstraints {
 
   private void assertGetTypeVariableConstraints(List<String> inputParameterSignatures, String outputParameterSignature,
       List<TypeVariableConstraint> expectedTypeVariableConstraints) {
-    ExampleStdUDF exampleStdUDF = new ExampleStdUDF(inputParameterSignatures, outputParameterSignature);
-    Assert.assertEqualsNoOrder(StdUdfWrapper.getTypeVariableConstraintsForStdUdf(exampleStdUDF).toArray(),
+    ExampleUDF exampleUDF = new ExampleUDF(inputParameterSignatures, outputParameterSignature);
+    Assert.assertEqualsNoOrder(TrinoUDF.getTypeVariableConstraintsForUdf(exampleUDF).toArray(),
         expectedTypeVariableConstraints.toArray());
   }
 
@@ -39,12 +39,12 @@ public class TestGetTypeVariableConstraints {
         ImmutableList.of(typeVariable("K"), typeVariable("S"), typeVariable("V")));
   }
 
-  private class ExampleStdUDF extends UDF {
+  private class ExampleUDF extends UDF {
 
     private List<String> _inputParameterSignatures;
     private String _outputParameterSignature;
 
-    public ExampleStdUDF(List<String> inputParameterSignatures, String outputParameterSignature) {
+    public ExampleUDF(List<String> inputParameterSignatures, String outputParameterSignature) {
       _inputParameterSignatures = inputParameterSignatures;
       _outputParameterSignature = outputParameterSignature;
     }

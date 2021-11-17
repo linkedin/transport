@@ -9,7 +9,7 @@ import com.google.common.base.Preconditions;
 import com.linkedin.transport.api.TypeFactory;
 import com.linkedin.transport.api.udf.UDF;
 import com.linkedin.transport.api.udf.TopLevelUDF;
-import com.linkedin.transport.hive.HiveFactory;
+import com.linkedin.transport.hive.HiveTypeFactory;
 import com.linkedin.transport.hive.typesystem.HiveBoundVariables;
 import com.linkedin.transport.test.hive.udf.MapFromEntriesWrapper;
 import com.linkedin.transport.test.spi.SqlFunctionCallGenerator;
@@ -49,7 +49,7 @@ public class HiveTester implements SqlStdTester {
   private ToPlatformTestOutputConverter _platformOutputDataConverter;
 
   public HiveTester() {
-    _typeFactory = new HiveFactory(new HiveBoundVariables());
+    _typeFactory = new HiveTypeFactory(new HiveBoundVariables());
     _sqlFunctionCallGenerator = new HiveSqlFunctionCallGenerator();
     _platformOutputDataConverter = new ToHiveTestOutputConverter();
     createHiveServer();
@@ -86,7 +86,7 @@ public class HiveTester implements SqlStdTester {
       Map<Class<? extends TopLevelUDF>, List<Class<? extends UDF>>> topLevelStdUDFClassesAndImplementations) {
 
     topLevelStdUDFClassesAndImplementations.forEach((topLevelStdUDF, stdUDFImplementations) -> {
-      HiveTestStdUDFWrapper wrapper = new HiveTestStdUDFWrapper(topLevelStdUDF, stdUDFImplementations);
+      HiveTestHiveUDF wrapper = new HiveTestHiveUDF(topLevelStdUDF, stdUDFImplementations);
       try {
         String functionName =
             ((TopLevelUDF) stdUDFImplementations.get(0).getConstructor().newInstance()).getFunctionName();

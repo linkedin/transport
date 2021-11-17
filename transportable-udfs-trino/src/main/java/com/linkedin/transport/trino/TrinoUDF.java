@@ -63,16 +63,16 @@ import static io.trino.util.Reflection.*;
 
 // Suppressing argument naming convention for the evalInternal methods
 @SuppressWarnings({"checkstyle:regexpsinglelinejava"})
-public abstract class StdUdfWrapper extends SqlScalarFunction {
+public abstract class TrinoUDF extends SqlScalarFunction {
 
   private static final int DEFAULT_REFRESH_INTERVAL_DAYS = 1;
   private static final int JITTER_FACTOR = 50;  // to calculate jitter from delay
 
-  protected StdUdfWrapper(UDF udf) {
+  protected TrinoUDF(UDF udf) {
     super(new FunctionMetadata(
             new Signature(
                     ((TopLevelUDF) udf).getFunctionName(),
-                    getTypeVariableConstraintsForStdUdf(udf),
+                    getTypeVariableConstraintsForUdf(udf),
                     ImmutableList.of(),
                     parseTypeSignature(udf.getOutputParameterSignature(), ImmutableSet.of()),
                     udf.getInputParameterSignatures().stream()
@@ -90,7 +90,7 @@ public abstract class StdUdfWrapper extends SqlScalarFunction {
   }
 
   @VisibleForTesting
-  static List<TypeVariableConstraint> getTypeVariableConstraintsForStdUdf(UDF udf) {
+  static List<TypeVariableConstraint> getTypeVariableConstraintsForUdf(UDF udf) {
     Set<GenericTypeSignatureElement> genericTypes = new HashSet<>();
     for (String s : udf.getInputParameterSignatures()) {
       genericTypes.addAll(com.linkedin.transport.typesystem.TypeSignature.parse(s).getGenericTypeSignatureElements());
@@ -133,8 +133,8 @@ public abstract class StdUdfWrapper extends SqlScalarFunction {
 
   @Override
   public ScalarFunctionImplementation specialize(FunctionBinding functionBinding, FunctionDependencies functionDependencies) {
-    TypeFactory typeFactory = new TrinoFactory(functionBinding, functionDependencies);
-    UDF udf = getStdUDF();
+    TypeFactory typeFactory = new TrinoTypeFactory(functionBinding, functionDependencies);
+    UDF udf = getUDF();
     udf.init(typeFactory);
     // Subtract a small jitter value so that refresh is triggered on first call
     // while ensuring subsequent calls do not happen at the same time across workers
@@ -159,7 +159,7 @@ public abstract class StdUdfWrapper extends SqlScalarFunction {
     // Generic MethodHandle for eval where all arguments are of type Object
     Class<?>[] genericMethodHandleArgumentTypes = getMethodHandleArgumentTypes(inputTypes, nullableArguments, true);
     MethodHandle genericMethodHandle =
-        methodHandle(StdUdfWrapper.class, "evalInternal", genericMethodHandleArgumentTypes).bindTo(this);
+        methodHandle(TrinoUDF.class, "evalInternal", genericMethodHandleArgumentTypes).bindTo(this);
 
     Class<?>[] specificMethodHandleArgumentTypes = getMethodHandleArgumentTypes(inputTypes, nullableArguments, false);
     Class<?> specificMethodHandleReturnType = getJavaTypeForNullability(outputType, true);
@@ -181,14 +181,14 @@ public abstract class StdUdfWrapper extends SqlScalarFunction {
 
   private Object[] wrapArguments(UDF udf, Type[] types, Object[] arguments) {
     TypeFactory typeFactory = udf.getTypeFactory();
-    Object[] stdData = new Object[arguments.length];
+    Object[] data = new Object[arguments.length];
     // TODO: Reuse wrapper objects by creating them once upon initialization and reuse them here
     // along the same lines of what we do in Hive implementation.
     // JIRA: https://jira01.corp.linkedin.com:8443/browse/LIHADOOP-34894
-    for (int i = 0; i < stdData.length; i++) {
-      stdData[i] = TrinoWrapper.createStdData(arguments[i], types[i], typeFactory);
+    for (int i = 0; i < data.length; i++) {
+      data[i] = TrinoConverters.toTransportData(arguments[i], types[i], typeFactory);
     }
-    return stdData;
+    return data;
   }
 
   protected Object eval(UDF udf, Type[] types, boolean isIntegerReturnType,
@@ -228,10 +228,10 @@ public abstract class StdUdfWrapper extends SqlScalarFunction {
         result = ((UDF8) udf).eval(args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7]);
         break;
       default:
-        throw new RuntimeException("eval not supported yet for StdUDF" + args.length);
+        throw new RuntimeException("eval not supported yet for UDF" + args.length);
     }
 
-    return TrinoWrapper.getPlatformData(result);
+    return TrinoConverters.toPlatformData(result);
   }
 
   private String[] getRequiredFiles(UDF udf, Object[] args) {
@@ -267,7 +267,7 @@ public abstract class StdUdfWrapper extends SqlScalarFunction {
             args[6], args[7]);
         break;
       default:
-        throw new RuntimeException("getRequiredFiles not supported yet for StdUDF" + args.length);
+        throw new RuntimeException("getRequiredFiles not supported yet for UDF" + args.length);
     }
     return requiredFiles;
   }
@@ -316,7 +316,7 @@ public abstract class StdUdfWrapper extends SqlScalarFunction {
     return methodHandleArgumentTypes;
   }
 
-  protected abstract UDF getStdUDF();
+  protected abstract UDF getUDF();
 
   public Object evalInternal(UDF udf, Type[] types, boolean isIntegerReturnType,
       AtomicLong requiredFilesNextRefreshTime) {

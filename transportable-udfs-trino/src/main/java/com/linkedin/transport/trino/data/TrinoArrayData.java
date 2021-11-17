@@ -6,7 +6,7 @@
 package com.linkedin.transport.trino.data;
 
 import com.linkedin.transport.api.TypeFactory;
-import com.linkedin.transport.trino.TrinoWrapper;
+import com.linkedin.transport.trino.TrinoConverters;
 import io.trino.spi.block.Block;
 import io.trino.spi.block.BlockBuilder;
 import io.trino.spi.block.PageBuilderStatus;
@@ -50,9 +50,9 @@ public class TrinoArrayData<E> extends TrinoData implements ArrayData<E> {
   @Override
   public E get(int idx) {
     Block sourceBlock = _mutable == null ? _block : _mutable;
-    int position = TrinoWrapper.checkedIndexToBlockPosition(sourceBlock, idx);
+    int position = TrinoConverters.checkedIndexToBlockPosition(sourceBlock, idx);
     Object element = readNativeValue(_elementType, sourceBlock, position);
-    return (E) TrinoWrapper.createStdData(element, _elementType, _typeFactory);
+    return (E) TrinoConverters.toTransportData(element, _elementType, _typeFactory);
   }
 
   @Override
@@ -60,7 +60,7 @@ public class TrinoArrayData<E> extends TrinoData implements ArrayData<E> {
     if (_mutable == null) {
       _mutable = _elementType.createBlockBuilder(new PageBuilderStatus().createBlockBuilderStatus(), 1);
     }
-    TrinoWrapper.writeToBlock(e, _mutable);
+    TrinoConverters.writeToBlock(e, _mutable);
   }
 
   @Override
@@ -89,7 +89,7 @@ public class TrinoArrayData<E> extends TrinoData implements ArrayData<E> {
       public E next() {
         Object element = readNativeValue(_elementType, sourceBlock, position);
         position++;
-        return (E) TrinoWrapper.createStdData(element, _elementType, _typeFactory);
+        return (E) TrinoConverters.toTransportData(element, _elementType, _typeFactory);
       }
     };
   }

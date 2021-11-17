@@ -29,12 +29,12 @@ import org.apache.avro.generic.GenericRecord;
 import org.apache.avro.util.Utf8;
 
 
-public class AvroWrapper {
+public class AvroConverters {
 
-  private AvroWrapper() {
+  private AvroConverters() {
   }
 
-  public static Object createStdData(Object avroData, Schema avroSchema) {
+  public static Object toTransportData(Object avroData, Schema avroSchema) {
     switch (avroSchema.getType()) {
       case INT:
       case LONG:
@@ -61,7 +61,7 @@ public class AvroWrapper {
         if (avroData == null) {
           return null;
         }
-        return createStdData(avroData, nonNullableType);
+        return toTransportData(avroData, nonNullableType);
       }
       case NULL:
         return null;
@@ -70,7 +70,7 @@ public class AvroWrapper {
     }
   }
 
-  public static Object getPlatformData(Object transportData) {
+  public static Object toPlatformData(Object transportData) {
     if (transportData instanceof Integer || transportData instanceof Long || transportData instanceof Double
         || transportData instanceof Boolean || transportData instanceof ByteBuffer) {
       return transportData;
@@ -100,7 +100,7 @@ public class AvroWrapper {
     throw new RuntimeException("Unsupported union type: " + unionSchema);
   }
 
-  public static DataType createStdType(Schema avroSchema) {
+  public static DataType toTransportType(Schema avroSchema) {
     switch (avroSchema.getType()) {
       case INT:
         return new AvroIntegerType(avroSchema);
@@ -124,7 +124,7 @@ public class AvroWrapper {
         return new AvroRowType(avroSchema);
       case UNION: {
         Schema nonNullableType = getNonNullComponent(avroSchema);
-        return createStdType(nonNullableType);
+        return toTransportType(nonNullableType);
       }
       default:
         throw new RuntimeException("Unrecognized Avro Schema: " + avroSchema.getClass());

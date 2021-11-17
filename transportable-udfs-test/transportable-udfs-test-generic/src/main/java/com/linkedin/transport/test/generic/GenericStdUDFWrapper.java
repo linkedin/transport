@@ -65,8 +65,8 @@ public class GenericStdUDFWrapper {
     GenericTypeInference genericTypeInference = new GenericTypeInference();
     genericTypeInference.compile(arguments, getStdUdfImplementations(), getTopLevelUdfClass());
     _inputTypes = genericTypeInference.getInputDataTypes();
-    _typeFactory = genericTypeInference.getStdFactory();
-    _udf = genericTypeInference.getStdUdf();
+    _typeFactory = genericTypeInference.getTypeFactory();
+    _udf = genericTypeInference.getUdf();
     _nullableArguments = _udf.getAndCheckNullableArguments();
     _udf.init(_typeFactory);
     _requiredFilesProcessed = false;

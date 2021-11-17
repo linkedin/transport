@@ -7,7 +7,7 @@ package com.linkedin.transport.avro.data;
 
 import com.linkedin.transport.api.data.PlatformData;
 import com.linkedin.transport.api.data.ArrayData;
-import com.linkedin.transport.avro.AvroWrapper;
+import com.linkedin.transport.avro.AvroConverters;
 import java.util.Iterator;
 import org.apache.avro.Schema;
 import org.apache.avro.generic.GenericArray;
@@ -35,12 +35,12 @@ public class AvroArrayData<E> implements ArrayData<E>, PlatformData {
 
   @Override
   public E get(int idx) {
-    return (E) AvroWrapper.createStdData(_genericArray.get(idx), _elementSchema);
+    return (E) AvroConverters.toTransportData(_genericArray.get(idx), _elementSchema);
   }
 
   @Override
   public void add(E e) {
-    _genericArray.add(AvroWrapper.getPlatformData(e));
+    _genericArray.add(AvroConverters.toPlatformData(e));
   }
 
   @Override
@@ -55,7 +55,7 @@ public class AvroArrayData<E> implements ArrayData<E>, PlatformData {
 
       @Override
       public E next() {
-        return (E) AvroWrapper.createStdData(_iterator.next(), _elementSchema);
+        return (E) AvroConverters.toTransportData(_iterator.next(), _elementSchema);
       }
     };
   }

@@ -15,7 +15,7 @@ import io.trino.metadata.FunctionId;
 import io.trino.operator.scalar.AbstractTestFunctions;
 import io.trino.spi.type.Type;
 import com.linkedin.transport.api.udf.TopLevelUDF;
-import com.linkedin.transport.trino.TrinoFactory;
+import com.linkedin.transport.trino.TrinoTypeFactory;
 import com.linkedin.transport.test.spi.SqlFunctionCallGenerator;
 import com.linkedin.transport.test.spi.SqlStdTester;
 import com.linkedin.transport.test.spi.ToPlatformTestOutputConverter;
@@ -44,7 +44,7 @@ public class TrinoTester extends AbstractTestFunctions implements SqlStdTester {
     initTestFunctions();
     for (List<Class<? extends UDF>> stdUDFImplementations : topLevelStdUDFClassesAndImplementations.values()) {
       for (Class<? extends UDF> stdUDF : stdUDFImplementations) {
-        registerScalarFunction(new TrinoTestStdUDFWrapper(stdUDF));
+        registerScalarFunction(new TrinoTestTrinoUDF(stdUDF));
       }
     }
   }
@@ -57,7 +57,7 @@ public class TrinoTester extends AbstractTestFunctions implements SqlStdTester {
           new BoundSignature("test", UNKNOWN, ImmutableList.of()),
           ImmutableMap.of(),
           ImmutableMap.of());
-      _typeFactory = new TrinoFactory(
+      _typeFactory = new TrinoTypeFactory(
           functionBinding,
           this.functionAssertions.getMetadata());
     }

@@ -42,7 +42,7 @@ import org.apache.hadoop.hive.serde2.objectinspector.primitive.BinaryObjectInspe
  * Base class for all Hive Standard UDFs. It provides a standard way of type validation, binding, and output type
  * inference through its initialize() method.
  */
-public abstract class StdUdfWrapper extends GenericUDF {
+public abstract class HiveUDF extends GenericUDF {
 
   protected ObjectInspector[] _inputObjectInspectors;
   protected UDF _udf;
@@ -64,14 +64,14 @@ public abstract class StdUdfWrapper extends GenericUDF {
   @Override
   public ObjectInspector initialize(ObjectInspector[] arguments) {
     HiveTypeInference hiveTypeInference = new HiveTypeInference();
-    hiveTypeInference.compile(arguments, getStdUdfImplementations(), getTopLevelUdfClass());
+    hiveTypeInference.compile(arguments, getUdfImplementations(), getTopLevelUdfClass());
     _inputObjectInspectors = hiveTypeInference.getInputDataTypes();
-    _typeFactory = hiveTypeInference.getStdFactory();
-    _udf = hiveTypeInference.getStdUdf();
+    _typeFactory = hiveTypeInference.getTypeFactory();
+    _udf = hiveTypeInference.getUdf();
     _nullableArguments = _udf.getAndCheckNullableArguments();
     _udf.init(_typeFactory);
     _requiredFilesProcessed = false;
-    createStdData();
+    createTransportData();
     _outputObjectInspector = hiveTypeInference.getOutputDataType();
     return _outputObjectInspector;
   }
@@ -82,14 +82,14 @@ public abstract class StdUdfWrapper extends GenericUDF {
     if (_udf == null) {
       return;
     }
-    StdUdfWrapper newWrapper = (StdUdfWrapper) newInstance;
+    HiveUDF newWrapper = (HiveUDF) newInstance;
     newWrapper._inputObjectInspectors = _inputObjectInspectors;
     newWrapper._typeFactory = _typeFactory;
     newWrapper._udf = _udf;
     newWrapper._nullableArguments = _udf.getAndCheckNullableArguments();
     newWrapper._udf.init(_typeFactory);
     newWrapper._requiredFilesProcessed = false;
-    newWrapper.createStdData();
+    newWrapper.createTransportData();
   }
 
   protected boolean containsNullValuedNonNullableArgument(DeferredObject[] arguments) throws HiveException {
@@ -111,9 +111,9 @@ public abstract class StdUdfWrapper extends GenericUDF {
     return false;
   }
 
-  protected Object wrap(DeferredObject hiveDeferredObject, ObjectInspector inputObjectInspector, Object stdData) {
+  protected Object wrap(DeferredObject deferredObject, ObjectInspector inputObjectInspector, Object transportData) {
     try {
-      Object hiveObject = hiveDeferredObject.get();
+      Object hiveObject = deferredObject.get();
       if (inputObjectInspector instanceof BinaryObjectInspector) {
         return hiveObject == null ? null : ByteBuffer.wrap(
             ((BinaryObjectInspector) inputObjectInspector).getPrimitiveJavaObject(hiveObject)
@@ -123,8 +123,8 @@ public abstract class StdUdfWrapper extends GenericUDF {
         return ((PrimitiveObjectInspector) inputObjectInspector).getPrimitiveJavaObject(hiveObject);
       } else {
         if (hiveObject != null) {
-          ((PlatformData) stdData).setUnderlyingData(hiveObject);
-          return stdData;
+          ((PlatformData) transportData).setUnderlyingData(hiveObject);
+          return transportData;
         } else {
           return null;
         }
@@ -134,14 +134,14 @@ public abstract class StdUdfWrapper extends GenericUDF {
     }
   }
 
-  protected abstract List<? extends UDF> getStdUdfImplementations();
+  protected abstract List<? extends UDF> getUdfImplementations();
 
   protected abstract Class<? extends TopLevelUDF> getTopLevelUdfClass();
 
-  protected void createStdData() {
+  protected void createTransportData() {
     _args = new Object[_inputObjectInspectors.length];
     for (int i = 0; i < _inputObjectInspectors.length; i++) {
-      _args[i] = HiveWrapper.createStdData(null, _inputObjectInspectors[i], _typeFactory);
+      _args[i] = HiveConverters.toTransportData(null, _inputObjectInspectors[i], _typeFactory);
     }
   }
 
@@ -151,7 +151,7 @@ public abstract class StdUdfWrapper extends GenericUDF {
     } else if (transportData instanceof Integer || transportData instanceof Long || transportData instanceof Boolean
       || transportData instanceof String || transportData instanceof Float || transportData instanceof Double
         || transportData instanceof ByteBuffer) {
-      return HiveWrapper.getPlatformDataForObjectInspector(transportData, _outputObjectInspector);
+      return HiveConverters.toPlatformData(transportData, _outputObjectInspector);
     } else {
       return ((PlatformData) transportData).getUnderlyingData();
     }
@@ -165,7 +165,7 @@ public abstract class StdUdfWrapper extends GenericUDF {
 
   private Object[] wrapConstants() {
     return Arrays.stream(_inputObjectInspectors)
-        .map(oi -> (oi instanceof ConstantObjectInspector) ? HiveWrapper.createStdData(
+        .map(oi -> (oi instanceof ConstantObjectInspector) ? HiveConverters.toTransportData(
             ((ConstantObjectInspector) oi).getWritableConstantValue(), oi, _typeFactory) : null)
         .toArray(Object[]::new);
   }
@@ -209,7 +209,7 @@ public abstract class StdUdfWrapper extends GenericUDF {
         result = ((UDF8) _udf).eval(args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7]);
         break;
       default:
-        throw new UnsupportedOperationException("eval not yet supported for StdUDF" + args.length);
+        throw new UnsupportedOperationException("eval not yet supported for UDF" + args.length);
     }
     return getPlatformData(result);
   }
@@ -253,7 +253,7 @@ public abstract class StdUdfWrapper extends GenericUDF {
                 args[7]);
         break;
       default:
-        throw new UnsupportedOperationException("getRequiredFiles not yet supported for StdUDF" + args.length);
+        throw new UnsupportedOperationException("getRequiredFiles not yet supported for UDF" + args.length);
     }
     _distributedCacheFiles = Arrays.stream(requiredFiles).map(requiredFile -> {
       try {

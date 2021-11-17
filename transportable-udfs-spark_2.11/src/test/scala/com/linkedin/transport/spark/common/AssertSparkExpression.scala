@@ -5,7 +5,7 @@
  */
 package com.linkedin.transport.spark.common
 
-import com.linkedin.transport.spark.{StdUDFRegistration, StdUdfWrapper}
+import com.linkedin.transport.spark.{UDFRegistration, SparkUDF}
 import org.apache.spark.SparkException
 import org.apache.spark.sql.SparkSession
 import org.testng.Assert
@@ -19,8 +19,8 @@ object AssertSparkExpression {
     .appName("transportable-udfs")
     .getOrCreate()
 
-  def registerStandardUdf(name: String, stdUDFWrapperClass: Class[_ <: StdUdfWrapper]): Unit = {
-    StdUDFRegistration.register(name, stdUDFWrapperClass)
+  def registerStandardUdf(name: String, stdUDFWrapperClass: Class[_ <: SparkUDF]): Unit = {
+    UDFRegistration.register(name, stdUDFWrapperClass)
   }
 
   def assertFunction(udf: String, expected: Any) {

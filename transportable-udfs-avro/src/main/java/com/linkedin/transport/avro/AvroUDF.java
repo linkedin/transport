@@ -28,7 +28,7 @@ import org.apache.avro.Schema;
  * Base class for all Avro Standard UDFs. It provides a standard way of type validation, binding, and output type
  * inference through its initialize() method.
  */
-public abstract class StdUdfWrapper {
+public abstract class AvroUDF {
 
   protected Schema[] _inputSchemas;
   protected UDF _udf;
@@ -47,14 +47,14 @@ public abstract class StdUdfWrapper {
    */
   public Schema initialize(Schema[] arguments) {
     AvroTypeInference avroTypeInference = new AvroTypeInference();
-    avroTypeInference.compile(arguments, getStdUdfImplementations(), getTopLevelUdfClass());
+    avroTypeInference.compile(arguments, getUdfImplementations(), getTopLevelUdfClass());
     _inputSchemas = avroTypeInference.getInputDataTypes();
-    _typeFactory = avroTypeInference.getStdFactory();
-    _udf = avroTypeInference.getStdUdf();
+    _typeFactory = avroTypeInference.getTypeFactory();
+    _udf = avroTypeInference.getUdf();
     _nullableArguments = _udf.getAndCheckNullableArguments();
     _udf.init(_typeFactory);
     _requiredFilesProcessed = false;
-    createStdData();
+    createTransportData();
     return avroTypeInference.getOutputDataType();
   }
 
@@ -67,7 +67,7 @@ public abstract class StdUdfWrapper {
     return false;
   }
 
-  protected Object wrap(Object avroObject, Schema inputSchema, Object stdData) {
+  protected Object wrap(Object avroObject, Schema inputSchema, Object data) {
     switch (inputSchema.getType()) {
       case INT:
       case LONG:
@@ -79,8 +79,8 @@ public abstract class StdUdfWrapper {
       case MAP:
       case RECORD:
         if (avroObject != null) {
-          ((PlatformData) stdData).setUnderlyingData(avroObject);
-          return stdData;
+          ((PlatformData) data).setUnderlyingData(avroObject);
+          return data;
         } else {
           return null;
         }
@@ -91,14 +91,14 @@ public abstract class StdUdfWrapper {
     }
   }
 
-  protected abstract List<? extends UDF> getStdUdfImplementations();
+  protected abstract List<? extends UDF> getUdfImplementations();
 
   protected abstract Class<? extends TopLevelUDF> getTopLevelUdfClass();
 
-  protected void createStdData() {
+  protected void createTransportData() {
     _args = new Object[_inputSchemas.length];
     for (int i = 0; i < _inputSchemas.length; i++) {
-      _args[i] = AvroWrapper.createStdData(null, _inputSchemas[i]);
+      _args[i] = AvroConverters.toTransportData(null, _inputSchemas[i]);
     }
   }
 
@@ -143,8 +143,8 @@ public abstract class StdUdfWrapper {
         result = ((UDF8) _udf).eval(args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7]);
         break;
       default:
-        throw new UnsupportedOperationException("eval not yet supported for StdUDF" + args.length);
+        throw new UnsupportedOperationException("eval not yet supported for UDF" + args.length);
     }
-    return AvroWrapper.getPlatformData(result);
+    return AvroConverters.toPlatformData(result);
   }
 }

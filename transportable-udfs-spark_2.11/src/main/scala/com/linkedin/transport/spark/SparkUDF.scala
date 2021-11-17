@@ -20,7 +20,7 @@ import org.apache.spark.sql.catalyst.expressions.Expression
 import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
 import org.apache.spark.sql.types.DataType
 
-abstract class StdUdfWrapper(_expressions: Seq[Expression]) extends Expression
+abstract class SparkUDF(_expressions: Seq[Expression]) extends Expression
   with CodegenFallback with Serializable {
 
   @transient private var _stdFactory: TypeFactory = _
@@ -38,9 +38,9 @@ abstract class StdUdfWrapper(_expressions: Seq[Expression]) extends Expression
 
   private def initialize(): DataType = {
     val sparkTypeInference = new SparkTypeInference
-    sparkTypeInference.compile(children.map(_.dataType).toArray, getStdUdfImplementations, getTopLevelUdfClass)
-    _stdFactory = sparkTypeInference.getStdFactory
-    _stdUdf = sparkTypeInference.getStdUdf
+    sparkTypeInference.compile(children.map(_.dataType).toArray, getUdfImplementations, getTopLevelUdfClass)
+    _stdFactory = sparkTypeInference.getTypeFactory
+    _stdUdf = sparkTypeInference.getUdf
     _nullableArguments = _stdUdf.getAndCheckNullableArguments
     _stdUdf.init(_stdFactory)
     getRequiredFiles()
@@ -115,7 +115,7 @@ abstract class StdUdfWrapper(_expressions: Seq[Expression]) extends Expression
         // constant is defined as non nullable and value is null, so return early
         return null // scalastyle:ignore return
       }
-      wrappedConstants(i) = SparkWrapper.createStdData(constantValue, _expressions(i).dataType)
+      wrappedConstants(i) = SparkConverters.toTransportData(constantValue, _expressions(i).dataType)
     }
     wrappedConstants
   }
@@ -163,7 +163,7 @@ abstract class StdUdfWrapper(_expressions: Seq[Expression]) extends Expression
           throw new UnsupportedOperationException("eval not yet supported for StdUDF" + _expressions.length)
       }
 
-      SparkWrapper.getPlatformData(stdResult)
+      SparkConverters.toPlatformData(stdResult)
     }
   } // scalastyle:on magic.number
 
@@ -175,7 +175,7 @@ abstract class StdUdfWrapper(_expressions: Seq[Expression]) extends Expression
         // argument is defined as non nullable and value is null, so return early
         return null // scalastyle:ignore return
       }
-      wrappedArguments(i) = SparkWrapper.createStdData(evaluatedExpression, _expressions(i).dataType)
+      wrappedArguments(i) = SparkConverters.toTransportData(evaluatedExpression, _expressions(i).dataType)
     }
     wrappedArguments
   }
@@ -195,12 +195,12 @@ abstract class StdUdfWrapper(_expressions: Seq[Expression]) extends Expression
     }
   }
 
-  protected def getStdUdfImplementations: List[_ <: UDF]
+  protected def getUdfImplementations: List[_ <: UDF]
 
   protected def getTopLevelUdfClass: Class[_ <: TopLevelUDF]
 
   override def makeCopy(newArgs: Array[AnyRef]): Expression = {
-    val newInstance = super.makeCopy(newArgs).asInstanceOf[StdUdfWrapper]
+    val newInstance = super.makeCopy(newArgs).asInstanceOf[SparkUDF]
     if (newInstance != null) {
       newInstance._stdFactory = _stdFactory
       newInstance._stdUdf = _stdUdf

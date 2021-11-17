@@ -7,7 +7,7 @@ package com.linkedin.transport.hive.data;
 
 import com.linkedin.transport.api.TypeFactory;
 import com.linkedin.transport.api.data.MapData;
-import com.linkedin.transport.hive.HiveWrapper;
+import com.linkedin.transport.hive.HiveConverters;
 import java.util.AbstractCollection;
 import java.util.AbstractSet;
 import java.util.Collection;
@@ -44,16 +44,16 @@ public class HiveMapData<K, V> extends HiveData implements MapData<K, V> {
     Object mapObj = _object;
     Object keyObj;
     try {
-      keyObj = HiveWrapper.getPlatformDataForObjectInspector(key, _keyObjectInspector);
+      keyObj = HiveConverters.toPlatformData(key, _keyObjectInspector);
     } catch (RuntimeException e) {
       // Cannot convert key argument to Map's KeyOI. So convert both the map and the key arg to
       // objects having standard OIs
       mapOI = (MapObjectInspector) getStandardObjectInspector();
-      mapObj = HiveWrapper.getStandardObject(this);
-      keyObj = HiveWrapper.getStandardObject(key);
+      mapObj = HiveConverters.getStandardObject(this);
+      keyObj = HiveConverters.getStandardObject(key);
     }
 
-    return (V) HiveWrapper.createStdData(
+    return (V) HiveConverters.toTransportData(
         mapOI.getMapValueElement(mapObj, keyObj),
         mapOI.getMapValueObjectInspector(), _typeFactory);
   }
@@ -61,8 +61,8 @@ public class HiveMapData<K, V> extends HiveData implements MapData<K, V> {
   @Override
   public void put(K key, V value) {
     if (_mapObjectInspector instanceof SettableMapObjectInspector) {
-      Object keyObj = HiveWrapper.getPlatformDataForObjectInspector(key, _keyObjectInspector);
-      Object valueObj = HiveWrapper.getPlatformDataForObjectInspector(value, _valueObjectInspector);
+      Object keyObj = HiveConverters.toPlatformData(key, _keyObjectInspector);
+      Object valueObj = HiveConverters.toPlatformData(value, _valueObjectInspector);
 
       ((SettableMapObjectInspector) _mapObjectInspector).put(
           _object,
@@ -92,7 +92,7 @@ public class HiveMapData<K, V> extends HiveData implements MapData<K, V> {
 
           @Override
           public K next() {
-            return (K) HiveWrapper.createStdData(mapKeyIterator.next(), _keyObjectInspector, _typeFactory);
+            return (K) HiveConverters.toTransportData(mapKeyIterator.next(), _keyObjectInspector, _typeFactory);
           }
         };
       }
@@ -120,7 +120,7 @@ public class HiveMapData<K, V> extends HiveData implements MapData<K, V> {
 
           @Override
           public V next() {
-            return (V) HiveWrapper.createStdData(mapValueIterator.next(), _valueObjectInspector, _typeFactory);
+            return (V) HiveConverters.toTransportData(mapValueIterator.next(), _valueObjectInspector, _typeFactory);
           }
         };
       }
@@ -137,12 +137,12 @@ public class HiveMapData<K, V> extends HiveData implements MapData<K, V> {
     Object mapObj = _object;
     Object keyObj;
     try {
-      keyObj = HiveWrapper.getPlatformDataForObjectInspector(key, _keyObjectInspector);
+      keyObj = HiveConverters.toPlatformData(key, _keyObjectInspector);
     } catch (RuntimeException e) {
       // Cannot convert key argument to Map's KeyOI. So convertboth the map and the key arg to
       // objects having standard OIs
-      mapObj = HiveWrapper.getStandardObject(this);
-      keyObj = HiveWrapper.getStandardObject(key);
+      mapObj = HiveConverters.getStandardObject(this);
+      keyObj = HiveConverters.getStandardObject(key);
     }
 
     return ((Map) mapObj).containsKey(keyObj);

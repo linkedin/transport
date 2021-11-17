@@ -26,7 +26,7 @@ import org.testng.annotations.Test;
 import static org.testng.Assert.*;
 
 
-public class TestAvroWrapper {
+public class TestAvroConverters {
 
   private Schema createSchema(String typeName) {
     return createSchema("testField", typeName);
@@ -50,17 +50,17 @@ public class TestAvroWrapper {
 
     GenericRecord record1 = new GenericData.Record(structSchema);
     record1.put("field1", "A");
-    Object stdEnumData1 = AvroWrapper.createStdData(record1.get("field1"),
+    Object enumData1 = AvroConverters.toTransportData(record1.get("field1"),
         Schema.createEnum("SampleEnum", "", "", Arrays.asList("A", "B")));
-    assertTrue(stdEnumData1 instanceof String);
-    assertEquals("A", ((String) stdEnumData1));
+    assertTrue(enumData1 instanceof String);
+    assertEquals("A", ((String) enumData1));
 
     GenericRecord record2 = new GenericData.Record(structSchema);
     record1.put("field1", new GenericData.EnumSymbol(field1, "A"));
-    Object stdEnumData2 = AvroWrapper.createStdData(record1.get("field1"),
+    Object enumData2 = AvroConverters.toTransportData(record1.get("field1"),
         Schema.createEnum("SampleEnum", "", "", Arrays.asList("A", "B")));
-    assertTrue(stdEnumData2 instanceof String);
-    assertEquals("A", ((String) stdEnumData2));
+    assertTrue(enumData2 instanceof String);
+    assertEquals("A", ((String) enumData2));
   }
 
   @Test
@@ -68,16 +68,16 @@ public class TestAvroWrapper {
     Schema elementType = createSchema("\"int\"");
     Schema arraySchema = Schema.createArray(elementType);
 
-    DataType stdArrayType = AvroWrapper.createStdType(arraySchema);
-    assertTrue(stdArrayType instanceof AvroArrayType);
-    assertEquals(arraySchema, ((AvroArrayType) stdArrayType).underlyingType());
-    assertEquals(elementType, ((AvroArrayType) stdArrayType).elementType().underlyingType());
+    DataType arrayType = AvroConverters.toTransportType(arraySchema);
+    assertTrue(arrayType instanceof AvroArrayType);
+    assertEquals(arraySchema, ((AvroArrayType) arrayType).underlyingType());
+    assertEquals(elementType, ((AvroArrayType) arrayType).elementType().underlyingType());
 
     GenericArray<Integer> value = new GenericData.Array<>(arraySchema, Arrays.asList(1, 2));
-    Object stdArrayData = AvroWrapper.createStdData(value, arraySchema);
-    assertTrue(stdArrayData instanceof AvroArrayData);
-    assertEquals(2, ((AvroArrayData) stdArrayData).size());
-    assertEquals(value, ((AvroArrayData) stdArrayData).getUnderlyingData());
+    Object arrayData = AvroConverters.toTransportData(value, arraySchema);
+    assertTrue(arrayData instanceof AvroArrayData);
+    assertEquals(2, ((AvroArrayData) arrayData).size());
+    assertEquals(value, ((AvroArrayData) arrayData).getUnderlyingData());
   }
 
   @Test
@@ -85,16 +85,16 @@ public class TestAvroWrapper {
     Schema valueType = createSchema("\"long\"");
     Schema mapSchema = Schema.createMap(valueType);
 
-    DataType stdMapType = AvroWrapper.createStdType(mapSchema);
-    assertTrue(stdMapType instanceof AvroMapType);
-    assertEquals(mapSchema, stdMapType.underlyingType());
-    assertEquals(valueType, ((AvroMapType) stdMapType).valueType().underlyingType());
+    DataType mapType = AvroConverters.toTransportType(mapSchema);
+    assertTrue(mapType instanceof AvroMapType);
+    assertEquals(mapSchema, mapType.underlyingType());
+    assertEquals(valueType, ((AvroMapType) mapType).valueType().underlyingType());
 
     Map<String, Long> value = ImmutableMap.of("foo", 1L, "bar", 2L);
-    Object stdMapData = AvroWrapper.createStdData(value, mapSchema);
-    assertTrue(stdMapData instanceof AvroMapData);
-    assertEquals(2, ((AvroMapData) stdMapData).size());
-    assertEquals(value, ((AvroMapData) stdMapData).getUnderlyingData());
+    Object mapData = AvroConverters.toTransportData(value, mapSchema);
+    assertTrue(mapData instanceof AvroMapData);
+    assertEquals(2, ((AvroMapData) mapData).size());
+    assertEquals(value, ((AvroMapData) mapData).getUnderlyingData());
   }
 
   @Test
@@ -106,18 +106,18 @@ public class TestAvroWrapper {
         new Schema.Field("field2", field2, null, null)
     ));
 
-    DataType stdStructType = AvroWrapper.createStdType(structSchema);
-    assertTrue(stdStructType instanceof AvroRowType);
-    assertEquals(structSchema, stdStructType.underlyingType());
-    assertEquals(field1, ((AvroRowType) stdStructType).fieldTypes().get(0).underlyingType());
-    assertEquals(field2, ((AvroRowType) stdStructType).fieldTypes().get(1).underlyingType());
+    DataType rowType = AvroConverters.toTransportType(structSchema);
+    assertTrue(rowType instanceof AvroRowType);
+    assertEquals(structSchema, rowType.underlyingType());
+    assertEquals(field1, ((AvroRowType) rowType).fieldTypes().get(0).underlyingType());
+    assertEquals(field2, ((AvroRowType) rowType).fieldTypes().get(1).underlyingType());
 
     GenericRecord value = new GenericData.Record(structSchema);
     value.put("field1", 1);
     value.put("field2", 2.0);
-    Object stdStructData = AvroWrapper.createStdData(value, structSchema);
-    assertTrue(stdStructData instanceof AvroRowData);
-    AvroRowData avroStruct = (AvroRowData) stdStructData;
+    Object rowData = AvroConverters.toTransportData(value, structSchema);
+    assertTrue(rowData instanceof AvroRowData);
+    AvroRowData avroStruct = (AvroRowData) rowData;
     assertEquals(2, avroStruct.fields().size());
     assertEquals(value, avroStruct.getUnderlyingData());
     assertEquals(1,  avroStruct.getField("field1"));
@@ -129,23 +129,23 @@ public class TestAvroWrapper {
     Schema nonNullType = createSchema("\"long\"");
     Schema unionSchema = Schema.createUnion(Arrays.asList(nonNullType, Schema.create(Schema.Type.NULL)));
 
-    DataType stdLongType = AvroWrapper.createStdType(unionSchema);
-    assertTrue(stdLongType instanceof AvroLongType);
-    assertEquals(nonNullType, stdLongType.underlyingType());
+    DataType longType = AvroConverters.toTransportType(unionSchema);
+    assertTrue(longType instanceof AvroLongType);
+    assertEquals(nonNullType, longType.underlyingType());
 
-    Object stdLongData = AvroWrapper.createStdData(1L, unionSchema);
-    assertTrue(stdLongData instanceof Long);
-    assertEquals(1L, stdLongData);
+    Object longData = AvroConverters.toTransportData(1L, unionSchema);
+    assertTrue(longData instanceof Long);
+    assertEquals(1L, longData);
 
-    Object stdNullData = AvroWrapper.createStdData(null, unionSchema);
-    assertNull(stdNullData);
+    Object nullData = AvroConverters.toTransportData(null, unionSchema);
+    assertNull(nullData);
   }
 
   @Test(expectedExceptions = RuntimeException.class)
   public void testInvalidUnionType1() {
     Schema nonNullType = createSchema("\"long\"");
     Schema unionSchema = Schema.createUnion(Arrays.asList(nonNullType));
-    AvroWrapper.createStdType(unionSchema);
+    AvroConverters.toTransportType(unionSchema);
   }
 
   @Test(expectedExceptions = RuntimeException.class)
@@ -153,7 +153,7 @@ public class TestAvroWrapper {
     Schema nonNullType1 = createSchema("\"long\"");
     Schema nonNullType2 = createSchema("\"int\"");
     Schema unionSchema = Schema.createUnion(Arrays.asList(nonNullType1, nonNullType2));
-    AvroWrapper.createStdData(1L, unionSchema);
+    AvroConverters.toTransportData(1L, unionSchema);
   }
 
   @Test
@@ -170,21 +170,21 @@ public class TestAvroWrapper {
     GenericRecord record1 = new GenericData.Record(structSchema);
     record1.put("field1", 1);
     record1.put("field2", 3.0);
-    AvroRowData avroStruct1 = (AvroRowData) AvroWrapper.createStdData(record1, structSchema);
+    AvroRowData avroStruct1 = (AvroRowData) AvroConverters.toTransportData(record1, structSchema);
     assertEquals(2, avroStruct1.fields().size());
     assertEquals(3.0,  avroStruct1.getField("field2"));
 
     GenericRecord record2 = new GenericData.Record(structSchema);
     record2.put("field1", 1);
     record2.put("field2", null);
-    AvroRowData avroStruct2 = (AvroRowData) AvroWrapper.createStdData(record2, structSchema);
+    AvroRowData avroStruct2 = (AvroRowData) AvroConverters.toTransportData(record2, structSchema);
     assertEquals(2, avroStruct2.fields().size());
     assertNull(avroStruct2.getField("field2"));
     assertNull(avroStruct2.fields().get(1));
 
     GenericRecord record3 = new GenericData.Record(structSchema);
     record3.put("field1", 1);
-    AvroRowData avroStruct3 = (AvroRowData) AvroWrapper.createStdData(record3, structSchema);
+    AvroRowData avroStruct3 = (AvroRowData) AvroConverters.toTransportData(record3, structSchema);
     assertEquals(2, avroStruct3.fields().size());
     assertNull(avroStruct3.getField("field2"));
     assertNull(avroStruct3.fields().get(1));

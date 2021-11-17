@@ -6,7 +6,7 @@
 package com.linkedin.transport.hive.typesystem;
 
 import com.linkedin.transport.api.TypeFactory;
-import com.linkedin.transport.hive.HiveFactory;
+import com.linkedin.transport.hive.HiveTypeFactory;
 import com.linkedin.transport.typesystem.AbstractBoundVariables;
 import com.linkedin.transport.typesystem.AbstractTypeFactory;
 import com.linkedin.transport.typesystem.AbstractTypeInference;
@@ -27,12 +27,12 @@ public class HiveTypeInference extends AbstractTypeInference<ObjectInspector> {
   }
 
   @Override
-  protected TypeFactory createStdFactory(AbstractBoundVariables<ObjectInspector> boundVariables) {
-    return new HiveFactory(boundVariables);
+  protected TypeFactory createTypeFactory(AbstractBoundVariables<ObjectInspector> boundVariables) {
+    return new HiveTypeFactory(boundVariables);
   }
 
   @Override
-  protected AbstractTypeFactory<ObjectInspector> getTypeFactory() {
-    return new HiveTypeFactory();
+  protected AbstractTypeFactory<ObjectInspector> getTypeFactoryFacade() {
+    return new com.linkedin.transport.hive.typesystem.HiveTypeFactory();
   }
 }

@@ -26,7 +26,7 @@ public abstract class AbstractTypeInference<T> {
     _typeSystem = getTypeSystem();
   }
 
-  private static String singaturesToString(Collection<List<String>> signatures) {
+  private static String signaturesToString(Collection<List<String>> signatures) {
     return signatures.stream().map(l -> String.join(", ", l)).collect(Collectors.joining("\n"));
   }
 
@@ -94,13 +94,13 @@ public abstract class AbstractTypeInference<T> {
 
   public void compile(
       T[] dataTypes,
-      List<? extends UDF> stdUdfImplementations,
+      List<? extends UDF> udfImplementations,
       Class<? extends TopLevelUDF> topLevelUdfClass) {
-    Preconditions.checkArgument(stdUdfImplementations.size() > 0,
+    Preconditions.checkArgument(udfImplementations.size() > 0,
         "Empty Standard UDF Implementations list");
     AbstractBoundVariables<T> boundVariables = null;
     boolean atLeastOneInputParametersSignaturesBindingSuccess = false;
-    for (UDF udf : stdUdfImplementations) {
+    for (UDF udf : udfImplementations) {
       List<String> inputParameterSignatures = udf.getInputParameterSignatures();
       if (inputParameterSignatures.size() != dataTypes.length) {
         continue;
@@ -114,7 +114,7 @@ public abstract class AbstractTypeInference<T> {
       }
       if (currentInputParametersSignaturesBindingSuccess) {
         _inputDataTypes = dataTypes;
-        _typeFactory = createStdFactory(boundVariables);
+        _typeFactory = createTypeFactory(boundVariables);
         _udf = udf;
         atLeastOneInputParametersSignaturesBindingSuccess = true;
         break;
@@ -127,11 +127,11 @@ public abstract class AbstractTypeInference<T> {
           + ". Received UDF inputs of type "
           + dataTypesToString(dataTypes)
           + " while expecting one of the following type signatures:\n"
-          + singaturesToString(stdUdfImplementations.stream().map(UDF::getInputParameterSignatures)
+          + signaturesToString(udfImplementations.stream().map(UDF::getInputParameterSignatures)
           .collect(Collectors.toList())));
     }
 
-    _outputDataType = getTypeFactory().createType(
+    _outputDataType = getTypeFactoryFacade().createType(
         TypeSignature.parse(_udf.getOutputParameterSignature()),
         boundVariables
     );
@@ -177,11 +177,11 @@ public abstract class AbstractTypeInference<T> {
 
   protected abstract AbstractBoundVariables<T> createBoundVariables();
 
-  protected abstract TypeFactory createStdFactory(AbstractBoundVariables<T> boundVariables);
+  protected abstract TypeFactory createTypeFactory(AbstractBoundVariables<T> boundVariables);
 
-  protected abstract AbstractTypeFactory<T> getTypeFactory();
+  protected abstract AbstractTypeFactory<T> getTypeFactoryFacade();
 
-  public TypeFactory getStdFactory() {
+  public TypeFactory getTypeFactory() {
     return _typeFactory;
   }
 
@@ -193,7 +193,7 @@ public abstract class AbstractTypeInference<T> {
     return _outputDataType;
   }
 
-  public UDF getStdUdf() {
+  public UDF getUdf() {
     return _udf;
   }
 }

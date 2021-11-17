@@ -7,7 +7,7 @@ package com.linkedin.transport.trino.types;
 
 import com.linkedin.transport.api.types.DataType;
 import com.linkedin.transport.api.types.ArrayType;
-import com.linkedin.transport.trino.TrinoWrapper;
+import com.linkedin.transport.trino.TrinoConverters;
 
 
 public class TrinoArrayType implements ArrayType {
@@ -20,7 +20,7 @@ public class TrinoArrayType implements ArrayType {
 
   @Override
   public DataType elementType() {
-    return TrinoWrapper.createStdType(arrayType.getElementType());
+    return TrinoConverters.toTransportType(arrayType.getElementType());
   }
 
   @Override

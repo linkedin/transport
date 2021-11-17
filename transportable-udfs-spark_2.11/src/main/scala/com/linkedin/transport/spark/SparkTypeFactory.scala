@@ -10,13 +10,12 @@ import com.linkedin.transport.api.data.{ArrayData, MapData, RowData}
 
 import java.util.{List => JavaList}
 import com.linkedin.transport.spark.data._
-import com.linkedin.transport.spark.typesystem.SparkTypeFactory
 import com.linkedin.transport.typesystem.{AbstractBoundVariables, TypeSignature}
 import org.apache.spark.sql.types.{ArrayType, DataType, MapType, StructField, StructType}
 
-class SparkFactory(private val _boundVariables: AbstractBoundVariables[DataType]) extends TypeFactory {
+class SparkTypeFactory(private val _boundVariables: AbstractBoundVariables[DataType]) extends TypeFactory {
 
-  private val _sparkTypeFactory: SparkTypeFactory = new SparkTypeFactory
+  private val _sparkTypeFactory: com.linkedin.transport.spark.typesystem.SparkTypeFactory = new com.linkedin.transport.spark.typesystem.SparkTypeFactory
 
   override def createArray(dataType: com.linkedin.transport.api.types.DataType): ArrayData[_] = createArray(dataType, 0)
 
@@ -54,7 +53,7 @@ class SparkFactory(private val _boundVariables: AbstractBoundVariables[DataType]
     SparkRowData(null, structType)
   }
 
-  override def createDataType(typeSignature: String): com.linkedin.transport.api.types.DataType = SparkWrapper.createStdType(
+  override def createDataType(typeSignature: String): com.linkedin.transport.api.types.DataType = SparkConverters.toTransportType(
     _sparkTypeFactory.createType(TypeSignature.parse(typeSignature), _boundVariables))
 
 }

@@ -26,12 +26,12 @@ public class GenericTypeInference extends AbstractTypeInference<TestType> {
   }
 
   @Override
-  protected TypeFactory createStdFactory(AbstractBoundVariables<TestType> boundVariables) {
+  protected TypeFactory createTypeFactory(AbstractBoundVariables<TestType> boundVariables) {
     return new GenericFactory(boundVariables);
   }
 
   @Override
-  protected AbstractTypeFactory<TestType> getTypeFactory() {
+  protected AbstractTypeFactory<TestType> getTypeFactoryFacade() {
     return new GenericTypeFactory();
   }
 }

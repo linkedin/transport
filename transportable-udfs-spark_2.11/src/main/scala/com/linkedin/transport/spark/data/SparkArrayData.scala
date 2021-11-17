@@ -8,7 +8,7 @@ package com.linkedin.transport.spark.data
 import java.util
 
 import com.linkedin.transport.api.data.{ArrayData, PlatformData}
-import com.linkedin.transport.spark.SparkWrapper
+import com.linkedin.transport.spark.SparkConverters
 import org.apache.spark.sql.types.{ArrayType, DataType}
 
 import scala.collection.mutable.ArrayBuffer
@@ -28,7 +28,7 @@ case class SparkArrayData[E](private var _arrayData: org.apache.spark.sql.cataly
       _mutableBuffer = createMutableArray()
     }
     // TODO: Does not support inserting nulls. Should we?
-    _mutableBuffer.append(SparkWrapper.getPlatformData(e.asInstanceOf[Object]))
+    _mutableBuffer.append(SparkConverters.toPlatformData(e.asInstanceOf[Object]))
   }
 
   private def createMutableArray(): ArrayBuffer[Any] = {
@@ -79,9 +79,9 @@ case class SparkArrayData[E](private var _arrayData: org.apache.spark.sql.cataly
 
   override def get(idx: Int): E = {
     if (_mutableBuffer == null) {
-      SparkWrapper.createStdData(_arrayData.get(idx, _elementType), _elementType).asInstanceOf[E]
+      SparkConverters.toTransportData(_arrayData.get(idx, _elementType), _elementType).asInstanceOf[E]
     } else {
-      SparkWrapper.createStdData(_mutableBuffer(idx), _elementType).asInstanceOf[E]
+      SparkConverters.toTransportData(_mutableBuffer(idx), _elementType).asInstanceOf[E]
     }
   }
 }

@@ -6,27 +6,27 @@
 package com.linkedin.transport.test.trino;
 
 import com.linkedin.transport.api.udf.UDF;
-import com.linkedin.transport.trino.StdUdfWrapper;
+import com.linkedin.transport.trino.TrinoUDF;
 import java.lang.reflect.InvocationTargetException;
 
 
 /**
- * A {@link StdUdfWrapper} whose constructor takes enclosing {@link UDF} classes as parameters
+ * A {@link TrinoUDF} whose constructor takes enclosing {@link UDF} classes as parameters
  *
  * The wrapper's constructor here is parameterized so that the same wrapper can be used for all UDFs throughout the
  * test framework rather than generating UDF specific wrappers
  */
-public class TrinoTestStdUDFWrapper extends StdUdfWrapper {
+public class TrinoTestTrinoUDF extends TrinoUDF {
 
   private final Class<? extends UDF> _udfClass;
 
-  public TrinoTestStdUDFWrapper(Class<? extends UDF> udfClass) {
+  public TrinoTestTrinoUDF(Class<? extends UDF> udfClass) {
     super(createInstance(udfClass));
     _udfClass = udfClass;
   }
 
   @Override
-  protected UDF getStdUDF() {
+  protected UDF getUDF() {
     return createInstance(_udfClass);
   }
 

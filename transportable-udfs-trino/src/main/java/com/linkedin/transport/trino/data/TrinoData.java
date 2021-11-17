@@ -10,7 +10,7 @@ import io.trino.spi.block.BlockBuilder;
 
 
 /**
- * A common super class for all Trino specific implementations of StdData types
+ * A common super class for all Trino specific implementations of data types
  */
 public abstract class TrinoData implements PlatformData {
   /**

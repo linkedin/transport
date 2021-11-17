@@ -13,7 +13,6 @@ import com.linkedin.transport.api.types.DataType;
 import com.linkedin.transport.avro.data.AvroArrayData;
 import com.linkedin.transport.avro.data.AvroMapData;
 import com.linkedin.transport.avro.data.AvroRowData;
-import com.linkedin.transport.avro.typesystem.AvroTypeFactory;
 import com.linkedin.transport.typesystem.AbstractBoundVariables;
 import com.linkedin.transport.typesystem.TypeSignature;
 import java.util.ArrayList;
@@ -25,14 +24,14 @@ import org.apache.avro.Schema;
 import static org.apache.avro.Schema.*;
 
 
-public class AvroFactory implements TypeFactory {
+public class AvroTypeFactory implements TypeFactory {
 
   final AbstractBoundVariables<Schema> _boundVariables;
-  final AvroTypeFactory _typeFactory;
+  final com.linkedin.transport.avro.typesystem.AvroTypeFactory _typeFactory;
 
-  public AvroFactory(AbstractBoundVariables<Schema> boundVariables) {
+  public AvroTypeFactory(AbstractBoundVariables<Schema> boundVariables) {
     _boundVariables = boundVariables;
-    _typeFactory = new AvroTypeFactory();
+    _typeFactory = new com.linkedin.transport.avro.typesystem.AvroTypeFactory();
   }
 
   @Override
@@ -77,6 +76,6 @@ public class AvroFactory implements TypeFactory {
 
   @Override
   public DataType createDataType(String typeSignature) {
-    return AvroWrapper.createStdType(_typeFactory.createType(TypeSignature.parse(typeSignature), _boundVariables));
+    return AvroConverters.toTransportType(_typeFactory.createType(TypeSignature.parse(typeSignature), _boundVariables));
   }
 }

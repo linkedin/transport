@@ -8,7 +8,7 @@ package com.linkedin.transport.spark.data
 import java.util
 
 import com.linkedin.transport.api.data.{MapData, PlatformData}
-import com.linkedin.transport.spark.SparkWrapper
+import com.linkedin.transport.spark.SparkConverters
 import org.apache.spark.sql.catalyst.util.ArrayBasedMapData
 import org.apache.spark.sql.types.MapType
 
@@ -28,8 +28,8 @@ case class SparkMapData[K, V](private var _mapData: org.apache.spark.sql.catalys
       _mutableMap = createMutableMap()
     }
     _mutableMap.put(
-      SparkWrapper.getPlatformData(key.asInstanceOf[Object]),
-      SparkWrapper.getPlatformData(value.asInstanceOf[Object])
+      SparkConverters.toPlatformData(key.asInstanceOf[Object]),
+      SparkConverters.toPlatformData(value.asInstanceOf[Object])
     )
   }
 
@@ -39,7 +39,7 @@ case class SparkMapData[K, V](private var _mapData: org.apache.spark.sql.catalys
       override def iterator(): util.Iterator[K] = new util.Iterator[K] {
         private val keysIterator = if (_mutableMap == null) _mapData.keyArray().array.iterator else _mutableMap.keysIterator
 
-        override def next(): K = SparkWrapper.createStdData(keysIterator.next(), _keyType).asInstanceOf[K]
+        override def next(): K = SparkConverters.toTransportData(keysIterator.next(), _keyType).asInstanceOf[K]
 
         override def hasNext: Boolean = keysIterator.hasNext
       }
@@ -62,7 +62,7 @@ case class SparkMapData[K, V](private var _mapData: org.apache.spark.sql.catalys
       override def iterator(): util.Iterator[V] = new util.Iterator[V] {
         private val valueIterator = if (_mutableMap == null) _mapData.valueArray().array.iterator else _mutableMap.valuesIterator
 
-        override def next(): V = SparkWrapper.createStdData(valueIterator.next(), _valueType).asInstanceOf[V]
+        override def next(): V = SparkConverters.toTransportData(valueIterator.next(), _valueType).asInstanceOf[V]
 
         override def hasNext: Boolean = valueIterator.hasNext
       }
@@ -79,7 +79,7 @@ case class SparkMapData[K, V](private var _mapData: org.apache.spark.sql.catalys
     if (_mutableMap == null) {
       _mutableMap = createMutableMap()
     }
-    SparkWrapper.createStdData(_mutableMap.get(SparkWrapper.getPlatformData(key.asInstanceOf[Object])).orNull, _valueType)
+    SparkConverters.toTransportData(_mutableMap.get(SparkConverters.toPlatformData(key.asInstanceOf[Object])).orNull, _valueType)
       .asInstanceOf[V]
   }
 

@@ -33,19 +33,19 @@ import static io.trino.metadata.SignatureBinder.*;
 import static io.trino.sql.analyzer.TypeSignatureTranslator.*;
 
 
-public class TrinoFactory implements TypeFactory {
+public class TrinoTypeFactory implements TypeFactory {
 
   final FunctionBinding functionBinding;
   final FunctionDependencies functionDependencies;
   final Metadata metadata;
 
-  public TrinoFactory(FunctionBinding functionBinding, FunctionDependencies functionDependencies) {
+  public TrinoTypeFactory(FunctionBinding functionBinding, FunctionDependencies functionDependencies) {
     this.functionBinding = functionBinding;
     this.functionDependencies = functionDependencies;
     this.metadata = null;
   }
 
-  public TrinoFactory(FunctionBinding functionBinding, Metadata metadata) {
+  public TrinoTypeFactory(FunctionBinding functionBinding, Metadata metadata) {
     this.functionBinding = functionBinding;
     this.functionDependencies = null;
     this.metadata = metadata;
@@ -68,14 +68,23 @@ public class TrinoFactory implements TypeFactory {
 
   @Override
   public TrinoRowData createStruct(List<String> fieldNames, List<DataType> fieldTypes) {
-    return new TrinoRowData(fieldNames,
-        fieldTypes.stream().map(stdType -> (Type) stdType.underlyingType()).collect(Collectors.toList()), this);
+    return new TrinoRowData(
+        fieldNames,
+        fieldTypes.stream()
+            .map(dataType -> (Type) dataType.underlyingType())
+            .collect(Collectors.toList()),
+        this
+    );
   }
 
   @Override
   public TrinoRowData createStruct(List<DataType> fieldTypes) {
     return new TrinoRowData(
-        fieldTypes.stream().map(stdType -> (Type) stdType.underlyingType()).collect(Collectors.toList()), this);
+        fieldTypes.stream()
+            .map(dataType -> (Type) dataType.underlyingType())
+            .collect(Collectors.toList()),
+        this
+    );
   }
 
   @Override
@@ -86,10 +95,10 @@ public class TrinoFactory implements TypeFactory {
   @Override
   public DataType createDataType(String typeSignature) {
     if (metadata != null) {
-      return TrinoWrapper.createStdType(
+      return TrinoConverters.toTransportType(
           metadata.getType(applyBoundVariables(parseTypeSignature(typeSignature, ImmutableSet.of()), functionBinding)));
     }
-    return TrinoWrapper.createStdType(
+    return TrinoConverters.toTransportType(
           functionDependencies.getType(applyBoundVariables(parseTypeSignature(typeSignature, ImmutableSet.of()), functionBinding)));
   }
 

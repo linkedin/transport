@@ -8,14 +8,14 @@ package com.linkedin.transport.test.hive.udf;
 import com.google.common.collect.ImmutableList;
 import com.linkedin.transport.api.udf.UDF;
 import com.linkedin.transport.api.udf.TopLevelUDF;
-import com.linkedin.transport.hive.StdUdfWrapper;
+import com.linkedin.transport.hive.HiveUDF;
 import java.util.List;
 
 
-public class MapFromEntriesWrapper extends StdUdfWrapper {
+public class MapFromEntriesWrapper extends HiveUDF {
 
   @Override
-  protected List<? extends UDF> getStdUdfImplementations() {
+  protected List<? extends UDF> getUdfImplementations() {
     return ImmutableList.of(new MapFromEntries());
   }
 

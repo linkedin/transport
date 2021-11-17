@@ -14,7 +14,6 @@ import com.linkedin.transport.hive.data.HiveArrayData;
 import com.linkedin.transport.hive.data.HiveMapData;
 import com.linkedin.transport.hive.data.HiveRowData;
 import com.linkedin.transport.hive.types.objectinspector.CacheableObjectInspectorConverters;
-import com.linkedin.transport.hive.typesystem.HiveTypeFactory;
 import com.linkedin.transport.typesystem.AbstractBoundVariables;
 import com.linkedin.transport.typesystem.TypeSignature;
 import java.util.ArrayList;
@@ -31,16 +30,16 @@ import org.apache.hadoop.hive.serde2.objectinspector.ObjectInspectorFactory;
 import org.apache.hadoop.hive.serde2.objectinspector.StructObjectInspector;
 
 
-public class HiveFactory implements TypeFactory {
+public class HiveTypeFactory implements TypeFactory {
 
   final AbstractBoundVariables<ObjectInspector> _boundVariables;
   final CacheableObjectInspectorConverters _converters;
-  final HiveTypeFactory _typeFactory;
+  final com.linkedin.transport.hive.typesystem.HiveTypeFactory _typeFactory;
 
-  public HiveFactory(AbstractBoundVariables<ObjectInspector> boundVariables) {
+  public HiveTypeFactory(AbstractBoundVariables<ObjectInspector> boundVariables) {
     _boundVariables = boundVariables;
     _converters = new CacheableObjectInspectorConverters();
-    _typeFactory = new HiveTypeFactory();
+    _typeFactory = new com.linkedin.transport.hive.typesystem.HiveTypeFactory();
   }
 
   @Override
@@ -105,7 +104,7 @@ public class HiveFactory implements TypeFactory {
 
   @Override
   public DataType createDataType(String typeSignature) {
-    return HiveWrapper.createStdType(
+    return HiveConverters.toTransportType(
         _typeFactory.createType(TypeSignature.parse(typeSignature), _boundVariables)
     );
   }
