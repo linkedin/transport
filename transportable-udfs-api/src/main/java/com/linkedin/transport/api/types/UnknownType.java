@@ -5,6 +5,6 @@
  */
 package com.linkedin.transport.api.types;
 
-/** A {@link StdType} representing a {@link java.nio.ByteBuffer} type. */
-public interface StdBinaryType extends StdType {
+/** A {@link DataType} representing a unknown type. */
+public interface UnknownType extends DataType {
 }

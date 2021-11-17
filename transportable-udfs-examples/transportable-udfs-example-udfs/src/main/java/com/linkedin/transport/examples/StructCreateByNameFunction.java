@@ -6,18 +6,18 @@
 package com.linkedin.transport.examples;
 
 import com.google.common.collect.ImmutableList;
-import com.linkedin.transport.api.StdFactory;
+import com.linkedin.transport.api.TypeFactory;
 import com.linkedin.transport.api.data.RowData;
-import com.linkedin.transport.api.types.StdType;
-import com.linkedin.transport.api.udf.StdUDF4;
-import com.linkedin.transport.api.udf.TopLevelStdUDF;
+import com.linkedin.transport.api.types.DataType;
+import com.linkedin.transport.api.udf.UDF4;
+import com.linkedin.transport.api.udf.TopLevelUDF;
 import java.util.List;
 
 
-public class StructCreateByNameFunction extends StdUDF4<String, Object, String, Object, RowData> implements TopLevelStdUDF {
+public class StructCreateByNameFunction extends UDF4<String, Object, String, Object, RowData> implements TopLevelUDF {
 
-  private StdType _field1Type;
-  private StdType _field2Type;
+  private DataType _field1Type;
+  private DataType _field2Type;
 
   @Override
   public List<String> getInputParameterSignatures() {
@@ -35,15 +35,15 @@ public class StructCreateByNameFunction extends StdUDF4<String, Object, String, 
   }
 
   @Override
-  public void init(StdFactory stdFactory) {
-    super.init(stdFactory);
-    _field1Type = getStdFactory().createStdType("K");
-    _field2Type = getStdFactory().createStdType("V");
+  public void init(TypeFactory typeFactory) {
+    super.init(typeFactory);
+    _field1Type = getTypeFactory().createDataType("K");
+    _field2Type = getTypeFactory().createDataType("V");
   }
 
   @Override
   public RowData eval(String field1Name, Object field1Value, String field2Name, Object field2Value) {
-    RowData struct = getStdFactory().createStruct(
+    RowData struct = getTypeFactory().createStruct(
         ImmutableList.of(field1Name, field2Name),
         ImmutableList.of(_field1Type, _field2Type)
     );

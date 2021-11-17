@@ -5,11 +5,11 @@
  */
 package com.linkedin.transport.avro.types;
 
-import com.linkedin.transport.api.types.StdFloatType;
+import com.linkedin.transport.api.types.FloatType;
 import org.apache.avro.Schema;
 
 
-public class AvroFloatType implements StdFloatType {
+public class AvroFloatType implements FloatType {
   final private Schema _schema;
 
   public AvroFloatType(Schema schema) {

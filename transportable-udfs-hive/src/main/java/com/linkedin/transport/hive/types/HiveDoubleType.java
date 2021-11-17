@@ -5,11 +5,11 @@
  */
 package com.linkedin.transport.hive.types;
 
-import com.linkedin.transport.api.types.StdDoubleType;
+import com.linkedin.transport.api.types.DoubleType;
 import org.apache.hadoop.hive.serde2.objectinspector.primitive.DoubleObjectInspector;
 
 
-public class HiveDoubleType implements StdDoubleType {
+public class HiveDoubleType implements DoubleType {
 
   private final DoubleObjectInspector _doubleObjectInspector;
 

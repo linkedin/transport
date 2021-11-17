@@ -9,18 +9,18 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.primitives.Booleans;
-import com.linkedin.transport.api.StdFactory;
-import com.linkedin.transport.api.udf.StdUDF;
-import com.linkedin.transport.api.udf.StdUDF0;
-import com.linkedin.transport.api.udf.StdUDF1;
-import com.linkedin.transport.api.udf.StdUDF2;
-import com.linkedin.transport.api.udf.StdUDF3;
-import com.linkedin.transport.api.udf.StdUDF4;
-import com.linkedin.transport.api.udf.StdUDF5;
-import com.linkedin.transport.api.udf.StdUDF6;
-import com.linkedin.transport.api.udf.StdUDF7;
-import com.linkedin.transport.api.udf.StdUDF8;
-import com.linkedin.transport.api.udf.TopLevelStdUDF;
+import com.linkedin.transport.api.TypeFactory;
+import com.linkedin.transport.api.udf.UDF;
+import com.linkedin.transport.api.udf.UDF0;
+import com.linkedin.transport.api.udf.UDF1;
+import com.linkedin.transport.api.udf.UDF2;
+import com.linkedin.transport.api.udf.UDF3;
+import com.linkedin.transport.api.udf.UDF4;
+import com.linkedin.transport.api.udf.UDF5;
+import com.linkedin.transport.api.udf.UDF6;
+import com.linkedin.transport.api.udf.UDF7;
+import com.linkedin.transport.api.udf.UDF8;
+import com.linkedin.transport.api.udf.TopLevelUDF;
 import com.linkedin.transport.typesystem.GenericTypeSignatureElement;
 import io.trino.metadata.FunctionArgumentDefinition;
 import io.trino.metadata.FunctionBinding;
@@ -68,34 +68,34 @@ public abstract class StdUdfWrapper extends SqlScalarFunction {
   private static final int DEFAULT_REFRESH_INTERVAL_DAYS = 1;
   private static final int JITTER_FACTOR = 50;  // to calculate jitter from delay
 
-  protected StdUdfWrapper(StdUDF stdUDF) {
+  protected StdUdfWrapper(UDF udf) {
     super(new FunctionMetadata(
             new Signature(
-                    ((TopLevelStdUDF) stdUDF).getFunctionName(),
-                    getTypeVariableConstraintsForStdUdf(stdUDF),
+                    ((TopLevelUDF) udf).getFunctionName(),
+                    getTypeVariableConstraintsForStdUdf(udf),
                     ImmutableList.of(),
-                    parseTypeSignature(stdUDF.getOutputParameterSignature(), ImmutableSet.of()),
-                    stdUDF.getInputParameterSignatures().stream()
+                    parseTypeSignature(udf.getOutputParameterSignature(), ImmutableSet.of()),
+                    udf.getInputParameterSignatures().stream()
                             .map(typeSignature -> parseTypeSignature(typeSignature, ImmutableSet.of()))
                             .collect(Collectors.toList()),
                     false),
             true,
-            Booleans.asList(stdUDF.getNullableArguments()).stream()
+            Booleans.asList(udf.getNullableArguments()).stream()
                     .map(FunctionArgumentDefinition::new)
                     .collect(Collectors.toList()),
             false,
             false,
-            ((TopLevelStdUDF) stdUDF).getFunctionDescription(),
+            ((TopLevelUDF) udf).getFunctionDescription(),
             FunctionKind.SCALAR));
   }
 
   @VisibleForTesting
-  static List<TypeVariableConstraint> getTypeVariableConstraintsForStdUdf(StdUDF stdUdf) {
+  static List<TypeVariableConstraint> getTypeVariableConstraintsForStdUdf(UDF udf) {
     Set<GenericTypeSignatureElement> genericTypes = new HashSet<>();
-    for (String s : stdUdf.getInputParameterSignatures()) {
+    for (String s : udf.getInputParameterSignatures()) {
       genericTypes.addAll(com.linkedin.transport.typesystem.TypeSignature.parse(s).getGenericTypeSignatureElements());
     }
-    genericTypes.addAll(com.linkedin.transport.typesystem.TypeSignature.parse(stdUdf.getOutputParameterSignature())
+    genericTypes.addAll(com.linkedin.transport.typesystem.TypeSignature.parse(udf.getOutputParameterSignature())
         .getGenericTypeSignatureElements());
     return genericTypes.stream().map(t -> typeVariable(t.toString())).collect(Collectors.toList());
   }
@@ -133,25 +133,25 @@ public abstract class StdUdfWrapper extends SqlScalarFunction {
 
   @Override
   public ScalarFunctionImplementation specialize(FunctionBinding functionBinding, FunctionDependencies functionDependencies) {
-    StdFactory stdFactory = new TrinoFactory(functionBinding, functionDependencies);
-    StdUDF stdUDF = getStdUDF();
-    stdUDF.init(stdFactory);
+    TypeFactory typeFactory = new TrinoFactory(functionBinding, functionDependencies);
+    UDF udf = getStdUDF();
+    udf.init(typeFactory);
     // Subtract a small jitter value so that refresh is triggered on first call
     // while ensuring subsequent calls do not happen at the same time across workers
     long initialJitter = getRefreshIntervalMillis() / JITTER_FACTOR;
     int initialJitterInt = initialJitter > Integer.MAX_VALUE ? Integer.MAX_VALUE : (int) initialJitter;
     AtomicLong requiredFilesNextRefreshTime = new AtomicLong(System.currentTimeMillis()
         - (new Random()).nextInt(initialJitterInt));
-    boolean[] nullableArguments = stdUDF.getAndCheckNullableArguments();
+    boolean[] nullableArguments = udf.getAndCheckNullableArguments();
 
     return new ChoicesScalarFunctionImplementation(
         functionBinding,
         NULLABLE_RETURN,
         getNullConventionForArguments(nullableArguments),
-        getMethodHandle(stdUDF, functionBinding, nullableArguments, requiredFilesNextRefreshTime));
+        getMethodHandle(udf, functionBinding, nullableArguments, requiredFilesNextRefreshTime));
   }
 
-  private MethodHandle getMethodHandle(StdUDF stdUDF, FunctionBinding functionBinding, boolean[] nullableArguments,
+  private MethodHandle getMethodHandle(UDF udf, FunctionBinding functionBinding, boolean[] nullableArguments,
       AtomicLong requiredFilesNextRefreshTime) {
     Type[] inputTypes = functionBinding.getBoundSignature().getArgumentTypes().toArray(new Type[0]);
     Type outputType = functionBinding.getBoundSignature().getReturnType();
@@ -168,7 +168,7 @@ public abstract class StdUdfWrapper extends SqlScalarFunction {
 
     // Specific MethodHandle required by trino where argument types map to the type signature
     MethodHandle specificMethodHandle = MethodHandles.explicitCastArguments(genericMethodHandle, specificMethodType);
-    return MethodHandles.insertArguments(specificMethodHandle, 0, stdUDF, inputTypes,
+    return MethodHandles.insertArguments(specificMethodHandle, 0, udf, inputTypes,
         outputType instanceof IntegerType, requiredFilesNextRefreshTime);
   }
 
@@ -179,53 +179,53 @@ public abstract class StdUdfWrapper extends SqlScalarFunction {
         .collect(Collectors.toList());
   }
 
-  private Object[] wrapArguments(StdUDF stdUDF, Type[] types, Object[] arguments) {
-    StdFactory stdFactory = stdUDF.getStdFactory();
+  private Object[] wrapArguments(UDF udf, Type[] types, Object[] arguments) {
+    TypeFactory typeFactory = udf.getTypeFactory();
     Object[] stdData = new Object[arguments.length];
     // TODO: Reuse wrapper objects by creating them once upon initialization and reuse them here
     // along the same lines of what we do in Hive implementation.
     // JIRA: https://jira01.corp.linkedin.com:8443/browse/LIHADOOP-34894
     for (int i = 0; i < stdData.length; i++) {
-      stdData[i] = TrinoWrapper.createStdData(arguments[i], types[i], stdFactory);
+      stdData[i] = TrinoWrapper.createStdData(arguments[i], types[i], typeFactory);
     }
     return stdData;
   }
 
-  protected Object eval(StdUDF stdUDF, Type[] types, boolean isIntegerReturnType,
+  protected Object eval(UDF udf, Type[] types, boolean isIntegerReturnType,
       AtomicLong requiredFilesNextRefreshTime, Object... arguments) {
-    Object[] args = wrapArguments(stdUDF, types, arguments);
+    Object[] args = wrapArguments(udf, types, arguments);
     if (requiredFilesNextRefreshTime.get() <= System.currentTimeMillis()) {
-      String[] requiredFiles = getRequiredFiles(stdUDF, args);
-      processRequiredFiles(stdUDF, requiredFiles, requiredFilesNextRefreshTime);
+      String[] requiredFiles = getRequiredFiles(udf, args);
+      processRequiredFiles(udf, requiredFiles, requiredFilesNextRefreshTime);
     }
     Object result;
     switch (args.length) {
       case 0:
-        result = ((StdUDF0) stdUDF).eval();
+        result = ((UDF0) udf).eval();
         break;
       case 1:
-        result = ((StdUDF1) stdUDF).eval(args[0]);
+        result = ((UDF1) udf).eval(args[0]);
         break;
       case 2:
-        result = ((StdUDF2) stdUDF).eval(args[0], args[1]);
+        result = ((UDF2) udf).eval(args[0], args[1]);
         break;
       case 3:
-        result = ((StdUDF3) stdUDF).eval(args[0], args[1], args[2]);
+        result = ((UDF3) udf).eval(args[0], args[1], args[2]);
         break;
       case 4:
-        result = ((StdUDF4) stdUDF).eval(args[0], args[1], args[2], args[3]);
+        result = ((UDF4) udf).eval(args[0], args[1], args[2], args[3]);
         break;
       case 5:
-        result = ((StdUDF5) stdUDF).eval(args[0], args[1], args[2], args[3], args[4]);
+        result = ((UDF5) udf).eval(args[0], args[1], args[2], args[3], args[4]);
         break;
       case 6:
-        result = ((StdUDF6) stdUDF).eval(args[0], args[1], args[2], args[3], args[4], args[5]);
+        result = ((UDF6) udf).eval(args[0], args[1], args[2], args[3], args[4], args[5]);
         break;
       case 7:
-        result = ((StdUDF7) stdUDF).eval(args[0], args[1], args[2], args[3], args[4], args[5], args[6]);
+        result = ((UDF7) udf).eval(args[0], args[1], args[2], args[3], args[4], args[5], args[6]);
         break;
       case 8:
-        result = ((StdUDF8) stdUDF).eval(args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7]);
+        result = ((UDF8) udf).eval(args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7]);
         break;
       default:
         throw new RuntimeException("eval not supported yet for StdUDF" + args.length);
@@ -234,36 +234,36 @@ public abstract class StdUdfWrapper extends SqlScalarFunction {
     return TrinoWrapper.getPlatformData(result);
   }
 
-  private String[] getRequiredFiles(StdUDF stdUDF, Object[] args) {
+  private String[] getRequiredFiles(UDF udf, Object[] args) {
     String[] requiredFiles;
     switch (args.length) {
       case 0:
-        requiredFiles = ((StdUDF0) stdUDF).getRequiredFiles();
+        requiredFiles = ((UDF0) udf).getRequiredFiles();
         break;
       case 1:
-        requiredFiles = ((StdUDF1) stdUDF).getRequiredFiles(args[0]);
+        requiredFiles = ((UDF1) udf).getRequiredFiles(args[0]);
         break;
       case 2:
-        requiredFiles = ((StdUDF2) stdUDF).getRequiredFiles(args[0], args[1]);
+        requiredFiles = ((UDF2) udf).getRequiredFiles(args[0], args[1]);
         break;
       case 3:
-        requiredFiles = ((StdUDF3) stdUDF).getRequiredFiles(args[0], args[1], args[2]);
+        requiredFiles = ((UDF3) udf).getRequiredFiles(args[0], args[1], args[2]);
         break;
       case 4:
-        requiredFiles = ((StdUDF4) stdUDF).getRequiredFiles(args[0], args[1], args[2], args[3]);
+        requiredFiles = ((UDF4) udf).getRequiredFiles(args[0], args[1], args[2], args[3]);
         break;
       case 5:
-        requiredFiles = ((StdUDF5) stdUDF).getRequiredFiles(args[0], args[1], args[2], args[3], args[4]);
+        requiredFiles = ((UDF5) udf).getRequiredFiles(args[0], args[1], args[2], args[3], args[4]);
         break;
       case 6:
-        requiredFiles = ((StdUDF6) stdUDF).getRequiredFiles(args[0], args[1], args[2], args[3], args[4], args[5]);
+        requiredFiles = ((UDF6) udf).getRequiredFiles(args[0], args[1], args[2], args[3], args[4], args[5]);
         break;
       case 7:
-        requiredFiles = ((StdUDF7) stdUDF).getRequiredFiles(args[0], args[1], args[2], args[3], args[4], args[5],
+        requiredFiles = ((UDF7) udf).getRequiredFiles(args[0], args[1], args[2], args[3], args[4], args[5],
             args[6]);
         break;
       case 8:
-        requiredFiles = ((StdUDF8) stdUDF).getRequiredFiles(args[0], args[1], args[2], args[3], args[4], args[5],
+        requiredFiles = ((UDF8) udf).getRequiredFiles(args[0], args[1], args[2], args[3], args[4], args[5],
             args[6], args[7]);
         break;
       default:
@@ -272,7 +272,7 @@ public abstract class StdUdfWrapper extends SqlScalarFunction {
     return requiredFiles;
   }
 
-  private synchronized void processRequiredFiles(StdUDF stdUDF, String[] requiredFiles,
+  private synchronized void processRequiredFiles(UDF udf, String[] requiredFiles,
       AtomicLong requiredFilesNextRefreshTime) {
     if (requiredFilesNextRefreshTime.get() <= System.currentTimeMillis()) {
       try (ThreadContextClassLoader ignored = new ThreadContextClassLoader(getClass().getClassLoader())) {
@@ -282,7 +282,7 @@ public abstract class StdUdfWrapper extends SqlScalarFunction {
           String localFilename = client.copyToLocalFile(requiredFiles[i]);
           copiedFiles[i] = localFilename;
         }
-        stdUDF.processRequiredFiles(copiedFiles);
+        udf.processRequiredFiles(copiedFiles);
         // Determine how many times _refreshIntervalMillis needs to be added to go above currentTimeMillis
         int refreshIntervalFactor = (int) Math.ceil(
             (System.currentTimeMillis() - requiredFilesNextRefreshTime.get()) / (double) getRefreshIntervalMillis());
@@ -302,7 +302,7 @@ public abstract class StdUdfWrapper extends SqlScalarFunction {
   private Class<?>[] getMethodHandleArgumentTypes(Type[] argTypes, boolean[] nullableArguments,
       boolean useObjectForArgumentType) {
     Class<?>[] methodHandleArgumentTypes = new Class<?>[argTypes.length + 4];
-    methodHandleArgumentTypes[0] = StdUDF.class;
+    methodHandleArgumentTypes[0] = UDF.class;
     methodHandleArgumentTypes[1] = Type[].class;
     methodHandleArgumentTypes[2] = boolean.class;
     methodHandleArgumentTypes[3] = AtomicLong.class;
@@ -316,55 +316,55 @@ public abstract class StdUdfWrapper extends SqlScalarFunction {
     return methodHandleArgumentTypes;
   }
 
-  protected abstract StdUDF getStdUDF();
+  protected abstract UDF getStdUDF();
 
-  public Object evalInternal(StdUDF stdUDF, Type[] types, boolean isIntegerReturnType,
+  public Object evalInternal(UDF udf, Type[] types, boolean isIntegerReturnType,
       AtomicLong requiredFilesNextRefreshTime) {
-    return eval(stdUDF, types, isIntegerReturnType, requiredFilesNextRefreshTime);
+    return eval(udf, types, isIntegerReturnType, requiredFilesNextRefreshTime);
   }
 
-  public Object evalInternal(StdUDF stdUDF, Type[] types, boolean isIntegerReturnType,
+  public Object evalInternal(UDF udf, Type[] types, boolean isIntegerReturnType,
       AtomicLong requiredFilesNextRefreshTime, Object arg1) {
-    return eval(stdUDF, types, isIntegerReturnType, requiredFilesNextRefreshTime, arg1);
+    return eval(udf, types, isIntegerReturnType, requiredFilesNextRefreshTime, arg1);
   }
 
-  public Object evalInternal(StdUDF stdUDF, Type[] types, boolean isIntegerReturnType,
+  public Object evalInternal(UDF udf, Type[] types, boolean isIntegerReturnType,
       AtomicLong requiredFilesNextRefreshTime, Object arg1, Object arg2) {
-    return eval(stdUDF, types, isIntegerReturnType, requiredFilesNextRefreshTime, arg1, arg2);
+    return eval(udf, types, isIntegerReturnType, requiredFilesNextRefreshTime, arg1, arg2);
   }
 
-  public Object evalInternal(StdUDF stdUDF, Type[] types, boolean isIntegerReturnType,
+  public Object evalInternal(UDF udf, Type[] types, boolean isIntegerReturnType,
       AtomicLong requiredFilesNextRefreshTime, Object arg1, Object arg2, Object arg3) {
-    return eval(stdUDF, types, isIntegerReturnType, requiredFilesNextRefreshTime, arg1, arg2, arg3);
+    return eval(udf, types, isIntegerReturnType, requiredFilesNextRefreshTime, arg1, arg2, arg3);
   }
 
-  public Object evalInternal(StdUDF stdUDF, Type[] types, boolean isIntegerReturnType,
+  public Object evalInternal(UDF udf, Type[] types, boolean isIntegerReturnType,
       AtomicLong requiredFilesNextRefreshTime, Object arg1, Object arg2, Object arg3, Object arg4) {
-    return eval(stdUDF, types, isIntegerReturnType, requiredFilesNextRefreshTime, arg1, arg2, arg3, arg4);
+    return eval(udf, types, isIntegerReturnType, requiredFilesNextRefreshTime, arg1, arg2, arg3, arg4);
   }
 
-  public Object evalInternal(StdUDF stdUDF, Type[] types, boolean isIntegerReturnType,
+  public Object evalInternal(UDF udf, Type[] types, boolean isIntegerReturnType,
       AtomicLong requiredFilesNextRefreshTime, Object arg1, Object arg2, Object arg3, Object arg4, Object arg5) {
-    return eval(stdUDF, types, isIntegerReturnType, requiredFilesNextRefreshTime, arg1, arg2, arg3, arg4, arg5);
+    return eval(udf, types, isIntegerReturnType, requiredFilesNextRefreshTime, arg1, arg2, arg3, arg4, arg5);
   }
 
-  public Object evalInternal(StdUDF stdUDF, Type[] types, boolean isIntegerReturnType,
+  public Object evalInternal(UDF udf, Type[] types, boolean isIntegerReturnType,
       AtomicLong requiredFilesNextRefreshTime, Object arg1, Object arg2, Object arg3, Object arg4, Object arg5,
       Object arg6) {
-    return eval(stdUDF, types, isIntegerReturnType, requiredFilesNextRefreshTime, arg1, arg2, arg3, arg4, arg5, arg6);
+    return eval(udf, types, isIntegerReturnType, requiredFilesNextRefreshTime, arg1, arg2, arg3, arg4, arg5, arg6);
   }
 
-  public Object evalInternal(StdUDF stdUDF, Type[] types, boolean isIntegerReturnType,
+  public Object evalInternal(UDF udf, Type[] types, boolean isIntegerReturnType,
       AtomicLong requiredFilesNextRefreshTime, Object arg1, Object arg2, Object arg3, Object arg4, Object arg5,
       Object arg6, Object arg7) {
-    return eval(stdUDF, types, isIntegerReturnType, requiredFilesNextRefreshTime, arg1, arg2, arg3, arg4, arg5, arg6,
+    return eval(udf, types, isIntegerReturnType, requiredFilesNextRefreshTime, arg1, arg2, arg3, arg4, arg5, arg6,
         arg7);
   }
 
-  public Object evalInternal(StdUDF stdUDF, Type[] types, boolean isIntegerReturnType,
+  public Object evalInternal(UDF udf, Type[] types, boolean isIntegerReturnType,
       AtomicLong requiredFilesNextRefreshTime, Object arg1, Object arg2, Object arg3, Object arg4, Object arg5,
       Object arg6, Object arg7, Object arg8) {
-    return eval(stdUDF, types, isIntegerReturnType, requiredFilesNextRefreshTime, arg1, arg2, arg3, arg4, arg5, arg6,
+    return eval(udf, types, isIntegerReturnType, requiredFilesNextRefreshTime, arg1, arg2, arg3, arg4, arg5, arg6,
         arg7, arg8);
   }
 }

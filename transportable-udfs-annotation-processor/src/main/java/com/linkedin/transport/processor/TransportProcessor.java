@@ -5,8 +5,8 @@
  */
 package com.linkedin.transport.processor;
 
-import com.linkedin.transport.api.udf.StdUDF;
-import com.linkedin.transport.api.udf.TopLevelStdUDF;
+import com.linkedin.transport.api.udf.UDF;
+import com.linkedin.transport.api.udf.TopLevelUDF;
 import com.linkedin.transport.compile.TransportUDFMetadata;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -43,8 +43,8 @@ import javax.tools.StandardLocation;
  * resource file
  *
  * The annotation processor does not rely on a special annotation. Instead it will look for non-abstract classes which
- * indirectly extend {@link StdUDF}. For each class, it will then perform checks against the class to ensure that there
- * is only one overriding of {@link TopLevelStdUDF} methods in its type hierarchy. If the checks are successful, it will
+ * indirectly extend {@link UDF}. For each class, it will then perform checks against the class to ensure that there
+ * is only one overriding of {@link TopLevelUDF} methods in its type hierarchy. If the checks are successful, it will
  * create groupings of UDFs which are considered to be overloadings of each other and store them in the resource file.
  */
 @SupportedOptions({"debug"})
@@ -67,8 +67,8 @@ public class TransportProcessor extends AbstractProcessor {
     super.init(processingEnv);
     _types = processingEnv.getTypeUtils();
     _elements = processingEnv.getElementUtils();
-    _topLevelStdUDFInterfaceType = _elements.getTypeElement(TopLevelStdUDF.class.getName()).asType();
-    _stdUDFClassType = _elements.getTypeElement(StdUDF.class.getName()).asType();
+    _topLevelStdUDFInterfaceType = _elements.getTypeElement(TopLevelUDF.class.getName()).asType();
+    _stdUDFClassType = _elements.getTypeElement(UDF.class.getName()).asType();
     _transportUdfMetadata = new TransportUDFMetadata();
   }
 
@@ -108,8 +108,8 @@ public class TransportProcessor extends AbstractProcessor {
   }
 
   /**
-   * Finds the {@link TopLevelStdUDF} for the given {@link StdUDF} class and adds it to the list of discovered UDFs.
-   * Also ensures that there is one and only one overriding of {@link TopLevelStdUDF} methods in the type hierarchy
+   * Finds the {@link TopLevelUDF} for the given {@link UDF} class and adds it to the list of discovered UDFs.
+   * Also ensures that there is one and only one overriding of {@link TopLevelUDF} methods in the type hierarchy
    */
   private void processUDFClass(TypeElement udfClassElement) {
     debug(String.format("Processing UDF Class: %s", udfClassElement.getQualifiedName()));
@@ -122,7 +122,7 @@ public class TransportProcessor extends AbstractProcessor {
     } else if (elementsOverridingTopLevelStdUDFMethods.size() > 1) {
       error(
           String.format("Multiple overridings of %s methods found in %s. %s",
-              TopLevelStdUDF.class.getSimpleName(),
+              TopLevelUDF.class.getSimpleName(),
               elementsOverridingTopLevelStdUDFMethods.stream()
                   .map(TypeElement::getQualifiedName)
                   .collect(Collectors.joining(", ")),
@@ -155,7 +155,7 @@ public class TransportProcessor extends AbstractProcessor {
   }
 
   /**
-   * Finds all elements in the type hierarchy of a {@link TypeElement} which override {@link TopLevelStdUDF} methods
+   * Finds all elements in the type hierarchy of a {@link TypeElement} which override {@link TopLevelUDF} methods
    */
   private Set<TypeElement> getElementsOverridingTopLevelStdUDFMethods(TypeElement typeElement) {
     return getAllTypesInHierarchy(typeElement.asType())
@@ -165,7 +165,7 @@ public class TransportProcessor extends AbstractProcessor {
   }
 
   /**
-   * Returns true if the given {@link TypeElement} (class/interface) overrides {@link TopLevelStdUDF} methods
+   * Returns true if the given {@link TypeElement} (class/interface) overrides {@link TopLevelUDF} methods
    */
   private boolean typeElementOverridesTopLevelStdUDFMethods(TypeElement typeElement) {
 

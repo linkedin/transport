@@ -5,15 +5,14 @@
  */
 package com.linkedin.transport.trino.types;
 
-import com.linkedin.transport.api.types.StdUnknownType;
-import io.trino.type.UnknownType;
+import com.linkedin.transport.api.types.UnknownType;
 
 
-public class TrinoUnknownType implements StdUnknownType {
+public class TrinoUnknownType implements UnknownType {
 
-  final UnknownType unknownType;
+  final io.trino.type.UnknownType unknownType;
 
-  public TrinoUnknownType(UnknownType unknownType) {
+  public TrinoUnknownType(io.trino.type.UnknownType unknownType) {
     this.unknownType = unknownType;
   }
 

@@ -6,7 +6,7 @@
 package com.linkedin.transport.hive.types;
 
 import com.linkedin.transport.api.types.RowType;
-import com.linkedin.transport.api.types.StdType;
+import com.linkedin.transport.api.types.DataType;
 import com.linkedin.transport.hive.HiveWrapper;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -27,7 +27,7 @@ public class HiveRowType implements RowType {
   }
 
   @Override
-  public List<? extends StdType> fieldTypes() {
+  public List<? extends DataType> fieldTypes() {
     return _structObjectInspector.getAllStructFieldRefs().stream()
         .map(f -> HiveWrapper.createStdType(f.getFieldObjectInspector())).collect(Collectors.toList());
   }

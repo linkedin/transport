@@ -5,7 +5,7 @@
  */
 package com.linkedin.transport.codegen;
 
-import com.linkedin.transport.api.udf.StdUDF;
+import com.linkedin.transport.api.udf.UDF;
 import com.linkedin.transport.compile.TransportUDFMetadata;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.JavaFile;
@@ -71,7 +71,7 @@ public class TrinoWrapperGenerator implements WrapperGenerator {
      */
     MethodSpec getStdUDFMethod = MethodSpec.methodBuilder(GET_STD_UDF_METHOD)
         .addAnnotation(Override.class)
-        .returns(StdUDF.class)
+        .returns(UDF.class)
         .addModifiers(Modifier.PROTECTED)
         .addStatement("return new $T()", implementationClassName)
         .build();

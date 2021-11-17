@@ -5,15 +5,14 @@
  */
 package com.linkedin.transport.trino.types;
 
-import com.linkedin.transport.api.types.StdIntegerType;
-import io.trino.spi.type.IntegerType;
+import com.linkedin.transport.api.types.IntegerType;
 
 
-public class TrinoIntegerType implements StdIntegerType {
+public class TrinoIntegerType implements IntegerType {
 
-  final IntegerType integerType;
+  final io.trino.spi.type.IntegerType integerType;
 
-  public TrinoIntegerType(IntegerType integerType) {
+  public TrinoIntegerType(io.trino.spi.type.IntegerType integerType) {
     this.integerType = integerType;
   }
 

@@ -6,9 +6,9 @@
 package com.linkedin.transport.test.hive;
 
 import com.google.common.base.Preconditions;
-import com.linkedin.transport.api.StdFactory;
-import com.linkedin.transport.api.udf.StdUDF;
-import com.linkedin.transport.api.udf.TopLevelStdUDF;
+import com.linkedin.transport.api.TypeFactory;
+import com.linkedin.transport.api.udf.UDF;
+import com.linkedin.transport.api.udf.TopLevelUDF;
 import com.linkedin.transport.hive.HiveFactory;
 import com.linkedin.transport.hive.typesystem.HiveBoundVariables;
 import com.linkedin.transport.test.hive.udf.MapFromEntriesWrapper;
@@ -40,7 +40,7 @@ import org.testng.Assert;
 
 public class HiveTester implements SqlStdTester {
 
-  private StdFactory _stdFactory;
+  private TypeFactory _typeFactory;
   private CLIService _client;
   private SessionHandle _sessionHandle;
   private Registry _functionRegistry;
@@ -49,7 +49,7 @@ public class HiveTester implements SqlStdTester {
   private ToPlatformTestOutputConverter _platformOutputDataConverter;
 
   public HiveTester() {
-    _stdFactory = new HiveFactory(new HiveBoundVariables());
+    _typeFactory = new HiveFactory(new HiveBoundVariables());
     _sqlFunctionCallGenerator = new HiveSqlFunctionCallGenerator();
     _platformOutputDataConverter = new ToHiveTestOutputConverter();
     createHiveServer();
@@ -83,13 +83,13 @@ public class HiveTester implements SqlStdTester {
 
   @Override
   public void setup(
-      Map<Class<? extends TopLevelStdUDF>, List<Class<? extends StdUDF>>> topLevelStdUDFClassesAndImplementations) {
+      Map<Class<? extends TopLevelUDF>, List<Class<? extends UDF>>> topLevelStdUDFClassesAndImplementations) {
 
     topLevelStdUDFClassesAndImplementations.forEach((topLevelStdUDF, stdUDFImplementations) -> {
       HiveTestStdUDFWrapper wrapper = new HiveTestStdUDFWrapper(topLevelStdUDF, stdUDFImplementations);
       try {
         String functionName =
-            ((TopLevelStdUDF) stdUDFImplementations.get(0).getConstructor().newInstance()).getFunctionName();
+            ((TopLevelUDF) stdUDFImplementations.get(0).getConstructor().newInstance()).getFunctionName();
         _functionRegistryAddFunctionMethod.invoke(_functionRegistry, functionName,
             new FunctionInfo(false, functionName, wrapper));
       } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException | InstantiationException e) {
@@ -99,8 +99,8 @@ public class HiveTester implements SqlStdTester {
   }
 
   @Override
-  public StdFactory getStdFactory() {
-    return _stdFactory;
+  public TypeFactory getStdFactory() {
+    return _typeFactory;
   }
 
   @Override

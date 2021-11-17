@@ -5,11 +5,11 @@
  */
 package com.linkedin.transport.hive.types;
 
-import com.linkedin.transport.api.types.StdIntegerType;
+import com.linkedin.transport.api.types.IntegerType;
 import org.apache.hadoop.hive.serde2.objectinspector.primitive.IntObjectInspector;
 
 
-public class HiveIntegerType implements StdIntegerType {
+public class HiveIntegerType implements IntegerType {
 
   final IntObjectInspector _intObjectInspector;
 

@@ -5,6 +5,6 @@
  */
 package com.linkedin.transport.api.types;
 
-/** A {@link StdType} representing a float type. */
-public interface StdFloatType extends StdType {
+/** A {@link DataType} representing a float type. */
+public interface FloatType extends DataType {
 }

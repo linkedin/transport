@@ -5,11 +5,11 @@
  */
 package com.linkedin.transport.avro.types;
 
-import com.linkedin.transport.api.types.StdDoubleType;
+import com.linkedin.transport.api.types.DoubleType;
 import org.apache.avro.Schema;
 
 
-public class AvroDoubleType implements StdDoubleType {
+public class AvroDoubleType implements DoubleType {
   final private Schema _schema;
 
   public AvroDoubleType(Schema schema) {

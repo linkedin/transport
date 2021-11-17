@@ -5,11 +5,11 @@
  */
 package com.linkedin.transport.avro.types;
 
-import com.linkedin.transport.api.types.StdStringType;
+import com.linkedin.transport.api.types.StringType;
 import org.apache.avro.Schema;
 
 
-public class AvroStringType implements StdStringType {
+public class AvroStringType implements StringType {
   final private Schema _schema;
 
   public AvroStringType(Schema schema) {

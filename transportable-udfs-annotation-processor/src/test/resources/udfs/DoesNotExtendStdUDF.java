@@ -5,10 +5,10 @@
  */
 package udfs;
 
-import com.linkedin.transport.api.udf.TopLevelStdUDF;
+import com.linkedin.transport.api.udf.TopLevelUDF;
 
 
-public class DoesNotExtendStdUDF implements TopLevelStdUDF {
+public class DoesNotExtendStdUDF implements TopLevelUDF {
 
   @Override
   public String getFunctionName() {

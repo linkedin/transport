@@ -6,13 +6,13 @@
 package com.linkedin.transport.examples;
 
 import com.google.common.collect.ImmutableList;
-import com.linkedin.transport.api.udf.StdUDF1;
-import com.linkedin.transport.api.udf.TopLevelStdUDF;
+import com.linkedin.transport.api.udf.UDF1;
+import com.linkedin.transport.api.udf.TopLevelUDF;
 import java.nio.ByteBuffer;
 import java.util.List;
 
 
-public class BinaryDuplicateFunction extends StdUDF1<ByteBuffer, ByteBuffer> implements TopLevelStdUDF  {
+public class BinaryDuplicateFunction extends UDF1<ByteBuffer, ByteBuffer> implements TopLevelUDF  {
   @Override
   public ByteBuffer eval(ByteBuffer byteBuffer) {
     ByteBuffer results = ByteBuffer.allocate(2 * byteBuffer.array().length);

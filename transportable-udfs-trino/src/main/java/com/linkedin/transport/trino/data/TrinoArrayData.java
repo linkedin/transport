@@ -5,7 +5,7 @@
  */
 package com.linkedin.transport.trino.data;
 
-import com.linkedin.transport.api.StdFactory;
+import com.linkedin.transport.api.TypeFactory;
 import com.linkedin.transport.trino.TrinoWrapper;
 import io.trino.spi.block.Block;
 import io.trino.spi.block.BlockBuilder;
@@ -20,25 +20,25 @@ import static io.trino.spi.type.TypeUtils.*;
 
 public class TrinoArrayData<E> extends TrinoData implements ArrayData<E> {
 
-  private final StdFactory _stdFactory;
+  private final TypeFactory _typeFactory;
   private final ArrayType _arrayType;
   private final Type _elementType;
 
   private Block _block;
   private BlockBuilder _mutable;
 
-  public TrinoArrayData(Block block, ArrayType arrayType, StdFactory stdFactory) {
+  public TrinoArrayData(Block block, ArrayType arrayType, TypeFactory typeFactory) {
     _block = block;
     _arrayType = arrayType;
     _elementType = arrayType.getElementType();
-    _stdFactory = stdFactory;
+    _typeFactory = typeFactory;
   }
 
-  public TrinoArrayData(ArrayType arrayType, int expectedEntries, StdFactory stdFactory) {
+  public TrinoArrayData(ArrayType arrayType, int expectedEntries, TypeFactory typeFactory) {
     _block = null;
     _elementType = arrayType.getElementType();
     _mutable = _elementType.createBlockBuilder(new PageBuilderStatus().createBlockBuilderStatus(), expectedEntries);
-    _stdFactory = stdFactory;
+    _typeFactory = typeFactory;
     _arrayType = arrayType;
   }
 
@@ -52,7 +52,7 @@ public class TrinoArrayData<E> extends TrinoData implements ArrayData<E> {
     Block sourceBlock = _mutable == null ? _block : _mutable;
     int position = TrinoWrapper.checkedIndexToBlockPosition(sourceBlock, idx);
     Object element = readNativeValue(_elementType, sourceBlock, position);
-    return (E) TrinoWrapper.createStdData(element, _elementType, _stdFactory);
+    return (E) TrinoWrapper.createStdData(element, _elementType, _typeFactory);
   }
 
   @Override
@@ -89,7 +89,7 @@ public class TrinoArrayData<E> extends TrinoData implements ArrayData<E> {
       public E next() {
         Object element = readNativeValue(_elementType, sourceBlock, position);
         position++;
-        return (E) TrinoWrapper.createStdData(element, _elementType, _stdFactory);
+        return (E) TrinoWrapper.createStdData(element, _elementType, _typeFactory);
       }
     };
   }

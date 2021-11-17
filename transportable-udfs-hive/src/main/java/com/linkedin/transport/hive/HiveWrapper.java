@@ -5,8 +5,8 @@
  */
 package com.linkedin.transport.hive;
 
-import com.linkedin.transport.api.StdFactory;
-import com.linkedin.transport.api.types.StdType;
+import com.linkedin.transport.api.TypeFactory;
+import com.linkedin.transport.api.types.DataType;
 import com.linkedin.transport.hive.data.HiveArrayData;
 import com.linkedin.transport.hive.data.HiveData;
 import com.linkedin.transport.hive.data.HiveMapData;
@@ -51,7 +51,7 @@ public final class HiveWrapper {
   private HiveWrapper() {
   }
 
-  public static Object createStdData(Object hiveData, ObjectInspector hiveObjectInspector, StdFactory stdFactory) {
+  public static Object createStdData(Object hiveData, ObjectInspector hiveObjectInspector, TypeFactory typeFactory) {
     if (hiveObjectInspector instanceof IntObjectInspector || hiveObjectInspector instanceof LongObjectInspector
         || hiveObjectInspector instanceof FloatObjectInspector || hiveObjectInspector instanceof DoubleObjectInspector
         || hiveObjectInspector instanceof BooleanObjectInspector
@@ -62,12 +62,12 @@ public final class HiveWrapper {
       return hiveData == null ? null : ByteBuffer.wrap(binaryObjectInspector.getPrimitiveJavaObject(hiveData));
     } else if (hiveObjectInspector instanceof ListObjectInspector) {
       ListObjectInspector listObjectInspector = (ListObjectInspector) hiveObjectInspector;
-      return new HiveArrayData(hiveData, listObjectInspector, stdFactory);
+      return new HiveArrayData(hiveData, listObjectInspector, typeFactory);
     } else if (hiveObjectInspector instanceof MapObjectInspector) {
-      return new HiveMapData(hiveData, hiveObjectInspector, stdFactory);
+      return new HiveMapData(hiveData, hiveObjectInspector, typeFactory);
     } else if (hiveObjectInspector instanceof StructObjectInspector) {
       return new HiveRowData(((StructObjectInspector) hiveObjectInspector).getStructFieldsDataAsList(hiveData).toArray(),
-          hiveObjectInspector, stdFactory);
+          hiveObjectInspector, typeFactory);
     } else if (hiveObjectInspector instanceof VoidObjectInspector) {
       return null;
     }
@@ -75,7 +75,7 @@ public final class HiveWrapper {
     return null;
   }
 
-  public static StdType createStdType(ObjectInspector hiveObjectInspector) {
+  public static DataType createStdType(ObjectInspector hiveObjectInspector) {
     if (hiveObjectInspector instanceof IntObjectInspector) {
       return new HiveIntegerType((IntObjectInspector) hiveObjectInspector);
     } else if (hiveObjectInspector instanceof LongObjectInspector) {

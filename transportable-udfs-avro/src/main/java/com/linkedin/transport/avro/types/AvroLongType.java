@@ -5,11 +5,11 @@
  */
 package com.linkedin.transport.avro.types;
 
-import com.linkedin.transport.api.types.StdLongType;
+import com.linkedin.transport.api.types.LongType;
 import org.apache.avro.Schema;
 
 
-public class AvroLongType implements StdLongType {
+public class AvroLongType implements LongType {
   final private Schema _schema;
 
   public AvroLongType(Schema schema) {

@@ -5,15 +5,14 @@
  */
 package com.linkedin.transport.trino.types;
 
-import com.linkedin.transport.api.types.StdBooleanType;
-import io.trino.spi.type.BooleanType;
+import com.linkedin.transport.api.types.BooleanType;
 
 
-public class TrinoBooleanType implements StdBooleanType {
+public class TrinoBooleanType implements BooleanType {
 
-  final BooleanType booleanType;
+  final io.trino.spi.type.BooleanType booleanType;
 
-  public TrinoBooleanType(BooleanType booleanType) {
+  public TrinoBooleanType(io.trino.spi.type.BooleanType booleanType) {
     this.booleanType = booleanType;
   }
 

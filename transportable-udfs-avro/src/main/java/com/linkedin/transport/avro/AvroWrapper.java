@@ -6,7 +6,7 @@
 package com.linkedin.transport.avro;
 
 import com.linkedin.transport.api.data.PlatformData;
-import com.linkedin.transport.api.types.StdType;
+import com.linkedin.transport.api.types.DataType;
 import com.linkedin.transport.avro.data.AvroArrayData;
 import com.linkedin.transport.avro.data.AvroMapData;
 import com.linkedin.transport.avro.data.AvroRowData;
@@ -100,7 +100,7 @@ public class AvroWrapper {
     throw new RuntimeException("Unsupported union type: " + unionSchema);
   }
 
-  public static StdType createStdType(Schema avroSchema) {
+  public static DataType createStdType(Schema avroSchema) {
     switch (avroSchema.getType()) {
       case INT:
         return new AvroIntegerType(avroSchema);

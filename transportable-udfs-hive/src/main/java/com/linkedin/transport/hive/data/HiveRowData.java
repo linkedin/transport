@@ -5,7 +5,7 @@
  */
 package com.linkedin.transport.hive.data;
 
-import com.linkedin.transport.api.StdFactory;
+import com.linkedin.transport.api.TypeFactory;
 import com.linkedin.transport.api.data.RowData;
 import com.linkedin.transport.hive.HiveWrapper;
 import java.util.List;
@@ -21,8 +21,8 @@ public class HiveRowData extends HiveData implements RowData {
 
   StructObjectInspector _structObjectInspector;
 
-  public HiveRowData(Object object, ObjectInspector objectInspector, StdFactory stdFactory) {
-    super(stdFactory);
+  public HiveRowData(Object object, ObjectInspector objectInspector, TypeFactory typeFactory) {
+    super(typeFactory);
     _object = object;
     _structObjectInspector = (StructObjectInspector) objectInspector;
   }
@@ -32,7 +32,7 @@ public class HiveRowData extends HiveData implements RowData {
     StructField structField = _structObjectInspector.getAllStructFieldRefs().get(index);
     return HiveWrapper.createStdData(
         _structObjectInspector.getStructFieldData(_object, structField),
-        structField.getFieldObjectInspector(), _stdFactory
+        structField.getFieldObjectInspector(), _typeFactory
     );
   }
 
@@ -41,7 +41,7 @@ public class HiveRowData extends HiveData implements RowData {
     StructField structField = _structObjectInspector.getStructFieldRef(name);
     return HiveWrapper.createStdData(
         _structObjectInspector.getStructFieldData(_object, structField),
-        structField.getFieldObjectInspector(), _stdFactory
+        structField.getFieldObjectInspector(), _typeFactory
     );
   }
 

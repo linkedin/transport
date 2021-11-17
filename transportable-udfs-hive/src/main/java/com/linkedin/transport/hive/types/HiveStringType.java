@@ -5,11 +5,11 @@
  */
 package com.linkedin.transport.hive.types;
 
-import com.linkedin.transport.api.types.StdStringType;
+import com.linkedin.transport.api.types.StringType;
 import org.apache.hadoop.hive.serde2.objectinspector.primitive.StringObjectInspector;
 
 
-public class HiveStringType implements StdStringType {
+public class HiveStringType implements StringType {
 
   final StringObjectInspector _stringObjectInspector;
 

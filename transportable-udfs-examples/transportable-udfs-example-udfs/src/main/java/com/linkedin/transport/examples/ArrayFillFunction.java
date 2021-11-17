@@ -6,17 +6,17 @@
 package com.linkedin.transport.examples;
 
 import com.google.common.collect.ImmutableList;
-import com.linkedin.transport.api.StdFactory;
+import com.linkedin.transport.api.TypeFactory;
 import com.linkedin.transport.api.data.ArrayData;
-import com.linkedin.transport.api.types.StdType;
-import com.linkedin.transport.api.udf.StdUDF2;
-import com.linkedin.transport.api.udf.TopLevelStdUDF;
+import com.linkedin.transport.api.types.DataType;
+import com.linkedin.transport.api.udf.UDF2;
+import com.linkedin.transport.api.udf.TopLevelUDF;
 import java.util.List;
 
 
-public class ArrayFillFunction<K> extends StdUDF2<K, Long, ArrayData<K>> implements TopLevelStdUDF {
+public class ArrayFillFunction<K> extends UDF2<K, Long, ArrayData<K>> implements TopLevelUDF {
 
-  private StdType _arrayType;
+  private DataType _arrayType;
 
   @Override
   public List<String> getInputParameterSignatures() {
@@ -32,14 +32,14 @@ public class ArrayFillFunction<K> extends StdUDF2<K, Long, ArrayData<K>> impleme
   }
 
   @Override
-  public void init(StdFactory stdFactory) {
-    super.init(stdFactory);
-    _arrayType = getStdFactory().createStdType(getOutputParameterSignature());
+  public void init(TypeFactory typeFactory) {
+    super.init(typeFactory);
+    _arrayType = getTypeFactory().createDataType(getOutputParameterSignature());
   }
 
   @Override
   public ArrayData<K> eval(K a, Long length) {
-    ArrayData<K> array = getStdFactory().createArray(_arrayType);
+    ArrayData<K> array = getTypeFactory().createArray(_arrayType);
     for (int i = 0; i < length; i++) {
       array.add(a);
     }

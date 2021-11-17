@@ -5,11 +5,11 @@
  */
 package com.linkedin.transport.avro.types;
 
-import com.linkedin.transport.api.types.StdIntegerType;
+import com.linkedin.transport.api.types.IntegerType;
 import org.apache.avro.Schema;
 
 
-public class AvroIntegerType implements StdIntegerType {
+public class AvroIntegerType implements IntegerType {
   final private Schema _schema;
 
   public AvroIntegerType(Schema schema) {

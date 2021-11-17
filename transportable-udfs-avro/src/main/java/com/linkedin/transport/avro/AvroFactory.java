@@ -5,11 +5,11 @@
  */
 package com.linkedin.transport.avro;
 
-import com.linkedin.transport.api.StdFactory;
+import com.linkedin.transport.api.TypeFactory;
 import com.linkedin.transport.api.data.ArrayData;
 import com.linkedin.transport.api.data.MapData;
 import com.linkedin.transport.api.data.RowData;
-import com.linkedin.transport.api.types.StdType;
+import com.linkedin.transport.api.types.DataType;
 import com.linkedin.transport.avro.data.AvroArrayData;
 import com.linkedin.transport.avro.data.AvroMapData;
 import com.linkedin.transport.avro.data.AvroRowData;
@@ -25,7 +25,7 @@ import org.apache.avro.Schema;
 import static org.apache.avro.Schema.*;
 
 
-public class AvroFactory implements StdFactory {
+public class AvroFactory implements TypeFactory {
 
   final AbstractBoundVariables<Schema> _boundVariables;
   final AvroTypeFactory _typeFactory;
@@ -36,22 +36,22 @@ public class AvroFactory implements StdFactory {
   }
 
   @Override
-  public ArrayData createArray(StdType stdType, int size) {
-    return new AvroArrayData((Schema) stdType.underlyingType(), size);
+  public ArrayData createArray(DataType dataType, int size) {
+    return new AvroArrayData((Schema) dataType.underlyingType(), size);
   }
 
   @Override
-  public ArrayData createArray(StdType stdType) {
-    return createArray(stdType, 0);
+  public ArrayData createArray(DataType dataType) {
+    return createArray(dataType, 0);
   }
 
   @Override
-  public MapData createMap(StdType stdType) {
-    return new AvroMapData((Schema) stdType.underlyingType());
+  public MapData createMap(DataType dataType) {
+    return new AvroMapData((Schema) dataType.underlyingType());
   }
 
   @Override
-  public RowData createStruct(List<String> fieldNames, List<StdType> fieldTypes) {
+  public RowData createStruct(List<String> fieldNames, List<DataType> fieldTypes) {
     if (fieldNames.size() != fieldTypes.size()) {
       throw new RuntimeException(
           "Field names and types are of different lengths: " + "Field names length is " + fieldNames.size() + ". "
@@ -65,18 +65,18 @@ public class AvroFactory implements StdFactory {
   }
 
   @Override
-  public RowData createStruct(List<StdType> fieldTypes) {
+  public RowData createStruct(List<DataType> fieldTypes) {
     return createStruct(IntStream.range(0, fieldTypes.size()).mapToObj(i -> "field" + i).collect(Collectors.toList()),
         fieldTypes);
   }
 
   @Override
-  public RowData createStruct(StdType stdType) {
-    return new AvroRowData((Schema) stdType.underlyingType());
+  public RowData createStruct(DataType dataType) {
+    return new AvroRowData((Schema) dataType.underlyingType());
   }
 
   @Override
-  public StdType createStdType(String typeSignature) {
+  public DataType createDataType(String typeSignature) {
     return AvroWrapper.createStdType(_typeFactory.createType(TypeSignature.parse(typeSignature), _boundVariables));
   }
 }

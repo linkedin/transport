@@ -6,7 +6,7 @@
 package com.linkedin.transport.test.generic;
 
 import com.linkedin.transport.api.data.PlatformData;
-import com.linkedin.transport.api.types.StdType;
+import com.linkedin.transport.api.types.DataType;
 import com.linkedin.transport.test.generic.data.GenericArrayData;
 import com.linkedin.transport.test.generic.data.GenericMapData;
 import com.linkedin.transport.test.generic.data.GenericStruct;
@@ -65,7 +65,7 @@ public class GenericWrapper {
     }
   }
 
-  public static StdType createStdType(TestType dataType) {
+  public static DataType createStdType(TestType dataType) {
     return () -> dataType;
   }
 }

@@ -5,27 +5,26 @@
  */
 package com.linkedin.transport.trino.types;
 
-import com.linkedin.transport.api.types.StdMapType;
-import com.linkedin.transport.api.types.StdType;
+import com.linkedin.transport.api.types.DataType;
+import com.linkedin.transport.api.types.MapType;
 import com.linkedin.transport.trino.TrinoWrapper;
-import io.trino.spi.type.MapType;
 
 
-public class TrinoMapType implements StdMapType {
+public class TrinoMapType implements MapType {
 
-  final MapType mapType;
+  final io.trino.spi.type.MapType mapType;
 
-  public TrinoMapType(MapType mapType) {
+  public TrinoMapType(io.trino.spi.type.MapType mapType) {
     this.mapType = mapType;
   }
 
   @Override
-  public StdType keyType() {
+  public DataType keyType() {
     return TrinoWrapper.createStdType(mapType.getKeyType());
   }
 
   @Override
-  public StdType valueType() {
+  public DataType valueType() {
     return TrinoWrapper.createStdType(mapType.getKeyType());
   }
 

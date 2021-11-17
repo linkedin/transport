@@ -8,9 +8,9 @@ package com.linkedin.transport.api.types;
 import java.util.List;
 
 
-/** A {@link StdType} representing a struct type. */
-public interface RowType extends StdType {
+/** A {@link DataType} representing a struct type. */
+public interface RowType extends DataType {
 
   /** Returns a {@link List} of the types of all the struct fields. */
-  List<? extends StdType> fieldTypes();
+  List<? extends DataType> fieldTypes();
 }

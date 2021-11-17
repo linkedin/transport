@@ -6,7 +6,7 @@
 package org.apache.spark.sql
 
 
-import com.linkedin.transport.api.udf.{StdUDF, TopLevelStdUDF}
+import com.linkedin.transport.api.udf.{UDF, TopLevelUDF}
 import com.linkedin.transport.spark.StdUdfWrapper
 import com.linkedin.transport.test.spark.SparkTestStdUDFWrapper
 import org.apache.spark.sql.catalyst.FunctionIdentifier
@@ -21,12 +21,12 @@ import scala.util.{Failure, Success, Try}
   */
 object StdUDFTestUtils {
 
-  private def functionBuilder[T <: StdUdfWrapper](topLevelStdUdfClass: Class[_ <: TopLevelStdUDF],
-    stdUDFs: java.util.List[Class[_ <: StdUDF]]): FunctionBuilder = {
+  private def functionBuilder[T <: StdUdfWrapper](topLevelStdUdfClass: Class[_ <: TopLevelUDF],
+    stdUDFs: java.util.List[Class[_ <: UDF]]): FunctionBuilder = {
     children: Seq[Expression] => {
       Try(classOf[SparkTestStdUDFWrapper].getDeclaredConstructor(
-        classOf[Class[_ <: TopLevelStdUDF]],
-        classOf[java.util.List[_ <: StdUDF]],
+        classOf[Class[_ <: TopLevelUDF]],
+        classOf[java.util.List[_ <: UDF]],
         classOf[Seq[Expression]]
       ).newInstance(topLevelStdUdfClass, stdUDFs, children)) match {
         case Success(exprObject) => exprObject.asInstanceOf[Expression]
@@ -35,8 +35,8 @@ object StdUDFTestUtils {
     }
   }
 
-  def register[T <: StdUdfWrapper](name: String, topLevelStdUdfClass: Class[_ <: TopLevelStdUDF],
-    stdUDFs: java.util.List[Class[_ <: StdUDF]], sparkSession: SparkSession): Unit = {
+  def register[T <: StdUdfWrapper](name: String, topLevelStdUdfClass: Class[_ <: TopLevelUDF],
+    stdUDFs: java.util.List[Class[_ <: UDF]], sparkSession: SparkSession): Unit = {
     val registry = sparkSession.sessionState.functionRegistry
     registry.registerFunction(FunctionIdentifier(name), functionBuilder(topLevelStdUdfClass, stdUDFs))
   }

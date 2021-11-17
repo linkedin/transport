@@ -52,8 +52,8 @@ public class MapFromTwoArraysFunction extends StdUDF2<StdArray, StdArray, StdMap
   }
 
   @Override
-  public void init(StdFactory stdFactory) {
-    super.init(stdFactory);
+  public void init(StdFactory typeFactory) {
+    super.init(typeFactory);
     _mapType = getStdFactory().createStdType(getOutputParameterSignature());
   }
 

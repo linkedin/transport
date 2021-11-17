@@ -5,11 +5,11 @@
  */
 package com.linkedin.transport.hive.types;
 
-import com.linkedin.transport.api.types.StdLongType;
+import com.linkedin.transport.api.types.LongType;
 import org.apache.hadoop.hive.serde2.objectinspector.primitive.LongObjectInspector;
 
 
-public class HiveLongType implements StdLongType {
+public class HiveLongType implements LongType {
 
   final LongObjectInspector _longObjectInspector;
 

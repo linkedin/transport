@@ -6,7 +6,7 @@
 package com.linkedin.transport.trino;
 
 import com.google.common.collect.ImmutableList;
-import com.linkedin.transport.api.udf.StdUDF;
+import com.linkedin.transport.api.udf.UDF;
 import io.trino.metadata.TypeVariableConstraint;
 import java.util.List;
 import org.testng.Assert;
@@ -39,7 +39,7 @@ public class TestGetTypeVariableConstraints {
         ImmutableList.of(typeVariable("K"), typeVariable("S"), typeVariable("V")));
   }
 
-  private class ExampleStdUDF extends StdUDF {
+  private class ExampleStdUDF extends UDF {
 
     private List<String> _inputParameterSignatures;
     private String _outputParameterSignature;

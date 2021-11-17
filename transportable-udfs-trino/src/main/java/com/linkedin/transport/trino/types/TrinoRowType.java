@@ -5,8 +5,8 @@
  */
 package com.linkedin.transport.trino.types;
 
+import com.linkedin.transport.api.types.DataType;
 import com.linkedin.transport.api.types.RowType;
-import com.linkedin.transport.api.types.StdType;
 import com.linkedin.transport.trino.TrinoWrapper;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -21,7 +21,7 @@ public class TrinoRowType implements RowType {
   }
 
   @Override
-  public List<? extends StdType> fieldTypes() {
+  public List<? extends DataType> fieldTypes() {
     return rowType.getFields().stream().map(f -> TrinoWrapper.createStdType(f.getType())).collect(Collectors.toList());
   }
 

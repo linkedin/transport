@@ -7,7 +7,7 @@ package com.linkedin.transport.trino.data;
 
 import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableList;
-import com.linkedin.transport.api.StdFactory;
+import com.linkedin.transport.api.TypeFactory;
 import com.linkedin.transport.trino.TrinoFactory;
 import com.linkedin.transport.trino.TrinoWrapper;
 import io.trino.spi.TrinoException;
@@ -38,10 +38,10 @@ public class TrinoMapData<K, V> extends TrinoData implements MapData<K, V> {
   final Type _valueType;
   final Type _mapType;
   final MethodHandle _keyEqualsMethod;
-  final StdFactory _stdFactory;
+  final TypeFactory _typeFactory;
   Block _block;
 
-  public TrinoMapData(Type mapType, StdFactory stdFactory) {
+  public TrinoMapData(Type mapType, TypeFactory typeFactory) {
     BlockBuilder mutable = mapType.createBlockBuilder(new PageBuilderStatus().createBlockBuilderStatus(), 1);
     mutable.beginBlockEntry();
     mutable.closeEntry();
@@ -51,13 +51,13 @@ public class TrinoMapData<K, V> extends TrinoData implements MapData<K, V> {
     _valueType = ((MapType) mapType).getValueType();
     _mapType = mapType;
 
-    _stdFactory = stdFactory;
-    _keyEqualsMethod = ((TrinoFactory) stdFactory).getOperatorHandle(
+    _typeFactory = typeFactory;
+    _keyEqualsMethod = ((TrinoFactory) typeFactory).getOperatorHandle(
         OperatorType.EQUAL, ImmutableList.of(_keyType, _keyType), simpleConvention(NULLABLE_RETURN, NEVER_NULL, NEVER_NULL));
   }
 
-  public TrinoMapData(Block block, Type mapType, StdFactory stdFactory) {
-    this(mapType, stdFactory);
+  public TrinoMapData(Block block, Type mapType, TypeFactory typeFactory) {
+    this(mapType, typeFactory);
     _block = block;
   }
 
@@ -72,7 +72,7 @@ public class TrinoMapData<K, V> extends TrinoData implements MapData<K, V> {
     int i = seekKey(prestoKey);
     if (i != -1) {
       Object value = readNativeValue(_valueType, _block, i);
-      return (V) TrinoWrapper.createStdData(value, _valueType, _stdFactory);
+      return (V) TrinoWrapper.createStdData(value, _valueType, _typeFactory);
     } else {
       return null;
     }
@@ -122,7 +122,7 @@ public class TrinoMapData<K, V> extends TrinoData implements MapData<K, V> {
           @Override
           public K next() {
             i += 2;
-            return (K) TrinoWrapper.createStdData(readNativeValue(_keyType, _block, i), _keyType, _stdFactory);
+            return (K) TrinoWrapper.createStdData(readNativeValue(_keyType, _block, i), _keyType, _typeFactory);
           }
         };
       }
@@ -153,7 +153,7 @@ public class TrinoMapData<K, V> extends TrinoData implements MapData<K, V> {
             i += 2;
             return
                 (V) TrinoWrapper.createStdData(
-                    readNativeValue(_valueType, _block, i + 1), _valueType, _stdFactory
+                    readNativeValue(_valueType, _block, i + 1), _valueType, _typeFactory
                 );
           }
         };

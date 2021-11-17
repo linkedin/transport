@@ -5,8 +5,8 @@
  */
 package com.linkedin.transport.trino;
 
-import com.linkedin.transport.api.StdFactory;
-import com.linkedin.transport.api.types.StdType;
+import com.linkedin.transport.api.TypeFactory;
+import com.linkedin.transport.api.types.DataType;
 import com.linkedin.transport.api.data.PlatformData;
 import com.linkedin.transport.trino.data.TrinoData;
 import com.linkedin.transport.trino.data.TrinoArrayData;
@@ -58,7 +58,7 @@ public final class TrinoWrapper {
   private TrinoWrapper() {
   }
 
-  public static Object createStdData(Object trinoData, Type trinoType, StdFactory stdFactory) {
+  public static Object createStdData(Object trinoData, Type trinoType, TypeFactory typeFactory) {
     if (trinoData == null) {
       return null;
     }
@@ -87,11 +87,11 @@ public final class TrinoWrapper {
     } else if (trinoType instanceof VarbinaryType) {
       return ((Slice) trinoData).toByteBuffer();
     } else if (trinoType instanceof ArrayType) {
-      return new TrinoArrayData((Block) trinoData, (ArrayType) trinoType, stdFactory);
+      return new TrinoArrayData((Block) trinoData, (ArrayType) trinoType, typeFactory);
     } else if (trinoType instanceof MapType) {
-      return new TrinoMapData((Block) trinoData, trinoType, stdFactory);
+      return new TrinoMapData((Block) trinoData, trinoType, typeFactory);
     } else if (trinoType instanceof RowType) {
-      return new TrinoRowData((Block) trinoData, trinoType, stdFactory);
+      return new TrinoRowData((Block) trinoData, trinoType, typeFactory);
     }
     assert false : "Unrecognized Trino Type: " + trinoType.getClass();
     return null;
@@ -146,7 +146,7 @@ public final class TrinoWrapper {
     }
   }
 
-  public static StdType createStdType(Object trinoType) {
+  public static DataType createStdType(Object trinoType) {
     if (trinoType instanceof IntegerType) {
       return new TrinoIntegerType((IntegerType) trinoType);
     } else if (trinoType instanceof BigintType) {

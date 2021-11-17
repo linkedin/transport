@@ -5,11 +5,11 @@
  */
 package com.linkedin.transport.avro.types;
 
-import com.linkedin.transport.api.types.StdBinaryType;
+import com.linkedin.transport.api.types.BinaryType;
 import org.apache.avro.Schema;
 
 
-public class AvroBinaryType implements StdBinaryType {
+public class AvroBinaryType implements BinaryType {
   final private Schema _schema;
 
   public AvroBinaryType(Schema schema) {

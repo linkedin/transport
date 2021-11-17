@@ -5,7 +5,7 @@
  */
 package com.linkedin.transport.hive.data;
 
-import com.linkedin.transport.api.StdFactory;
+import com.linkedin.transport.api.TypeFactory;
 import com.linkedin.transport.api.data.ArrayData;
 import com.linkedin.transport.hive.HiveWrapper;
 import java.util.Iterator;
@@ -19,8 +19,8 @@ public class HiveArrayData<E> extends HiveData implements ArrayData<E> {
   final ListObjectInspector _listObjectInspector;
   final ObjectInspector _elementObjectInspector;
 
-  public HiveArrayData(Object object, ObjectInspector objectInspector, StdFactory stdFactory) {
-    super(stdFactory);
+  public HiveArrayData(Object object, ObjectInspector objectInspector, TypeFactory typeFactory) {
+    super(typeFactory);
     _object = object;
     _listObjectInspector = (ListObjectInspector) objectInspector;
     _elementObjectInspector = _listObjectInspector.getListElementObjectInspector();
@@ -35,8 +35,7 @@ public class HiveArrayData<E> extends HiveData implements ArrayData<E> {
   public E get(int idx) {
     return (E) HiveWrapper.createStdData(
         _listObjectInspector.getListElement(_object, idx),
-        _elementObjectInspector,
-        _stdFactory);
+        _elementObjectInspector, _typeFactory);
   }
 
   @Override
@@ -73,7 +72,7 @@ public class HiveArrayData<E> extends HiveData implements ArrayData<E> {
       @Override
       public E next() {
         E element = (E) HiveWrapper.createStdData(_listObjectInspector.getListElement(_object, currentIndex),
-            _elementObjectInspector, _stdFactory);
+            _elementObjectInspector, _typeFactory);
         currentIndex++;
         return element;
       }

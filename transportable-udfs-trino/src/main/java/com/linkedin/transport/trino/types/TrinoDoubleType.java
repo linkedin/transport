@@ -5,15 +5,14 @@
  */
 package com.linkedin.transport.trino.types;
 
-import com.linkedin.transport.api.types.StdDoubleType;
-import io.trino.spi.type.DoubleType;
+import com.linkedin.transport.api.types.DoubleType;
 
 
-public class TrinoDoubleType implements StdDoubleType {
+public class TrinoDoubleType implements DoubleType {
 
-  private final DoubleType doubleType;
+  private final io.trino.spi.type.DoubleType doubleType;
 
-  public TrinoDoubleType(DoubleType doubleType) {
+  public TrinoDoubleType(io.trino.spi.type.DoubleType doubleType) {
     this.doubleType = doubleType;
   }
 

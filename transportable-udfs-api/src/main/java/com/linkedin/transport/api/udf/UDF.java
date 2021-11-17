@@ -5,22 +5,22 @@
  */
 package com.linkedin.transport.api.udf;
 
-import com.linkedin.transport.api.StdFactory;
+import com.linkedin.transport.api.TypeFactory;
 import java.util.List;
 
 
 /**
  * A base class for all Standard UDF implementations.
  *
- * {@link StdUDF} abstract class is a base class for more specific StdUDF abstract sub-classes that are specific to the
- * number of UDF arguments, i.e., {@link StdUDF0}, {@link StdUDF1}, {@link StdUDF2}, etc. In general, StdUDF(i) is an
- * abstract class for UDFs expecting {@code i} arguments. Similar to lambda expressions, StdUDF(i) abstract classes are
+ * {@link UDF} abstract class is a base class for more specific UDF abstract sub-classes that are specific to the
+ * number of UDF arguments, i.e., {@link UDF0}, {@link UDF1}, {@link UDF2}, etc. In general, UDF(i) is an
+ * abstract class for UDFs expecting {@code i} arguments. Similar to lambda expressions, UDF(i) abstract classes are
  * type-parameterized by the input types and output type of the eval function. Each class is type-parameterized by
  * {@code (i+1)} type parameters; {@code i} type parameters for the UDF input types, and one type parameter for the
  * output type.
  */
-public abstract class StdUDF {
-  private StdFactory _stdFactory;
+public abstract class UDF {
+  private TypeFactory _typeFactory;
 
   /** Returns a {@link List} of type signature strings representing the input parameters to the UDF*/
   public abstract List<String> getInputParameterSignatures();
@@ -29,22 +29,22 @@ public abstract class StdUDF {
   public abstract String getOutputParameterSignature();
 
   /**
-   * Performs necessary initializations for a {@link StdUDF}.
+   * Performs necessary initializations for a {@link UDF}.
    *
    * This method is called before any records are processed by the UDF. All overriding implementations <b>MUST</b> call
-   * {@code super.init(stdFactory)} at the beginning of this method to ensure the {@link StdFactory} object is set.
-   * Also any {@link StdUDF} instantiating another {@link StdUDF} inside it <b>MUST</b> call {@link #init(StdFactory)}
+   * {@code super.init(typeFactory)} at the beginning of this method to ensure the {@link TypeFactory} object is set.
+   * Also any {@link UDF} instantiating another {@link UDF} inside it <b>MUST</b> call {@link #init(TypeFactory)}
    * of contained UDF.
    *
-   * @param stdFactory  a {@link StdFactory} object which can be used to create
+   * @param typeFactory  a {@link TypeFactory} object which can be used to create
    * data and type objects
    */
-  public void init(StdFactory stdFactory) {
-    _stdFactory = stdFactory;
+  public void init(TypeFactory typeFactory) {
+    _typeFactory = typeFactory;
   }
 
   /**
-   * Processes the localized files for the {@link StdUDF}.
+   * Processes the localized files for the {@link UDF}.
    *
    * This method is called before any records are processed. The Standard UDF framework localizes the files passed
    * through {@code getRequiredFiles()} and provides the localized file paths for further processing such as building of
@@ -78,14 +78,14 @@ public abstract class StdUDF {
     return nullableArguments;
   }
 
-  /** Returns the number of input arguments for the {@link StdUDF} */
+  /** Returns the number of input arguments for the {@link UDF} */
   protected abstract int numberOfArguments();
 
   /**
-   * Returns a {@link StdFactory} object which can be used to create data and
+   * Returns a {@link TypeFactory} object which can be used to create data and
    * type objects
    */
-  public StdFactory getStdFactory() {
-    return _stdFactory;
+  public TypeFactory getTypeFactory() {
+    return _typeFactory;
   }
 }

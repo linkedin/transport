@@ -7,8 +7,8 @@ package com.linkedin.transport.examples;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import com.linkedin.transport.api.udf.StdUDF;
-import com.linkedin.transport.api.udf.TopLevelStdUDF;
+import com.linkedin.transport.api.udf.UDF;
+import com.linkedin.transport.api.udf.TopLevelUDF;
 import com.linkedin.transport.test.AbstractStdUDFTest;
 import com.linkedin.transport.test.spi.StdTester;
 import java.util.List;
@@ -19,7 +19,7 @@ import org.testng.annotations.Test;
 public class TestArrayElementAtFunction extends AbstractStdUDFTest {
 
   @Override
-  protected Map<Class<? extends TopLevelStdUDF>, List<Class<? extends StdUDF>>> getTopLevelStdUDFClassesAndImplementations() {
+  protected Map<Class<? extends TopLevelUDF>, List<Class<? extends UDF>>> getTopLevelUDFClassesAndImplementations() {
     return ImmutableMap.of(ArrayElementAtFunction.class, ImmutableList.of(ArrayElementAtFunction.class));
   }
 

@@ -6,9 +6,7 @@
 package com.linkedin.transport.spark
 
 import java.nio.ByteBuffer
-
 import com.linkedin.transport.api.data.PlatformData
-import com.linkedin.transport.api.types.StdType
 import com.linkedin.transport.spark.data._
 import com.linkedin.transport.spark.types._
 import org.apache.spark.sql.catalyst.InternalRow
@@ -59,7 +57,7 @@ object SparkWrapper {
     }
   }
 
-  def createStdType(dataType: DataType): StdType = dataType match {
+  def createStdType(dataType: DataType): com.linkedin.transport.api.types.DataType = dataType match {
     case _: IntegerType => SparkIntegerType(dataType.asInstanceOf[IntegerType])
     case _: LongType => SparkLongType(dataType.asInstanceOf[LongType])
     case _: BooleanType => SparkBooleanType(dataType.asInstanceOf[BooleanType])

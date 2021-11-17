@@ -5,10 +5,10 @@
  */
 package udfs;
 
-import com.linkedin.transport.api.udf.TopLevelStdUDF;
+import com.linkedin.transport.api.udf.TopLevelUDF;
 
 
-public interface OverloadedUDF2 extends TopLevelStdUDF {
+public interface OverloadedUDF2 extends TopLevelUDF {
 
   @Override
   default String getFunctionName() {

@@ -5,7 +5,7 @@
  */
 package com.linkedin.transport.trino.data;
 
-import com.linkedin.transport.api.StdFactory;
+import com.linkedin.transport.api.TypeFactory;
 import com.linkedin.transport.trino.TrinoWrapper;
 import io.trino.spi.block.Block;
 import io.trino.spi.block.BlockBuilder;
@@ -26,26 +26,26 @@ import static io.trino.spi.type.TypeUtils.*;
 public class TrinoRowData extends TrinoData implements RowData {
 
   final RowType _rowType;
-  final StdFactory _stdFactory;
+  final TypeFactory _typeFactory;
   Block _block;
 
-  public TrinoRowData(Type rowType, StdFactory stdFactory) {
+  public TrinoRowData(Type rowType, TypeFactory typeFactory) {
     _rowType = (RowType) rowType;
-    _stdFactory = stdFactory;
+    _typeFactory = typeFactory;
   }
 
-  public TrinoRowData(Block block, Type rowType, StdFactory stdFactory) {
-    this(rowType, stdFactory);
+  public TrinoRowData(Block block, Type rowType, TypeFactory typeFactory) {
+    this(rowType, typeFactory);
     _block = block;
   }
 
-  public TrinoRowData(List<Type> fieldTypes, StdFactory stdFactory) {
-    _stdFactory = stdFactory;
+  public TrinoRowData(List<Type> fieldTypes, TypeFactory typeFactory) {
+    _typeFactory = typeFactory;
     _rowType = RowType.anonymous(fieldTypes);
   }
 
-  public TrinoRowData(List<String> fieldNames, List<Type> fieldTypes, StdFactory stdFactory) {
-    _stdFactory = stdFactory;
+  public TrinoRowData(List<String> fieldNames, List<Type> fieldTypes, TypeFactory typeFactory) {
+    _typeFactory = typeFactory;
     List<RowType.Field> fields = IntStream.range(0, fieldNames.size())
         .mapToObj(i -> new RowType.Field(Optional.ofNullable(fieldNames.get(i)), fieldTypes.get(i)))
         .collect(Collectors.toList());
@@ -60,7 +60,7 @@ public class TrinoRowData extends TrinoData implements RowData {
     }
     Type elementType = _rowType.getFields().get(position).getType();
     Object element = readNativeValue(elementType, _block, position);
-    return TrinoWrapper.createStdData(element, elementType, _stdFactory);
+    return TrinoWrapper.createStdData(element, elementType, _typeFactory);
   }
 
   @Override
@@ -80,7 +80,7 @@ public class TrinoRowData extends TrinoData implements RowData {
       return null;
     }
     Object element = readNativeValue(elementType, _block, index);
-    return TrinoWrapper.createStdData(element, elementType, _stdFactory);
+    return TrinoWrapper.createStdData(element, elementType, _typeFactory);
   }
 
   @Override
@@ -134,7 +134,7 @@ public class TrinoRowData extends TrinoData implements RowData {
     for (int i = 0; i < _block.getPositionCount(); i++) {
       Type elementType = _rowType.getFields().get(i).getType();
       Object element = readNativeValue(elementType, _block, i);
-      fields.add(TrinoWrapper.createStdData(element, elementType, _stdFactory));
+      fields.add(TrinoWrapper.createStdData(element, elementType, _typeFactory));
     }
     return fields;
   }

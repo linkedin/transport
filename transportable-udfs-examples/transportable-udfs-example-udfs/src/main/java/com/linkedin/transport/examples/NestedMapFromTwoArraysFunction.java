@@ -6,21 +6,21 @@
 package com.linkedin.transport.examples;
 
 import com.google.common.collect.ImmutableList;
-import com.linkedin.transport.api.StdFactory;
+import com.linkedin.transport.api.TypeFactory;
 import com.linkedin.transport.api.data.ArrayData;
 import com.linkedin.transport.api.data.MapData;
 import com.linkedin.transport.api.data.RowData;
-import com.linkedin.transport.api.types.StdType;
-import com.linkedin.transport.api.udf.StdUDF1;
-import com.linkedin.transport.api.udf.TopLevelStdUDF;
+import com.linkedin.transport.api.types.DataType;
+import com.linkedin.transport.api.udf.UDF1;
+import com.linkedin.transport.api.udf.TopLevelUDF;
 import java.util.List;
 
 
-public class NestedMapFromTwoArraysFunction extends StdUDF1<ArrayData, ArrayData> implements TopLevelStdUDF {
+public class NestedMapFromTwoArraysFunction extends UDF1<ArrayData, ArrayData> implements TopLevelUDF {
 
-  private StdType _arrayType;
-  private StdType _mapType;
-  private StdType _rowType;
+  private DataType _arrayType;
+  private DataType _mapType;
+  private DataType _rowType;
 
   @Override
   public List<String> getInputParameterSignatures() {
@@ -35,16 +35,16 @@ public class NestedMapFromTwoArraysFunction extends StdUDF1<ArrayData, ArrayData
   }
 
   @Override
-  public void init(StdFactory stdFactory) {
-    super.init(stdFactory);
-    _arrayType = getStdFactory().createStdType(getOutputParameterSignature());
-    _rowType = getStdFactory().createStdType("row(map(K,V))");
-    _mapType = getStdFactory().createStdType("map(K,V)");
+  public void init(TypeFactory typeFactory) {
+    super.init(typeFactory);
+    _arrayType = getTypeFactory().createDataType(getOutputParameterSignature());
+    _rowType = getTypeFactory().createDataType("row(map(K,V))");
+    _mapType = getTypeFactory().createDataType("map(K,V)");
   }
 
   @Override
   public ArrayData eval(ArrayData a1) {
-    ArrayData result = getStdFactory().createArray(_arrayType);
+    ArrayData result = getTypeFactory().createArray(_arrayType);
 
     for (int i = 0; i < a1.size(); i++) {
       if (a1.get(i) == null) {
@@ -62,12 +62,12 @@ public class NestedMapFromTwoArraysFunction extends StdUDF1<ArrayData, ArrayData
         return null;
       }
 
-      MapData map = getStdFactory().createMap(_mapType);
+      MapData map = getTypeFactory().createMap(_mapType);
       for (int j = 0; j < kValues.size(); j++) {
         map.put(kValues.get(j), vValues.get(j));
       }
 
-      RowData outputRow = getStdFactory().createStruct(_rowType);
+      RowData outputRow = getTypeFactory().createStruct(_rowType);
       outputRow.setField(0, map);
 
       result.add(outputRow);

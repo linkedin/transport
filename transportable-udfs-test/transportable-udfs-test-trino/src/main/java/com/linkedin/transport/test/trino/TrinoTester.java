@@ -7,14 +7,14 @@ package com.linkedin.transport.test.trino;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.linkedin.transport.api.TypeFactory;
+import com.linkedin.transport.api.udf.UDF;
 import io.trino.metadata.BoundSignature;
 import io.trino.metadata.FunctionBinding;
 import io.trino.metadata.FunctionId;
 import io.trino.operator.scalar.AbstractTestFunctions;
 import io.trino.spi.type.Type;
-import com.linkedin.transport.api.StdFactory;
-import com.linkedin.transport.api.udf.StdUDF;
-import com.linkedin.transport.api.udf.TopLevelStdUDF;
+import com.linkedin.transport.api.udf.TopLevelUDF;
 import com.linkedin.transport.trino.TrinoFactory;
 import com.linkedin.transport.test.spi.SqlFunctionCallGenerator;
 import com.linkedin.transport.test.spi.SqlStdTester;
@@ -27,41 +27,41 @@ import static io.trino.type.UnknownType.UNKNOWN;
 
 public class TrinoTester extends AbstractTestFunctions implements SqlStdTester {
 
-  private StdFactory _stdFactory;
+  private TypeFactory _typeFactory;
   private SqlFunctionCallGenerator _sqlFunctionCallGenerator;
   private ToPlatformTestOutputConverter _toPlatformTestOutputConverter;
 
   public TrinoTester() {
-    _stdFactory = null;
+    _typeFactory = null;
     _sqlFunctionCallGenerator = new TrinoSqlFunctionCallGenerator();
     _toPlatformTestOutputConverter = new ToTrinoTestOutputConverter();
   }
 
   @Override
   public void setup(
-      Map<Class<? extends TopLevelStdUDF>, List<Class<? extends StdUDF>>> topLevelStdUDFClassesAndImplementations) {
+      Map<Class<? extends TopLevelUDF>, List<Class<? extends UDF>>> topLevelStdUDFClassesAndImplementations) {
     // Refresh Trino state during every setup call
     initTestFunctions();
-    for (List<Class<? extends StdUDF>> stdUDFImplementations : topLevelStdUDFClassesAndImplementations.values()) {
-      for (Class<? extends StdUDF> stdUDF : stdUDFImplementations) {
+    for (List<Class<? extends UDF>> stdUDFImplementations : topLevelStdUDFClassesAndImplementations.values()) {
+      for (Class<? extends UDF> stdUDF : stdUDFImplementations) {
         registerScalarFunction(new TrinoTestStdUDFWrapper(stdUDF));
       }
     }
   }
 
   @Override
-  public StdFactory getStdFactory() {
-    if (_stdFactory == null) {
+  public TypeFactory getStdFactory() {
+    if (_typeFactory == null) {
       FunctionBinding functionBinding = new FunctionBinding(
           new FunctionId("test"),
           new BoundSignature("test", UNKNOWN, ImmutableList.of()),
           ImmutableMap.of(),
           ImmutableMap.of());
-      _stdFactory = new TrinoFactory(
+      _typeFactory = new TrinoFactory(
           functionBinding,
           this.functionAssertions.getMetadata());
     }
-    return _stdFactory;
+    return _typeFactory;
   }
 
   @Override

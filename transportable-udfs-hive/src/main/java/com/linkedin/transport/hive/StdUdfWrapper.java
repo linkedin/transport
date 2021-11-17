@@ -5,19 +5,19 @@
  */
 package com.linkedin.transport.hive;
 
-import com.linkedin.transport.api.StdFactory;
+import com.linkedin.transport.api.TypeFactory;
 import com.linkedin.transport.api.data.PlatformData;
-import com.linkedin.transport.api.udf.StdUDF;
-import com.linkedin.transport.api.udf.StdUDF0;
-import com.linkedin.transport.api.udf.StdUDF1;
-import com.linkedin.transport.api.udf.StdUDF2;
-import com.linkedin.transport.api.udf.StdUDF3;
-import com.linkedin.transport.api.udf.StdUDF4;
-import com.linkedin.transport.api.udf.StdUDF5;
-import com.linkedin.transport.api.udf.StdUDF6;
-import com.linkedin.transport.api.udf.StdUDF7;
-import com.linkedin.transport.api.udf.StdUDF8;
-import com.linkedin.transport.api.udf.TopLevelStdUDF;
+import com.linkedin.transport.api.udf.UDF;
+import com.linkedin.transport.api.udf.UDF0;
+import com.linkedin.transport.api.udf.UDF1;
+import com.linkedin.transport.api.udf.UDF2;
+import com.linkedin.transport.api.udf.UDF3;
+import com.linkedin.transport.api.udf.UDF4;
+import com.linkedin.transport.api.udf.UDF5;
+import com.linkedin.transport.api.udf.UDF6;
+import com.linkedin.transport.api.udf.UDF7;
+import com.linkedin.transport.api.udf.UDF8;
+import com.linkedin.transport.api.udf.TopLevelUDF;
 import com.linkedin.transport.hive.typesystem.HiveTypeInference;
 import com.linkedin.transport.utils.FileSystemUtils;
 import java.io.FileNotFoundException;
@@ -45,9 +45,9 @@ import org.apache.hadoop.hive.serde2.objectinspector.primitive.BinaryObjectInspe
 public abstract class StdUdfWrapper extends GenericUDF {
 
   protected ObjectInspector[] _inputObjectInspectors;
-  protected StdUDF _stdUdf;
+  protected UDF _udf;
   protected boolean _requiredFilesProcessed;
-  protected StdFactory _stdFactory;
+  protected TypeFactory _typeFactory;
   private boolean[] _nullableArguments;
   private String[] _distributedCacheFiles;
   private Object[] _args;
@@ -66,10 +66,10 @@ public abstract class StdUdfWrapper extends GenericUDF {
     HiveTypeInference hiveTypeInference = new HiveTypeInference();
     hiveTypeInference.compile(arguments, getStdUdfImplementations(), getTopLevelUdfClass());
     _inputObjectInspectors = hiveTypeInference.getInputDataTypes();
-    _stdFactory = hiveTypeInference.getStdFactory();
-    _stdUdf = hiveTypeInference.getStdUdf();
-    _nullableArguments = _stdUdf.getAndCheckNullableArguments();
-    _stdUdf.init(_stdFactory);
+    _typeFactory = hiveTypeInference.getStdFactory();
+    _udf = hiveTypeInference.getStdUdf();
+    _nullableArguments = _udf.getAndCheckNullableArguments();
+    _udf.init(_typeFactory);
     _requiredFilesProcessed = false;
     createStdData();
     _outputObjectInspector = hiveTypeInference.getOutputDataType();
@@ -79,15 +79,15 @@ public abstract class StdUdfWrapper extends GenericUDF {
   @Override
   public void copyToNewInstance(Object newInstance) throws UDFArgumentException {
     super.copyToNewInstance(newInstance);
-    if (_stdUdf == null) {
+    if (_udf == null) {
       return;
     }
     StdUdfWrapper newWrapper = (StdUdfWrapper) newInstance;
     newWrapper._inputObjectInspectors = _inputObjectInspectors;
-    newWrapper._stdFactory = _stdFactory;
-    newWrapper._stdUdf = _stdUdf;
-    newWrapper._nullableArguments = _stdUdf.getAndCheckNullableArguments();
-    newWrapper._stdUdf.init(_stdFactory);
+    newWrapper._typeFactory = _typeFactory;
+    newWrapper._udf = _udf;
+    newWrapper._nullableArguments = _udf.getAndCheckNullableArguments();
+    newWrapper._udf.init(_typeFactory);
     newWrapper._requiredFilesProcessed = false;
     newWrapper.createStdData();
   }
@@ -134,14 +134,14 @@ public abstract class StdUdfWrapper extends GenericUDF {
     }
   }
 
-  protected abstract List<? extends StdUDF> getStdUdfImplementations();
+  protected abstract List<? extends UDF> getStdUdfImplementations();
 
-  protected abstract Class<? extends TopLevelStdUDF> getTopLevelUdfClass();
+  protected abstract Class<? extends TopLevelUDF> getTopLevelUdfClass();
 
   protected void createStdData() {
     _args = new Object[_inputObjectInspectors.length];
     for (int i = 0; i < _inputObjectInspectors.length; i++) {
-      _args[i] = HiveWrapper.createStdData(null, _inputObjectInspectors[i], _stdFactory);
+      _args[i] = HiveWrapper.createStdData(null, _inputObjectInspectors[i], _typeFactory);
     }
   }
 
@@ -166,7 +166,7 @@ public abstract class StdUdfWrapper extends GenericUDF {
   private Object[] wrapConstants() {
     return Arrays.stream(_inputObjectInspectors)
         .map(oi -> (oi instanceof ConstantObjectInspector) ? HiveWrapper.createStdData(
-            ((ConstantObjectInspector) oi).getWritableConstantValue(), oi, _stdFactory) : null)
+            ((ConstantObjectInspector) oi).getWritableConstantValue(), oi, _typeFactory) : null)
         .toArray(Object[]::new);
   }
 
@@ -182,31 +182,31 @@ public abstract class StdUdfWrapper extends GenericUDF {
     Object result;
     switch (args.length) {
       case 0:
-        result = ((StdUDF0) _stdUdf).eval();
+        result = ((UDF0) _udf).eval();
         break;
       case 1:
-        result = ((StdUDF1) _stdUdf).eval(args[0]);
+        result = ((UDF1) _udf).eval(args[0]);
         break;
       case 2:
-        result = ((StdUDF2) _stdUdf).eval(args[0], args[1]);
+        result = ((UDF2) _udf).eval(args[0], args[1]);
         break;
       case 3:
-        result = ((StdUDF3) _stdUdf).eval(args[0], args[1], args[2]);
+        result = ((UDF3) _udf).eval(args[0], args[1], args[2]);
         break;
       case 4:
-        result = ((StdUDF4) _stdUdf).eval(args[0], args[1], args[2], args[3]);
+        result = ((UDF4) _udf).eval(args[0], args[1], args[2], args[3]);
         break;
       case 5:
-        result = ((StdUDF5) _stdUdf).eval(args[0], args[1], args[2], args[3], args[4]);
+        result = ((UDF5) _udf).eval(args[0], args[1], args[2], args[3], args[4]);
         break;
       case 6:
-        result = ((StdUDF6) _stdUdf).eval(args[0], args[1], args[2], args[3], args[4], args[5]);
+        result = ((UDF6) _udf).eval(args[0], args[1], args[2], args[3], args[4], args[5]);
         break;
       case 7:
-        result = ((StdUDF7) _stdUdf).eval(args[0], args[1], args[2], args[3], args[4], args[5], args[6]);
+        result = ((UDF7) _udf).eval(args[0], args[1], args[2], args[3], args[4], args[5], args[6]);
         break;
       case 8:
-        result = ((StdUDF8) _stdUdf).eval(args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7]);
+        result = ((UDF8) _udf).eval(args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7]);
         break;
       default:
         throw new UnsupportedOperationException("eval not yet supported for StdUDF" + args.length);
@@ -223,33 +223,33 @@ public abstract class StdUdfWrapper extends GenericUDF {
     String[] requiredFiles;
     switch (args.length) {
       case 0:
-        requiredFiles = ((StdUDF0) _stdUdf).getRequiredFiles();
+        requiredFiles = ((UDF0) _udf).getRequiredFiles();
         break;
       case 1:
-        requiredFiles = ((StdUDF1) _stdUdf).getRequiredFiles(args[0]);
+        requiredFiles = ((UDF1) _udf).getRequiredFiles(args[0]);
         break;
       case 2:
-        requiredFiles = ((StdUDF2) _stdUdf).getRequiredFiles(args[0], args[1]);
+        requiredFiles = ((UDF2) _udf).getRequiredFiles(args[0], args[1]);
         break;
       case 3:
-        requiredFiles = ((StdUDF3) _stdUdf).getRequiredFiles(args[0], args[1], args[2]);
+        requiredFiles = ((UDF3) _udf).getRequiredFiles(args[0], args[1], args[2]);
         break;
       case 4:
-        requiredFiles = ((StdUDF4) _stdUdf).getRequiredFiles(args[0], args[1], args[2], args[3]);
+        requiredFiles = ((UDF4) _udf).getRequiredFiles(args[0], args[1], args[2], args[3]);
         break;
       case 5:
-        requiredFiles = ((StdUDF5) _stdUdf).getRequiredFiles(args[0], args[1], args[2], args[3], args[4]);
+        requiredFiles = ((UDF5) _udf).getRequiredFiles(args[0], args[1], args[2], args[3], args[4]);
         break;
       case 6:
-        requiredFiles = ((StdUDF6) _stdUdf).getRequiredFiles(args[0], args[1], args[2], args[3], args[4], args[5]);
+        requiredFiles = ((UDF6) _udf).getRequiredFiles(args[0], args[1], args[2], args[3], args[4], args[5]);
         break;
       case 7:
         requiredFiles =
-            ((StdUDF7) _stdUdf).getRequiredFiles(args[0], args[1], args[2], args[3], args[4], args[5], args[6]);
+            ((UDF7) _udf).getRequiredFiles(args[0], args[1], args[2], args[3], args[4], args[5], args[6]);
         break;
       case 8:
         requiredFiles =
-            ((StdUDF8) _stdUdf).getRequiredFiles(args[0], args[1], args[2], args[3], args[4], args[5], args[6],
+            ((UDF8) _udf).getRequiredFiles(args[0], args[1], args[2], args[3], args[4], args[5], args[6],
                 args[7]);
         break;
       default:
@@ -275,7 +275,7 @@ public abstract class StdUdfWrapper extends GenericUDF {
           throw new RuntimeException("Failed to resolve path: [" + distributedCacheFile + "].", e);
         }
       }).toArray(String[]::new);
-      _stdUdf.processRequiredFiles(localFiles);
+      _udf.processRequiredFiles(localFiles);
       _requiredFilesProcessed = true;
     }
   }
@@ -316,6 +316,6 @@ public abstract class StdUdfWrapper extends GenericUDF {
 
   @Override
   public String getDisplayString(String[] children) {
-    return getStandardDisplayString(((TopLevelStdUDF) _stdUdf).getFunctionName(), children);
+    return getStandardDisplayString(((TopLevelUDF) _udf).getFunctionName(), children);
   }
 }

@@ -5,15 +5,15 @@
  */
 package com.linkedin.transport.avro.types;
 
-import com.linkedin.transport.api.types.StdMapType;
-import com.linkedin.transport.api.types.StdType;
+import com.linkedin.transport.api.types.MapType;
+import com.linkedin.transport.api.types.DataType;
 import com.linkedin.transport.avro.AvroWrapper;
 import org.apache.avro.Schema;
 
 import static org.apache.avro.Schema.Type.*;
 
 
-public class AvroMapType implements StdMapType {
+public class AvroMapType implements MapType {
   private final Schema _schema;
 
   public AvroMapType(Schema schema) {
@@ -21,12 +21,12 @@ public class AvroMapType implements StdMapType {
   }
 
   @Override
-  public StdType keyType() {
+  public DataType keyType() {
     return AvroWrapper.createStdType(Schema.create(STRING));
   }
 
   @Override
-  public StdType valueType() {
+  public DataType valueType() {
     return AvroWrapper.createStdType(_schema.getValueType());
   }
 

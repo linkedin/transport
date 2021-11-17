@@ -5,11 +5,11 @@
  */
 package com.linkedin.transport.trino.types;
 
-import com.linkedin.transport.api.types.StdStringType;
+import com.linkedin.transport.api.types.StringType;
 import io.trino.spi.type.VarcharType;
 
 
-public class TrinoStringType implements StdStringType {
+public class TrinoStringType implements StringType {
 
   final VarcharType varcharType;
 

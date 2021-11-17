@@ -6,13 +6,13 @@
 package com.linkedin.transport.test.hive.udf;
 
 import com.google.common.collect.ImmutableList;
-import com.linkedin.transport.api.StdFactory;
+import com.linkedin.transport.api.TypeFactory;
 import com.linkedin.transport.api.data.ArrayData;
 import com.linkedin.transport.api.data.MapData;
 import com.linkedin.transport.api.data.RowData;
-import com.linkedin.transport.api.types.StdMapType;
-import com.linkedin.transport.api.udf.StdUDF1;
-import com.linkedin.transport.api.udf.TopLevelStdUDF;
+import com.linkedin.transport.api.types.MapType;
+import com.linkedin.transport.api.udf.UDF1;
+import com.linkedin.transport.api.udf.TopLevelUDF;
 import java.util.List;
 
 
@@ -20,19 +20,19 @@ import java.util.List;
  * Hive's built-in map() UDF cannot be used to create maps with complex key types. This UDF allows you to do so.
  * This is used inside {@link com.linkedin.transport.test.hive.HiveTester} to create arbitrary map objects
  */
-public class MapFromEntries extends StdUDF1<ArrayData, MapData> implements TopLevelStdUDF {
+public class MapFromEntries extends UDF1<ArrayData, MapData> implements TopLevelUDF {
 
-  private StdMapType _mapType;
+  private MapType _mapType;
 
   @Override
-  public void init(StdFactory stdFactory) {
-    super.init(stdFactory);
-    _mapType = (StdMapType) stdFactory.createStdType(getOutputParameterSignature());
+  public void init(TypeFactory typeFactory) {
+    super.init(typeFactory);
+    _mapType = (MapType) typeFactory.createDataType(getOutputParameterSignature());
   }
 
   @Override
   public MapData eval(ArrayData entryArray) {
-    MapData result = getStdFactory().createMap(_mapType);
+    MapData result = getTypeFactory().createMap(_mapType);
     for (Object element : entryArray) {
       RowData elementStruct = (RowData) element;
       result.put(elementStruct.getField(0), elementStruct.getField(1));

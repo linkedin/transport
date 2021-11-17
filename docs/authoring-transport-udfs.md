@@ -36,8 +36,8 @@ Let's write a UDF to multiply two integers. Paste the following into `src/main/j
 package transport.example;
 
 import com.linkedin.transport.api.data.StdInteger;
-import com.linkedin.transport.api.udf.StdUDF2;
-import com.linkedin.transport.api.udf.TopLevelStdUDF;
+import com.linkedin.transport.api.udf.UDF2;
+import com.linkedin.transport.api.udf.TopLevelUDF;
 import java.util.Arrays;
 import java.util.List;
 

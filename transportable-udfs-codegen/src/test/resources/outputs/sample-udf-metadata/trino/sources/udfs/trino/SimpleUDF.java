@@ -1,6 +1,6 @@
 package udfs.trino;
 
-import com.linkedin.transport.api.udf.StdUDF;
+import com.linkedin.transport.api.udf.UDF;
 import com.linkedin.transport.trino.StdUdfWrapper;
 
 public class SimpleUDF extends StdUdfWrapper {
@@ -9,7 +9,7 @@ public class SimpleUDF extends StdUdfWrapper {
   }
 
   @Override
-  protected StdUDF getStdUDF() {
+  protected UDF getStdUDF() {
     return new udfs.SimpleUDF();
   }
 }

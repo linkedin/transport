@@ -15,16 +15,16 @@ package com.linkedin.transport.api.udf;
  * @param <I4>  the type of the fourth input argument
  * @param <I5>  the type of the fifth input argument
  * @param <I6>  the type of the sixth input argument
- * @param <O>  the type of the return value of the {@link StdUDF}
+ * @param <O>  the type of the return value of the {@link UDF}
  */
 // Suppressing class parameter type parameter name and arg naming style checks since this naming convention is more
 // suitable to Standard UDFs, and the code is more readable this way.
 @SuppressWarnings({"checkstyle:classtypeparametername", "checkstyle:regexpsinglelinejava"})
-public abstract class StdUDF6<I1, I2, I3, I4,
-    I5, I6, O> extends StdUDF {
+public abstract class UDF6<I1, I2, I3, I4,
+    I5, I6, O> extends UDF {
 
   /**
-   * Returns the output of the {@link StdUDF} given the input arguments.
+   * Returns the output of the {@link UDF} given the input arguments.
    *
    * This method is called once per input record. All UDF logic should be defined in this method.
    *
@@ -34,7 +34,7 @@ public abstract class StdUDF6<I1, I2, I3, I4,
    * @param arg4  the fourth input argument
    * @param arg5  the fifth input argument
    * @param arg6  the sixth input argument
-   * @return the output of the {@link StdUDF} given the input arguments.
+   * @return the output of the {@link UDF} given the input arguments.
    */
   public abstract O eval(I1 arg1, I2 arg2, I3 arg3, I4 arg4, I5 arg5, I6 arg6);
 
@@ -42,7 +42,7 @@ public abstract class StdUDF6<I1, I2, I3, I4,
    * Returns an array of file paths to be localized at the worker nodes.
    *
    * The Standard UDF framework localizes the files passed through this method and provides the localized file paths to
-   * {@link StdUDF#processRequiredFiles(String[])} for further processing. Users can use the pattern "#LATEST" instead
+   * {@link UDF#processRequiredFiles(String[])} for further processing. Users can use the pattern "#LATEST" instead
    * of a concrete directory name in the path as a way of selecting the directory with the most recent timestamp, and
    * hence obtaining the most recent version of a file.
    * Example: 'hdfs:///data/derived/dwh/prop/testMemberId/#LATEST/testMemberId.txt'

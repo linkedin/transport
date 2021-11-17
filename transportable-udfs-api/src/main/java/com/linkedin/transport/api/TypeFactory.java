@@ -8,54 +8,54 @@ package com.linkedin.transport.api;
 import com.linkedin.transport.api.data.ArrayData;
 import com.linkedin.transport.api.data.MapData;
 import com.linkedin.transport.api.data.RowData;
-import com.linkedin.transport.api.types.StdArrayType;
-import com.linkedin.transport.api.types.StdMapType;
-import com.linkedin.transport.api.types.StdType;
-import com.linkedin.transport.api.udf.StdUDF;
+import com.linkedin.transport.api.types.DataType;
+import com.linkedin.transport.api.types.ArrayType;
+import com.linkedin.transport.api.types.MapType;
+import com.linkedin.transport.api.udf.UDF;
 import java.io.Serializable;
 import java.util.List;
 
 
 /**
- * {@link StdFactory} is used to create containter types (e.g., {@link ArrayData}, {@link MapData}, {@link RowData})
- * and {@link StdType} objects inside Standard UDFs.
+ * {@link TypeFactory} is used to create containter types (e.g., {@link ArrayData}, {@link MapData}, {@link RowData})
+ * and {@link DataType} objects inside Standard UDFs.
  *
- * Specific APIs of {@link StdFactory} are implemented by each target platform (e.g., Spark, Trino, Hive) individually.
- * A {@link StdFactory} object is available inside Standard UDFs using {@link StdUDF#getStdFactory()}.
+ * Specific APIs of {@link TypeFactory} are implemented by each target platform (e.g., Spark, Trino, Hive) individually.
+ * A {@link TypeFactory} object is available inside Standard UDFs using {@link UDF#getTypeFactory()}.
  * The Standard UDF framework is responsible for providing the correct platform specific implementation at runtime.
  */
-public interface StdFactory extends Serializable {
+public interface TypeFactory extends Serializable {
 
   /**
-   * Creates an empty {@link ArrayData} whose type is given by the given {@link StdType}.
+   * Creates an empty {@link ArrayData} whose type is given by the given {@link DataType}.
    *
-   * It is expected that the top-level {@link StdType} is a {@link StdArrayType}.
+   * It is expected that the top-level {@link DataType} is a {@link ArrayType}.
    *
-   * @param stdType  type of the array to be created
+   * @param dataType  type of the array to be created
    * @param expectedSize  expected number of entries in the array
    * @return an empty {@link ArrayData}
    */
-  ArrayData createArray(StdType stdType, int expectedSize);
+  ArrayData createArray(DataType dataType, int expectedSize);
 
   /**
-   * Creates an empty {@link ArrayData} whose type is given by the given {@link StdType}.
+   * Creates an empty {@link ArrayData} whose type is given by the given {@link DataType}.
    *
-   * It is expected that the top-level {@link StdType} is a {@link StdArrayType}.
+   * It is expected that the top-level {@link DataType} is a {@link ArrayType}.
    *
-   * @param stdType  type of the array to be created
+   * @param dataType  type of the array to be created
    * @return an empty {@link ArrayData}
    */
-  ArrayData createArray(StdType stdType);
+  ArrayData createArray(DataType dataType);
 
   /**
-   * Creates an empty {@link MapData} whose type is given by the given {@link StdType}.
+   * Creates an empty {@link MapData} whose type is given by the given {@link DataType}.
    *
-   * It is expected that the top-level {@link StdType} is a {@link StdMapType}.
+   * It is expected that the top-level {@link DataType} is a {@link MapType}.
    *
-   * @param stdType  type of the map to be created
+   * @param dataType  type of the map to be created
    * @return an empty {@link MapData}
    */
-  MapData createMap(StdType stdType);
+  MapData createMap(DataType dataType);
 
   /**
    * Creates a {@link RowData} with the given field names and types.
@@ -64,7 +64,7 @@ public interface StdFactory extends Serializable {
    * @param fieldTypes  types of the struct fields
    * @return a {@link RowData} with all fields initialized to null
    */
-  RowData createStruct(List<String> fieldNames, List<StdType> fieldTypes);
+  RowData createStruct(List<String> fieldNames, List<DataType> fieldTypes);
 
   /**
    * Creates a {@link RowData} with the given field types. Field names will be field0, field1, field2...
@@ -72,20 +72,20 @@ public interface StdFactory extends Serializable {
    * @param fieldTypes  types of the struct fields
    * @return a {@link RowData} with all fields initialized to null
    */
-  RowData createStruct(List<StdType> fieldTypes);
+  RowData createStruct(List<DataType> fieldTypes);
 
   /**
-   * Creates a {@link RowData} whose type is given by the given {@link StdType}.
+   * Creates a {@link RowData} whose type is given by the given {@link DataType}.
    *
-   * It is expected that the top-level {@link StdType} is a {@link com.linkedin.transport.api.types.RowType}.
+   * It is expected that the top-level {@link DataType} is a {@link com.linkedin.transport.api.types.RowType}.
    *
-   * @param stdType  type of the struct to be created
+   * @param dataType  type of the struct to be created
    * @return a {@link RowData} with all fields initialized to null
    */
-  RowData createStruct(StdType stdType);
+  RowData createStruct(DataType dataType);
 
   /**
-   * Creates a {@link StdType} representing the given type signature.
+   * Creates a {@link DataType} representing the given type signature.
    *
    * The following are considered valid type signatures:
    * <ul>
@@ -104,7 +104,7 @@ public interface StdFactory extends Serializable {
    *
    * Generic type parameters can also be used as part of the type signatures; e.g., The type signature {@code "map(K,V)"}
    * is valid even without explicitly specifying what {@code K} and {@code V} are, given that {@code K} and {@code V} are
-   * derivable from the input parameter signatures of a {@link StdUDF}.
+   * derivable from the input parameter signatures of a {@link UDF}.
    *
    * Type signatures can also be nested. Here are some more examples of valid type signatures:
    * <ul>
@@ -115,7 +115,7 @@ public interface StdFactory extends Serializable {
    *     a string and a two-level nested map with integer keys and a string value</li>
    * </ul>
    * @param typeSignature  the type signature string
-   * @return a {@link StdType} for the given type signature
+   * @return a {@link DataType} for the given type signature
    */
-  StdType createStdType(String typeSignature);
+  DataType createDataType(String typeSignature);
 }

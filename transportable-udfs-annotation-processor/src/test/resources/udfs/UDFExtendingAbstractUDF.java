@@ -6,11 +6,11 @@
 package udfs;
 
 import com.google.common.collect.ImmutableList;
-import com.linkedin.transport.api.udf.TopLevelStdUDF;
+import com.linkedin.transport.api.udf.TopLevelUDF;
 import java.util.List;
 
 
-public class UDFExtendingAbstractUDF extends AbstractUDF implements TopLevelStdUDF {
+public class UDFExtendingAbstractUDF extends AbstractUDF implements TopLevelUDF {
 
   @Override
   public String getFunctionName() {
