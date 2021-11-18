@@ -7,7 +7,7 @@ package com.linkedin.transport.trino.types;
 
 import com.linkedin.transport.api.types.DataType;
 import com.linkedin.transport.api.types.MapType;
-import com.linkedin.transport.trino.TrinoWrapper;
+import com.linkedin.transport.trino.TrinoConverters;
 
 
 public class TrinoMapType implements MapType {
@@ -20,12 +20,12 @@ public class TrinoMapType implements MapType {
 
   @Override
   public DataType keyType() {
-    return TrinoWrapper.createStdType(mapType.getKeyType());
+    return TrinoConverters.toTransportType(mapType.getKeyType());
   }
 
   @Override
   public DataType valueType() {
-    return TrinoWrapper.createStdType(mapType.getKeyType());
+    return TrinoConverters.toTransportType(mapType.getKeyType());
   }
 
   @Override

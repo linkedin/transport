@@ -5,9 +5,6 @@
  */
 package com.linkedin.transport.spark
 
-import java.nio.ByteBuffer
-import java.nio.charset.Charset
-
 import com.linkedin.transport.api.data.PlatformData
 import com.linkedin.transport.spark.typesystem.{SparkBoundVariables, SparkTypeFactory}
 import org.apache.spark.sql.catalyst.InternalRow
@@ -18,10 +15,10 @@ import org.testng.annotations.Test
 
 import scala.collection.JavaConverters._
 
-class TestSparkFactory {
+class TestSparkTypeFactory {
 
-  val typeFactory: SparkTypeFactory = new SparkTypeFactory
-  val stdFactory = new SparkFactory(new SparkBoundVariables)
+  val typeFactory: typesystem.SparkTypeFactory = new typesystem.SparkTypeFactory
+  val stdFactory = new SparkTypeFactory(new SparkBoundVariables)
 
   @Test
   def testCreateArray(): Unit = {

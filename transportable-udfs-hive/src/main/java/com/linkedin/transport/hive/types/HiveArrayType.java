@@ -7,7 +7,7 @@ package com.linkedin.transport.hive.types;
 
 import com.linkedin.transport.api.types.DataType;
 import com.linkedin.transport.api.types.ArrayType;
-import com.linkedin.transport.hive.HiveWrapper;
+import com.linkedin.transport.hive.HiveConverters;
 import org.apache.hadoop.hive.serde2.objectinspector.ListObjectInspector;
 
 
@@ -26,6 +26,6 @@ public class HiveArrayType implements ArrayType {
 
   @Override
   public DataType elementType() {
-    return HiveWrapper.createStdType(_listObjectInspector.getListElementObjectInspector());
+    return HiveConverters.toTransportType(_listObjectInspector.getListElementObjectInspector());
   }
 }

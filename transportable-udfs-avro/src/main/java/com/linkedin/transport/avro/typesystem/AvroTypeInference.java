@@ -6,7 +6,7 @@
 package com.linkedin.transport.avro.typesystem;
 
 import com.linkedin.transport.api.TypeFactory;
-import com.linkedin.transport.avro.AvroFactory;
+import com.linkedin.transport.avro.AvroTypeFactory;
 import com.linkedin.transport.typesystem.AbstractBoundVariables;
 import com.linkedin.transport.typesystem.AbstractTypeFactory;
 import com.linkedin.transport.typesystem.AbstractTypeInference;
@@ -26,12 +26,12 @@ public class AvroTypeInference extends AbstractTypeInference<Schema> {
   }
 
   @Override
-  protected TypeFactory createStdFactory(AbstractBoundVariables<Schema> boundVariables) {
-    return new AvroFactory(boundVariables);
+  protected TypeFactory createTypeFactory(AbstractBoundVariables<Schema> boundVariables) {
+    return new AvroTypeFactory(boundVariables);
   }
 
   @Override
-  protected AbstractTypeFactory<Schema> getTypeFactory() {
-    return new AvroTypeFactory();
+  protected AbstractTypeFactory<Schema> getTypeFactoryFacade() {
+    return new com.linkedin.transport.avro.typesystem.AvroTypeFactory();
   }
 }

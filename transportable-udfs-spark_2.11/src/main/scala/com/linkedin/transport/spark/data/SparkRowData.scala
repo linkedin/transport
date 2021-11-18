@@ -8,7 +8,7 @@ package com.linkedin.transport.spark.data
 import java.util.{List => JavaList}
 
 import com.linkedin.transport.api.data.{PlatformData, RowData}
-import com.linkedin.transport.spark.SparkWrapper
+import com.linkedin.transport.spark.SparkConverters
 import org.apache.spark.sql.catalyst.InternalRow
 import org.apache.spark.sql.types.StructType
 
@@ -26,9 +26,9 @@ case class SparkRowData(private var _row: InternalRow,
   override def getField(index: Int): Object = {
     val fieldDataType = _structType(index).dataType
     if (_mutableBuffer == null) {
-      SparkWrapper.createStdData(_row.get(index, fieldDataType), fieldDataType)
+      SparkConverters.toTransportData(_row.get(index, fieldDataType), fieldDataType)
     } else {
-      SparkWrapper.createStdData(_mutableBuffer(index), fieldDataType)
+      SparkConverters.toTransportData(_mutableBuffer(index), fieldDataType)
     }
   }
 
@@ -40,7 +40,7 @@ case class SparkRowData(private var _row: InternalRow,
     if (_mutableBuffer == null) {
       _mutableBuffer = createMutableStruct()
     }
-    _mutableBuffer(index) = SparkWrapper.getPlatformData(value)
+    _mutableBuffer(index) = SparkConverters.toPlatformData(value)
   }
 
   private def createMutableStruct() = {

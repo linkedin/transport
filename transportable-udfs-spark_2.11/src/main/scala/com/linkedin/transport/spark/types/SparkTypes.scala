@@ -8,7 +8,7 @@ package com.linkedin.transport.spark.types
 import com.linkedin.transport.api.types
 
 import java.util.{List => JavaList}
-import com.linkedin.transport.spark.SparkWrapper
+import com.linkedin.transport.spark.SparkConverters
 import org.apache.spark.sql.types._
 
 import scala.collection.JavaConverters._
@@ -56,7 +56,7 @@ case class SparkUnknownType(unknownType: NullType) extends com.linkedin.transpor
 
 case class SparkArrayType(arrayType: ArrayType) extends types.ArrayType {
 
-  override def elementType: com.linkedin.transport.api.types.DataType = SparkWrapper.createStdType(arrayType.elementType)
+  override def elementType: com.linkedin.transport.api.types.DataType = SparkConverters.toTransportType(arrayType.elementType)
 
   override def underlyingType(): DataType = arrayType
 }
@@ -65,9 +65,9 @@ case class SparkMapType(mapType: MapType) extends types.MapType {
 
   override def underlyingType(): DataType = mapType
 
-  override def keyType(): com.linkedin.transport.api.types.DataType = SparkWrapper.createStdType(mapType.keyType)
+  override def keyType(): com.linkedin.transport.api.types.DataType = SparkConverters.toTransportType(mapType.keyType)
 
-  override def valueType(): com.linkedin.transport.api.types.DataType = SparkWrapper.createStdType(mapType.valueType)
+  override def valueType(): com.linkedin.transport.api.types.DataType = SparkConverters.toTransportType(mapType.valueType)
 }
 
 case class SparkRowType(structType: StructType) extends com.linkedin.transport.api.types.RowType {
@@ -75,6 +75,6 @@ case class SparkRowType(structType: StructType) extends com.linkedin.transport.a
   override def underlyingType(): DataType = structType
 
   override def fieldTypes(): JavaList[_ <: com.linkedin.transport.api.types.DataType] = {
-    structType.fields.map(f => SparkWrapper.createStdType(f.dataType)).toSeq.asJava
+    structType.fields.map(f => SparkConverters.toTransportType(f.dataType)).toSeq.asJava
   }
 }

@@ -22,9 +22,8 @@ import javax.lang.model.element.Modifier;
 public class TrinoWrapperGenerator implements WrapperGenerator {
 
   private static final String TRINO_PACKAGE_SUFFIX = "trino";
-  private static final String GET_STD_UDF_METHOD = "getStdUDF";
-  private static final ClassName TRINO_STD_UDF_WRAPPER_CLASS_NAME =
-      ClassName.bestGuess("com.linkedin.transport.trino.StdUdfWrapper");
+  private static final String GET_UDF_METHOD = "getUDF";
+  private static final ClassName TRINO_UDF_CLASS_NAME = ClassName.bestGuess("com.linkedin.transport.trino.TrinoUDF");
   private static final String SERVICE_FILE = "META-INF/services/io.trino.metadata.SqlScalarFunction";
 
   @Override
@@ -32,7 +31,7 @@ public class TrinoWrapperGenerator implements WrapperGenerator {
     List<String> services = new LinkedList<>();
     TransportUDFMetadata udfMetadata = context.getTransportUdfMetadata();
     for (String topLevelClass : context.getTransportUdfMetadata().getTopLevelClasses()) {
-      for (String implementationClass : udfMetadata.getStdUDFImplementations(topLevelClass)) {
+      for (String implementationClass : udfMetadata.getUDFImplementations(topLevelClass)) {
         generateWrapper(implementationClass, context.getSourcesOutputDir(), services);
       }
     }
@@ -65,11 +64,11 @@ public class TrinoWrapperGenerator implements WrapperGenerator {
       Generates ->
 
       @Override
-      protected StdUDF getStdUDF() {
+      protected UDF getUDF() {
         return new ${implementationClassName}();
       }
      */
-    MethodSpec getStdUDFMethod = MethodSpec.methodBuilder(GET_STD_UDF_METHOD)
+    MethodSpec getUDFMethod = MethodSpec.methodBuilder(GET_UDF_METHOD)
         .addAnnotation(Override.class)
         .returns(UDF.class)
         .addModifiers(Modifier.PROTECTED)
@@ -79,7 +78,7 @@ public class TrinoWrapperGenerator implements WrapperGenerator {
     /*
       Generates ->
 
-      public class ${wrapperClassName} extends StdUdfWrapper {
+      public class ${wrapperClassName} extends TrinoUDF {
 
         .
         .
@@ -89,9 +88,9 @@ public class TrinoWrapperGenerator implements WrapperGenerator {
      */
     TypeSpec wrapperClass = TypeSpec.classBuilder(wrapperClassName)
         .addModifiers(Modifier.PUBLIC)
-        .superclass(TRINO_STD_UDF_WRAPPER_CLASS_NAME)
+        .superclass(TRINO_UDF_CLASS_NAME)
         .addMethod(constructor)
-        .addMethod(getStdUDFMethod)
+        .addMethod(getUDFMethod)
         .build();
 
     services.add(wrapperClassName.toString());

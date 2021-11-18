@@ -6,7 +6,7 @@
 package com.linkedin.transport.spark.data
 
 import com.linkedin.transport.api.data.{PlatformData, RowData}
-import com.linkedin.transport.spark.{SparkFactory, SparkWrapper}
+import com.linkedin.transport.spark.{SparkTypeFactory, SparkConverters}
 import org.apache.spark.sql.catalyst.InternalRow
 import org.apache.spark.sql.catalyst.util.ArrayData
 import org.apache.spark.sql.types.{ArrayType, DataTypes, StructField, StructType}
@@ -15,7 +15,7 @@ import org.testng.Assert.{assertEquals, assertNotSame, assertSame}
 import org.testng.annotations.Test
 
 class TestSparkRowData {
-  val stdFactory = new SparkFactory(null)
+  val stdFactory = new SparkTypeFactory(null)
   val dataArray = Array(UTF8String.fromString("str1"), 0, 2L, false, ArrayData.toArrayData(Array.range(0, 5))) // scalastyle:ignore magic.number
   val fieldNames = Array("strField", "intField", "longField", "boolField", "arrField")
   val fieldTypes = Array(DataTypes.StringType, DataTypes.IntegerType, DataTypes.LongType, DataTypes.BooleanType,
@@ -25,29 +25,29 @@ class TestSparkRowData {
 
   @Test
   def testCreateSparkStruct(): Unit = {
-    val stdStruct = SparkWrapper.createStdData(structData, structType).asInstanceOf[RowData]
+    val stdStruct = SparkConverters.toTransportData(structData, structType).asInstanceOf[RowData]
     assertSame(stdStruct.asInstanceOf[PlatformData].getUnderlyingData, structData)
   }
 
   @Test
   def testSparkStructGetField(): Unit = {
-    val stdStruct = SparkWrapper.createStdData(structData, structType).asInstanceOf[RowData]
+    val stdStruct = SparkConverters.toTransportData(structData, structType).asInstanceOf[RowData]
     dataArray.indices.foreach(idx => {
-      assertEquals(SparkWrapper.getPlatformData(stdStruct.getField(idx)), dataArray(idx))
-      assertEquals(SparkWrapper.getPlatformData(stdStruct.getField(fieldNames(idx))), dataArray(idx))
+      assertEquals(SparkConverters.toPlatformData(stdStruct.getField(idx)), dataArray(idx))
+      assertEquals(SparkConverters.toPlatformData(stdStruct.getField(fieldNames(idx))), dataArray(idx))
     })
   }
 
   @Test
   def testSparkStructFields(): Unit = {
-    val stdStruct = SparkWrapper.createStdData(structData, structType).asInstanceOf[RowData]
+    val stdStruct = SparkConverters.toTransportData(structData, structType).asInstanceOf[RowData]
     assertEquals(stdStruct.fields().size(), structData.numFields)
-    assertEquals(stdStruct.fields().toArray.map(f => SparkWrapper.getPlatformData(f)), dataArray)
+    assertEquals(stdStruct.fields().toArray.map(f => SparkConverters.toPlatformData(f)), dataArray)
   }
 
   @Test
   def testSparkStructSetField(): Unit = {
-    val stdStruct = SparkWrapper.createStdData(structData, structType).asInstanceOf[RowData]
+    val stdStruct = SparkConverters.toTransportData(structData, structType).asInstanceOf[RowData]
     stdStruct.setField(1, 1)
     assertEquals(stdStruct.getField(1), 1)
     stdStruct.setField(fieldNames(2), 5L) // scalastyle:ignore magic.number
@@ -58,7 +58,7 @@ class TestSparkRowData {
 
   @Test
   def testSparkStructMutabilityReset(): Unit = {
-    val stdStruct = SparkWrapper.createStdData(structData, structType).asInstanceOf[RowData]
+    val stdStruct = SparkConverters.toTransportData(structData, structType).asInstanceOf[RowData]
     stdStruct.setField(1, 1)
     stdStruct.asInstanceOf[PlatformData].setUnderlyingData(structData)
     // After underlying data is explicitly set, mutable buffer should be removed

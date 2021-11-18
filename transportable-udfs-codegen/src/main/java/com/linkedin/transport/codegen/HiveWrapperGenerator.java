@@ -26,15 +26,14 @@ public class HiveWrapperGenerator implements WrapperGenerator {
 
   private static final String HIVE_PACKAGE_SUFFIX = "hive";
   private static final String GET_TOP_LEVEL_UDF_CLASS_METHOD = "getTopLevelUdfClass";
-  private static final String GET_STD_UDF_IMPLEMENTATIONS_METHOD = "getStdUdfImplementations";
-  private static final ClassName HIVE_STD_UDF_WRAPPER_CLASS_NAME =
-      ClassName.bestGuess("com.linkedin.transport.hive.StdUdfWrapper");
+  private static final String GET_UDF_IMPLEMENTATIONS_METHOD = "getUdfImplementations";
+  private static final ClassName HIVE_UDF_CLASS_NAME = ClassName.bestGuess("com.linkedin.transport.hive.HiveUDF");
 
   @Override
   public void generateWrappers(WrapperGeneratorContext context) {
     TransportUDFMetadata udfMetadata = context.getTransportUdfMetadata();
     for (String topLevelClass : udfMetadata.getTopLevelClasses()) {
-      generateWrapper(topLevelClass, udfMetadata.getStdUDFImplementations(topLevelClass),
+      generateWrapper(topLevelClass, udfMetadata.getUDFImplementations(topLevelClass),
           context.getSourcesOutputDir());
     }
   }
@@ -49,7 +48,7 @@ public class HiveWrapperGenerator implements WrapperGenerator {
       Generates ->
 
       @Override
-      protected Class<? extends TopLevelStdUDF> getTopLevelUdfClass() {
+      protected Class<? extends TopLevelUDF> getTopLevelUdfClass() {
         return ${topLevelClass}.class;
       }
      */
@@ -65,7 +64,7 @@ public class HiveWrapperGenerator implements WrapperGenerator {
       Generates ->
 
       @Override
-      protected List<? extends StdUDF> getStdUdfImplementations() {
+      protected List<? extends UDF> getUdfImplementations() {
         return ImmutableList.of(
           new ${implementationClasses(0)}(),
           new ${implementationClasses(1)}(),
@@ -75,7 +74,7 @@ public class HiveWrapperGenerator implements WrapperGenerator {
         );
       }
      */
-    MethodSpec getStdUdfImplementationsMethod = MethodSpec.methodBuilder(GET_STD_UDF_IMPLEMENTATIONS_METHOD)
+    MethodSpec getUdfImplementations = MethodSpec.methodBuilder(GET_UDF_IMPLEMENTATIONS_METHOD)
         .addAnnotation(Override.class)
         .returns(ParameterizedTypeName.get(ClassName.get(List.class), WildcardTypeName.subtypeOf(UDF.class)))
         .addModifiers(Modifier.PROTECTED)
@@ -87,7 +86,7 @@ public class HiveWrapperGenerator implements WrapperGenerator {
     /*
       Generates ->
 
-      public class ${wrapperClassName} extends StdUdfWrapper {
+      public class ${wrapperClassName} extends HiveUDF {
 
         .
         .
@@ -97,9 +96,9 @@ public class HiveWrapperGenerator implements WrapperGenerator {
      */
     TypeSpec wrapperClass = TypeSpec.classBuilder(wrapperClassName)
         .addModifiers(Modifier.PUBLIC)
-        .superclass(HIVE_STD_UDF_WRAPPER_CLASS_NAME)
+        .superclass(HIVE_UDF_CLASS_NAME)
         .addMethod(getTopLevelUdfClassMethod)
-        .addMethod(getStdUdfImplementationsMethod)
+        .addMethod(getUdfImplementations)
         .build();
 
     JavaFile javaFile = JavaFile.builder(wrapperClassName.packageName(), wrapperClass).build();

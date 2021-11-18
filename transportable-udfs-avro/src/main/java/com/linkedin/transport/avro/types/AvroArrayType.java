@@ -7,7 +7,7 @@ package com.linkedin.transport.avro.types;
 
 import com.linkedin.transport.api.types.ArrayType;
 import com.linkedin.transport.api.types.DataType;
-import com.linkedin.transport.avro.AvroWrapper;
+import com.linkedin.transport.avro.AvroConverters;
 import org.apache.avro.Schema;
 
 
@@ -20,7 +20,7 @@ public class AvroArrayType implements ArrayType {
 
   @Override
   public DataType elementType() {
-    return AvroWrapper.createStdType(_schema.getElementType());
+    return AvroConverters.toTransportType(_schema.getElementType());
   }
 
   @Override

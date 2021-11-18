@@ -13,9 +13,9 @@ import org.apache.spark.sql.catalyst.InternalRow
 import org.apache.spark.sql.types._
 import org.apache.spark.unsafe.types.UTF8String
 
-object SparkWrapper {
+object SparkConverters {
 
-  def createStdData(data: Any, dataType: DataType): Object = { // scalastyle:ignore cyclomatic.complexity
+  def toTransportData(data: Any, dataType: DataType): Object = { // scalastyle:ignore cyclomatic.complexity
     if (data == null) {
       null
     } else {
@@ -40,7 +40,7 @@ object SparkWrapper {
     }
   }
 
-  def getPlatformData(transportData: Object): Object = {
+  def toPlatformData(transportData: Object): Object = {
     if (transportData == null) {
       null
     } else {
@@ -57,7 +57,7 @@ object SparkWrapper {
     }
   }
 
-  def createStdType(dataType: DataType): com.linkedin.transport.api.types.DataType = dataType match {
+  def toTransportType(dataType: DataType): com.linkedin.transport.api.types.DataType = dataType match {
     case _: IntegerType => SparkIntegerType(dataType.asInstanceOf[IntegerType])
     case _: LongType => SparkLongType(dataType.asInstanceOf[LongType])
     case _: BooleanType => SparkBooleanType(dataType.asInstanceOf[BooleanType])

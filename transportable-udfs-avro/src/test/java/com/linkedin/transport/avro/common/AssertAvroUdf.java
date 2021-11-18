@@ -5,7 +5,7 @@
  */
 package com.linkedin.transport.avro.common;
 
-import com.linkedin.transport.avro.StdUdfWrapper;
+import com.linkedin.transport.avro.AvroUDF;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashMap;
@@ -26,7 +26,7 @@ public class AssertAvroUdf {
   private AssertAvroUdf() {
   }
 
-  public static void assertFunction(StdUdfWrapper udf, Schema[] schemas, Object[] arguments, Object expected) {
+  public static void assertFunction(AvroUDF udf, Schema[] schemas, Object[] arguments, Object expected) {
     udf.initialize(schemas);
     Object result = udf.evaluate(IntStream.range(0, arguments.length)
         .mapToObj(i -> getAvroObject(arguments[i], schemas[i]))

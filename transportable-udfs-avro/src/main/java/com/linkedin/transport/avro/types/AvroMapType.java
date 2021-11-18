@@ -7,7 +7,7 @@ package com.linkedin.transport.avro.types;
 
 import com.linkedin.transport.api.types.MapType;
 import com.linkedin.transport.api.types.DataType;
-import com.linkedin.transport.avro.AvroWrapper;
+import com.linkedin.transport.avro.AvroConverters;
 import org.apache.avro.Schema;
 
 import static org.apache.avro.Schema.Type.*;
@@ -22,12 +22,12 @@ public class AvroMapType implements MapType {
 
   @Override
   public DataType keyType() {
-    return AvroWrapper.createStdType(Schema.create(STRING));
+    return AvroConverters.toTransportType(Schema.create(STRING));
   }
 
   @Override
   public DataType valueType() {
-    return AvroWrapper.createStdType(_schema.getValueType());
+    return AvroConverters.toTransportType(_schema.getValueType());
   }
 
   @Override

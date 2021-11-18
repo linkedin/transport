@@ -7,7 +7,7 @@ package com.linkedin.transport.hive.data;
 
 import com.linkedin.transport.api.TypeFactory;
 import com.linkedin.transport.api.data.RowData;
-import com.linkedin.transport.hive.HiveWrapper;
+import com.linkedin.transport.hive.HiveConverters;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -30,7 +30,7 @@ public class HiveRowData extends HiveData implements RowData {
   @Override
   public Object getField(int index) {
     StructField structField = _structObjectInspector.getAllStructFieldRefs().get(index);
-    return HiveWrapper.createStdData(
+    return HiveConverters.toTransportData(
         _structObjectInspector.getStructFieldData(_object, structField),
         structField.getFieldObjectInspector(), _typeFactory
     );
@@ -39,7 +39,7 @@ public class HiveRowData extends HiveData implements RowData {
   @Override
   public Object getField(String name) {
     StructField structField = _structObjectInspector.getStructFieldRef(name);
-    return HiveWrapper.createStdData(
+    return HiveConverters.toTransportData(
         _structObjectInspector.getStructFieldData(_object, structField),
         structField.getFieldObjectInspector(), _typeFactory
     );
@@ -50,7 +50,7 @@ public class HiveRowData extends HiveData implements RowData {
     if (_structObjectInspector instanceof SettableStructObjectInspector) {
       StructField field = _structObjectInspector.getAllStructFieldRefs().get(index);
       ((SettableStructObjectInspector) _structObjectInspector).setStructFieldData(_object,
-          field, HiveWrapper.getPlatformDataForObjectInspector(value, field.getFieldObjectInspector())
+          field, HiveConverters.toPlatformData(value, field.getFieldObjectInspector())
       );
       _isObjectModified = true;
     } else {
@@ -64,7 +64,7 @@ public class HiveRowData extends HiveData implements RowData {
     if (_structObjectInspector instanceof SettableStructObjectInspector) {
       StructField field = _structObjectInspector.getStructFieldRef(name);
       ((SettableStructObjectInspector) _structObjectInspector).setStructFieldData(_object,
-          field, HiveWrapper.getPlatformDataForObjectInspector(value, field.getFieldObjectInspector()));
+          field, HiveConverters.toPlatformData(value, field.getFieldObjectInspector()));
       _isObjectModified = true;
     } else {
       throw new RuntimeException("Attempt to modify an immutable Hive object of type: "

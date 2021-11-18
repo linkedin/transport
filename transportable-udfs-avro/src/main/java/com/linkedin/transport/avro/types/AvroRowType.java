@@ -7,7 +7,7 @@ package com.linkedin.transport.avro.types;
 
 import com.linkedin.transport.api.types.RowType;
 import com.linkedin.transport.api.types.DataType;
-import com.linkedin.transport.avro.AvroWrapper;
+import com.linkedin.transport.avro.AvroConverters;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.apache.avro.Schema;
@@ -27,6 +27,6 @@ public class AvroRowType implements RowType {
 
   @Override
   public List<? extends DataType> fieldTypes() {
-    return _schema.getFields().stream().map(f -> AvroWrapper.createStdType(f.schema())).collect(Collectors.toList());
+    return _schema.getFields().stream().map(f -> AvroConverters.toTransportType(f.schema())).collect(Collectors.toList());
   }
 }

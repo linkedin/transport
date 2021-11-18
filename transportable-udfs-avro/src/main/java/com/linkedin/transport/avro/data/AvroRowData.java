@@ -7,7 +7,7 @@ package com.linkedin.transport.avro.data;
 
 import com.linkedin.transport.api.data.PlatformData;
 import com.linkedin.transport.api.data.RowData;
-import com.linkedin.transport.avro.AvroWrapper;
+import com.linkedin.transport.avro.AvroConverters;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -43,22 +43,22 @@ public class AvroRowData implements RowData, PlatformData {
 
   @Override
   public Object getField(int index) {
-    return AvroWrapper.createStdData(_genericRecord.get(index), _recordSchema.getFields().get(index).schema());
+    return AvroConverters.toTransportData(_genericRecord.get(index), _recordSchema.getFields().get(index).schema());
   }
 
   @Override
   public Object getField(String name) {
-    return AvroWrapper.createStdData(_genericRecord.get(name), _recordSchema.getField(name).schema());
+    return AvroConverters.toTransportData(_genericRecord.get(name), _recordSchema.getField(name).schema());
   }
 
   @Override
   public void setField(int index, Object value) {
-    _genericRecord.put(index, AvroWrapper.getPlatformData(value));
+    _genericRecord.put(index, AvroConverters.toPlatformData(value));
   }
 
   @Override
   public void setField(String name, Object value) {
-    _genericRecord.put(name, AvroWrapper.getPlatformData(value));
+    _genericRecord.put(name, AvroConverters.toPlatformData(value));
   }
 
   @Override

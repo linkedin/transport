@@ -7,7 +7,7 @@ package com.linkedin.transport.hive.data;
 
 import com.linkedin.transport.api.TypeFactory;
 import com.linkedin.transport.api.data.PlatformData;
-import com.linkedin.transport.hive.HiveFactory;
+import com.linkedin.transport.hive.HiveTypeFactory;
 import java.util.concurrent.ConcurrentHashMap;
 import org.apache.hadoop.hive.serde2.objectinspector.ObjectInspector;
 import org.apache.hadoop.hive.serde2.objectinspector.ObjectInspectorConverters.Converter;
@@ -47,7 +47,7 @@ public abstract class HiveData implements PlatformData {
 
     Object result = getObjectFromCache(oi);
     if (result == null) {
-      Converter c = ((HiveFactory) _typeFactory).getConverter(getUnderlyingObjectInspector(), oi);
+      Converter c = ((HiveTypeFactory) _typeFactory).getConverter(getUnderlyingObjectInspector(), oi);
       result = c.convert(getUnderlyingData());
       _cachedObjectsForObjectInspectors.putIfAbsent(oi, result);
     }

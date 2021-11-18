@@ -53,29 +53,29 @@ import static java.lang.Math.*;
 import static java.lang.String.*;
 import java.nio.ByteBuffer;
 
-public final class TrinoWrapper {
+public final class TrinoConverters {
 
-  private TrinoWrapper() {
+  private TrinoConverters() {
   }
 
-  public static Object createStdData(Object trinoData, Type trinoType, TypeFactory typeFactory) {
-    if (trinoData == null) {
+  public static Object toTransportData(Object data, Type dataType, TypeFactory typeFactory) {
+    if (data == null) {
       return null;
     }
-    if (trinoType instanceof IntegerType) {
+    if (dataType instanceof IntegerType) {
       // Trino represents SQL Integers (i.e., corresponding to IntegerType above) as long or Long
       // Therefore, we first cast trinoData to Long, then extract the int value.
-      return ((Long) trinoData).intValue();
-    } else if (trinoType instanceof BigintType || trinoType.getJavaType() == boolean.class
-        || trinoType instanceof DoubleType) {
-      return trinoData;
-    } else if (trinoType instanceof VarcharType) {
-      return ((Slice) trinoData).toStringUtf8();
-    } else if (trinoType instanceof RealType) {
+      return ((Long) data).intValue();
+    } else if (dataType instanceof BigintType || dataType.getJavaType() == boolean.class
+        || dataType instanceof DoubleType) {
+      return data;
+    } else if (dataType instanceof VarcharType) {
+      return ((Slice) data).toStringUtf8();
+    } else if (dataType instanceof RealType) {
       // Trino represents SQL Reals (i.e., corresponding to RealType above) as long or Long
       // Therefore, to pass it to the TrinoFloat class, we first cast it to Long, extract
       // the int value and convert it the int bits to float.
-      long value = (long) trinoData;
+      long value = (long) data;
       int floatValue;
       try {
         floatValue = toIntExact(value);
@@ -84,20 +84,20 @@ public final class TrinoWrapper {
             format("Value (%sb) is not a valid single-precision float", Long.toBinaryString(value)));
       }
       return intBitsToFloat(floatValue);
-    } else if (trinoType instanceof VarbinaryType) {
-      return ((Slice) trinoData).toByteBuffer();
-    } else if (trinoType instanceof ArrayType) {
-      return new TrinoArrayData((Block) trinoData, (ArrayType) trinoType, typeFactory);
-    } else if (trinoType instanceof MapType) {
-      return new TrinoMapData((Block) trinoData, trinoType, typeFactory);
-    } else if (trinoType instanceof RowType) {
-      return new TrinoRowData((Block) trinoData, trinoType, typeFactory);
+    } else if (dataType instanceof VarbinaryType) {
+      return ((Slice) data).toByteBuffer();
+    } else if (dataType instanceof ArrayType) {
+      return new TrinoArrayData((Block) data, (ArrayType) dataType, typeFactory);
+    } else if (dataType instanceof MapType) {
+      return new TrinoMapData((Block) data, dataType, typeFactory);
+    } else if (dataType instanceof RowType) {
+      return new TrinoRowData((Block) data, dataType, typeFactory);
     }
-    assert false : "Unrecognized Trino Type: " + trinoType.getClass();
+    assert false : "Unrecognized Trino Type: " + dataType.getClass();
     return null;
   }
 
-  public static Object getPlatformData(Object transportData) {
+  public static Object toPlatformData(Object transportData) {
     if (transportData == null) {
       return null;
     }
@@ -146,31 +146,31 @@ public final class TrinoWrapper {
     }
   }
 
-  public static DataType createStdType(Object trinoType) {
-    if (trinoType instanceof IntegerType) {
-      return new TrinoIntegerType((IntegerType) trinoType);
-    } else if (trinoType instanceof BigintType) {
-      return new TrinoLongType((BigintType) trinoType);
-    } else if (trinoType instanceof BooleanType) {
-      return new TrinoBooleanType((BooleanType) trinoType);
-    } else if (trinoType instanceof VarcharType) {
-      return new TrinoStringType((VarcharType) trinoType);
-    } else if (trinoType instanceof RealType) {
-      return new TrinoFloatType((RealType) trinoType);
-    } else if (trinoType instanceof DoubleType) {
-      return new TrinoDoubleType((DoubleType) trinoType);
-    } else if (trinoType instanceof VarbinaryType) {
-      return new TrinoBinaryType((VarbinaryType) trinoType);
-    } else if (trinoType instanceof ArrayType) {
-      return new TrinoArrayType((ArrayType) trinoType);
-    } else if (trinoType instanceof MapType) {
-      return new TrinoMapType((MapType) trinoType);
-    } else if (trinoType instanceof RowType) {
-      return new TrinoRowType(((RowType) trinoType));
-    } else if (trinoType instanceof UnknownType) {
-      return new TrinoUnknownType(((UnknownType) trinoType));
+  public static DataType toTransportType(Object type) {
+    if (type instanceof IntegerType) {
+      return new TrinoIntegerType((IntegerType) type);
+    } else if (type instanceof BigintType) {
+      return new TrinoLongType((BigintType) type);
+    } else if (type instanceof BooleanType) {
+      return new TrinoBooleanType((BooleanType) type);
+    } else if (type instanceof VarcharType) {
+      return new TrinoStringType((VarcharType) type);
+    } else if (type instanceof RealType) {
+      return new TrinoFloatType((RealType) type);
+    } else if (type instanceof DoubleType) {
+      return new TrinoDoubleType((DoubleType) type);
+    } else if (type instanceof VarbinaryType) {
+      return new TrinoBinaryType((VarbinaryType) type);
+    } else if (type instanceof ArrayType) {
+      return new TrinoArrayType((ArrayType) type);
+    } else if (type instanceof MapType) {
+      return new TrinoMapType((MapType) type);
+    } else if (type instanceof RowType) {
+      return new TrinoRowType(((RowType) type));
+    } else if (type instanceof UnknownType) {
+      return new TrinoUnknownType(((UnknownType) type));
     }
-    assert false : "Unrecognized Trino Type: " + trinoType.getClass();
+    assert false : "Unrecognized Trino Type: " + type.getClass();
     return null;
   }
 

@@ -7,7 +7,7 @@ package com.linkedin.transport.avro.data;
 
 import com.linkedin.transport.api.data.PlatformData;
 import com.linkedin.transport.api.data.MapData;
-import com.linkedin.transport.avro.AvroWrapper;
+import com.linkedin.transport.avro.AvroConverters;
 import java.util.AbstractSet;
 import java.util.Collection;
 import java.util.Iterator;
@@ -54,12 +54,12 @@ public class AvroMapData<K, V> implements MapData<K, V>, PlatformData {
 
   @Override
   public V get(K key) {
-    return (V) AvroWrapper.createStdData(_map.get(AvroWrapper.getPlatformData(key)), _valueSchema);
+    return (V) AvroConverters.toTransportData(_map.get(AvroConverters.toPlatformData(key)), _valueSchema);
   }
 
   @Override
   public void put(K key, V value) {
-    _map.put(AvroWrapper.getPlatformData(key), AvroWrapper.getPlatformData(value));
+    _map.put(AvroConverters.toPlatformData(key), AvroConverters.toPlatformData(value));
   }
 
   @Override
@@ -76,7 +76,7 @@ public class AvroMapData<K, V> implements MapData<K, V>, PlatformData {
 
           @Override
           public K next() {
-            return (K) AvroWrapper.createStdData(keySet.next(), _keySchema);
+            return (K) AvroConverters.toTransportData(keySet.next(), _keySchema);
           }
         };
       }
@@ -90,11 +90,11 @@ public class AvroMapData<K, V> implements MapData<K, V>, PlatformData {
 
   @Override
   public Collection<V> values() {
-    return _map.values().stream().map(v -> (V) AvroWrapper.createStdData(v, _valueSchema)).collect(Collectors.toList());
+    return _map.values().stream().map(v -> (V) AvroConverters.toTransportData(v, _valueSchema)).collect(Collectors.toList());
   }
 
   @Override
   public boolean containsKey(K key) {
-    return _map.containsKey(AvroWrapper.getPlatformData(key));
+    return _map.containsKey(AvroConverters.toPlatformData(key));
   }
 }

@@ -53,7 +53,7 @@ public class TransportUDFMetadata {
     return _udfs.keySet();
   }
 
-  public Collection<String> getStdUDFImplementations(String topLevelClass) {
+  public Collection<String> getUDFImplementations(String topLevelClass) {
     return _udfs.get(topLevelClass);
   }
 

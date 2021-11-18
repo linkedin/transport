@@ -7,7 +7,7 @@ package com.linkedin.transport.hive.types;
 
 import com.linkedin.transport.api.types.MapType;
 import com.linkedin.transport.api.types.DataType;
-import com.linkedin.transport.hive.HiveWrapper;
+import com.linkedin.transport.hive.HiveConverters;
 import org.apache.hadoop.hive.serde2.objectinspector.MapObjectInspector;
 
 
@@ -26,11 +26,11 @@ public class HiveMapType implements MapType {
 
   @Override
   public DataType keyType() {
-    return HiveWrapper.createStdType(_mapObjectInspector.getMapKeyObjectInspector());
+    return HiveConverters.toTransportType(_mapObjectInspector.getMapKeyObjectInspector());
   }
 
   @Override
   public DataType valueType() {
-    return HiveWrapper.createStdType(_mapObjectInspector.getMapValueObjectInspector());
+    return HiveConverters.toTransportType(_mapObjectInspector.getMapValueObjectInspector());
   }
 }

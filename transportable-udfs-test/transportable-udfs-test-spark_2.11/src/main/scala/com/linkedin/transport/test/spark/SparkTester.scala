@@ -9,7 +9,7 @@ import com.linkedin.transport.api.{TypeFactory, types}
 
 import java.util
 import com.linkedin.transport.api.udf.{TopLevelUDF, UDF}
-import com.linkedin.transport.spark.SparkFactory
+import com.linkedin.transport.spark.SparkTypeFactory
 import com.linkedin.transport.spark.typesystem.SparkBoundVariables
 import com.linkedin.transport.test.spi.{SqlFunctionCallGenerator, SqlStdTester, ToPlatformTestOutputConverter}
 import org.apache.spark.SparkException
@@ -21,7 +21,7 @@ import scala.collection.JavaConversions._
 
 class SparkTester extends SqlStdTester {
 
-  private val _stdFactory: TypeFactory = new SparkFactory(new SparkBoundVariables())
+  private val _stdFactory: TypeFactory = new SparkTypeFactory(new SparkBoundVariables())
   private val _sparkSession: SparkSession = SparkSession.builder.master("local[1]").appName("transport-udfs").getOrCreate
   private val _sqlFunctionCallGenerator = new SparkSqlFunctionCallGenerator
   private val _testDataToOutputDataConverter = new ToSparkTestOutputConverter

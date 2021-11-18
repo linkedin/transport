@@ -35,7 +35,7 @@ public class SparkWrapperGenerator implements WrapperGenerator {
     for (String topLevelClass : udfMetadata.getTopLevelClasses()) {
       generateWrapper(
           topLevelClass,
-          udfMetadata.getStdUDFImplementations(topLevelClass),
+          udfMetadata.getUDFImplementations(topLevelClass),
           udfMetadata.getClassToNumberOfTypeParameters(),
           context.getSourcesOutputDir());
     }
