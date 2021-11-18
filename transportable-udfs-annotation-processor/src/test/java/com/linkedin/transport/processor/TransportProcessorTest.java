@@ -71,7 +71,7 @@ public class TransportProcessorTest {
   }
 
   @Test
-  public void shouldNotContainMultipleOverridingsOfTopLevelStdUDFMethods1() throws IOException {
+  public void shouldNotContainMultipleOverridingsOfTopLevelUDFMethods1() throws IOException {
     assertThat(
         forResource("udfs/OverloadedUDF1.java"),
         forResource("udfs/OverloadedUDF2.java"),
@@ -86,7 +86,7 @@ public class TransportProcessorTest {
   }
 
   @Test
-  public void shouldNotContainMultipleOverridingsOfTopLevelStdUDFMethods2() throws IOException {
+  public void shouldNotContainMultipleOverridingsOfTopLevelUDFMethods2() throws IOException {
     assertThat(
         forResource("udfs/OverloadedUDF1.java"),
         forResource("udfs/AbstractUDFImplementingInterface.java"),
@@ -115,14 +115,14 @@ public class TransportProcessorTest {
   }
 
   @Test
-  public void udfShouldImplementTopLevelStdUDF() throws IOException {
+  public void udfShouldImplementTopLevelUDF() throws IOException {
     assertThat(
-        forResource("udfs/UDFNotImplementingTopLevelStdUDF.java")
+        forResource("udfs/UDFNotImplementingTopLevelUDF.java")
     ).processedWith(new TransportProcessor())
         .failsToCompile()
         .withErrorCount(1)
         .withErrorContaining(Constants.INTERFACE_NOT_IMPLEMENTED_ERROR)
-        .in(forResource("udfs/UDFNotImplementingTopLevelStdUDF.java"))
+        .in(forResource("udfs/UDFNotImplementingTopLevelUDF.java"))
         .onLine(13)
         .atColumn(8);
   }
@@ -139,9 +139,9 @@ public class TransportProcessorTest {
   }
 
   @Test
-  public void classNotExtendingStdUDFShouldNotBeProcessed() throws IOException {
+  public void classNotExtendingUDFShouldNotBeProcessed() throws IOException {
     assertThat(
-        forResource("udfs/DoesNotExtendStdUDF.java")
+        forResource("udfs/DoesNotExtendUDF.java")
     ).processedWith(new TransportProcessor())
         .compilesWithoutError()
         .and()

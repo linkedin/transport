@@ -10,7 +10,7 @@ import com.linkedin.transport.api.udf.UDF0;
 import java.util.List;
 
 
-public class UDFNotImplementingTopLevelStdUDF extends UDF0<String> {
+public class UDFNotImplementingTopLevelUDF extends UDF0<String> {
 
   @Override
   public List<String> getInputParameterSignatures() {
