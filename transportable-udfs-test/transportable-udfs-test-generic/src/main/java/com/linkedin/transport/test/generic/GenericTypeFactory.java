@@ -12,8 +12,7 @@ import com.linkedin.transport.api.data.RowData;
 import com.linkedin.transport.api.types.DataType;
 import com.linkedin.transport.test.generic.data.GenericArrayData;
 import com.linkedin.transport.test.generic.data.GenericMapData;
-import com.linkedin.transport.test.generic.data.GenericStruct;
-import com.linkedin.transport.test.generic.typesystem.GenericTypeFactory;
+import com.linkedin.transport.test.generic.data.GenericRowData;
 import com.linkedin.transport.test.spi.types.TestType;
 import com.linkedin.transport.test.spi.types.TestTypeFactory;
 import com.linkedin.transport.typesystem.AbstractBoundVariables;
@@ -23,14 +22,14 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 
-public class GenericFactory implements TypeFactory {
+public class GenericTypeFactory implements TypeFactory {
 
   private final AbstractBoundVariables<TestType> _boundVariables;
-  private final GenericTypeFactory _typeFactory;
+  private final com.linkedin.transport.test.generic.typesystem.GenericTypeFactory _typeFactory;
 
-  public GenericFactory(AbstractBoundVariables<TestType> boundVariables) {
+  public GenericTypeFactory(AbstractBoundVariables<TestType> boundVariables) {
     _boundVariables = boundVariables;
-    _typeFactory = new GenericTypeFactory();
+    _typeFactory = new com.linkedin.transport.test.generic.typesystem.GenericTypeFactory();
   }
 
   @Override
@@ -50,7 +49,7 @@ public class GenericFactory implements TypeFactory {
 
   @Override
   public RowData createStruct(List<String> fieldNames, List<DataType> fieldTypes) {
-    return new GenericStruct(TestTypeFactory.struct(fieldNames,
+    return new GenericRowData(TestTypeFactory.struct(fieldNames,
         fieldTypes.stream().map(x -> (TestType) x.underlyingType()).collect(Collectors.toList())));
   }
 
@@ -61,11 +60,11 @@ public class GenericFactory implements TypeFactory {
 
   @Override
   public RowData createStruct(DataType dataType) {
-    return new GenericStruct((TestType) dataType.underlyingType());
+    return new GenericRowData((TestType) dataType.underlyingType());
   }
 
   @Override
   public DataType createDataType(String typeSignature) {
-    return GenericWrapper.createStdType(_typeFactory.createType(TypeSignature.parse(typeSignature), _boundVariables));
+    return GenericConverters.toTransportType(_typeFactory.createType(TypeSignature.parse(typeSignature), _boundVariables));
   }
 }

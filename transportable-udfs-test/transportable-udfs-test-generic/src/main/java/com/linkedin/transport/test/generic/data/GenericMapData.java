@@ -7,7 +7,7 @@ package com.linkedin.transport.test.generic.data;
 
 import com.linkedin.transport.api.data.MapData;
 import com.linkedin.transport.api.data.PlatformData;
-import com.linkedin.transport.test.generic.GenericWrapper;
+import com.linkedin.transport.test.generic.GenericConverters;
 import com.linkedin.transport.test.spi.types.MapTestType;
 import com.linkedin.transport.test.spi.types.TestType;
 import java.util.AbstractSet;
@@ -52,12 +52,12 @@ public class GenericMapData<K, V> implements MapData<K, V>, PlatformData {
 
   @Override
   public V get(K key) {
-    return (V) GenericWrapper.createStdData(_map.get(GenericWrapper.getPlatformData(key)), _valueType);
+    return (V) GenericConverters.toTransportData(_map.get(GenericConverters.toPlatformData(key)), _valueType);
   }
 
   @Override
   public void put(K key, V value) {
-    _map.put(GenericWrapper.getPlatformData(key), GenericWrapper.getPlatformData(value));
+    _map.put(GenericConverters.toPlatformData(key), GenericConverters.toPlatformData(value));
   }
 
   @Override
@@ -75,7 +75,7 @@ public class GenericMapData<K, V> implements MapData<K, V>, PlatformData {
 
           @Override
           public K next() {
-            return (K) GenericWrapper.createStdData(keySet.next(), _keyType);
+            return (K) GenericConverters.toTransportData(keySet.next(), _keyType);
           }
         };
       }
@@ -89,11 +89,11 @@ public class GenericMapData<K, V> implements MapData<K, V>, PlatformData {
 
   @Override
   public Collection<V> values() {
-    return _map.values().stream().map(v -> (V) GenericWrapper.createStdData(v, _valueType)).collect(Collectors.toList());
+    return _map.values().stream().map(v -> (V) GenericConverters.toTransportData(v, _valueType)).collect(Collectors.toList());
   }
 
   @Override
   public boolean containsKey(K key) {
-    return _map.containsKey(GenericWrapper.getPlatformData(key));
+    return _map.containsKey(GenericConverters.toPlatformData(key));
   }
 }

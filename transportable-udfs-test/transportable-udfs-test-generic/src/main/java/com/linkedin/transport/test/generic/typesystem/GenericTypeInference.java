@@ -6,7 +6,7 @@
 package com.linkedin.transport.test.generic.typesystem;
 
 import com.linkedin.transport.api.TypeFactory;
-import com.linkedin.transport.test.generic.GenericFactory;
+import com.linkedin.transport.test.generic.GenericTypeFactory;
 import com.linkedin.transport.test.spi.types.TestType;
 import com.linkedin.transport.typesystem.AbstractBoundVariables;
 import com.linkedin.transport.typesystem.AbstractTypeFactory;
@@ -27,11 +27,11 @@ public class GenericTypeInference extends AbstractTypeInference<TestType> {
 
   @Override
   protected TypeFactory createTypeFactory(AbstractBoundVariables<TestType> boundVariables) {
-    return new GenericFactory(boundVariables);
+    return new GenericTypeFactory(boundVariables);
   }
 
   @Override
   protected AbstractTypeFactory<TestType> getTypeFactoryFacade() {
-    return new GenericTypeFactory();
+    return new com.linkedin.transport.test.generic.typesystem.GenericTypeFactory();
   }
 }

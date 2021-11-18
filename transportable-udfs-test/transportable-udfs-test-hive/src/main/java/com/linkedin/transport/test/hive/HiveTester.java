@@ -13,7 +13,7 @@ import com.linkedin.transport.hive.HiveTypeFactory;
 import com.linkedin.transport.hive.typesystem.HiveBoundVariables;
 import com.linkedin.transport.test.hive.udf.MapFromEntriesWrapper;
 import com.linkedin.transport.test.spi.SqlFunctionCallGenerator;
-import com.linkedin.transport.test.spi.SqlStdTester;
+import com.linkedin.transport.test.spi.SqlTester;
 import com.linkedin.transport.test.spi.ToPlatformTestOutputConverter;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
@@ -38,7 +38,7 @@ import org.apache.hive.service.server.HiveServer2;
 import org.testng.Assert;
 
 
-public class HiveTester implements SqlStdTester {
+public class HiveTester implements SqlTester {
 
   private TypeFactory _typeFactory;
   private CLIService _client;
@@ -71,7 +71,7 @@ public class HiveTester implements SqlStdTester {
       _functionRegistry.registerGenericUDF("map_from_entries", MapFromEntriesWrapper.class);
       // TODO: This is a hack. Hive's public API does not have a way to register an already created GenericUDF object
       // It only accepts a class name after which the parameterless constructor of the class is called to create a
-      // GenericUDF object. This does not work for HiveTestStdUDFWrapper as it accepts the UDF classes as parameters.
+      // GenericUDF object. This does not work for HiveTestUDF as it accepts the UDF classes as parameters.
       // However, Hive has an internal method which does allow passing GenericUDF objects instead of classes.
       _functionRegistryAddFunctionMethod =
           _functionRegistry.getClass().getDeclaredMethod("addFunction", String.class, FunctionInfo.class);
@@ -83,23 +83,23 @@ public class HiveTester implements SqlStdTester {
 
   @Override
   public void setup(
-      Map<Class<? extends TopLevelUDF>, List<Class<? extends UDF>>> topLevelStdUDFClassesAndImplementations) {
+      Map<Class<? extends TopLevelUDF>, List<Class<? extends UDF>>> topLevelUDFClassesAndImplementations) {
 
-    topLevelStdUDFClassesAndImplementations.forEach((topLevelStdUDF, stdUDFImplementations) -> {
-      HiveTestHiveUDF wrapper = new HiveTestHiveUDF(topLevelStdUDF, stdUDFImplementations);
+    topLevelUDFClassesAndImplementations.forEach((topLevelUDF, udfImplementations) -> {
+      HiveTestUDF wrapper = new HiveTestUDF(topLevelUDF, udfImplementations);
       try {
         String functionName =
-            ((TopLevelUDF) stdUDFImplementations.get(0).getConstructor().newInstance()).getFunctionName();
+            ((TopLevelUDF) udfImplementations.get(0).getConstructor().newInstance()).getFunctionName();
         _functionRegistryAddFunctionMethod.invoke(_functionRegistry, functionName,
             new FunctionInfo(false, functionName, wrapper));
       } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException | InstantiationException e) {
-        throw new RuntimeException("Error registering UDF " + topLevelStdUDF.getName() + " with Hive Server", e);
+        throw new RuntimeException("Error registering UDF " + topLevelUDF.getName() + " with Hive Server", e);
       }
     });
   }
 
   @Override
-  public TypeFactory getStdFactory() {
+  public TypeFactory getTypeFactory() {
     return _typeFactory;
   }
 

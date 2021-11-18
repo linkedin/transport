@@ -9,14 +9,14 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.linkedin.transport.api.udf.UDF;
 import com.linkedin.transport.api.udf.TopLevelUDF;
-import com.linkedin.transport.test.AbstractStdUDFTest;
-import com.linkedin.transport.test.spi.StdTester;
+import com.linkedin.transport.test.AbstractUDFTest;
+import com.linkedin.transport.test.spi.Tester;
 import java.util.List;
 import java.util.Map;
 import org.testng.annotations.Test;
 
 
-public class TestFileLookupFunction extends AbstractStdUDFTest {
+public class TestFileLookupFunction extends AbstractUDFTest {
 
   @Override
   protected Map<Class<? extends TopLevelUDF>, List<Class<? extends UDF>>> getTopLevelUDFClassesAndImplementations() {
@@ -25,7 +25,7 @@ public class TestFileLookupFunction extends AbstractStdUDFTest {
 
   @Test
   public void testFileLookup() {
-    StdTester tester = getTester();
+    Tester tester = getTester();
     tester.check(functionCall("file_lookup", resource("file_lookup_function/sample"), 1), true, "boolean");
     tester.check(functionCall("file_lookup", resource("file_lookup_function/sample"), 6), false, "boolean");
     tester.check(functionCall("file_lookup", null, 1), null, "boolean");
@@ -33,7 +33,7 @@ public class TestFileLookupFunction extends AbstractStdUDFTest {
 
   @Test(expectedExceptions = NullPointerException.class)
   public void testFileLookupFailNull() {
-    StdTester tester = getTester();
+    Tester tester = getTester();
     tester.check(functionCall("file_lookup", resource("file_lookup_function/sample"), null), null, "boolean");
   }
 }

@@ -15,12 +15,12 @@ import java.util.Map;
  * An interface providing testing capabilities for UDFs to be implemented by
  * each target platform.
  */
-public interface StdTester {
+public interface Tester {
 
   /**
    * Registers UDFs the user wants to test with the underlying test framework
    */
-  void setup(Map<Class<? extends TopLevelUDF>, List<Class<? extends UDF>>> topLevelStdUDFClassesAndImplementations);
+  void setup(Map<Class<? extends TopLevelUDF>, List<Class<? extends UDF>>> topLevelUDFClassesAndImplementations);
 
   /**
    * Verifies that the output and output type of the function call matches the provided expected values in the {@link TestCase}

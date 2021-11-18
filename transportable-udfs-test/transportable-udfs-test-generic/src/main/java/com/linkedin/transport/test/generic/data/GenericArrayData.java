@@ -7,7 +7,7 @@ package com.linkedin.transport.test.generic.data;
 
 import com.linkedin.transport.api.data.ArrayData;
 import com.linkedin.transport.api.data.PlatformData;
-import com.linkedin.transport.test.generic.GenericWrapper;
+import com.linkedin.transport.test.generic.GenericConverters;
 import com.linkedin.transport.test.spi.types.ArrayTestType;
 import com.linkedin.transport.test.spi.types.TestType;
 import java.util.Iterator;
@@ -31,12 +31,12 @@ public class GenericArrayData<E> implements ArrayData<E>, PlatformData {
 
   @Override
   public E get(int idx) {
-    return (E) GenericWrapper.createStdData(_array.get(idx), _elementType);
+    return (E) GenericConverters.toTransportData(_array.get(idx), _elementType);
   }
 
   @Override
   public void add(E e) {
-    _array.add(GenericWrapper.getPlatformData(e));
+    _array.add(GenericConverters.toPlatformData(e));
   }
 
   @Override
@@ -51,7 +51,7 @@ public class GenericArrayData<E> implements ArrayData<E>, PlatformData {
 
       @Override
       public E next() {
-        return (E) GenericWrapper.createStdData(_iterator.next(), _elementType);
+        return (E) GenericConverters.toTransportData(_iterator.next(), _elementType);
       }
     };
   }

@@ -11,23 +11,23 @@ import java.util
 import com.linkedin.transport.api.udf.{TopLevelUDF, UDF}
 import com.linkedin.transport.spark.SparkTypeFactory
 import com.linkedin.transport.spark.typesystem.SparkBoundVariables
-import com.linkedin.transport.test.spi.{SqlFunctionCallGenerator, SqlStdTester, ToPlatformTestOutputConverter}
+import com.linkedin.transport.test.spi.{SqlFunctionCallGenerator, SqlTester, ToPlatformTestOutputConverter}
 import org.apache.spark.SparkException
 import org.apache.spark.sql.types._
-import org.apache.spark.sql.{SparkSession, StdUDFTestUtils}
+import org.apache.spark.sql.{SparkSession, UDFTestUtils}
 import org.testng.Assert
 
 import scala.collection.JavaConversions._
 
-class SparkTester extends SqlStdTester {
+class SparkTester extends SqlTester {
 
-  private val _stdFactory: TypeFactory = new SparkTypeFactory(new SparkBoundVariables())
+  private val _typeFactory: TypeFactory = new SparkTypeFactory(new SparkBoundVariables())
   private val _sparkSession: SparkSession = SparkSession.builder.master("local[1]").appName("transport-udfs").getOrCreate
   private val _sqlFunctionCallGenerator = new SparkSqlFunctionCallGenerator
   private val _testDataToOutputDataConverter = new ToSparkTestOutputConverter
 
 
-  override def getStdFactory: TypeFactory = _stdFactory
+  override def getTypeFactory: TypeFactory = _typeFactory
 
   override def getSqlFunctionCallGenerator: SqlFunctionCallGenerator = _sqlFunctionCallGenerator
 
@@ -45,11 +45,11 @@ class SparkTester extends SqlStdTester {
     Assert.assertEquals(getModifiedResultType(result.schema.head.dataType), expectedOutputType)
   }
 
-  override def setup(topLevelStdUDFClassesAndImplementations: util.Map[Class[_ <: TopLevelUDF],
+  override def setup(topLevelUDFClassesAndImplementations: util.Map[Class[_ <: TopLevelUDF],
     util.List[Class[_ <: UDF]]]): Unit = {
-    topLevelStdUDFClassesAndImplementations.toMap.foreach(entry => {
+    topLevelUDFClassesAndImplementations.toMap.foreach(entry => {
       val functionName = entry._2.get(0).getConstructor().newInstance().asInstanceOf[TopLevelUDF].getFunctionName
-      StdUDFTestUtils.register(functionName, entry._1, entry._2, _sparkSession)
+      UDFTestUtils.register(functionName, entry._1, entry._2, _sparkSession)
     })
   }
 
