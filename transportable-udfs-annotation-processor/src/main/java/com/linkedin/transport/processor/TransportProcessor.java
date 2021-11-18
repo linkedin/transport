@@ -53,8 +53,8 @@ public class TransportProcessor extends AbstractProcessor {
 
   private Types _types;
   private Elements _elements;
-  private TypeMirror _topLevelStdUDFInterfaceType;
-  private TypeMirror _stdUDFClassType;
+  private TypeMirror _topLevelUDFInterfaceType;
+  private TypeMirror _udfClassType;
   private TransportUDFMetadata _transportUdfMetadata;
 
   @Override
@@ -67,8 +67,8 @@ public class TransportProcessor extends AbstractProcessor {
     super.init(processingEnv);
     _types = processingEnv.getTypeUtils();
     _elements = processingEnv.getElementUtils();
-    _topLevelStdUDFInterfaceType = _elements.getTypeElement(TopLevelUDF.class.getName()).asType();
-    _stdUDFClassType = _elements.getTypeElement(UDF.class.getName()).asType();
+    _topLevelUDFInterfaceType = _elements.getTypeElement(TopLevelUDF.class.getName()).asType();
+    _udfClassType = _elements.getTypeElement(UDF.class.getName()).asType();
     _transportUdfMetadata = new TransportUDFMetadata();
   }
 
@@ -99,9 +99,9 @@ public class TransportProcessor extends AbstractProcessor {
 
   private void processElements(Set<? extends Element> elements) {
     for (Element element : elements) {
-      // Check if the element is a non-abstract class which extends the StdUDF class
+      // Check if the element is a non-abstract class which extends the UDF class
       if (element.getKind().equals(ElementKind.CLASS) && !element.getModifiers().contains(Modifier.ABSTRACT)
-          && _types.isAssignable(element.asType(), _stdUDFClassType)) {
+          && _types.isAssignable(element.asType(), _udfClassType)) {
         processUDFClass((TypeElement) element);
       }
     }
@@ -114,30 +114,30 @@ public class TransportProcessor extends AbstractProcessor {
   private void processUDFClass(TypeElement udfClassElement) {
     debug(String.format("Processing UDF Class: %s", udfClassElement.getQualifiedName()));
 
-    Set<TypeElement> elementsOverridingTopLevelStdUDFMethods =
-        getElementsOverridingTopLevelStdUDFMethods(udfClassElement);
+    Set<TypeElement> elementsOverridingTopLevelUDFMethods =
+        getElementsOverridingTopLevelUDFMethods(udfClassElement);
 
-    if (elementsOverridingTopLevelStdUDFMethods.size() == 0) {
+    if (elementsOverridingTopLevelUDFMethods.size() == 0) {
       error(Constants.INTERFACE_NOT_IMPLEMENTED_ERROR, udfClassElement);
-    } else if (elementsOverridingTopLevelStdUDFMethods.size() > 1) {
+    } else if (elementsOverridingTopLevelUDFMethods.size() > 1) {
       error(
           String.format("Multiple overridings of %s methods found in %s. %s",
               TopLevelUDF.class.getSimpleName(),
-              elementsOverridingTopLevelStdUDFMethods.stream()
+              elementsOverridingTopLevelUDFMethods.stream()
                   .map(TypeElement::getQualifiedName)
                   .collect(Collectors.joining(", ")),
               Constants.MORE_THAN_ONE_TYPE_OVERRIDING_ERROR),
           udfClassElement
       );
     } else {
-      TypeElement topLevelStdUdfTypeElement = elementsOverridingTopLevelStdUDFMethods.iterator().next();
-      String topLevelStdUdfClassName = topLevelStdUdfTypeElement.getQualifiedName().toString();
-      debug(String.format("TopLevelStdUDF class found: %s", topLevelStdUdfClassName));
+      TypeElement topLevelUdfTypeElement = elementsOverridingTopLevelUDFMethods.iterator().next();
+      String topLevelUdfClassName = topLevelUdfTypeElement.getQualifiedName().toString();
+      debug(String.format("TopLevelUDF class found: %s", topLevelUdfClassName));
       String udfClassName = udfClassElement.getQualifiedName().toString();
-      _transportUdfMetadata.addUDF(topLevelStdUdfClassName, udfClassElement.getQualifiedName().toString());
+      _transportUdfMetadata.addUDF(topLevelUdfClassName, udfClassElement.getQualifiedName().toString());
       _transportUdfMetadata.setClassNumberOfTypeParameters(
-          topLevelStdUdfClassName,
-          topLevelStdUdfTypeElement.getTypeParameters().size()
+          topLevelUdfClassName,
+          topLevelUdfTypeElement.getTypeParameters().size()
       );
       _transportUdfMetadata.setClassNumberOfTypeParameters(
           udfClassName,
@@ -157,32 +157,32 @@ public class TransportProcessor extends AbstractProcessor {
   /**
    * Finds all elements in the type hierarchy of a {@link TypeElement} which override {@link TopLevelUDF} methods
    */
-  private Set<TypeElement> getElementsOverridingTopLevelStdUDFMethods(TypeElement typeElement) {
+  private Set<TypeElement> getElementsOverridingTopLevelUDFMethods(TypeElement typeElement) {
     return getAllTypesInHierarchy(typeElement.asType())
         .map(typeMirror -> (TypeElement) _types.asElement(typeMirror))
-        .filter(this::typeElementOverridesTopLevelStdUDFMethods)
+        .filter(this::typeElementOverridesTopLevelUDFMethods)
         .collect(Collectors.toSet());
   }
 
   /**
    * Returns true if the given {@link TypeElement} (class/interface) overrides {@link TopLevelUDF} methods
    */
-  private boolean typeElementOverridesTopLevelStdUDFMethods(TypeElement typeElement) {
+  private boolean typeElementOverridesTopLevelUDFMethods(TypeElement typeElement) {
 
-    Map<String, ExecutableElement> topLevelStdUDFMethods =
-        ElementFilter.methodsIn(_types.asElement(_topLevelStdUDFInterfaceType).getEnclosedElements())
+    Map<String, ExecutableElement> topLevelUDFMethods =
+        ElementFilter.methodsIn(_types.asElement(_topLevelUDFInterfaceType).getEnclosedElements())
             .stream()
             .collect(Collectors.toMap(e -> e.getSimpleName().toString(), Function.identity()));
 
-    // Check if any method defined in TopLevelStdUDF is being overriden in this class/interface
-    // For simplicity we assume function names in TopLevelStdUDF are distinct
+    // Check if any method defined in TopLevelUDF is being overriden in this class/interface
+    // For simplicity we assume function names in TopLevelUDF are distinct
     return ElementFilter.methodsIn(typeElement.getEnclosedElements())
         .stream()
         .anyMatch(method -> {
-          ExecutableElement matchingMethodFromTopLevelStdUDF =
-              topLevelStdUDFMethods.get(method.getSimpleName().toString());
-          return matchingMethodFromTopLevelStdUDF != null
-              && _elements.overrides(method, matchingMethodFromTopLevelStdUDF, typeElement);
+          ExecutableElement matchingMethodFromTopLevelUDF =
+              topLevelUDFMethods.get(method.getSimpleName().toString());
+          return matchingMethodFromTopLevelUDF != null
+              && _elements.overrides(method, matchingMethodFromTopLevelUDF, typeElement);
         });
   }
 

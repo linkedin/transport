@@ -41,8 +41,8 @@ public class TransportUDFMetadata {
     _classToNumberOfTypeParameters = new HashMap<>();
   }
 
-  public void addUDF(String topLevelClass, String stdUDFImplementation) {
-    _udfs.put(topLevelClass, stdUDFImplementation);
+  public void addUDF(String topLevelClass, String udfImplementation) {
+    _udfs.put(topLevelClass, udfImplementation);
   }
 
   public void setClassNumberOfTypeParameters(String clazz, int numberOfTypeParameters) {
@@ -86,9 +86,9 @@ public class TransportUDFMetadata {
       // Deserialize udfs
       JsonObject udfs = root.getAsJsonObject("udfs");
       udfs.keySet().forEach(topLevelClass -> {
-        JsonArray stdUdfImplementations = udfs.getAsJsonArray(topLevelClass);
-        for (int i = 0; i < stdUdfImplementations.size(); i++) {
-          metadata.addUDF(topLevelClass, stdUdfImplementations.get(i).getAsString());
+        JsonArray udfImplementation = udfs.getAsJsonArray(topLevelClass);
+        for (int i = 0; i < udfImplementation.size(); i++) {
+          metadata.addUDF(topLevelClass, udfImplementation.get(i).getAsString());
         }
       });
 
@@ -104,9 +104,9 @@ public class TransportUDFMetadata {
       // Serialzie _udfs
       JsonObject udfs = new JsonObject();
       for (Map.Entry<String, Collection<String>> entry : metadata._udfs.asMap().entrySet()) {
-        JsonArray stdUdfImplementations = new JsonArray();
-        entry.getValue().forEach(f -> stdUdfImplementations.add(f));
-        udfs.add(entry.getKey(), stdUdfImplementations);
+        JsonArray udfImplementation = new JsonArray();
+        entry.getValue().forEach(f -> udfImplementation.add(f));
+        udfs.add(entry.getKey(), udfImplementation);
       }
 
       // Serialize _classToNumberOfTypeParameters
