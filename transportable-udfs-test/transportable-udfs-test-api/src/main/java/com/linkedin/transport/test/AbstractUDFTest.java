@@ -13,8 +13,8 @@ import com.linkedin.transport.api.udf.UDF;
 import com.linkedin.transport.api.udf.TopLevelUDF;
 import com.linkedin.transport.test.spi.FunctionCall;
 import com.linkedin.transport.test.spi.Row;
-import com.linkedin.transport.test.spi.StdTester;
-import com.linkedin.transport.test.spi.StdTesterService;
+import com.linkedin.transport.test.spi.Tester;
+import com.linkedin.transport.test.spi.TesterService;
 import com.linkedin.transport.test.spi.TestCase;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -26,7 +26,7 @@ import java.util.Map;
 
 /**
  * An abstract class to be extended by all test classes. This class contains helper methods to initialize the
- * {@link StdTester} and create input and output data for the test cases.
+ * {@link Tester} and create input and output data for the test cases.
  *
  * Primitive data is represented by primitive types when passed to the test cases.
  * The mapping between container types to the corresponding Java type is given below:
@@ -38,13 +38,13 @@ import java.util.Map;
  *
  *
  */
-public abstract class AbstractStdUDFTest {
+public abstract class AbstractUDFTest {
 
   /**
-   * Returns a {@link StdTester} for the underlying test platform
+   * Returns a {@link Tester} for the underlying test platform
    */
-  protected StdTester getTester() {
-    StdTester tester = StdTesterService.getTester();
+  protected Tester getTester() {
+    Tester tester = TesterService.getTester();
     validateTopLevelUDFClassesAndImplementations(getTopLevelUDFClassesAndImplementations());
     tester.setup(getTopLevelUDFClassesAndImplementations());
     return tester;
@@ -54,7 +54,7 @@ public abstract class AbstractStdUDFTest {
    * Returns a {@link Map} of {@link TopLevelUDF} classes to their corresponding {@link UDF} implementation
    * classes which are to be used in the test
    *
-   * TODO: Auto-derive StdUDF implementation classes from the TopLevelStdUDF class
+   * TODO: Auto-derive UDF implementation classes from the TopLevelUDF class
    */
   protected abstract Map<Class<? extends TopLevelUDF>, List<Class<? extends UDF>>> getTopLevelUDFClassesAndImplementations();
 
@@ -101,7 +101,7 @@ public abstract class AbstractStdUDFTest {
   protected static String resource(String relativeResourcePath) {
     String filePath = null;
     try {
-      filePath = new URI("file", AbstractStdUDFTest.class.getClassLoader().getResource(relativeResourcePath).getPath(),
+      filePath = new URI("file", AbstractUDFTest.class.getClassLoader().getResource(relativeResourcePath).getPath(),
           null).toString();
     } catch (NullPointerException | URISyntaxException e) {
       throw new IllegalArgumentException("Error fetching resource file: " + relativeResourcePath, e);

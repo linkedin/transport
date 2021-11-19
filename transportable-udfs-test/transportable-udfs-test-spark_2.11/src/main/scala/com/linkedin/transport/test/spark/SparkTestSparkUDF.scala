@@ -21,12 +21,12 @@ import scala.util.{Failure, Success, Try}
   * The wrapper's constructor here is parameterized so that the same wrapper can be used for all UDFs throughout the
   * test framework rather than generating UDF specific wrappers
   */
-case class SparkTestSparkUDF(topLevelStdUdfClass: Class[_ <: TopLevelUDF], stdUDFs: util.List[Class[_ <: UDF]],
+case class SparkTestSparkUDF(topLevelUdfClass: Class[_ <: TopLevelUDF], udfs: util.List[Class[_ <: UDF]],
   expressions: Seq[Expression]) extends SparkUDF(expressions) {
 
-  override protected def getTopLevelUdfClass: Class[_ <: TopLevelUDF] = topLevelStdUdfClass
+  override protected def getTopLevelUdfClass: Class[_ <: TopLevelUDF] = topLevelUdfClass
 
-  override protected def getUdfImplementations: util.List[_ <: UDF] = stdUDFs.map(clazz => {
+  override protected def getUdfImplementations: util.List[_ <: UDF] = udfs.map(clazz => {
     Try(clazz.getConstructor().newInstance()) match {
       case Success(exprObject) => exprObject.asInstanceOf[UDF]
       case Failure(e) => throw new RuntimeException(e)

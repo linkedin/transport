@@ -9,14 +9,14 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.linkedin.transport.api.udf.UDF;
 import com.linkedin.transport.api.udf.TopLevelUDF;
-import com.linkedin.transport.test.AbstractStdUDFTest;
-import com.linkedin.transport.test.spi.StdTester;
+import com.linkedin.transport.test.AbstractUDFTest;
+import com.linkedin.transport.test.spi.Tester;
 import java.util.List;
 import java.util.Map;
 import org.testng.annotations.Test;
 
 
-public class TestStructCreateByNameFunction extends AbstractStdUDFTest {
+public class TestStructCreateByNameFunction extends AbstractUDFTest {
 
   @Override
   protected Map<Class<? extends TopLevelUDF>, List<Class<? extends UDF>>> getTopLevelUDFClassesAndImplementations() {
@@ -25,7 +25,7 @@ public class TestStructCreateByNameFunction extends AbstractStdUDFTest {
 
   @Test
   public void testStructCreateByNameFunction() {
-    StdTester tester = getTester();
+    Tester tester = getTester();
     tester.check(functionCall("struct_create_by_name", "a", "x", "b", "y"), row("x", "y"), "row(varchar,varchar)");
     tester.check(functionCall("struct_create_by_name", null, "x", "b", "y"), null, "row(varchar,varchar)");
     tester.check(functionCall("struct_create_by_name", "a", "x", null, "y"), null, "row(varchar,varchar)");

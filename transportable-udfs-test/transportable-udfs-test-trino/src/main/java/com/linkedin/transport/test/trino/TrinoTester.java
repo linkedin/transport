@@ -9,6 +9,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.linkedin.transport.api.TypeFactory;
 import com.linkedin.transport.api.udf.UDF;
+import com.linkedin.transport.test.spi.SqlTester;
 import io.trino.metadata.BoundSignature;
 import io.trino.metadata.FunctionBinding;
 import io.trino.metadata.FunctionId;
@@ -17,7 +18,6 @@ import io.trino.spi.type.Type;
 import com.linkedin.transport.api.udf.TopLevelUDF;
 import com.linkedin.transport.trino.TrinoTypeFactory;
 import com.linkedin.transport.test.spi.SqlFunctionCallGenerator;
-import com.linkedin.transport.test.spi.SqlStdTester;
 import com.linkedin.transport.test.spi.ToPlatformTestOutputConverter;
 import java.util.List;
 import java.util.Map;
@@ -25,7 +25,7 @@ import java.util.Map;
 import static io.trino.type.UnknownType.UNKNOWN;
 
 
-public class TrinoTester extends AbstractTestFunctions implements SqlStdTester {
+public class TrinoTester extends AbstractTestFunctions implements SqlTester {
 
   private TypeFactory _typeFactory;
   private SqlFunctionCallGenerator _sqlFunctionCallGenerator;
@@ -39,18 +39,18 @@ public class TrinoTester extends AbstractTestFunctions implements SqlStdTester {
 
   @Override
   public void setup(
-      Map<Class<? extends TopLevelUDF>, List<Class<? extends UDF>>> topLevelStdUDFClassesAndImplementations) {
+      Map<Class<? extends TopLevelUDF>, List<Class<? extends UDF>>> topLevelUDFClassesAndImplementations) {
     // Refresh Trino state during every setup call
     initTestFunctions();
-    for (List<Class<? extends UDF>> stdUDFImplementations : topLevelStdUDFClassesAndImplementations.values()) {
-      for (Class<? extends UDF> stdUDF : stdUDFImplementations) {
-        registerScalarFunction(new TrinoTestTrinoUDF(stdUDF));
+    for (List<Class<? extends UDF>> udfImplementations : topLevelUDFClassesAndImplementations.values()) {
+      for (Class<? extends UDF> udf : udfImplementations) {
+        registerScalarFunction(new TrinoTestTrinoUDF(udf));
       }
     }
   }
 
   @Override
-  public TypeFactory getStdFactory() {
+  public TypeFactory getTypeFactory() {
     if (_typeFactory == null) {
       FunctionBinding functionBinding = new FunctionBinding(
           new FunctionId("test"),

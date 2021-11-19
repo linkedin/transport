@@ -35,7 +35,7 @@ import org.apache.hadoop.fs.Path;
  * Base class for all Test Transport UDFs. It provides a standard way of type validation, binding, and output type
  * inference through its initialize() method.
  */
-public class GenericStdUDFWrapper {
+public class GenericUDF {
 
   protected TestType[] _inputTypes;
   protected UDF _udf;
@@ -44,13 +44,13 @@ public class GenericStdUDFWrapper {
   private boolean[] _nullableArguments;
   private Object[] _args;
   private Class<? extends TopLevelUDF> _topLevelUdfClass;
-  private List<Class<? extends UDF>> _stdUdfImplementations;
+  private List<Class<? extends UDF>> _udfImplementations;
   private String[] _localFiles;
 
-  public GenericStdUDFWrapper(Class<? extends TopLevelUDF> topLevelUdfClass,
-      List<Class<? extends UDF>> stdUdfImplementations) {
+  public GenericUDF(Class<? extends TopLevelUDF> topLevelUdfClass,
+      List<Class<? extends UDF>> udfImplementations) {
     _topLevelUdfClass = topLevelUdfClass;
-    _stdUdfImplementations = stdUdfImplementations;
+    _udfImplementations = udfImplementations;
   }
 
   /**
@@ -63,14 +63,14 @@ public class GenericStdUDFWrapper {
    */
   public TestType initialize(TestType[] arguments) {
     GenericTypeInference genericTypeInference = new GenericTypeInference();
-    genericTypeInference.compile(arguments, getStdUdfImplementations(), getTopLevelUdfClass());
+    genericTypeInference.compile(arguments, getUdfImplementations(), getTopLevelUdfClass());
     _inputTypes = genericTypeInference.getInputDataTypes();
     _typeFactory = genericTypeInference.getTypeFactory();
     _udf = genericTypeInference.getUdf();
     _nullableArguments = _udf.getAndCheckNullableArguments();
     _udf.init(_typeFactory);
     _requiredFilesProcessed = false;
-    createStdData();
+    createTransportData();
     return genericTypeInference.getOutputDataType();
   }
 
@@ -83,7 +83,7 @@ public class GenericStdUDFWrapper {
     return false;
   }
 
-  protected Object wrap(Object argument, Object stdData) {
+  protected Object wrap(Object argument, Object transportData) {
     if (argument == null) {
       return null;
     } else {
@@ -92,16 +92,16 @@ public class GenericStdUDFWrapper {
           || argument instanceof ByteBuffer) {
         return argument;
       } else {
-        ((PlatformData) stdData).setUnderlyingData(argument);
-        return stdData;
+        ((PlatformData) transportData).setUnderlyingData(argument);
+        return transportData;
       }
     }
   }
 
-  protected List<? extends UDF> getStdUdfImplementations() {
-    return _stdUdfImplementations.stream().map(stdUdfClass -> {
+  protected List<? extends UDF> getUdfImplementations() {
+    return _udfImplementations.stream().map(transportUDFClass -> {
       try {
-        return stdUdfClass.getConstructor().newInstance();
+        return transportUDFClass.getConstructor().newInstance();
       } catch (IllegalAccessException | InstantiationException | NoSuchMethodException | InvocationTargetException e) {
         throw new RuntimeException(e);
       }
@@ -112,10 +112,10 @@ public class GenericStdUDFWrapper {
     return _topLevelUdfClass;
   }
 
-  protected void createStdData() {
+  protected void createTransportData() {
     _args = new Object[_inputTypes.length];
     for (int i = 0; i < _inputTypes.length; i++) {
-      _args[i] = GenericWrapper.createStdData(null, _inputTypes[i]);
+      _args[i] = GenericConverters.toTransportData(null, _inputTypes[i]);
     }
   }
 
@@ -162,9 +162,9 @@ public class GenericStdUDFWrapper {
         result = ((UDF8) _udf).eval(args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7]);
         break;
       default:
-        throw new UnsupportedOperationException("eval not yet supported for StdUDF" + args.length);
+        throw new UnsupportedOperationException("eval not yet supported for UDF" + args.length);
     }
-    return GenericWrapper.getPlatformData(result);
+    return GenericConverters.toPlatformData(result);
   }
 
   public String[] getRequiredFiles(Object[] args) {
@@ -198,7 +198,7 @@ public class GenericStdUDFWrapper {
         requiredFiles = ((UDF8) _udf).getRequiredFiles(args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7]);
         break;
       default:
-        throw new UnsupportedOperationException("getRequiredFiles not yet supported for StdUDF" + args.length);
+        throw new UnsupportedOperationException("getRequiredFiles not yet supported for UDF" + args.length);
     }
     _localFiles = Arrays.stream(requiredFiles).map(requiredFile -> {
       try {

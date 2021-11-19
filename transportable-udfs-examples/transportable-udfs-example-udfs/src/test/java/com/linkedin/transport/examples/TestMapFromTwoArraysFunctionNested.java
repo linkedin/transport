@@ -9,14 +9,14 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.linkedin.transport.api.udf.UDF;
 import com.linkedin.transport.api.udf.TopLevelUDF;
-import com.linkedin.transport.test.AbstractStdUDFTest;
-import com.linkedin.transport.test.spi.StdTester;
+import com.linkedin.transport.test.AbstractUDFTest;
+import com.linkedin.transport.test.spi.Tester;
 import java.util.List;
 import java.util.Map;
 import org.testng.annotations.Test;
 
 
-public class TestMapFromTwoArraysFunctionNested extends AbstractStdUDFTest {
+public class TestMapFromTwoArraysFunctionNested extends AbstractUDFTest {
 
   @Override
   protected Map<Class<? extends TopLevelUDF>, List<Class<? extends UDF>>> getTopLevelUDFClassesAndImplementations() {
@@ -27,7 +27,7 @@ public class TestMapFromTwoArraysFunctionNested extends AbstractStdUDFTest {
 
   @Test
   public void testMapFromTwoArraysFunctionNested() {
-    StdTester tester = getTester();
+    Tester tester = getTester();
     tester.check(functionCall("map_from_two_arrays", functionCall("std_map_values", map(1, "a", 2, "b")),
         functionCall("map_key_set", map(1, "a", 2, "b"))), map("a", 1, "b", 2), "map(varchar, integer)");
 

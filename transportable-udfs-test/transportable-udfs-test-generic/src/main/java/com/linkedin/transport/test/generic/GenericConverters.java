@@ -9,7 +9,7 @@ import com.linkedin.transport.api.data.PlatformData;
 import com.linkedin.transport.api.types.DataType;
 import com.linkedin.transport.test.generic.data.GenericArrayData;
 import com.linkedin.transport.test.generic.data.GenericMapData;
-import com.linkedin.transport.test.generic.data.GenericStruct;
+import com.linkedin.transport.test.generic.data.GenericRowData;
 import com.linkedin.transport.test.spi.Row;
 import com.linkedin.transport.test.spi.types.ArrayTestType;
 import com.linkedin.transport.test.spi.types.BooleanTestType;
@@ -28,12 +28,12 @@ import java.util.List;
 import java.util.Map;
 
 
-public class GenericWrapper {
+public class GenericConverters {
 
-  private GenericWrapper() {
+  private GenericConverters() {
   }
 
-  public static Object createStdData(Object data, TestType dataType) {
+  public static Object toTransportData(Object data, TestType dataType) {
     if (dataType instanceof UnknownTestType) {
       return null;
     } else if (dataType instanceof IntegerTestType || dataType instanceof LongTestType
@@ -45,13 +45,13 @@ public class GenericWrapper {
     } else if (dataType instanceof MapTestType) {
       return new GenericMapData((Map<Object, Object>) data, dataType);
     } else if (dataType instanceof StructTestType) {
-      return new GenericStruct((Row) data, dataType);
+      return new GenericRowData((Row) data, dataType);
     } else {
       throw new UnsupportedOperationException("Unsupported data type: " + dataType.getClass());
     }
   }
 
-  public static Object getPlatformData(Object transportData) {
+  public static Object toPlatformData(Object transportData) {
     if (transportData == null) {
       return null;
     } else {
@@ -65,7 +65,7 @@ public class GenericWrapper {
     }
   }
 
-  public static DataType createStdType(TestType dataType) {
+  public static DataType toTransportType(TestType dataType) {
     return () -> dataType;
   }
 }

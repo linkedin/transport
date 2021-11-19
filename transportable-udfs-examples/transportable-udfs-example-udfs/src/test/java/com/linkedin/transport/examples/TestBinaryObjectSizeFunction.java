@@ -9,15 +9,15 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.linkedin.transport.api.udf.UDF;
 import com.linkedin.transport.api.udf.TopLevelUDF;
-import com.linkedin.transport.test.AbstractStdUDFTest;
-import com.linkedin.transport.test.spi.StdTester;
+import com.linkedin.transport.test.AbstractUDFTest;
+import com.linkedin.transport.test.spi.Tester;
 import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.Map;
 import org.testng.annotations.Test;
 
 
-public class TestBinaryObjectSizeFunction extends AbstractStdUDFTest {
+public class TestBinaryObjectSizeFunction extends AbstractUDFTest {
   @Override
   protected Map<Class<? extends TopLevelUDF>, List<Class<? extends UDF>>> getTopLevelUDFClassesAndImplementations() {
     return ImmutableMap.of(BinaryObjectSizeFunction.class, ImmutableList.of(BinaryObjectSizeFunction.class));
@@ -25,7 +25,7 @@ public class TestBinaryObjectSizeFunction extends AbstractStdUDFTest {
 
   @Test
   public void tesBinaryObjectSize() {
-    StdTester tester = getTester();
+    Tester tester = getTester();
     ByteBuffer argTest1 = ByteBuffer.wrap("foo".getBytes());
     ByteBuffer argTest2 = ByteBuffer.wrap("".getBytes());
     ByteBuffer argTest3 = ByteBuffer.wrap("fooBar".getBytes());

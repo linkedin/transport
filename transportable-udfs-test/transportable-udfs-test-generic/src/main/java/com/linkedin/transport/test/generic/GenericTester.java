@@ -9,7 +9,7 @@ import com.linkedin.transport.api.udf.UDF;
 import com.linkedin.transport.api.udf.TopLevelUDF;
 import com.linkedin.transport.test.generic.typesystem.GenericBoundVariables;
 import com.linkedin.transport.test.generic.typesystem.GenericTypeFactory;
-import com.linkedin.transport.test.spi.StdTester;
+import com.linkedin.transport.test.spi.Tester;
 import com.linkedin.transport.test.spi.TestCase;
 import com.linkedin.transport.test.spi.types.TestType;
 import com.linkedin.transport.typesystem.TypeSignature;
@@ -22,7 +22,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.testng.Assert;
 
 
-public class GenericTester implements StdTester {
+public class GenericTester implements Tester {
 
   private GenericBoundVariables _boundVariables;
   private GenericTypeFactory _typeFactory;
@@ -30,18 +30,18 @@ public class GenericTester implements StdTester {
 
   @Override
   public void setup(
-      Map<Class<? extends TopLevelUDF>, List<Class<? extends UDF>>> topLevelStdUDFClassesAndImplementations) {
+      Map<Class<? extends TopLevelUDF>, List<Class<? extends UDF>>> topLevelUDFClassesAndImplementations) {
     _boundVariables = new GenericBoundVariables();
     _typeFactory = new GenericTypeFactory();
-    Map<String, GenericStdUDFWrapper> functionNameToWrapperMap = new HashMap<>();
-    topLevelStdUDFClassesAndImplementations.forEach((topLevelStdUDF, stdUDFImplementations) -> {
-      GenericStdUDFWrapper wrapper = new GenericStdUDFWrapper(topLevelStdUDF, stdUDFImplementations);
+    Map<String, GenericUDF> functionNameToWrapperMap = new HashMap<>();
+    topLevelUDFClassesAndImplementations.forEach((topLevelUDF, udfImplementations) -> {
+      GenericUDF wrapper = new GenericUDF(topLevelUDF, udfImplementations);
       try {
         String functionName =
-            ((TopLevelUDF) stdUDFImplementations.get(0).getConstructor().newInstance()).getFunctionName();
+            ((TopLevelUDF) udfImplementations.get(0).getConstructor().newInstance()).getFunctionName();
         functionNameToWrapperMap.put(functionName, wrapper);
       } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException | InstantiationException e) {
-        throw new RuntimeException("Error registering UDF " + topLevelStdUDF.getName(), e);
+        throw new RuntimeException("Error registering UDF " + topLevelUDF.getName(), e);
       }
     });
     _executor = new GenericQueryExecutor(functionNameToWrapperMap);

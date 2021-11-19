@@ -9,14 +9,14 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.linkedin.transport.api.udf.UDF;
 import com.linkedin.transport.api.udf.TopLevelUDF;
-import com.linkedin.transport.test.AbstractStdUDFTest;
-import com.linkedin.transport.test.spi.StdTester;
+import com.linkedin.transport.test.AbstractUDFTest;
+import com.linkedin.transport.test.spi.Tester;
 import java.util.List;
 import java.util.Map;
 import org.testng.annotations.Test;
 
 
-public class TestArrayFillFunction extends AbstractStdUDFTest {
+public class TestArrayFillFunction extends AbstractUDFTest {
 
   @Override
   protected Map<Class<? extends TopLevelUDF>, List<Class<? extends UDF>>> getTopLevelUDFClassesAndImplementations() {
@@ -25,7 +25,7 @@ public class TestArrayFillFunction extends AbstractStdUDFTest {
 
   @Test
   public void testArrayFill() {
-    StdTester tester = getTester();
+    Tester tester = getTester();
     tester.check(functionCall("array_fill", 1, 5L), array(1, 1, 1, 1, 1), "array(integer)");
     tester.check(functionCall("array_fill", "1", 5L), array("1", "1", "1", "1", "1"), "array(varchar)");
     tester.check(functionCall("array_fill", true, 5L), array(true, true, true, true, true), "array(boolean)");

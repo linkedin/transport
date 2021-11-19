@@ -9,11 +9,11 @@ import com.linkedin.transport.api.TypeFactory;
 
 
 /**
- * A {@link StdTester} for platforms exposing a SQL-based testing interface
+ * A {@link Tester} for platforms exposing a SQL-based testing interface
  */
-public interface SqlStdTester extends StdTester {
+public interface SqlTester extends Tester {
 
-  TypeFactory getStdFactory();
+  TypeFactory getTypeFactory();
 
   SqlFunctionCallGenerator getSqlFunctionCallGenerator();
 
@@ -34,6 +34,6 @@ public interface SqlStdTester extends StdTester {
   }
 
   default Object getPlatformType(String typeSignature) {
-    return getStdFactory().createDataType(typeSignature).underlyingType();
+    return getTypeFactory().createDataType(typeSignature).underlyingType();
   }
 }

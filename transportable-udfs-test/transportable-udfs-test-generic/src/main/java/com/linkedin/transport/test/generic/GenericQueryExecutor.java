@@ -31,9 +31,9 @@ import org.apache.commons.lang3.tuple.Pair;
 
 class GenericQueryExecutor {
 
-  private final Map<String, GenericStdUDFWrapper> _functionNameToWrapperMap;
+  private final Map<String, GenericUDF> _functionNameToWrapperMap;
 
-  GenericQueryExecutor(Map<String, GenericStdUDFWrapper> functionNameToWrapperMap) {
+  GenericQueryExecutor(Map<String, GenericUDF> functionNameToWrapperMap) {
     _functionNameToWrapperMap = functionNameToWrapperMap;
   }
 
@@ -42,7 +42,7 @@ class GenericQueryExecutor {
   }
 
   private Pair<TestType, Object> resolveFunctionCall(FunctionCall call) {
-    GenericStdUDFWrapper wrapper = _functionNameToWrapperMap.get(call.getFunctionName());
+    GenericUDF wrapper = _functionNameToWrapperMap.get(call.getFunctionName());
     if (wrapper == null) {
       throw new RuntimeException("Could not find UDF with name " + call.getFunctionName());
     }

@@ -20,37 +20,37 @@ import org.apache.hadoop.hive.ql.exec.UDFArgumentException;
  * The wrapper's constructor here is parameterized so that the same wrapper can be used for all UDFs throughout the
  * test framework rather than generating UDF specific wrappers
  */
-public class HiveTestHiveUDF extends HiveUDF {
+public class HiveTestUDF extends HiveUDF {
 
-  private Class<? extends TopLevelUDF> _topLevelStdUDFClass;
-  private List<Class<? extends UDF>> _stdUDFClasses;
+  private Class<? extends TopLevelUDF> _topLevelUDFClass;
+  private List<Class<? extends UDF>> _transportUDFClasses;
 
   // This constructor is needed as Hive calls the parameterless constructor using Reflection when cloning the UDF
-  public HiveTestHiveUDF() {
+  public HiveTestUDF() {
   }
 
-  public HiveTestHiveUDF(Class<? extends TopLevelUDF> topLevelStdUDFClass,
-      List<Class<? extends UDF>> stdUDFClasses) {
-    _topLevelStdUDFClass = topLevelStdUDFClass;
-    _stdUDFClasses = stdUDFClasses;
+  public HiveTestUDF(Class<? extends TopLevelUDF> topLevelUDFClass,
+      List<Class<? extends UDF>> transportUDFClasses) {
+    _topLevelUDFClass = topLevelUDFClass;
+    _transportUDFClasses = transportUDFClasses;
   }
 
   @Override
   protected List<? extends UDF> getUdfImplementations() {
-    return _stdUDFClasses.stream().map(HiveTestHiveUDF::createInstance).collect(Collectors.toList());
+    return _transportUDFClasses.stream().map(HiveTestUDF::createInstance).collect(Collectors.toList());
   }
 
   @Override
   protected Class<? extends TopLevelUDF> getTopLevelUdfClass() {
-    return _topLevelStdUDFClass;
+    return _topLevelUDFClass;
   }
 
   @Override
   public void copyToNewInstance(Object newInstance) throws UDFArgumentException {
     super.copyToNewInstance(newInstance);
-    HiveTestHiveUDF newWrapper = (HiveTestHiveUDF) newInstance;
-    newWrapper._stdUDFClasses = _stdUDFClasses;
-    newWrapper._topLevelStdUDFClass = _topLevelStdUDFClass;
+    HiveTestUDF newWrapper = (HiveTestUDF) newInstance;
+    newWrapper._transportUDFClasses = _transportUDFClasses;
+    newWrapper._topLevelUDFClass = _topLevelUDFClass;
   }
 
   private static <K extends UDF> K createInstance(Class<K> udfClass) {
