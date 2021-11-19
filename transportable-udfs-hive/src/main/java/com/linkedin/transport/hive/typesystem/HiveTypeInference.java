@@ -32,7 +32,7 @@ public class HiveTypeInference extends AbstractTypeInference<ObjectInspector> {
   }
 
   @Override
-  protected AbstractTypeFactory<ObjectInspector> getTypeFactoryFacade() {
+  protected AbstractTypeFactory<ObjectInspector> getAbstractTypeFactory() {
     return new com.linkedin.transport.hive.typesystem.HiveTypeFactory();
   }
 }

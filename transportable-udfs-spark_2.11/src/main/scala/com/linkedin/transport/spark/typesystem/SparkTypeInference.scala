@@ -18,5 +18,5 @@ class SparkTypeInference extends AbstractTypeInference[DataType] {
   override protected def createTypeFactory(boundVariables: AbstractBoundVariables[DataType]): TypeFactory
   = new com.linkedin.transport.spark.SparkTypeFactory(boundVariables)
 
-  override protected def getTypeFactoryFacade(): AbstractTypeFactory[DataType] = new SparkTypeFactory
+  override protected def getAbstractTypeFactory(): AbstractTypeFactory[DataType] = new SparkTypeFactory
 }

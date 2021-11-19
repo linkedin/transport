@@ -31,7 +31,7 @@ public class AvroTypeInference extends AbstractTypeInference<Schema> {
   }
 
   @Override
-  protected AbstractTypeFactory<Schema> getTypeFactoryFacade() {
+  protected AbstractTypeFactory<Schema> getAbstractTypeFactory() {
     return new com.linkedin.transport.avro.typesystem.AvroTypeFactory();
   }
 }
