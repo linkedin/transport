@@ -48,7 +48,7 @@ public class MapValuesFunction<K, V> extends UDF1<MapData<K, V>, ArrayData<V>> i
 
   @Override
   public String getFunctionName() {
-    return "std_map_values";
+    return "transport_map_values";
   }
 
   @Override
