@@ -72,6 +72,7 @@ public class Multiply extends UDF2<Intger, Intger, Intger>
 ```
 
 Depending on the engine where this UDF is executed, this interface is implemented differently to deal with native data types used by that engine.
+`getTypeFactory()` is a method used to create objects that conform to a given data type.
 `UDF2` is an abstract class to express a UDF that takes two parameters.
 It is parametrized by the UDF input types and the UDF output type.
 For a more detailed documentation of the API usage, see [Transport UDFs API](transport-udfs-api.md).
