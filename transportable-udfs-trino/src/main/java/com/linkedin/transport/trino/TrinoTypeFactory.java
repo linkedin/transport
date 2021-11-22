@@ -67,7 +67,7 @@ public class TrinoTypeFactory implements TypeFactory {
   }
 
   @Override
-  public TrinoRowData createStruct(List<String> fieldNames, List<DataType> fieldTypes) {
+  public TrinoRowData createRowData(List<String> fieldNames, List<DataType> fieldTypes) {
     return new TrinoRowData(
         fieldNames,
         fieldTypes.stream()
@@ -78,7 +78,7 @@ public class TrinoTypeFactory implements TypeFactory {
   }
 
   @Override
-  public TrinoRowData createStruct(List<DataType> fieldTypes) {
+  public TrinoRowData createRowData(List<DataType> fieldTypes) {
     return new TrinoRowData(
         fieldTypes.stream()
             .map(dataType -> (Type) dataType.underlyingType())
@@ -88,7 +88,7 @@ public class TrinoTypeFactory implements TypeFactory {
   }
 
   @Override
-  public RowData createStruct(DataType dataType) {
+  public RowData createRowData(DataType dataType) {
     return new TrinoRowData((RowType) dataType.underlyingType(), this);
   }
 

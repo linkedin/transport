@@ -59,7 +59,7 @@ Running `gradle build` from the terminal will build the UDF artifacts as well as
 
 ## More Complex Tests
 
-To figure out Java equivalents of Data types to be used in the test framework, please see the documentation of [AbstractUDFTest](../transportable-udfs-test/transportable-udfs-test-api/src/main/java/com/linkedin/transport/test/AbstractStdUDFTest.java).
+To figure out Java equivalents of data types to be used in the test framework, please see the documentation of [AbstractUDFTest](../transportable-udfs-test/transportable-udfs-test-api/src/main/java/com/linkedin/transport/test/AbstractStdUDFTest.java).
 - Tests with complex types (maps, arrays, structs)
     - [TestMapFromTwoArraysFunction](../transportable-udfs-examples/transportable-udfs-example-udfs/src/test/java/com/linkedin/transport/examples/TestMapFromTwoArraysFunction.java)
     - [TestStructCreateByIndexFunction](../transportable-udfs-examples/transportable-udfs-example-udfs/src/test/java/com/linkedin/transport/examples/TestStructCreateByIndexFunction.java)

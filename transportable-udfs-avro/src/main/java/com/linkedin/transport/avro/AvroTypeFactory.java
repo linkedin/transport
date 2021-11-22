@@ -50,7 +50,7 @@ public class AvroTypeFactory implements TypeFactory {
   }
 
   @Override
-  public RowData createStruct(List<String> fieldNames, List<DataType> fieldTypes) {
+  public RowData createRowData(List<String> fieldNames, List<DataType> fieldTypes) {
     if (fieldNames.size() != fieldTypes.size()) {
       throw new RuntimeException(
           "Field names and types are of different lengths: " + "Field names length is " + fieldNames.size() + ". "
@@ -64,13 +64,13 @@ public class AvroTypeFactory implements TypeFactory {
   }
 
   @Override
-  public RowData createStruct(List<DataType> fieldTypes) {
-    return createStruct(IntStream.range(0, fieldTypes.size()).mapToObj(i -> "field" + i).collect(Collectors.toList()),
+  public RowData createRowData(List<DataType> fieldTypes) {
+    return createRowData(IntStream.range(0, fieldTypes.size()).mapToObj(i -> "field" + i).collect(Collectors.toList()),
         fieldTypes);
   }
 
   @Override
-  public RowData createStruct(DataType dataType) {
+  public RowData createRowData(DataType dataType) {
     return new AvroRowData((Schema) dataType.underlyingType());
   }
 

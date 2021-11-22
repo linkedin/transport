@@ -68,7 +68,7 @@ public class HiveTypeFactory implements TypeFactory {
   }
 
   @Override
-  public RowData createStruct(List<String> fieldNames, List<DataType> fieldTypes) {
+  public RowData createRowData(List<String> fieldNames, List<DataType> fieldTypes) {
     return new HiveRowData(
         new ArrayList(Arrays.asList(new Object[fieldTypes.size()])),
         ObjectInspectorFactory.getStandardStructObjectInspector(
@@ -79,14 +79,14 @@ public class HiveTypeFactory implements TypeFactory {
   }
 
   @Override
-  public RowData createStruct(List<DataType> fieldTypes) {
+  public RowData createRowData(List<DataType> fieldTypes) {
     List<String> fieldNames =
         IntStream.range(0, fieldTypes.size()).mapToObj(i -> "field" + i).collect(Collectors.toList());
-    return createStruct(fieldNames, fieldTypes);
+    return createRowData(fieldNames, fieldTypes);
   }
 
   @Override
-  public RowData createStruct(DataType dataType) {
+  public RowData createRowData(DataType dataType) {
     StructObjectInspector structObjectInspector = (StructObjectInspector) dataType.underlyingType();
     return new HiveRowData(
         new ArrayList(Arrays.asList(new Object[structObjectInspector.getAllStructFieldRefs().size()])),

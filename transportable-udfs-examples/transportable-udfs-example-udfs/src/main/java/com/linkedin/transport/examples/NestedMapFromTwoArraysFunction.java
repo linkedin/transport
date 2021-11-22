@@ -67,7 +67,7 @@ public class NestedMapFromTwoArraysFunction extends UDF1<ArrayData, ArrayData> i
         map.put(kValues.get(j), vValues.get(j));
       }
 
-      RowData outputRow = getTypeFactory().createStruct(_rowType);
+      RowData outputRow = getTypeFactory().createRowData(_rowType);
       outputRow.setField(0, map);
 
       result.add(outputRow);

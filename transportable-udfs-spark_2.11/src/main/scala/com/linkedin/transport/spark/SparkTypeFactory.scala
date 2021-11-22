@@ -30,11 +30,11 @@ class SparkTypeFactory(private val _boundVariables: AbstractBoundVariables[DataT
     null, dataType.underlyingType().asInstanceOf[MapType]
   )
 
-  override def createStruct(fieldTypes: JavaList[com.linkedin.transport.api.types.DataType]): RowData = {
-    createStruct(null, fieldTypes)
+  override def createRowData(fieldTypes: JavaList[com.linkedin.transport.api.types.DataType]): RowData = {
+    createRowData(null, fieldTypes)
   }
 
-  override def createStruct(fieldNames: JavaList[String], fieldTypes: JavaList[com.linkedin.transport.api.types.DataType]): RowData = {
+  override def createRowData(fieldNames: JavaList[String], fieldTypes: JavaList[com.linkedin.transport.api.types.DataType]): RowData = {
     val structFields = new Array[StructField](fieldTypes.size())
     (0 until fieldTypes.size()).foreach({
       idx => {
@@ -47,7 +47,7 @@ class SparkTypeFactory(private val _boundVariables: AbstractBoundVariables[DataT
     SparkRowData(null, StructType(structFields))
   }
 
-  override def createStruct(dataType: com.linkedin.transport.api.types.DataType): RowData = {
+  override def createRowData(dataType: com.linkedin.transport.api.types.DataType): RowData = {
     //TODO: make these as separate mutable standard spark types
     val structType: StructType = dataType.underlyingType().asInstanceOf[StructType]
     SparkRowData(null, structType)
