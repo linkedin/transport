@@ -56,7 +56,7 @@ public class Multiply extends UDF2<Intger, Intger, Intger>
 
   @Override
   public Intger eval(Intger first, Intger second) {
-    return first.get() * second.get();
+    return first * second;
   }
 
   @Override
