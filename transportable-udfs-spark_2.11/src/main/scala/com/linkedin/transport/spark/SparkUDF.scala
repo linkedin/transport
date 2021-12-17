@@ -23,8 +23,8 @@ import org.apache.spark.sql.types.DataType
 abstract class SparkUDF(_expressions: Seq[Expression]) extends Expression
   with CodegenFallback with Serializable {
 
-  @transient private var _stdFactory: TypeFactory = _
-  @transient private var _stdUdf: UDF = _
+  @transient private var _typeFactory: TypeFactory = _
+  @transient private var _udf: UDF = _
   @transient private var _requiredFilesProcessed: Boolean = false
   @transient private var _outputDataType: DataType = _
   private var _nullableArguments: Array[Boolean] = _
@@ -39,10 +39,10 @@ abstract class SparkUDF(_expressions: Seq[Expression]) extends Expression
   private def initialize(): DataType = {
     val sparkTypeInference = new SparkTypeInference
     sparkTypeInference.compile(children.map(_.dataType).toArray, getUdfImplementations, getTopLevelUdfClass)
-    _stdFactory = sparkTypeInference.getTypeFactory
-    _stdUdf = sparkTypeInference.getUdf
-    _nullableArguments = _stdUdf.getAndCheckNullableArguments
-    _stdUdf.init(_stdFactory)
+    _typeFactory = sparkTypeInference.getTypeFactory
+    _udf = sparkTypeInference.getUdf
+    _nullableArguments = _udf.getAndCheckNullableArguments
+    _udf.init(_typeFactory)
     getRequiredFiles()
     _requiredFilesProcessed = false
     _outputDataType = sparkTypeInference.getOutputDataType
@@ -52,7 +52,7 @@ abstract class SparkUDF(_expressions: Seq[Expression]) extends Expression
   override def children: Seq[Expression] = _expressions
 
 
-  // Suppressing magic number warming since the number match is required to cast it into the coresponding StdUDF
+  // Suppressing magic number warming since the number match is required to cast it into the corresponding UDF
   // scalastyle:off magic.number
   private def getRequiredFiles(): Unit = { // scalastyle:ignore cyclomatic.complexity
     if (_distributedCacheFiles == null) {
@@ -63,32 +63,32 @@ abstract class SparkUDF(_expressions: Seq[Expression]) extends Expression
       if (wrappedConstants != null) {
         val requiredFiles = wrappedConstants.length match {
           case 0 =>
-            _stdUdf.asInstanceOf[UDF0[Object]].getRequiredFiles()
+            _udf.asInstanceOf[UDF0[Object]].getRequiredFiles()
           case 1 =>
-            _stdUdf.asInstanceOf[UDF1[Object, Object]].getRequiredFiles(wrappedConstants(0))
+            _udf.asInstanceOf[UDF1[Object, Object]].getRequiredFiles(wrappedConstants(0))
           case 2 =>
-            _stdUdf.asInstanceOf[UDF2[Object, Object, Object]].getRequiredFiles(wrappedConstants(0),
+            _udf.asInstanceOf[UDF2[Object, Object, Object]].getRequiredFiles(wrappedConstants(0),
               wrappedConstants(1))
           case 3 =>
-            _stdUdf.asInstanceOf[UDF3[Object, Object, Object, Object]].getRequiredFiles(wrappedConstants(0),
+            _udf.asInstanceOf[UDF3[Object, Object, Object, Object]].getRequiredFiles(wrappedConstants(0),
               wrappedConstants(1), wrappedConstants(2))
           case 4 =>
-            _stdUdf.asInstanceOf[UDF4[Object, Object, Object, Object, Object]].getRequiredFiles(wrappedConstants(0),
+            _udf.asInstanceOf[UDF4[Object, Object, Object, Object, Object]].getRequiredFiles(wrappedConstants(0),
               wrappedConstants(1), wrappedConstants(2), wrappedConstants(3))
           case 5 =>
-            _stdUdf.asInstanceOf[UDF5[Object, Object, Object, Object, Object, Object]].getRequiredFiles(wrappedConstants(0),
+            _udf.asInstanceOf[UDF5[Object, Object, Object, Object, Object, Object]].getRequiredFiles(wrappedConstants(0),
               wrappedConstants(1), wrappedConstants(2), wrappedConstants(3), wrappedConstants(4))
           case 6 =>
-            _stdUdf.asInstanceOf[UDF6[Object, Object, Object, Object, Object, Object, Object]].getRequiredFiles(wrappedConstants(0),
+            _udf.asInstanceOf[UDF6[Object, Object, Object, Object, Object, Object, Object]].getRequiredFiles(wrappedConstants(0),
               wrappedConstants(1), wrappedConstants(2), wrappedConstants(3), wrappedConstants(4), wrappedConstants(5))
           case 7 =>
-            _stdUdf.asInstanceOf[UDF7[Object, Object, Object, Object, Object, Object, Object, Object]].getRequiredFiles(wrappedConstants(0),
+            _udf.asInstanceOf[UDF7[Object, Object, Object, Object, Object, Object, Object, Object]].getRequiredFiles(wrappedConstants(0),
               wrappedConstants(1), wrappedConstants(2), wrappedConstants(3), wrappedConstants(4), wrappedConstants(5), wrappedConstants(6))
           case 8 =>
-            _stdUdf.asInstanceOf[UDF8[Object, Object, Object, Object, Object, Object, Object, Object, Object]].getRequiredFiles(wrappedConstants(0),
+            _udf.asInstanceOf[UDF8[Object, Object, Object, Object, Object, Object, Object, Object, Object]].getRequiredFiles(wrappedConstants(0),
               wrappedConstants(1), wrappedConstants(2), wrappedConstants(3), wrappedConstants(4), wrappedConstants(5), wrappedConstants(6), wrappedConstants(7))
           case _ =>
-            throw new UnsupportedOperationException("getRequiredFiles not yet supported for StdUDF" + _expressions.length)
+            throw new UnsupportedOperationException("getRequiredFiles not yet supported for UDF" + _expressions.length)
         }
 
         lazy val sparkContext = SparkSession.builder().getOrCreate().sparkContext
@@ -120,7 +120,7 @@ abstract class SparkUDF(_expressions: Seq[Expression]) extends Expression
     wrappedConstants
   }
 
-  // Suppressing magic number warming since the number match is required to cast it into the corresponding StdUDF
+  // Suppressing magic number warming since the number match is required to cast it into the corresponding UDF
   // scalastyle:off magic.number
   override def eval(input: InternalRow): Any = { // scalastyle:ignore cyclomatic.complexity
     val wrappedArguments = checkNullsAndWrapArguments(input)
@@ -132,38 +132,38 @@ abstract class SparkUDF(_expressions: Seq[Expression]) extends Expression
       if (!_requiredFilesProcessed) {
         processRequiredFiles()
       }
-      val stdResult = wrappedArguments.length match {
+      val result = wrappedArguments.length match {
         case 0 =>
-          _stdUdf.asInstanceOf[UDF0[Object]].eval()
+          _udf.asInstanceOf[UDF0[Object]].eval()
         case 1 =>
-          _stdUdf.asInstanceOf[UDF1[Object, Object]].eval(wrappedArguments(0))
+          _udf.asInstanceOf[UDF1[Object, Object]].eval(wrappedArguments(0))
         case 2 =>
-          _stdUdf.asInstanceOf[UDF2[Object, Object, Object]].eval(wrappedArguments(0), wrappedArguments(1))
+          _udf.asInstanceOf[UDF2[Object, Object, Object]].eval(wrappedArguments(0), wrappedArguments(1))
         case 3 =>
-          _stdUdf.asInstanceOf[UDF3[Object, Object, Object, Object]].eval(wrappedArguments(0), wrappedArguments(1),
+          _udf.asInstanceOf[UDF3[Object, Object, Object, Object]].eval(wrappedArguments(0), wrappedArguments(1),
             wrappedArguments(2))
         case 4 =>
-          _stdUdf.asInstanceOf[UDF4[Object, Object, Object, Object, Object]].eval(wrappedArguments(0),
+          _udf.asInstanceOf[UDF4[Object, Object, Object, Object, Object]].eval(wrappedArguments(0),
             wrappedArguments(1), wrappedArguments(2), wrappedArguments(3))
         case 5 =>
-          _stdUdf.asInstanceOf[UDF5[Object, Object, Object, Object, Object, Object]].eval(wrappedArguments(0),
+          _udf.asInstanceOf[UDF5[Object, Object, Object, Object, Object, Object]].eval(wrappedArguments(0),
             wrappedArguments(1), wrappedArguments(2), wrappedArguments(3), wrappedArguments(4))
         case 6 =>
-          _stdUdf.asInstanceOf[UDF6[Object, Object, Object, Object, Object, Object, Object]].eval(wrappedArguments(0),
+          _udf.asInstanceOf[UDF6[Object, Object, Object, Object, Object, Object, Object]].eval(wrappedArguments(0),
             wrappedArguments(1), wrappedArguments(2), wrappedArguments(3), wrappedArguments(4), wrappedArguments(5))
         case 7 =>
-          _stdUdf.asInstanceOf[UDF7[Object, Object, Object, Object, Object, Object, Object, Object]].eval(wrappedArguments(0),
+          _udf.asInstanceOf[UDF7[Object, Object, Object, Object, Object, Object, Object, Object]].eval(wrappedArguments(0),
             wrappedArguments(1), wrappedArguments(2), wrappedArguments(3), wrappedArguments(4), wrappedArguments(5),
             wrappedArguments(6))
         case 8 =>
-          _stdUdf.asInstanceOf[UDF8[Object, Object, Object, Object, Object, Object, Object, Object, Object]].eval(wrappedArguments(0),
+          _udf.asInstanceOf[UDF8[Object, Object, Object, Object, Object, Object, Object, Object, Object]].eval(wrappedArguments(0),
             wrappedArguments(1), wrappedArguments(2), wrappedArguments(3), wrappedArguments(4), wrappedArguments(5),
             wrappedArguments(6), wrappedArguments(7))
         case _ =>
-          throw new UnsupportedOperationException("eval not yet supported for StdUDF" + _expressions.length)
+          throw new UnsupportedOperationException("eval not yet supported for UDF" + _expressions.length)
       }
 
-      SparkConverters.toPlatformData(stdResult)
+      SparkConverters.toPlatformData(result)
     }
   } // scalastyle:on magic.number
 
@@ -190,7 +190,7 @@ abstract class SparkUDF(_expressions: Seq[Expression]) extends Expression
             throw new RuntimeException("Failed to resolve path: [" + file + "].", e)
         }
       })
-      _stdUdf.processRequiredFiles(localFiles)
+      _udf.processRequiredFiles(localFiles)
       _requiredFilesProcessed = true
     }
   }
@@ -202,8 +202,8 @@ abstract class SparkUDF(_expressions: Seq[Expression]) extends Expression
   override def makeCopy(newArgs: Array[AnyRef]): Expression = {
     val newInstance = super.makeCopy(newArgs).asInstanceOf[SparkUDF]
     if (newInstance != null) {
-      newInstance._stdFactory = _stdFactory
-      newInstance._stdUdf = _stdUdf
+      newInstance._typeFactory = _typeFactory
+      newInstance._udf = _udf
       newInstance._requiredFilesProcessed = _requiredFilesProcessed
       newInstance._outputDataType = _outputDataType
       newInstance._nullableArguments = _nullableArguments

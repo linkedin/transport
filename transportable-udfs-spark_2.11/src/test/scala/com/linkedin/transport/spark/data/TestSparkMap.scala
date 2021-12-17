@@ -15,7 +15,7 @@ import org.testng.annotations.Test
 
 class TestSparkMap {
 
-  val stdFactory = new SparkTypeFactory(null)
+  val typeFactory = new SparkTypeFactory(null)
   val mapData = ArrayBasedMapData(
     Array("k1", "k2", "k3").map(UTF8String.fromString), Array("v1", "v2", "v3").map(UTF8String.fromString)
   )
@@ -23,56 +23,56 @@ class TestSparkMap {
 
   @Test
   def testCreateSparkMap(): Unit = {
-    val stdMap = SparkConverters.toTransportData(mapData, mapType).asInstanceOf[MapData[String, String]]
-    assertEquals(stdMap.size(), mapData.numElements())
-    assertSame(stdMap.asInstanceOf[PlatformData].getUnderlyingData, mapData)
+    val map = SparkConverters.toTransportData(mapData, mapType).asInstanceOf[MapData[String, String]]
+    assertEquals(map.size(), mapData.numElements())
+    assertSame(map.asInstanceOf[PlatformData].getUnderlyingData, mapData)
   }
 
   @Test
   def testSparkMapKeySet(): Unit = {
-    val stdMap = SparkConverters.toTransportData(mapData, mapType).asInstanceOf[MapData[String, String]]
-    assertEqualsNoOrder(stdMap.keySet().toArray, mapData.keyArray.array.map(s => s.toString))
+    val map = SparkConverters.toTransportData(mapData, mapType).asInstanceOf[MapData[String, String]]
+    assertEqualsNoOrder(map.keySet().toArray, mapData.keyArray.array.map(s => s.toString))
   }
 
   @Test
   def testSparkMapValues(): Unit = {
-    val stdMap = SparkConverters.toTransportData(mapData, mapType).asInstanceOf[MapData[String, String]]
-    assertEqualsNoOrder(stdMap.values().toArray, mapData.valueArray.array.map(s => s.toString))
+    val map = SparkConverters.toTransportData(mapData, mapType).asInstanceOf[MapData[String, String]]
+    assertEqualsNoOrder(map.values().toArray, mapData.valueArray.array.map(s => s.toString))
   }
 
   @Test
   def testSparkMapGet(): Unit = {
-    val stdMap = SparkConverters.toTransportData(mapData, mapType).asInstanceOf[MapData[String, String]]
+    val map = SparkConverters.toTransportData(mapData, mapType).asInstanceOf[MapData[String, String]]
     mapData.keyArray.foreach(mapType.keyType, (idx, key) => {
-      assertEquals(stdMap.get(key.toString),
+      assertEquals(map.get(key.toString),
         mapData.valueArray.array(idx).toString)
     })
-    assertEquals(stdMap.containsKey("nonExistentKey"), false)
+    assertEquals(map.containsKey("nonExistentKey"), false)
     // Even for a get in SparkMapData we create mutable Map since Spark's Impl is based of arrays. So underlying object should change
-    assertNotSame(stdMap.asInstanceOf[PlatformData].getUnderlyingData, mapData)
+    assertNotSame(map.asInstanceOf[PlatformData].getUnderlyingData, mapData)
   }
 
   @Test
   def testSparkMapContainsKey(): Unit = {
-    val stdMap = SparkConverters.toTransportData(mapData, mapType).asInstanceOf[MapData[String, String]]
-    assertEquals(stdMap.containsKey("k3"), true)
-    assertEquals(stdMap.containsKey("k4"), false)
+    val map = SparkConverters.toTransportData(mapData, mapType).asInstanceOf[MapData[String, String]]
+    assertEquals(map.containsKey("k3"), true)
+    assertEquals(map.containsKey("k4"), false)
   }
 
   @Test
   def testSparkMapPut(): Unit = {
-    val stdMap = SparkConverters.toTransportData(mapData, mapType).asInstanceOf[MapData[String, String]]
-    stdMap.put("k4", "v4")
-    assertEquals(stdMap.size(), mapData.numElements() + 1)
-    assertEquals(stdMap.get("k4"), "v4")
+    val map = SparkConverters.toTransportData(mapData, mapType).asInstanceOf[MapData[String, String]]
+    map.put("k4", "v4")
+    assertEquals(map.size(), mapData.numElements() + 1)
+    assertEquals(map.get("k4"), "v4")
   }
 
   @Test
   def testSparkMapMutabilityReset(): Unit = {
-    val stdMap = SparkConverters.toTransportData(mapData, mapType).asInstanceOf[MapData[String, String]]
-    stdMap.put("k4", "v4")
-    stdMap.asInstanceOf[PlatformData].setUnderlyingData(mapData)
+    val map = SparkConverters.toTransportData(mapData, mapType).asInstanceOf[MapData[String, String]]
+    map.put("k4", "v4")
+    map.asInstanceOf[PlatformData].setUnderlyingData(mapData)
     // After underlying data is explicitly set, mutuable map should be removed
-    assertSame(stdMap.asInstanceOf[PlatformData].getUnderlyingData, mapData)
+    assertSame(map.asInstanceOf[PlatformData].getUnderlyingData, mapData)
   }
 }

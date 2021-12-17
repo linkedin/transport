@@ -17,44 +17,44 @@ import scala.collection.JavaConverters._
 
 class TestSparkTypeFactory {
 
-  val typeFactory: typesystem.SparkTypeFactory = new typesystem.SparkTypeFactory
-  val stdFactory = new SparkTypeFactory(new SparkBoundVariables)
+  val abstractSparkTypeFactory: typesystem.SparkTypeFactory = new typesystem.SparkTypeFactory
+  val typeFactory = new SparkTypeFactory(new SparkBoundVariables)
 
   @Test
   def testCreateArray(): Unit = {
-    var stdArray = stdFactory.createArray(stdFactory.createDataType("array(integer)"))
-    assertEquals(stdArray.size(), 0)
-    assertEquals(stdArray.asInstanceOf[PlatformData].getUnderlyingData.asInstanceOf[GenericArrayData].array,
+    var array = typeFactory.createArray(typeFactory.createDataType("array(integer)"))
+    assertEquals(array.size(), 0)
+    assertEquals(array.asInstanceOf[PlatformData].getUnderlyingData.asInstanceOf[GenericArrayData].array,
       Array.empty)
     val testArraySize = 10
-    stdArray = stdFactory.createArray(stdFactory.createDataType("array(integer)"), testArraySize)
+    array = typeFactory.createArray(typeFactory.createDataType("array(integer)"), testArraySize)
     // size should still be 0, since size passed in createArray is just expected number of entries in the future
-    assertEquals(stdArray.size(), 0)
-    assertEquals(stdArray.asInstanceOf[PlatformData].getUnderlyingData.asInstanceOf[GenericArrayData].array,
+    assertEquals(array.size(), 0)
+    assertEquals(array.asInstanceOf[PlatformData].getUnderlyingData.asInstanceOf[GenericArrayData].array,
       Array.empty)
   }
 
   @Test
   def testCreateMap(): Unit = {
-    val stdMap = stdFactory.createMap(stdFactory.createDataType("map(varchar,bigint)"))
-    assertEquals(stdMap.size(), 0)
-    assertEquals(stdMap.asInstanceOf[PlatformData].getUnderlyingData.asInstanceOf[ArrayBasedMapData].keyArray.array,
+    val map = typeFactory.createMap(typeFactory.createDataType("map(varchar,bigint)"))
+    assertEquals(map.size(), 0)
+    assertEquals(map.asInstanceOf[PlatformData].getUnderlyingData.asInstanceOf[ArrayBasedMapData].keyArray.array,
       Array.empty)
-    assertEquals(stdMap.asInstanceOf[PlatformData].getUnderlyingData.asInstanceOf[ArrayBasedMapData].valueArray.array,
+    assertEquals(map.asInstanceOf[PlatformData].getUnderlyingData.asInstanceOf[ArrayBasedMapData].valueArray.array,
       Array.empty)
   }
 
   @Test
-  def testCreateStructFromStdType(): Unit = {
+  def testCreateStructFromType(): Unit = {
     val fieldNames = Array("strField", "intField", "longField", "boolField", "floatField", "doubleField",
       "bytesField", "arrField")
     val fieldTypes = Array("varchar", "integer", "bigint", "boolean", "real", "double", "varbinary", "array(integer)")
 
-    val stdStruct = stdFactory.createStruct(stdFactory.createDataType(fieldNames.zip(fieldTypes).map(x => x._1 + " " + x._2).mkString("row(", ", ", ")")))
-    val internalRow = stdStruct.asInstanceOf[PlatformData].getUnderlyingData.asInstanceOf[InternalRow]
+    val row = typeFactory.createRowData(typeFactory.createDataType(fieldNames.zip(fieldTypes).map(x => x._1 + " " + x._2).mkString("row(", ", ", ")")))
+    val internalRow = row.asInstanceOf[PlatformData].getUnderlyingData.asInstanceOf[InternalRow]
     assertEquals(internalRow.numFields, fieldTypes.length)
     (0 until 8).foreach(idx => {
-      assertEquals(internalRow.get(idx, stdFactory.createDataType(fieldTypes(idx)).underlyingType().asInstanceOf[DataType]), null)
+      assertEquals(internalRow.get(idx, typeFactory.createDataType(fieldTypes(idx)).underlyingType().asInstanceOf[DataType]), null)
     })
   }
 
@@ -64,11 +64,11 @@ class TestSparkTypeFactory {
       "bytesField", "arrField")
     val fieldTypes = Array("varchar", "integer", "bigint", "boolean", "real", "double", "varbinary", "array(integer)")
 
-    val stdStruct = stdFactory.createStruct(fieldNames.toList.asJava, fieldTypes.map(stdFactory.createDataType).toList.asJava)
-    val internalRow = stdStruct.asInstanceOf[PlatformData].getUnderlyingData.asInstanceOf[InternalRow]
+    val row = typeFactory.createRowData(fieldNames.toList.asJava, fieldTypes.map(typeFactory.createDataType).toList.asJava)
+    val internalRow = row.asInstanceOf[PlatformData].getUnderlyingData.asInstanceOf[InternalRow]
     assertEquals(internalRow.numFields, fieldTypes.length)
     (0 until 8).foreach(idx => {
-      assertEquals(internalRow.get(idx, stdFactory.createDataType(fieldTypes(idx)).underlyingType().asInstanceOf[DataType]), null)
+      assertEquals(internalRow.get(idx, typeFactory.createDataType(fieldTypes(idx)).underlyingType().asInstanceOf[DataType]), null)
     })
   }
 
@@ -76,11 +76,11 @@ class TestSparkTypeFactory {
   def testCreateStructFromFieldTypes(): Unit = {
     val fieldTypes = Array("varchar", "integer", "bigint", "boolean", "real", "double", "varbinary ", "array(integer)")
 
-    val stdStruct = stdFactory.createStruct(fieldTypes.map(stdFactory.createDataType).toList.asJava)
-    val internalRow = stdStruct.asInstanceOf[PlatformData].getUnderlyingData.asInstanceOf[InternalRow]
+    val row = typeFactory.createRowData(fieldTypes.map(typeFactory.createDataType).toList.asJava)
+    val internalRow = row.asInstanceOf[PlatformData].getUnderlyingData.asInstanceOf[InternalRow]
     assertEquals(internalRow.numFields, fieldTypes.length)
     (0 until 8).foreach(idx => {
-      assertEquals(internalRow.get(idx, stdFactory.createDataType(fieldTypes(idx)).underlyingType().asInstanceOf[DataType]), null)
+      assertEquals(internalRow.get(idx, typeFactory.createDataType(fieldTypes(idx)).underlyingType().asInstanceOf[DataType]), null)
     })
   }
 }

@@ -43,7 +43,7 @@ public class StructCreateByNameFunction extends UDF4<String, Object, String, Obj
 
   @Override
   public RowData eval(String field1Name, Object field1Value, String field2Name, Object field2Value) {
-    RowData struct = getTypeFactory().createStruct(
+    RowData struct = getTypeFactory().createRowData(
         ImmutableList.of(field1Name, field2Name),
         ImmutableList.of(_field1Type, _field2Type)
     );

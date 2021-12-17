@@ -34,9 +34,20 @@ Avro. Further details on Transport can be found in this [LinkedIn Engineering bl
 This example shows how a portable UDF is written using the Transport APIs.
 
 ```java
-public class MapFromTwoArraysFunction extends StdUDF2<StdArray, StdArray, StdMap> implements TopLevelStdUDF {
+import com.google.common.collect.ImmutableList;
+import com.linkedin.transport.api.TypeFactory;
+import com.linkedin.transport.api.data.ArrayData;
+import com.linkedin.transport.api.data.MapData;
+import com.linkedin.transport.api.types.DataType;
+import com.linkedin.transport.api.udf.UDF2;
+import com.linkedin.transport.api.udf.TopLevelUDF;
+import java.util.List;
 
-  private StdType _mapType;
+
+public class MapFromTwoArraysFunction<K, V> extends UDF2<ArrayData<K>, ArrayData<V>, MapData<K, V>>
+    implements TopLevelUDF {
+
+  private DataType _mapType;
 
   @Override
   public List<String> getInputParameterSignatures() {
@@ -52,17 +63,18 @@ public class MapFromTwoArraysFunction extends StdUDF2<StdArray, StdArray, StdMap
   }
 
   @Override
-  public void init(StdFactory typeFactory) {
+  public void init(TypeFactory typeFactory) {
     super.init(typeFactory);
-    _mapType = getStdFactory().createStdType(getOutputParameterSignature());
+    // Note: we create the _mapType once in init() and then reuse it to create MapData objects
+    _mapType = getTypeFactory().createDataType(getOutputParameterSignature());
   }
 
   @Override
-  public StdMap eval(StdArray a1, StdArray a2) {
+  public MapData<K, V> eval(ArrayData<K> a1, ArrayData<V> a2) {
     if (a1.size() != a2.size()) {
       return null;
     }
-    StdMap map = getStdFactory().createMap(_mapType);
+    MapData<K, V> map = getTypeFactory().createMap(_mapType);
     for (int i = 0; i < a1.size(); i++) {
       map.put(a1.get(i), a2.get(i));
     }
@@ -76,19 +88,19 @@ public class MapFromTwoArraysFunction extends StdUDF2<StdArray, StdArray, StdMap
 
   @Override
   public String getFunctionDescription() {
-    return "A function to create a map out of two arrays";
+    return "Create a map out of two arrays.";
   }
 }
 ```
 
-In the example above, `StdMap` and `StdArray` are interfaces that
+In the example above, `MapData` and `ArrayData` are interfaces that
 provide high-level map and array operations to their
 objects. Depending on the engine where this UDF is executed, those
 interfaces are implemented differently to deal with native data types
-used by that engine. `getStdFactory()` is a method used to create
+used by that engine. `getTypeFactory()` is a method used to create
 objects that conform to a given data type (such as a map whose keys
 are of the type of elements in the first array and values are of the
-type of elements in the second array). `StdUDF2` is an abstract class
+type of elements in the second array). `UDF2` is an abstract class
 to express a UDF that takes two parameters. It is parametrized by the
 UDF input types and the UDF output type. Please consult the [Transport UDFs API](/docs/transport-udfs-api.md) for more details and examples.
 

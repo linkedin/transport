@@ -16,6 +16,7 @@ import java.util.Map;
 import org.testng.annotations.Test;
 
 
+
 public class TestMapFromTwoArraysFunctionNested extends AbstractUDFTest {
 
   @Override
@@ -28,10 +29,10 @@ public class TestMapFromTwoArraysFunctionNested extends AbstractUDFTest {
   @Test
   public void testMapFromTwoArraysFunctionNested() {
     Tester tester = getTester();
-    tester.check(functionCall("map_from_two_arrays", functionCall("std_map_values", map(1, "a", 2, "b")),
+    tester.check(functionCall("map_from_two_arrays", functionCall("transport_map_values", map(1, "a", 2, "b")),
         functionCall("map_key_set", map(1, "a", 2, "b"))), map("a", 1, "b", 2), "map(varchar, integer)");
 
-    tester.check(functionCall("map_from_two_arrays", functionCall("std_map_values", map(1, "a", 2, "b")),
+    tester.check(functionCall("map_from_two_arrays", functionCall("transport_map_values", map(1, "a", 2, "b")),
         functionCall("map_key_set", map(1, "a", 2, "b"))), map("a", 1, "b", 2), "map(varchar, integer)");
   }
 }

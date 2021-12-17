@@ -64,7 +64,7 @@ public interface TypeFactory extends Serializable {
    * @param fieldTypes  types of the struct fields
    * @return a {@link RowData} with all fields initialized to null
    */
-  RowData createStruct(List<String> fieldNames, List<DataType> fieldTypes);
+  RowData createRowData(List<String> fieldNames, List<DataType> fieldTypes);
 
   /**
    * Creates a {@link RowData} with the given field types. Field names will be field0, field1, field2...
@@ -72,7 +72,7 @@ public interface TypeFactory extends Serializable {
    * @param fieldTypes  types of the struct fields
    * @return a {@link RowData} with all fields initialized to null
    */
-  RowData createStruct(List<DataType> fieldTypes);
+  RowData createRowData(List<DataType> fieldTypes);
 
   /**
    * Creates a {@link RowData} whose type is given by the given {@link DataType}.
@@ -82,7 +82,7 @@ public interface TypeFactory extends Serializable {
    * @param dataType  type of the struct to be created
    * @return a {@link RowData} with all fields initialized to null
    */
-  RowData createStruct(DataType dataType);
+  RowData createRowData(DataType dataType);
 
   /**
    * Creates a {@link DataType} representing the given type signature.

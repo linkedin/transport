@@ -41,7 +41,7 @@ public class StructCreateByIndexFunction extends UDF2<Object, Object, RowData> i
 
   @Override
   public RowData eval(Object field1Value, Object field2Value) {
-    RowData row = getTypeFactory().createStruct(ImmutableList.of(_field1Type, _field2Type));
+    RowData row = getTypeFactory().createRowData(ImmutableList.of(_field1Type, _field2Type));
     row.setField(0, field1Value);
     row.setField(1, field2Value);
     return row;

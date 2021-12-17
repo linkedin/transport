@@ -16,6 +16,7 @@ import java.util.Map;
 import org.testng.annotations.Test;
 
 
+
 public class TestMapValuesFunction extends AbstractUDFTest {
 
   @Override
@@ -26,9 +27,9 @@ public class TestMapValuesFunction extends AbstractUDFTest {
   @Test
   public void testMapValues() {
     Tester tester = getTester();
-    tester.check(functionCall("std_map_values", map(1, 4, 2, 5, 3, 6)), array(4, 5, 6), "array(integer)");
-    tester.check(functionCall("std_map_values", map("1", "4", "2", "5", "3", "6")), array("4", "5", "6"),
+    tester.check(functionCall("transport_map_values", map(1, 4, 2, 5, 3, 6)), array(4, 5, 6), "array(integer)");
+    tester.check(functionCall("transport_map_values", map("1", "4", "2", "5", "3", "6")), array("4", "5", "6"),
         "array(varchar)");
-    tester.check(functionCall("std_map_values", (Object) null), null, "array(unknown)");
+    tester.check(functionCall("transport_map_values", (Object) null), null, "array(unknown)");
   }
 }

@@ -131,7 +131,7 @@ public abstract class AbstractTypeInference<T> {
           .collect(Collectors.toList())));
     }
 
-    _outputDataType = getTypeFactoryFacade().createType(
+    _outputDataType = getAbstractTypeFactory().createType(
         TypeSignature.parse(_udf.getOutputParameterSignature()),
         boundVariables
     );
@@ -179,7 +179,7 @@ public abstract class AbstractTypeInference<T> {
 
   protected abstract TypeFactory createTypeFactory(AbstractBoundVariables<T> boundVariables);
 
-  protected abstract AbstractTypeFactory<T> getTypeFactoryFacade();
+  protected abstract AbstractTypeFactory<T> getAbstractTypeFactory();
 
   public TypeFactory getTypeFactory() {
     return _typeFactory;

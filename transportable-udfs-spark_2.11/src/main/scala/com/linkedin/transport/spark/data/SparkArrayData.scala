@@ -22,7 +22,7 @@ case class SparkArrayData[E](private var _arrayData: org.apache.spark.sql.cataly
   override def add(e: E): Unit = {
     // Once add is called, we cannot use  Spark's readonly ArrayData API
     // we have to add elements to a mutable buffer and start using that
-    // always instead of the readonly stdType
+    // always instead of the readonly DataType
     if (_mutableBuffer == null) {
       // from now on mutable is in affect
       _mutableBuffer = createMutableArray()

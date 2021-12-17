@@ -31,7 +31,7 @@ public class GenericTypeInference extends AbstractTypeInference<TestType> {
   }
 
   @Override
-  protected AbstractTypeFactory<TestType> getTypeFactoryFacade() {
+  protected AbstractTypeFactory<TestType> getAbstractTypeFactory() {
     return new com.linkedin.transport.test.generic.typesystem.GenericTypeFactory();
   }
 }

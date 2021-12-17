@@ -19,8 +19,8 @@ object AssertSparkExpression {
     .appName("transportable-udfs")
     .getOrCreate()
 
-  def registerStandardUdf(name: String, stdUDFWrapperClass: Class[_ <: SparkUDF]): Unit = {
-    UDFRegistration.register(name, stdUDFWrapperClass)
+  def registerStandardUdf(name: String, udfClass: Class[_ <: SparkUDF]): Unit = {
+    UDFRegistration.register(name, udfClass)
   }
 
   def assertFunction(udf: String, expected: Any) {

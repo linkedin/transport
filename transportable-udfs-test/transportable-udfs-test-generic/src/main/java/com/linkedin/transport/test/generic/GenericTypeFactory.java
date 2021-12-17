@@ -48,18 +48,18 @@ public class GenericTypeFactory implements TypeFactory {
   }
 
   @Override
-  public RowData createStruct(List<String> fieldNames, List<DataType> fieldTypes) {
+  public RowData createRowData(List<String> fieldNames, List<DataType> fieldTypes) {
     return new GenericRowData(TestTypeFactory.struct(fieldNames,
         fieldTypes.stream().map(x -> (TestType) x.underlyingType()).collect(Collectors.toList())));
   }
 
   @Override
-  public RowData createStruct(List<DataType> fieldTypes) {
-    return createStruct(null, fieldTypes);
+  public RowData createRowData(List<DataType> fieldTypes) {
+    return createRowData(null, fieldTypes);
   }
 
   @Override
-  public RowData createStruct(DataType dataType) {
+  public RowData createRowData(DataType dataType) {
     return new GenericRowData((TestType) dataType.underlyingType());
   }
 
