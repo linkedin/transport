@@ -25,8 +25,8 @@ class TestSparkRowData {
 
   @Test
   def testCreateSparkStruct(): Unit = {
-    val rowData = SparkConverters.toTransportData(structData, structType).asInstanceOf[RowData]
-    assertSame(rowData.asInstanceOf[PlatformData].getUnderlyingData, structData)
+    val row = SparkConverters.toTransportData(structData, structType).asInstanceOf[RowData]
+    assertSame(row.asInstanceOf[PlatformData].getUnderlyingData, structData)
   }
 
   @Test
@@ -47,21 +47,21 @@ class TestSparkRowData {
 
   @Test
   def testSparkStructSetField(): Unit = {
-    val rowData = SparkConverters.toTransportData(structData, structType).asInstanceOf[RowData]
-    rowData.setField(1, 1)
-    assertEquals(rowData.getField(1), 1)
-    rowData.setField(fieldNames(2), 5L) // scalastyle:ignore magic.number
-    assertEquals(rowData.getField(fieldNames(2)), 5L) // scalastyle:ignore magic.number
+    val row = SparkConverters.toTransportData(structData, structType).asInstanceOf[RowData]
+    row.setField(1, 1)
+    assertEquals(row.getField(1), 1)
+    row.setField(fieldNames(2), 5L) // scalastyle:ignore magic.number
+    assertEquals(row.getField(fieldNames(2)), 5L) // scalastyle:ignore magic.number
     // Since original InternalRow is immutable, a mutable ArrayBuffer should be created and set as the underlying object
-    assertNotSame(rowData.asInstanceOf[PlatformData].getUnderlyingData, structData)
+    assertNotSame(row.asInstanceOf[PlatformData].getUnderlyingData, structData)
   }
 
   @Test
   def testSparkStructMutabilityReset(): Unit = {
-    val rowData = SparkConverters.toTransportData(structData, structType).asInstanceOf[RowData]
-    rowData.setField(1, 1)
-    rowData.asInstanceOf[PlatformData].setUnderlyingData(structData)
+    val row = SparkConverters.toTransportData(structData, structType).asInstanceOf[RowData]
+    row.setField(1, 1)
+    row.asInstanceOf[PlatformData].setUnderlyingData(structData)
     // After underlying data is explicitly set, mutable buffer should be removed
-    assertSame(rowData.asInstanceOf[PlatformData].getUnderlyingData, structData)
+    assertSame(row.asInstanceOf[PlatformData].getUnderlyingData, structData)
   }
 }

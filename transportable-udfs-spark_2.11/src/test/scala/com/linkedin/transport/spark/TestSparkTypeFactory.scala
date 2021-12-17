@@ -50,8 +50,8 @@ class TestSparkTypeFactory {
       "bytesField", "arrField")
     val fieldTypes = Array("varchar", "integer", "bigint", "boolean", "real", "double", "varbinary", "array(integer)")
 
-    val rowData = typeFactory.createRowData(typeFactory.createDataType(fieldNames.zip(fieldTypes).map(x => x._1 + " " + x._2).mkString("row(", ", ", ")")))
-    val internalRow = rowData.asInstanceOf[PlatformData].getUnderlyingData.asInstanceOf[InternalRow]
+    val row = typeFactory.createRowData(typeFactory.createDataType(fieldNames.zip(fieldTypes).map(x => x._1 + " " + x._2).mkString("row(", ", ", ")")))
+    val internalRow = row.asInstanceOf[PlatformData].getUnderlyingData.asInstanceOf[InternalRow]
     assertEquals(internalRow.numFields, fieldTypes.length)
     (0 until 8).foreach(idx => {
       assertEquals(internalRow.get(idx, typeFactory.createDataType(fieldTypes(idx)).underlyingType().asInstanceOf[DataType]), null)
@@ -64,8 +64,8 @@ class TestSparkTypeFactory {
       "bytesField", "arrField")
     val fieldTypes = Array("varchar", "integer", "bigint", "boolean", "real", "double", "varbinary", "array(integer)")
 
-    val rowData = typeFactory.createRowData(fieldNames.toList.asJava, fieldTypes.map(typeFactory.createDataType).toList.asJava)
-    val internalRow = rowData.asInstanceOf[PlatformData].getUnderlyingData.asInstanceOf[InternalRow]
+    val row = typeFactory.createRowData(fieldNames.toList.asJava, fieldTypes.map(typeFactory.createDataType).toList.asJava)
+    val internalRow = row.asInstanceOf[PlatformData].getUnderlyingData.asInstanceOf[InternalRow]
     assertEquals(internalRow.numFields, fieldTypes.length)
     (0 until 8).foreach(idx => {
       assertEquals(internalRow.get(idx, typeFactory.createDataType(fieldTypes(idx)).underlyingType().asInstanceOf[DataType]), null)
@@ -76,8 +76,8 @@ class TestSparkTypeFactory {
   def testCreateStructFromFieldTypes(): Unit = {
     val fieldTypes = Array("varchar", "integer", "bigint", "boolean", "real", "double", "varbinary ", "array(integer)")
 
-    val rowData = typeFactory.createRowData(fieldTypes.map(typeFactory.createDataType).toList.asJava)
-    val internalRow = rowData.asInstanceOf[PlatformData].getUnderlyingData.asInstanceOf[InternalRow]
+    val row = typeFactory.createRowData(fieldTypes.map(typeFactory.createDataType).toList.asJava)
+    val internalRow = row.asInstanceOf[PlatformData].getUnderlyingData.asInstanceOf[InternalRow]
     assertEquals(internalRow.numFields, fieldTypes.length)
     (0 until 8).foreach(idx => {
       assertEquals(internalRow.get(idx, typeFactory.createDataType(fieldTypes(idx)).underlyingType().asInstanceOf[DataType]), null)
