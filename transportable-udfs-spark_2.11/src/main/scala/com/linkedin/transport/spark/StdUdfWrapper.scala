@@ -126,6 +126,8 @@ abstract class StdUdfWrapper(_expressions: Seq[Expression]) extends Expression
   // Suppressing magic number warming since the number match is required to cast it into the corresponding StdUDF
   // scalastyle:off magic.number
   override def eval(input: InternalRow): Any = { // scalastyle:ignore cyclomatic.complexity
+    // access outputDataType to make sure it's been initialized
+    _outputDataType
     val wrappedArguments = checkNullsAndWrapArguments(input)
     // If wrappedArguments is null, it means there were non-nullable arguments whose value was evaluated to be null
     // So we do not call user's eval()
