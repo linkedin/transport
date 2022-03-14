@@ -8,7 +8,6 @@ package com.linkedin.transport.spark
 import java.io.{IOException, ObjectStreamException}
 import java.nio.file.Paths
 import java.util.List
-
 import com.linkedin.transport.api.StdFactory
 import com.linkedin.transport.api.data.{PlatformData, StdData}
 import com.linkedin.transport.api.udf._
@@ -17,6 +16,7 @@ import com.linkedin.transport.utils.FileSystemUtils
 import org.apache.spark.SparkFiles
 import org.apache.spark.sql.SparkSession
 import org.apache.spark.sql.catalyst.InternalRow
+import org.apache.spark.sql.catalyst.analysis.TypeCheckResult
 import org.apache.spark.sql.catalyst.expressions.Expression
 import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
 import org.apache.spark.sql.types.DataType
@@ -27,14 +27,17 @@ abstract class StdUdfWrapper(_expressions: Seq[Expression]) extends Expression
   @transient private var _stdFactory: StdFactory = _
   @transient private var _stdUdf: StdUDF = _
   @transient private var _requiredFilesProcessed: Boolean = false
-  @transient private var _outputDataType: DataType = _
+  @transient lazy private val _outputDataType: DataType = initialize()
   private var _nullableArguments: Array[Boolean] = _
   private var _distributedCacheFiles: Array[String] = _
 
   override def nullable: Boolean = true
 
-  override def dataType: DataType = {
-    if (_outputDataType != null) _outputDataType else initialize()
+  override def dataType: DataType = _outputDataType
+
+  override def checkInputDataTypes(): TypeCheckResult = {
+    _outputDataType
+    TypeCheckResult.TypeCheckSuccess
   }
 
   private def initialize(): DataType = {
@@ -46,8 +49,7 @@ abstract class StdUdfWrapper(_expressions: Seq[Expression]) extends Expression
     _stdUdf.init(_stdFactory)
     getRequiredFiles()
     _requiredFilesProcessed = false
-    _outputDataType = sparkTypeInference.getOutputDataType
-    _outputDataType
+    sparkTypeInference.getOutputDataType
   }
 
   override def children: Seq[Expression] = _expressions
@@ -207,7 +209,6 @@ abstract class StdUdfWrapper(_expressions: Seq[Expression]) extends Expression
       newInstance._stdFactory = _stdFactory
       newInstance._stdUdf = _stdUdf
       newInstance._requiredFilesProcessed = _requiredFilesProcessed
-      newInstance._outputDataType = _outputDataType
       newInstance._nullableArguments = _nullableArguments
       newInstance._distributedCacheFiles = _distributedCacheFiles
     }
