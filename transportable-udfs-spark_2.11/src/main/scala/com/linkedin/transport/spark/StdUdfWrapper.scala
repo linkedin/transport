@@ -126,7 +126,7 @@ abstract class StdUdfWrapper(_expressions: Seq[Expression]) extends Expression
   // Suppressing magic number warming since the number match is required to cast it into the corresponding StdUDF
   // scalastyle:off magic.number
   override def eval(input: InternalRow): Any = { // scalastyle:ignore cyclomatic.complexity
-    // make sure the UDF has been initialized
+    // Make sure the UDF has been initialized
     if(!_initialized) {
       initialize()
     }
