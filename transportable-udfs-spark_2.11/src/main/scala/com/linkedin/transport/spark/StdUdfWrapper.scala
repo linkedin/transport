@@ -16,7 +16,6 @@ import com.linkedin.transport.utils.FileSystemUtils
 import org.apache.spark.SparkFiles
 import org.apache.spark.sql.SparkSession
 import org.apache.spark.sql.catalyst.InternalRow
-import org.apache.spark.sql.catalyst.analysis.TypeCheckResult
 import org.apache.spark.sql.catalyst.expressions.Expression
 import org.apache.spark.sql.catalyst.expressions.codegen.CodegenFallback
 import org.apache.spark.sql.types.DataType
@@ -26,30 +25,31 @@ abstract class StdUdfWrapper(_expressions: Seq[Expression]) extends Expression
 
   @transient private var _stdFactory: StdFactory = _
   @transient private var _stdUdf: StdUDF = _
+  @transient private var _sparkTypeInference: SparkTypeInference = _
   @transient private var _requiredFilesProcessed: Boolean = false
-  @transient lazy private val _outputDataType: DataType = initialize()
+  @transient private var _initialized: Boolean = false
   private var _nullableArguments: Array[Boolean] = _
   private var _distributedCacheFiles: Array[String] = _
 
   override def nullable: Boolean = true
 
-  override def dataType: DataType = _outputDataType
-
-  override def checkInputDataTypes(): TypeCheckResult = {
-    _outputDataType
-    TypeCheckResult.TypeCheckSuccess
+  override lazy val dataType: DataType = {
+    if(!_initialized) {
+      initialize()
+    }
+    _sparkTypeInference.getOutputDataType
   }
 
-  private def initialize(): DataType = {
-    val sparkTypeInference = new SparkTypeInference
-    sparkTypeInference.compile(children.map(_.dataType).toArray, getStdUdfImplementations, getTopLevelUdfClass)
-    _stdFactory = sparkTypeInference.getStdFactory
-    _stdUdf = sparkTypeInference.getStdUdf
+  private def initialize(): Unit = {
+    _sparkTypeInference = new SparkTypeInference
+    _sparkTypeInference.compile(children.map(_.dataType).toArray, getStdUdfImplementations, getTopLevelUdfClass)
+    _stdFactory = _sparkTypeInference.getStdFactory
+    _stdUdf = _sparkTypeInference.getStdUdf
     _nullableArguments = _stdUdf.getAndCheckNullableArguments
     _stdUdf.init(_stdFactory)
     getRequiredFiles()
     _requiredFilesProcessed = false
-    sparkTypeInference.getOutputDataType
+    _initialized = true
   }
 
   override def children: Seq[Expression] = _expressions
@@ -126,8 +126,10 @@ abstract class StdUdfWrapper(_expressions: Seq[Expression]) extends Expression
   // Suppressing magic number warming since the number match is required to cast it into the corresponding StdUDF
   // scalastyle:off magic.number
   override def eval(input: InternalRow): Any = { // scalastyle:ignore cyclomatic.complexity
-    // access outputDataType to make sure it's been initialized
-    _outputDataType
+    // make sure the UDF has been initialized
+    if(!_initialized) {
+      initialize()
+    }
     val wrappedArguments = checkNullsAndWrapArguments(input)
     // If wrappedArguments is null, it means there were non-nullable arguments whose value was evaluated to be null
     // So we do not call user's eval()
@@ -213,6 +215,8 @@ abstract class StdUdfWrapper(_expressions: Seq[Expression]) extends Expression
       newInstance._requiredFilesProcessed = _requiredFilesProcessed
       newInstance._nullableArguments = _nullableArguments
       newInstance._distributedCacheFiles = _distributedCacheFiles
+      newInstance._sparkTypeInference = _sparkTypeInference
+      newInstance._initialized = _initialized
     }
     newInstance
   }
