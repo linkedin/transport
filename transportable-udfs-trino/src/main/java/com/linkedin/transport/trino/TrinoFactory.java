@@ -45,6 +45,7 @@ import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static com.linkedin.transport.trino.utils.TrinoKeywordsConverter.quoteReservedKeywordsInTypeSignature;
 import static io.trino.metadata.SignatureBinder.*;
 import static io.trino.sql.analyzer.TypeSignatureTranslator.*;
 
@@ -138,11 +139,13 @@ public class TrinoFactory implements StdFactory {
   @Override
   public StdType createStdType(String typeSignature) {
     if (metadata != null) {
-      return TrinoWrapper.createStdType(
-          metadata.getType(applyBoundVariables(parseTypeSignature(typeSignature, ImmutableSet.of()), functionBinding)));
+      return TrinoWrapper.createStdType(metadata.getType(applyBoundVariables(
+          parseTypeSignature(quoteReservedKeywordsInTypeSignature(typeSignature), ImmutableSet.of()),
+          functionBinding)));
     }
-    return TrinoWrapper.createStdType(
-          functionDependencies.getType(applyBoundVariables(parseTypeSignature(typeSignature, ImmutableSet.of()), functionBinding)));
+    return TrinoWrapper.createStdType(functionDependencies.getType(
+        applyBoundVariables(parseTypeSignature(quoteReservedKeywordsInTypeSignature(typeSignature), ImmutableSet.of()),
+            functionBinding)));
   }
 
   public MethodHandle getOperatorHandle(
