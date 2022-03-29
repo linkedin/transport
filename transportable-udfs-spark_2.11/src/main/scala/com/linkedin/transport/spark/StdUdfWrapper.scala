@@ -8,7 +8,6 @@ package com.linkedin.transport.spark
 import java.io.{IOException, ObjectStreamException}
 import java.nio.file.Paths
 import java.util.List
-
 import com.linkedin.transport.api.StdFactory
 import com.linkedin.transport.api.data.{PlatformData, StdData}
 import com.linkedin.transport.api.udf._
@@ -26,28 +25,31 @@ abstract class StdUdfWrapper(_expressions: Seq[Expression]) extends Expression
 
   @transient private var _stdFactory: StdFactory = _
   @transient private var _stdUdf: StdUDF = _
+  @transient private var _sparkTypeInference: SparkTypeInference = _
   @transient private var _requiredFilesProcessed: Boolean = false
-  @transient private var _outputDataType: DataType = _
+  @transient private var _initialized: Boolean = false
   private var _nullableArguments: Array[Boolean] = _
   private var _distributedCacheFiles: Array[String] = _
 
   override def nullable: Boolean = true
 
-  override def dataType: DataType = {
-    if (_outputDataType != null) _outputDataType else initialize()
+  override lazy val dataType: DataType = {
+    if(!_initialized) {
+      initialize()
+    }
+    _sparkTypeInference.getOutputDataType
   }
 
-  private def initialize(): DataType = {
-    val sparkTypeInference = new SparkTypeInference
-    sparkTypeInference.compile(children.map(_.dataType).toArray, getStdUdfImplementations, getTopLevelUdfClass)
-    _stdFactory = sparkTypeInference.getStdFactory
-    _stdUdf = sparkTypeInference.getStdUdf
+  private def initialize(): Unit = {
+    _sparkTypeInference = new SparkTypeInference
+    _sparkTypeInference.compile(children.map(_.dataType).toArray, getStdUdfImplementations, getTopLevelUdfClass)
+    _stdFactory = _sparkTypeInference.getStdFactory
+    _stdUdf = _sparkTypeInference.getStdUdf
     _nullableArguments = _stdUdf.getAndCheckNullableArguments
     _stdUdf.init(_stdFactory)
     getRequiredFiles()
     _requiredFilesProcessed = false
-    _outputDataType = sparkTypeInference.getOutputDataType
-    _outputDataType
+    _initialized = true
   }
 
   override def children: Seq[Expression] = _expressions
@@ -124,6 +126,10 @@ abstract class StdUdfWrapper(_expressions: Seq[Expression]) extends Expression
   // Suppressing magic number warming since the number match is required to cast it into the corresponding StdUDF
   // scalastyle:off magic.number
   override def eval(input: InternalRow): Any = { // scalastyle:ignore cyclomatic.complexity
+    // Make sure the UDF has been initialized
+    if(!_initialized) {
+      initialize()
+    }
     val wrappedArguments = checkNullsAndWrapArguments(input)
     // If wrappedArguments is null, it means there were non-nullable arguments whose value was evaluated to be null
     // So we do not call user's eval()
@@ -207,9 +213,10 @@ abstract class StdUdfWrapper(_expressions: Seq[Expression]) extends Expression
       newInstance._stdFactory = _stdFactory
       newInstance._stdUdf = _stdUdf
       newInstance._requiredFilesProcessed = _requiredFilesProcessed
-      newInstance._outputDataType = _outputDataType
       newInstance._nullableArguments = _nullableArguments
       newInstance._distributedCacheFiles = _distributedCacheFiles
+      newInstance._sparkTypeInference = _sparkTypeInference
+      newInstance._initialized = _initialized
     }
     newInstance
   }
