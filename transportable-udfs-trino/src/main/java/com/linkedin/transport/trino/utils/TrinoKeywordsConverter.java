@@ -21,9 +21,6 @@ public final class TrinoKeywordsConverter {
 
   }
 
-  /**
-   * Map of Trino Reserved Keywords with the mark to distinguish if the word is reserved SQL:2016 keyword ONLY
-   */
   private static final Set<String> RESERVED_KEYWORDS =
       ImmutableSet.of("ALTER", "AND", "AS", "BETWEEN", "BY", "CASE", "CAST", "CONSTRAINT", "CREATE", "CROSS", "CUBE",
           "CURRENT_DATE", "CURRENT_TIME", "CURRENT_TIMESTAMP", "CURRENT_USER", "DEALLOCATE", "DELETE", "DESCRIBE",
