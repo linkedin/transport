@@ -55,7 +55,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import org.apache.commons.lang3.ClassUtils;
 
-import static com.linkedin.transport.trino.utils.TrinoKeywordsConverter.quoteReservedKeywordsInTypeSignature;
+import static com.linkedin.transport.trino.StdUDFUtils.quoteReservedKeywords;
 import static io.trino.metadata.Signature.*;
 import static io.trino.spi.function.InvocationConvention.InvocationArgumentConvention.*;
 import static io.trino.spi.function.InvocationConvention.InvocationReturnConvention.NULLABLE_RETURN;
@@ -74,10 +74,10 @@ public abstract class StdUdfWrapper extends SqlScalarFunction {
     super(new FunctionMetadata(
         new Signature(((TopLevelStdUDF) stdUDF).getFunctionName(), getTypeVariableConstraintsForStdUdf(stdUDF),
             ImmutableList.of(),
-            parseTypeSignature(quoteReservedKeywordsInTypeSignature(stdUDF.getOutputParameterSignature()),
+            parseTypeSignature(quoteReservedKeywords(stdUDF.getOutputParameterSignature()),
                 ImmutableSet.of()), stdUDF.getInputParameterSignatures()
             .stream()
-            .map(typeSignature -> parseTypeSignature(quoteReservedKeywordsInTypeSignature(typeSignature),
+            .map(typeSignature -> parseTypeSignature(quoteReservedKeywords(typeSignature),
                 ImmutableSet.of()))
             .collect(Collectors.toList()), false), true, Booleans.asList(stdUDF.getNullableArguments())
         .stream()

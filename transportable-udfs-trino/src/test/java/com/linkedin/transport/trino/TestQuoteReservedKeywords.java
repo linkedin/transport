@@ -13,11 +13,11 @@ import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
-import static com.linkedin.transport.trino.utils.TrinoKeywordsConverter.quoteReservedKeywordsInTypeSignature;
+import static com.linkedin.transport.trino.StdUDFUtils.quoteReservedKeywords;
 import static io.trino.sql.analyzer.TypeSignatureTranslator.parseTypeSignature;
 
 
-public class TestQuoteReservedKeywordsInTypeSignature {
+public class TestQuoteReservedKeywords {
 
   @DataProvider(name = "typeSignatures")
   public Iterator<Object[]> getTypeSignatures() {
@@ -42,8 +42,8 @@ public class TestQuoteReservedKeywordsInTypeSignature {
   }
 
   @Test(dataProvider = "typeSignatures")
-  public void testQuoteReservedKeywordsInTypeSignature(String typeSignature, String expected) {
-    Assert.assertEquals(quoteReservedKeywordsInTypeSignature(typeSignature), expected);
-    parseTypeSignature(quoteReservedKeywordsInTypeSignature(typeSignature), ImmutableSet.of());
+  public void testQuoteReservedKeywords(String typeSignature, String expected) {
+    Assert.assertEquals(quoteReservedKeywords(typeSignature), expected);
+    parseTypeSignature(quoteReservedKeywords(typeSignature), ImmutableSet.of());
   }
 }
