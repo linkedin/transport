@@ -41,6 +41,7 @@ public final class StdUDFUtils {
    * @return converted type signature which is properly quoted
    */
   public static String quoteReservedKeywords(String signature) {
+    signature = signature.toLowerCase(Locale.ROOT);
     for (String keyword : RESERVED_KEYWORDS) {
       String lowercaseKeyword = keyword.toLowerCase(Locale.ROOT);
       // The preserved keyword may only appear as a field name in `row` type
