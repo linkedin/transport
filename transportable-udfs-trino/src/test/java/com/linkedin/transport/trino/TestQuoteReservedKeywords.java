@@ -21,20 +21,19 @@ public class TestQuoteReservedKeywords {
 
   @DataProvider(name = "typeSignatures")
   public Iterator<Object[]> getTypeSignatures() {
-    return ImmutableList.<List<String>>builder().add(
-        ImmutableList.of("array(row(key varchar, value varchar))", "array(row(key varchar, value varchar))"))
-        .add(ImmutableList.of("array(row(valuess varchar, key varchar))", "array(row(valuess varchar, key varchar))"))
+    return ImmutableList.<List<String>>builder().add(ImmutableList.of("row(varchar,integer)", "row(varchar,integer)"))
+        .add(ImmutableList.of("array(row(key varchar,value varchar))", "array(row(key varchar,value varchar))"))
+        .add(ImmutableList.of("array(row(valuess varchar,key varchar))", "array(row(valuess varchar,key varchar))"))
         .add(ImmutableList.of("array(row(varchar,boolean,integer,real,double,varbinary))",
             "array(row(varchar,boolean,integer,real,double,varbinary))"))
-        .add(ImmutableList.of("array(row(key varchar, values varchar))", "array(row(key varchar, \"values\" varchar))"))
         .add(ImmutableList.of("array(row(key varchar,values varchar))", "array(row(key varchar,\"values\" varchar))"))
-        .add(ImmutableList.of("array(row(values varchar, key varchar))", "array(row(\"values\" varchar, key varchar))"))
+        .add(ImmutableList.of("array(row(values varchar,key varchar))", "array(row(\"values\" varchar,key varchar))"))
+        .add(ImmutableList.of("map(row(values varchar,key varchar),row(values varchar,key varchar))",
+            "map(row(\"values\" varchar,key varchar),row(\"values\" varchar,key varchar))"))
         .add(ImmutableList.of("row(order row(values varchar,current_user varchar))",
             "row(\"order\" row(\"values\" varchar,\"current_user\" varchar))"))
         .add(ImmutableList.of("row(order row(order varchar,current_user varchar))",
             "row(\"order\" row(\"order\" varchar,\"current_user\" varchar))"))
-        .add(ImmutableList.of("row(  order  row(  order  varchar ,  current_user  varchar ) )",
-            "row(  \"order\"  row(  \"order\"  varchar ,  \"current_user\"  varchar ) )"))
         .build()
         .stream()
         .map(x -> new Object[]{x.get(0), x.get(1)})

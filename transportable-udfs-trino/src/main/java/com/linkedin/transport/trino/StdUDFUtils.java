@@ -6,10 +6,15 @@
 package com.linkedin.transport.trino;
 
 import com.google.common.collect.ImmutableSet;
+import com.linkedin.transport.typesystem.TypeSignature;
+import com.linkedin.transport.typesystem.TypeSignatureElement;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+
+import static com.linkedin.transport.typesystem.ConcreteTypeSignatureElement.*;
 
 
 /**
@@ -41,24 +46,62 @@ public final class StdUDFUtils {
    * @return converted type signature which is properly quoted
    */
   public static String quoteReservedKeywords(String signature) {
-    signature = signature.toLowerCase(Locale.ROOT);
-    for (String keyword : RESERVED_KEYWORDS) {
-      String lowercaseKeyword = keyword.toLowerCase(Locale.ROOT);
-      // The preserved keyword may only appear as a field name in `row` type
-      // in the following scenarios (`values` is the preserved keyword):
-      // (1) row(field1 type1, values type2)
-      // (2) row(field1 type1,values type2)
-      // (3) row(values type1, field2 type2)
-      // therefore, the previous character must be one of `,`, `(` or space(s)
-      // and there must be the type name following the keyword after space(s)
-      Pattern pattern = Pattern.compile("(\\(|\\s+|,)" + lowercaseKeyword + "\\s+\\w+");
-      final Matcher matcher = pattern.matcher(signature);
-      while (matcher.find()) {
-        final String group = matcher.group();
-        final String replacedGroup = group.replaceFirst(lowercaseKeyword, "\"" + lowercaseKeyword + "\"");
-        signature = signature.replace(group, replacedGroup);
-      }
+    return toTrinoTypeSignatureString(TypeSignature.parse(signature));
+  }
+
+  private static String toTrinoTypeSignatureString(TypeSignature typeSignature) {
+    final TypeSignatureElement typeSignatureBase = typeSignature.getBase();
+    if (BOOLEAN.equals(typeSignatureBase)) {
+      return "boolean";
+    } else if (INTEGER.equals(typeSignatureBase)) {
+      return "integer";
+    } else if (LONG.equals(typeSignatureBase)) {
+      return "bigint";
+    } else if (STRING.equals(typeSignatureBase)) {
+      return "varchar";
+    } else if (FLOAT.equals(typeSignatureBase)) {
+      return "real";
+    } else if (DOUBLE.equals(typeSignatureBase)) {
+      return "double";
+    } else if (BINARY.equals(typeSignatureBase)) {
+      return "varbinary";
+    } else if (UNKNOWN.equals(typeSignatureBase)) {
+      return "unknown";
+    } else if (ARRAY.equals(typeSignatureBase)) {
+      return getTrinoArraySignatureString(typeSignature);
+    } else if (MAP.equals(typeSignatureBase)) {
+      return getTrinoMapSignatureString(typeSignature);
+    } else if (STRUCT.equals(typeSignatureBase)) {
+      return getTrinoStructSignatureString(typeSignature);
     }
-    return signature;
+    return typeSignatureBase.toString();
+  }
+
+  private static String getTrinoArraySignatureString(TypeSignature typeSignature) {
+    return String.format("array(%s)", toTrinoTypeSignatureString(typeSignature.getParameters().get(0)));
+  }
+
+  private static String getTrinoMapSignatureString(TypeSignature typeSignature) {
+    return String.format("map(%s,%s)", toTrinoTypeSignatureString(typeSignature.getParameters().get(0)),
+        toTrinoTypeSignatureString(typeSignature.getParameters().get(1)));
+  }
+
+  private static String getTrinoStructSignatureString(TypeSignature typeSignature) {
+    final List<String> parameterNames = typeSignature.getParameterNames();
+    final List<TypeSignature> parameters = typeSignature.getParameters();
+    if (parameterNames == null) {
+      return "row(" + parameters.stream().map(StdUDFUtils::toTrinoTypeSignatureString).collect(Collectors.joining(","))
+          + ")";
+    } else {
+      final List<String> quotedParameterNames = parameterNames.stream()
+          .map(parameterName -> RESERVED_KEYWORDS.contains(parameterName.toUpperCase(Locale.ROOT)) ? ("\""
+              + parameterName + "\"") : parameterName)
+          .collect(Collectors.toList());
+      List<String> parameterNameWithType = new ArrayList<>();
+      for (int i = 0; i < parameters.size(); ++i) {
+        parameterNameWithType.add(quotedParameterNames.get(i) + " " + toTrinoTypeSignatureString(parameters.get(i)));
+      }
+      return "row(" + String.join(",", parameterNameWithType) + ")";
+    }
   }
 }
