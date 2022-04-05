@@ -13,7 +13,7 @@ import com.linkedin.transport.api.data.{PlatformData, StdData}
 import com.linkedin.transport.api.udf._
 import com.linkedin.transport.spark.typesystem.SparkTypeInference
 import com.linkedin.transport.utils.FileSystemUtils
-import org.apache.spark.SparkFiles
+import org.apache.spark.{SparkFiles, TaskContext}
 import org.apache.spark.sql.SparkSession
 import org.apache.spark.sql.catalyst.InternalRow
 import org.apache.spark.sql.catalyst.expressions.Expression
@@ -94,18 +94,21 @@ abstract class StdUdfWrapper(_expressions: Seq[Expression]) extends Expression
             throw new UnsupportedOperationException("getRequiredFiles not yet supported for StdUDF" + _expressions.length)
         }
 
-        lazy val sparkContext = SparkSession.builder().getOrCreate().sparkContext
         _distributedCacheFiles = requiredFiles.map(file => {
           try {
-            val resolvedFile = FileSystemUtils.resolveLatest(file)
-            // TODO: Currently does not support adding of files with same file name. E.g dirA/file.txt dirB/file.txt
-            sparkContext.addFile(resolvedFile)
-            resolvedFile
+            FileSystemUtils.resolveLatest(file)
           } catch {
             case e: IOException =>
               throw new RuntimeException("Failed to resolve path: [" + file + "].", e)
           }
         })
+
+        // Only adding files this on driver
+        if (TaskContext.get == null) {
+          val sparkContext = SparkSession.builder().getOrCreate().sparkContext
+          // TODO: Currently does not support adding of files with same file name. E.g dirA/file.txt dirB/file.txt
+          _distributedCacheFiles.foreach(sparkContext.addFile)
+        }
       }
     }
   } // scalastyle:on magic.number
