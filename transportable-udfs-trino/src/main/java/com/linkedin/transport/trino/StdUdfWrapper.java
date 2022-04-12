@@ -55,6 +55,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import org.apache.commons.lang3.ClassUtils;
 
+import static com.linkedin.transport.trino.StdUDFUtils.quoteReservedKeywords;
 import static io.trino.metadata.Signature.*;
 import static io.trino.spi.function.InvocationConvention.InvocationArgumentConvention.*;
 import static io.trino.spi.function.InvocationConvention.InvocationReturnConvention.NULLABLE_RETURN;
@@ -71,23 +72,18 @@ public abstract class StdUdfWrapper extends SqlScalarFunction {
 
   protected StdUdfWrapper(StdUDF stdUDF) {
     super(new FunctionMetadata(
-            new Signature(
-                    ((TopLevelStdUDF) stdUDF).getFunctionName(),
-                    getTypeVariableConstraintsForStdUdf(stdUDF),
-                    ImmutableList.of(),
-                    parseTypeSignature(stdUDF.getOutputParameterSignature(), ImmutableSet.of()),
-                    stdUDF.getInputParameterSignatures().stream()
-                            .map(typeSignature -> parseTypeSignature(typeSignature, ImmutableSet.of()))
-                            .collect(Collectors.toList()),
-                    false),
-            true,
-            Booleans.asList(stdUDF.getNullableArguments()).stream()
-                    .map(FunctionArgumentDefinition::new)
-                    .collect(Collectors.toList()),
-            false,
-            false,
-            ((TopLevelStdUDF) stdUDF).getFunctionDescription(),
-            FunctionKind.SCALAR));
+        new Signature(((TopLevelStdUDF) stdUDF).getFunctionName(), getTypeVariableConstraintsForStdUdf(stdUDF),
+            ImmutableList.of(),
+            parseTypeSignature(quoteReservedKeywords(stdUDF.getOutputParameterSignature()),
+                ImmutableSet.of()), stdUDF.getInputParameterSignatures()
+            .stream()
+            .map(typeSignature -> parseTypeSignature(quoteReservedKeywords(typeSignature),
+                ImmutableSet.of()))
+            .collect(Collectors.toList()), false), true, Booleans.asList(stdUDF.getNullableArguments())
+        .stream()
+        .map(FunctionArgumentDefinition::new)
+        .collect(Collectors.toList()), false, false, ((TopLevelStdUDF) stdUDF).getFunctionDescription(),
+        FunctionKind.SCALAR));
   }
 
   @VisibleForTesting
