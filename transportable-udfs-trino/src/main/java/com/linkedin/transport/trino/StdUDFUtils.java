@@ -45,7 +45,7 @@ public final class StdUDFUtils {
    * @param signature input type signature
    * @return converted type signature which is properly quoted
    */
-  public static String quoteReservedKeywords(String signature) {
+  static String quoteReservedKeywords(String signature) {
     return toTrinoTypeSignatureString(TypeSignature.parse(signature));
   }
 
