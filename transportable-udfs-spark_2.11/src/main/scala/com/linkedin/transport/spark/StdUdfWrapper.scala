@@ -13,7 +13,7 @@ import com.linkedin.transport.api.data.{PlatformData, StdData}
 import com.linkedin.transport.api.udf._
 import com.linkedin.transport.spark.typesystem.SparkTypeInference
 import com.linkedin.transport.utils.FileSystemUtils
-import org.apache.spark.{SparkFiles, TaskContext}
+import org.apache.spark.SparkFiles
 import org.apache.spark.sql.SparkSession
 import org.apache.spark.sql.catalyst.InternalRow
 import org.apache.spark.sql.catalyst.expressions.Expression
@@ -47,10 +47,7 @@ abstract class StdUdfWrapper(_expressions: Seq[Expression]) extends Expression
     _stdUdf = _sparkTypeInference.getStdUdf
     _nullableArguments = _stdUdf.getAndCheckNullableArguments
     _stdUdf.init(_stdFactory)
-    // Only call this on driver
-    if (TaskContext.get == null) {
-      getRequiredFiles()
-    }
+    getRequiredFiles()
     _requiredFilesProcessed = false
     _initialized = true
   }
