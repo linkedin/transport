@@ -103,7 +103,7 @@ abstract class StdUdfWrapper(_expressions: Seq[Expression]) extends Expression
           }
         })
 
-        // Only adding files this on driver
+        // Only add files on the driver
         if (TaskContext.get == null) {
           val sparkContext = SparkSession.builder().getOrCreate().sparkContext
           // TODO: Currently does not support adding of files with same file name. E.g dirA/file.txt dirB/file.txt
