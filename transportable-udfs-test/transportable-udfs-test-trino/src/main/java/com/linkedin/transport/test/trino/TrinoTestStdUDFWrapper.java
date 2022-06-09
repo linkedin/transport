@@ -7,6 +7,7 @@ package com.linkedin.transport.test.trino;
 
 import com.linkedin.transport.api.udf.StdUDF;
 import com.linkedin.transport.trino.StdUdfWrapper;
+
 import java.lang.reflect.InvocationTargetException;
 
 
@@ -26,8 +27,8 @@ public class TrinoTestStdUDFWrapper extends StdUdfWrapper {
   }
 
   @Override
-  protected StdUDF getStdUDF() {
-    return createInstance(_udfClass);
+  protected String getStateClassName() {
+    return TestState.class.getName();
   }
 
   private static <K extends StdUDF> K createInstance(Class<K> udfClass) {
@@ -35,6 +36,13 @@ public class TrinoTestStdUDFWrapper extends StdUdfWrapper {
       return udfClass.getConstructor().newInstance();
     } catch (InstantiationException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
       throw new RuntimeException(e);
+    }
+  }
+
+  public class TestState extends State {
+    public TestState () {
+      super();
+      stdUDF = createInstance(_udfClass);
     }
   }
 }
