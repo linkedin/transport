@@ -107,11 +107,12 @@ Build:
 ./gradlew build
 ```
 
-Please note that this project requires Java `1.8.0_151` or higher.
+Please note that this project requires Java 8 to run.
 Either set `JAVA_HOME` to the home of an appropriate version and then use `./gradlew build` as described above, or set the `org.gradle.java.home` gradle property to the Java home of an appropriate version as below:
 ```bash
 ./gradlew -Dorg.gradle.java.home=/path/to/java/home build
 ```
+There are known issues with Java `1.8.291`. Kindly refrain from using this subversion. To recover from build issues, do a fresh checkout and build this project using a different Java subversion.
 
 ## How to Use
 The project under the directory [`transportable-udfs-examples`](transportable-udfs-examples) is a standalone Gradle project
