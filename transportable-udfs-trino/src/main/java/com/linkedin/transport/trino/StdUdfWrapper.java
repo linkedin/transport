@@ -36,6 +36,7 @@ import io.trino.metadata.TypeVariableConstraint;
 import io.trino.operator.scalar.ChoicesScalarFunctionImplementation;
 import io.trino.operator.scalar.ScalarFunctionImplementation;
 import io.trino.spi.classloader.ThreadContextClassLoader;
+import io.trino.spi.connector.ConnectorSession;
 import io.trino.spi.function.InvocationConvention;
 import io.trino.spi.type.ArrayType;
 import io.trino.spi.type.IntegerType;
@@ -45,10 +46,7 @@ import io.trino.spi.type.Type;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Random;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
@@ -131,25 +129,20 @@ public abstract class StdUdfWrapper extends SqlScalarFunction {
   @Override
   public ScalarFunctionImplementation specialize(FunctionBinding functionBinding, FunctionDependencies functionDependencies) {
     StdFactory stdFactory = new TrinoFactory(functionBinding, functionDependencies);
-    StdUDF stdUDF = getStdUDF();
-    stdUDF.init(stdFactory);
-    // Subtract a small jitter value so that refresh is triggered on first call
-    // while ensuring subsequent calls do not happen at the same time across workers
-    long initialJitter = getRefreshIntervalMillis() / JITTER_FACTOR;
-    int initialJitterInt = initialJitter > Integer.MAX_VALUE ? Integer.MAX_VALUE : (int) initialJitter;
-    AtomicLong requiredFilesNextRefreshTime = new AtomicLong(System.currentTimeMillis()
-        - (new Random()).nextInt(initialJitterInt));
+
+    MethodHandle instanceFactory = constructorMethodHandle(getStateClass());
+    StdUDF stdUDF = ((State) invokeMethodHandle(instanceFactory)).getStdUDF();
     boolean[] nullableArguments = stdUDF.getAndCheckNullableArguments();
 
     return new ChoicesScalarFunctionImplementation(
         functionBinding,
         NULLABLE_RETURN,
         getNullConventionForArguments(nullableArguments),
-        getMethodHandle(stdUDF, functionBinding, nullableArguments, requiredFilesNextRefreshTime));
+        getMethodHandle(stdFactory, functionBinding, nullableArguments),
+        Optional.of(instanceFactory));
   }
 
-  private MethodHandle getMethodHandle(StdUDF stdUDF, FunctionBinding functionBinding, boolean[] nullableArguments,
-      AtomicLong requiredFilesNextRefreshTime) {
+  private MethodHandle getMethodHandle(StdFactory stdFactory, FunctionBinding functionBinding, boolean[] nullableArguments) {
     Type[] inputTypes = functionBinding.getBoundSignature().getArgumentTypes().toArray(new Type[0]);
     Type outputType = functionBinding.getBoundSignature().getReturnType();
 
@@ -163,10 +156,10 @@ public abstract class StdUdfWrapper extends SqlScalarFunction {
     MethodType specificMethodType =
         MethodType.methodType(specificMethodHandleReturnType, specificMethodHandleArgumentTypes);
 
-    // Specific MethodHandle required by trino where argument types map to the type signature
+    // Specific MethodHandle required by Trino where argument types map to the type signature
     MethodHandle specificMethodHandle = MethodHandles.explicitCastArguments(genericMethodHandle, specificMethodType);
-    return MethodHandles.insertArguments(specificMethodHandle, 0, stdUDF, inputTypes,
-        outputType instanceof IntegerType, requiredFilesNextRefreshTime);
+    return MethodHandles.insertArguments(specificMethodHandle, 1, stdFactory, inputTypes,
+        outputType instanceof IntegerType);
   }
 
   private List<InvocationConvention.InvocationArgumentConvention> getNullConventionForArguments(
@@ -188,12 +181,26 @@ public abstract class StdUdfWrapper extends SqlScalarFunction {
     return stdData;
   }
 
-  protected Object eval(StdUDF stdUDF, Type[] types, boolean isIntegerReturnType,
-      AtomicLong requiredFilesNextRefreshTime, Object... arguments) {
+  private Object invokeMethodHandle(MethodHandle methodHandle) {
+    try {
+      return methodHandle.invoke();
+    } catch (Throwable e) {
+      throw new RuntimeException("Could not invoke MethodHandle " + methodHandle);
+    }
+  }
+
+  protected Object eval(State state, ConnectorSession session, StdFactory stdFactory, Type[] types, boolean isIntegerReturnType,
+                        Object... arguments) {
+    StdUDF stdUDF = state.getStdUDF();
+    if (!state.isInitialized()) {
+      stdUDF.init(stdFactory);
+      state.setInitialized();
+    }
+    long requiredFilesNextRefreshTime = state.getRequiredFilesNextRefreshTime();
     StdData[] args = wrapArguments(stdUDF, types, arguments);
-    if (requiredFilesNextRefreshTime.get() <= System.currentTimeMillis()) {
+    if (requiredFilesNextRefreshTime <= System.currentTimeMillis()) {
       String[] requiredFiles = getRequiredFiles(stdUDF, args);
-      processRequiredFiles(stdUDF, requiredFiles, requiredFilesNextRefreshTime);
+      processRequiredFiles(state, requiredFiles);
     }
     StdData result;
     switch (args.length) {
@@ -274,9 +281,10 @@ public abstract class StdUdfWrapper extends SqlScalarFunction {
     return requiredFiles;
   }
 
-  private synchronized void processRequiredFiles(StdUDF stdUDF, String[] requiredFiles,
-      AtomicLong requiredFilesNextRefreshTime) {
-    if (requiredFilesNextRefreshTime.get() <= System.currentTimeMillis()) {
+  private synchronized void processRequiredFiles(State state, String[] requiredFiles) {
+    long requiredFilesNextRefreshTime = state.getRequiredFilesNextRefreshTime();
+    StdUDF stdUDF = state.getStdUDF();
+    if (requiredFilesNextRefreshTime <= System.currentTimeMillis()) {
       try (ThreadContextClassLoader ignored = new ThreadContextClassLoader(getClass().getClassLoader())) {
         String[] copiedFiles = new String[requiredFiles.length];
         FileSystemClient client = new FileSystemClient();
@@ -287,8 +295,10 @@ public abstract class StdUdfWrapper extends SqlScalarFunction {
         stdUDF.processRequiredFiles(copiedFiles);
         // Determine how many times _refreshIntervalMillis needs to be added to go above currentTimeMillis
         int refreshIntervalFactor = (int) Math.ceil(
-            (System.currentTimeMillis() - requiredFilesNextRefreshTime.get()) / (double) getRefreshIntervalMillis());
-        requiredFilesNextRefreshTime.getAndAdd(getRefreshIntervalMillis() * Math.max(1, refreshIntervalFactor));
+            (System.currentTimeMillis() - requiredFilesNextRefreshTime) / (double) getRefreshIntervalMillis());
+        state.setRequiredFilesNextRefreshTime(
+                requiredFilesNextRefreshTime + getRefreshIntervalMillis() * Math.max(1, refreshIntervalFactor))
+        ;
       }
     }
   }
@@ -303,70 +313,115 @@ public abstract class StdUdfWrapper extends SqlScalarFunction {
 
   private Class<?>[] getMethodHandleArgumentTypes(Type[] argTypes, boolean[] nullableArguments,
       boolean useObjectForArgumentType) {
-    Class<?>[] methodHandleArgumentTypes = new Class<?>[argTypes.length + 4];
-    methodHandleArgumentTypes[0] = StdUDF.class;
-    methodHandleArgumentTypes[1] = Type[].class;
-    methodHandleArgumentTypes[2] = boolean.class;
-    methodHandleArgumentTypes[3] = AtomicLong.class;
+    Class<?>[] methodHandleArgumentTypes = new Class<?>[argTypes.length + 5];
+    methodHandleArgumentTypes[0] = State.class;
+    methodHandleArgumentTypes[1] = ConnectorSession.class;
+    methodHandleArgumentTypes[2] = StdFactory.class;
+    methodHandleArgumentTypes[3] = Type[].class;
+    methodHandleArgumentTypes[4] = boolean.class;
     for (int i = 0; i < argTypes.length; i++) {
       if (useObjectForArgumentType) {
-        methodHandleArgumentTypes[i + 4] = Object.class;
+        methodHandleArgumentTypes[i + 5] = Object.class;
       } else {
-        methodHandleArgumentTypes[i + 4] = getJavaTypeForNullability(argTypes[i], nullableArguments[i]);
+        methodHandleArgumentTypes[i + 5] = getJavaTypeForNullability(argTypes[i], nullableArguments[i]);
       }
     }
     return methodHandleArgumentTypes;
   }
 
-  protected abstract StdUDF getStdUDF();
+  private Class getStateClass() {
+    try {
+      return Class.forName(getStateClassName());
+    } catch (Exception e) {
+      throw new RuntimeException("Could not find class " + getStateClassName() + " on classpath");
+    }
+  }
+  protected abstract String getStateClassName();
 
-  public Object evalInternal(StdUDF stdUDF, Type[] types, boolean isIntegerReturnType,
-      AtomicLong requiredFilesNextRefreshTime) {
-    return eval(stdUDF, types, isIntegerReturnType, requiredFilesNextRefreshTime);
+  public Object evalInternal(State state, ConnectorSession session, StdFactory stdFactory, Type[] types,
+                             boolean isIntegerReturnType) {
+    return eval(state, session, stdFactory, types, isIntegerReturnType);
   }
 
-  public Object evalInternal(StdUDF stdUDF, Type[] types, boolean isIntegerReturnType,
-      AtomicLong requiredFilesNextRefreshTime, Object arg1) {
-    return eval(stdUDF, types, isIntegerReturnType, requiredFilesNextRefreshTime, arg1);
+  public Object evalInternal(State state, ConnectorSession session, StdFactory stdFactory, Type[] types, boolean isIntegerReturnType,
+      Object arg1) {
+    return eval(state, session, stdFactory, types, isIntegerReturnType, arg1);
   }
 
-  public Object evalInternal(StdUDF stdUDF, Type[] types, boolean isIntegerReturnType,
-      AtomicLong requiredFilesNextRefreshTime, Object arg1, Object arg2) {
-    return eval(stdUDF, types, isIntegerReturnType, requiredFilesNextRefreshTime, arg1, arg2);
+  public Object evalInternal(State state, ConnectorSession session, StdFactory stdFactory, Type[] types, boolean isIntegerReturnType,
+      Object arg1, Object arg2) {
+    return eval(state, session, stdFactory, types, isIntegerReturnType, arg1, arg2);
   }
 
-  public Object evalInternal(StdUDF stdUDF, Type[] types, boolean isIntegerReturnType,
-      AtomicLong requiredFilesNextRefreshTime, Object arg1, Object arg2, Object arg3) {
-    return eval(stdUDF, types, isIntegerReturnType, requiredFilesNextRefreshTime, arg1, arg2, arg3);
+  public Object evalInternal(State state, ConnectorSession session, StdFactory stdFactory, Type[] types, boolean isIntegerReturnType,
+      Object arg1, Object arg2, Object arg3) {
+    return eval(state, session, stdFactory, types, isIntegerReturnType, arg1, arg2, arg3);
   }
 
-  public Object evalInternal(StdUDF stdUDF, Type[] types, boolean isIntegerReturnType,
-      AtomicLong requiredFilesNextRefreshTime, Object arg1, Object arg2, Object arg3, Object arg4) {
-    return eval(stdUDF, types, isIntegerReturnType, requiredFilesNextRefreshTime, arg1, arg2, arg3, arg4);
+  public Object evalInternal(State state, ConnectorSession session,  StdFactory stdFactory, Type[] types, boolean isIntegerReturnType,
+      Object arg1, Object arg2, Object arg3, Object arg4) {
+    return eval(state, session, stdFactory, types, isIntegerReturnType, arg1, arg2, arg3,
+            arg4);
   }
 
-  public Object evalInternal(StdUDF stdUDF, Type[] types, boolean isIntegerReturnType,
-      AtomicLong requiredFilesNextRefreshTime, Object arg1, Object arg2, Object arg3, Object arg4, Object arg5) {
-    return eval(stdUDF, types, isIntegerReturnType, requiredFilesNextRefreshTime, arg1, arg2, arg3, arg4, arg5);
+  public Object evalInternal(State state, ConnectorSession session, StdFactory stdFactory, Type[] types, boolean isIntegerReturnType,
+      Object arg1, Object arg2, Object arg3, Object arg4, Object arg5) {
+    return eval(state, session, stdFactory, types, isIntegerReturnType, arg1, arg2, arg3,
+            arg4, arg5);
   }
 
-  public Object evalInternal(StdUDF stdUDF, Type[] types, boolean isIntegerReturnType,
-      AtomicLong requiredFilesNextRefreshTime, Object arg1, Object arg2, Object arg3, Object arg4, Object arg5,
+  public Object evalInternal(State state, ConnectorSession session, StdFactory stdFactory, Type[] types, boolean isIntegerReturnType,
+      Object arg1, Object arg2, Object arg3, Object arg4, Object arg5,
       Object arg6) {
-    return eval(stdUDF, types, isIntegerReturnType, requiredFilesNextRefreshTime, arg1, arg2, arg3, arg4, arg5, arg6);
+    return eval(state, session, stdFactory, types, isIntegerReturnType, arg1, arg2, arg3,
+            arg4, arg5, arg6);
   }
 
-  public Object evalInternal(StdUDF stdUDF, Type[] types, boolean isIntegerReturnType,
-      AtomicLong requiredFilesNextRefreshTime, Object arg1, Object arg2, Object arg3, Object arg4, Object arg5,
+  public Object evalInternal(State state, ConnectorSession session, StdFactory stdFactory, Type[] types, boolean isIntegerReturnType,
+      Object arg1, Object arg2, Object arg3, Object arg4, Object arg5,
       Object arg6, Object arg7) {
-    return eval(stdUDF, types, isIntegerReturnType, requiredFilesNextRefreshTime, arg1, arg2, arg3, arg4, arg5, arg6,
+    return eval(state, session, stdFactory, types, isIntegerReturnType, arg1, arg2, arg3,
+            arg4, arg5, arg6,
         arg7);
   }
 
-  public Object evalInternal(StdUDF stdUDF, Type[] types, boolean isIntegerReturnType,
-      AtomicLong requiredFilesNextRefreshTime, Object arg1, Object arg2, Object arg3, Object arg4, Object arg5,
+  public Object evalInternal(State state, ConnectorSession session, StdFactory stdFactory, Type[] types, boolean isIntegerReturnType,
+      Object arg1, Object arg2, Object arg3, Object arg4, Object arg5,
       Object arg6, Object arg7, Object arg8) {
-    return eval(stdUDF, types, isIntegerReturnType, requiredFilesNextRefreshTime, arg1, arg2, arg3, arg4, arg5, arg6,
+    return eval(state, session, stdFactory, types, isIntegerReturnType, arg1, arg2, arg3, arg4, arg5, arg6,
         arg7, arg8);
+  }
+
+  public abstract static class State
+  {
+    private boolean initialized;
+    protected StdUDF stdUDF;
+    private long requiredFilesNextRefreshTime;
+
+    public State() {
+      initialized = false;
+      requiredFilesNextRefreshTime = 0;
+    }
+
+    public StdUDF getStdUDF() {
+      return stdUDF;
+    }
+
+    public boolean isInitialized() {
+      return initialized;
+    }
+
+    public void setInitialized() {
+      initialized = true;
+    }
+
+    public long getRequiredFilesNextRefreshTime() {
+      return requiredFilesNextRefreshTime;
+    }
+
+    public void setRequiredFilesNextRefreshTime(long requiredFilesNextRefreshTime)
+    {
+      this.requiredFilesNextRefreshTime = requiredFilesNextRefreshTime;
+    }
   }
 }
