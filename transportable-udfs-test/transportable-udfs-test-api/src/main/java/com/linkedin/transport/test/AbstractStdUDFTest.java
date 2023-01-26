@@ -88,15 +88,19 @@ public abstract class AbstractStdUDFTest {
     return dataMap;
   }
 
-  protected static Row rowWithFieldNames(List<String> fieldNames, List<Object> args) {
-    return new Row(fieldNames, args);
-  }
-
   /**
    * Creates a row from the provided elements to pass to the test framework
    */
   protected static Row row(Object... args) {
     return new Row(Arrays.asList(args));
+  }
+
+  /**
+   * Creates a row from the provided elements with the corresponding field names
+   * to pass to the test framework
+   */
+  protected static Row rowWithFieldNames(List<String> fieldNames, List<Object> args) {
+    return new Row(fieldNames, args);
   }
 
   /**
