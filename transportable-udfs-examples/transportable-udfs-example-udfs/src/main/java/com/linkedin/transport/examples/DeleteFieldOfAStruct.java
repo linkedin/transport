@@ -26,8 +26,8 @@ public class DeleteFieldOfAStruct extends StdUDF2<StdData, StdString, StdData> i
         // no field with the matching name, don't do anything
         return input;
       } else {
-          // Replaced with empty string.
-          inputAsStruct.setField(fieldName.get(), getStdFactory().createString(""));
+        // Replaced with empty string.
+        inputAsStruct.setField(fieldName.get(), getStdFactory().createString(""));
       }
     } else {
       throw new RuntimeException("Works only with a struct");
