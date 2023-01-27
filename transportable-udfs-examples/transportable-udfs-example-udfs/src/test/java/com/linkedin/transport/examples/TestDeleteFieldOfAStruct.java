@@ -28,14 +28,14 @@ public class TestDeleteFieldOfAStruct extends AbstractStdUDFTest {
   public void testDeleteFieldOfAStructFunction() {
     StdTester tester = getTester();
     Row data = rowWithFieldNames(
-        ImmutableList.of("firstName","lastName"),
-        ImmutableList.of("foo","bar"));
+        ImmutableList.of("firstName", "lastName"),
+        ImmutableList.of("foo", "bar"));
     Row dataAfterDeleteFirstName = rowWithFieldNames(
-        ImmutableList.of("firstName","lastName"),
-        ImmutableList.of("","bar")); // <- value corresponding to field name "firstName" has been removed
+        ImmutableList.of("firstName", "lastName"),
+        ImmutableList.of("", "bar")); // <- value corresponding to field name "firstName" has been removed
     Row dataAfterDeleteLastName = rowWithFieldNames(
-        ImmutableList.of("firstName","lastName"),
-        ImmutableList.of("foo","")); // <- value corresponding to field name "lastName" has been removed
+        ImmutableList.of("firstName", "lastName"),
+        ImmutableList.of("foo", "")); // <- value corresponding to field name "lastName" has been removed
     tester.check(
         functionCall("deleteFieldOfAStruct", data, "firstName"),
         dataAfterDeleteFirstName,
