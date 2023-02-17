@@ -1,7 +1,6 @@
 buildscript {
   dependencies {
     classpath('com.linkedin.transport:transportable-udfs-plugin')
-    classpath('com.linkedin.transport:transportable-udfs-test-spi')
   }
 }
 
