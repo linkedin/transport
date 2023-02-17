@@ -10,10 +10,12 @@ buildscript {
   }
   dependencies {
     classpath 'org.github.ngbinh.scalastyle:gradle-scalastyle-plugin_2.11:1.0.1'
-    classpath 'gradle.plugin.nl.javadude.gradle.plugins:license-gradle-plugin:0.14.0'
   }
 }
 
+plugins {
+  id "com.github.hierynomus.license" version "0.16.1"
+}
 
 allprojects {
   group = 'com.linkedin.transport'
@@ -50,7 +52,7 @@ subprojects {
     project.apply(plugin: 'checkstyle')
 
     dependencies {
-      testCompile 'org.testng:testng:6.11'
+      testImplementation 'org.testng:testng:6.11'
     }
 
     test {
