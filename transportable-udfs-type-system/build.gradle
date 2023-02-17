@@ -1,9 +1,9 @@
 apply plugin: 'java'
 
 dependencies {
-  compile project(':transportable-udfs-api')
-  compile('com.google.guava:guava:19.0')
-  compile('org.apache.commons:commons-lang3:3.7')
+  implementation project(':transportable-udfs-api')
+  implementation('com.google.guava:guava:19.0')
+  implementation('org.apache.commons:commons-lang3:3.7')
 }
 
 task jarTests(type: Jar, dependsOn: testClasses) {
@@ -13,7 +13,7 @@ task jarTests(type: Jar, dependsOn: testClasses) {
 
 configurations {
   tests {
-    extendsFrom testRuntime
+    extendsFrom testRuntimeOnly
   }
 }
 

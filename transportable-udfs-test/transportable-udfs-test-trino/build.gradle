@@ -5,19 +5,19 @@ java {
 }
 
 dependencies {
-  compile project(":transportable-udfs-api")
-  compile project(":transportable-udfs-test:transportable-udfs-test-api")
-  compile project(":transportable-udfs-test:transportable-udfs-test-spi")
-  compile project(":transportable-udfs-trino")
-  compile('com.google.guava:guava:24.1-jre')
-  compile(group:'io.trino', name: 'trino-main', version: project.ext.'trino-version') {
+  implementation project(":transportable-udfs-api")
+  implementation project(":transportable-udfs-test:transportable-udfs-test-api")
+  implementation project(":transportable-udfs-test:transportable-udfs-test-spi")
+  implementation project(":transportable-udfs-trino")
+  implementation('com.google.guava:guava:24.1-jre')
+  implementation(group:'io.trino', name: 'trino-main', version: project.ext.'trino-version') {
     exclude 'group': 'com.google.collections', 'module': 'google-collections'
   }
-  compile(group:'io.trino', name: 'trino-main', version: project.ext.'trino-version', classifier: 'tests') {
+  implementation(group:'io.trino', name: 'trino-main', version: project.ext.'trino-version', classifier: 'tests') {
     exclude 'group': 'com.google.collections', 'module': 'google-collections'
   }
-  compile('io.airlift:testing:202')
+  implementation('io.airlift:testing:202')
   // The io.airlift.slice dependency below has to match its counterpart in trino-root's pom.xml file
   // If not specified, an older version is picked up transitively from another dependency
-  compile(group: 'io.airlift', name: 'slice', version: project.ext.'airlift-slice-version')
+  implementation(group: 'io.airlift', name: 'slice', version: project.ext.'airlift-slice-version')
 }

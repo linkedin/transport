@@ -5,23 +5,24 @@ java {
 }
 
 dependencies {
-  compile project(':transportable-udfs-api')
-  compile project(':transportable-udfs-type-system')
-  compile project(':transportable-udfs-utils')
+  implementation project(':transportable-udfs-api')
+  implementation project(':transportable-udfs-type-system')
+  implementation project(':transportable-udfs-utils')
   compileOnly(group:'io.trino', name: 'trino-main', version: project.ext.'trino-version') {
     exclude 'group': 'com.google.collections', 'module': 'google-collections'
   }
-  testCompile(group:'io.trino', name: 'trino-main', version: project.ext.'trino-version') {
+  testImplementation(group:'io.trino', name: 'trino-main', version: project.ext.'trino-version') {
     exclude 'group': 'com.google.collections', 'module': 'google-collections'
   }
-  testCompile(group:'io.trino', name: 'trino-main', version: project.ext.'trino-version', classifier: 'tests') {
+  testImplementation(group:'io.trino', name: 'trino-main', version: project.ext.'trino-version', classifier: 'tests') {
     exclude 'group': 'com.google.collections', 'module': 'google-collections'
   }
   compileOnly(group:'io.trino', name: 'trino-spi', version: project.ext.'trino-version')
-  compile('org.apache.hadoop:hadoop-hdfs:2.7.4')
-  compile('org.apache.hadoop:hadoop-common:2.7.4')
-  testCompile('io.airlift:testing:0.142')
+  implementation('org.apache.hadoop:hadoop-hdfs:2.7.4')
+  implementation('org.apache.hadoop:hadoop-common:2.7.4')
+  implementation('org.apache.commons:commons-lang3:3.10')
+  testImplementation('io.airlift:testing:0.142')
   // The io.airlift.slice dependency below has to match its counterpart  in trino-root's pom.xml file
   // If not specified, an older version is picked up transitively from another dependency
-  testCompile(group: 'io.airlift', name: 'slice', version: project.ext.'airlift-slice-version')
+  testImplementation(group: 'io.airlift', name: 'slice', version: project.ext.'airlift-slice-version')
 }

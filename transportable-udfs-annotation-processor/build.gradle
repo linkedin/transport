@@ -1,12 +1,12 @@
 apply plugin: 'java'
 
 dependencies {
-  compile project(':transportable-udfs-api')
-  compile project(':transportable-udfs-compile-utils')
-  compile('com.google.guava:guava:24.1-jre')
-  compile('com.google.code.gson:gson:2.8.5')
+  implementation project(':transportable-udfs-api')
+  implementation project(':transportable-udfs-compile-utils')
+  implementation('com.google.guava:guava:24.1-jre')
+  implementation('com.google.code.gson:gson:2.8.5')
 
-  testCompile('com.google.testing.compile:compile-testing:0.15')
+  testImplementation('com.google.testing.compile:compile-testing:0.15')
 }
 
 license {

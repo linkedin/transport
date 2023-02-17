@@ -1,16 +1,16 @@
 apply plugin: 'java'
 
 dependencies {
-  compile project(':transportable-udfs-api')
-  compile project(':transportable-udfs-type-system')
-  compile project(':transportable-udfs-utils')
-  compile('org.apache.hadoop:hadoop-common:2.7.4')
+  implementation project(':transportable-udfs-api')
+  implementation project(':transportable-udfs-type-system')
+  implementation project(':transportable-udfs-utils')
+  implementation('org.apache.hadoop:hadoop-common:2.7.4')
   compileOnly('org.apache.hive:hive-exec:1.2.2') {
     exclude group: 'org.apache.avro'
     exclude group: 'org.apache.calcite'
   }
-  testCompile project(path: ':transportable-udfs-type-system', configuration: 'tests')
-  testCompile('org.apache.hive:hive-exec:1.2.2') {
+  testImplementation project(path: ':transportable-udfs-type-system', configuration: 'tests')
+  testImplementation('org.apache.hive:hive-exec:1.2.2') {
     exclude group: 'org.apache.avro'
     exclude group: 'org.apache.calcite'
   }
@@ -23,7 +23,7 @@ task jarTests(type: Jar, dependsOn: testClasses) {
 
 configurations {
   tests {
-    extendsFrom testRuntime
+    extendsFrom testRuntimeOnly
   }
 }
 
