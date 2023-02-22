@@ -10,7 +10,7 @@ dependencies {
   implementation project(':transportable-udfs-compile-utils')
   implementation ('com.google.guava:guava:24.1-jre')
   implementation ('com.google.code.gson:gson:2.8.5')
-  implementation ('com.github.jengelman.gradle.plugins:shadow:5.0.0')
+  implementation ('com.github.jengelman.gradle.plugins:shadow:5.2.0')
   testImplementation('org.spockframework:spock-core:1.1-groovy-2.4') {
     exclude group: 'org.codehaus.groovy'
   }
