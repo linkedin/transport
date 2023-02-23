@@ -6,9 +6,5 @@ dependencies {
   implementation project(':transportable-udfs-utils')
   implementation project(":transportable-udfs-test:transportable-udfs-test-api")
   implementation project(":transportable-udfs-test:transportable-udfs-test-spi")
-  implementation 'com.google.guava:guava:24.1-jre'
-  implementation 'org.apache.commons:commons-lang3:3.10'
-  implementation('org.apache.hadoop:hadoop-hdfs:2.7.4')
-  implementation('org.apache.hadoop:hadoop-common:2.7.4')
   implementation 'org.testng:testng:6.11'
 }

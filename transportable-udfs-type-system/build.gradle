@@ -1,9 +1,11 @@
-apply plugin: 'java'
+plugins {
+  id 'java-library'
+}
 
 dependencies {
   implementation project(':transportable-udfs-api')
-  implementation('com.google.guava:guava:19.0')
-  implementation('org.apache.commons:commons-lang3:3.7')
+  api 'com.google.guava:guava:19.0'
+  api 'org.apache.commons:commons-lang3:3.7'
 }
 
 task jarTests(type: Jar, dependsOn: testClasses) {
