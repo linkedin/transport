@@ -14,6 +14,8 @@ dependencies {
   testImplementation('com.linkedin.transport:transportable-udfs-test-spi')
 }
 
+// As the tasks of trinoDistThinJar and trinoTrinJar are from Transport plugin which is built by Gradle 7.5.1,
+// it requires the explicit definition of duplicatesStrategy.
 trinoDistThinJar {
   duplicatesStrategy(DuplicatesStrategy.WARN)
 }
