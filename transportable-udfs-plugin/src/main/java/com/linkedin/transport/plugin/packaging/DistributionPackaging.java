@@ -47,7 +47,7 @@ public class DistributionPackaging implements Packaging {
      */
     DistributionContainer distributions = project.getExtensions().getByType(DistributionContainer.class);
     distributions.register(platform.getName(), distribution -> {
-      distribution.setBaseName(project.getName());
+      distribution.getDistributionBaseName().set(project.getName());
       distribution.getContents()
           .from(platformThinJarTask)
           .from(getConfigurationForSourceSet(project, platformSourceSet, RUNTIME_CLASSPATH));

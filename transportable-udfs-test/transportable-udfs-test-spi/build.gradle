@@ -1,6 +1,6 @@
 apply plugin: 'java'
 
 dependencies {
-  compile project(":transportable-udfs-api")
-  compile project(":transportable-udfs-type-system")
+  implementation project(":transportable-udfs-api")
+  implementation project(":transportable-udfs-type-system")
 }
