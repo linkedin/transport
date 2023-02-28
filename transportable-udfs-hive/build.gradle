@@ -1,8 +1,10 @@
-apply plugin: 'java'
+plugins {
+  id 'java-library'
+}
 
 dependencies {
   implementation project(':transportable-udfs-api')
-  implementation project(':transportable-udfs-type-system')
+  api project(':transportable-udfs-type-system')
   implementation project(':transportable-udfs-utils')
   implementation('org.apache.hadoop:hadoop-common:2.7.4')
   compileOnly('org.apache.hive:hive-exec:1.2.2') {

@@ -7,7 +7,6 @@ plugins {
 dependencies {
   implementation project(':transportable-udfs-api')
   implementation project(':transportable-udfs-codegen')
-  implementation project(':transportable-udfs-compile-utils')
   implementation ('com.google.guava:guava:24.1-jre')
   implementation ('com.google.code.gson:gson:2.8.5')
   implementation ('com.github.jengelman.gradle.plugins:shadow:5.0.0')
