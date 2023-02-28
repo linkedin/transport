@@ -1,9 +1,6 @@
-plugins {
-  id 'java-library'
-}
+apply plugin: 'java-library'
 
 dependencies {
   api 'org.apache.hadoop:hadoop-common:2.7.4'
-  api 'org.apache.hadoop:hadoop-hdfs:2.7.4'
-  api 'org.apache.hadoop:hadoop-mapreduce-client-core:2.7.4'
+  implementation 'org.apache.hadoop:hadoop-mapreduce-client-core:2.7.4'
 }

@@ -1,9 +1,8 @@
-plugins {
-  id 'java-library'
-}
+apply plugin: 'java-library'
 
 dependencies {
   implementation project(':transportable-udfs-api')
+
   api 'com.google.guava:guava:19.0'
   api 'org.apache.commons:commons-lang3:3.7'
 }

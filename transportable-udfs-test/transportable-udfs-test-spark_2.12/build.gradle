@@ -15,7 +15,6 @@ sourceSets {
 dependencies {
   implementation project(":transportable-udfs-api")
   implementation project(":transportable-udfs-spark_2.12")
-  implementation project(":transportable-udfs-type-system")
   implementation project(":transportable-udfs-test:transportable-udfs-test-api")
   implementation project(":transportable-udfs-test:transportable-udfs-test-spi")
   implementation(group: project.ext.'spark-group', name: 'spark-avro_2.12', version: project.ext.'spark3-version') {

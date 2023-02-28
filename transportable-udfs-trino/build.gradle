@@ -20,7 +20,6 @@ dependencies {
   compileOnly(group:'io.trino', name: 'trino-spi', version: project.ext.'trino-version')
   implementation('org.apache.hadoop:hadoop-hdfs:2.7.4')
   implementation('org.apache.hadoop:hadoop-common:2.7.4')
-  implementation('org.apache.commons:commons-lang3:3.10')
   testImplementation('io.airlift:testing:0.142')
   // The io.airlift.slice dependency below has to match its counterpart  in trino-root's pom.xml file
   // If not specified, an older version is picked up transitively from another dependency

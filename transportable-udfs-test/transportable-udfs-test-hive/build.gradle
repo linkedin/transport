@@ -4,7 +4,6 @@ dependencies {
   implementation project(':transportable-udfs-api')
   implementation project(':transportable-udfs-hive')
   implementation project(':transportable-udfs-test:transportable-udfs-test-api')
-  implementation project(':transportable-udfs-test:transportable-udfs-test-spi')
   implementation ('org.apache.calcite:calcite-core:1.2.0-incubating') {
     exclude group: 'org.pentaho', module: 'pentaho-aggdesigner-algorithm'
   }
@@ -14,5 +13,4 @@ dependencies {
   implementation ('org.apache.hive:hive-service:1.2.2') {
     exclude group: 'org.apache.hive', module: 'hive-exec'
   }
-  implementation ('org.testng:testng:6.11')
 }

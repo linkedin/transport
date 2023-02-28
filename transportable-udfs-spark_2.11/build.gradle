@@ -1,9 +1,10 @@
 apply plugin: 'scala'
 apply plugin: 'com.github.alisiikh.scalastyle'
+apply plugin: 'java-library'
 
 dependencies {
+  api project(':transportable-udfs-type-system')
   implementation project(':transportable-udfs-api')
-  implementation project(':transportable-udfs-type-system')
   implementation project(':transportable-udfs-utils')
   // For spark-core and spark-sql dependencies, we exclude transitive dependency on 'jackson-module-paranamer',
   // since this is required for the LinkedIn version of spark-core and spark-sql.
