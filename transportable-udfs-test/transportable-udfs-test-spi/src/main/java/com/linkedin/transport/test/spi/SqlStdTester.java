@@ -25,7 +25,9 @@ public interface SqlStdTester extends StdTester {
    * @param expectedOutputData  The expected output data from the function call
    * @param expectedOutputType  The expected output type from the function call
    */
-  void assertFunctionCall(String functionCallString, Object expectedOutputData, Object expectedOutputType);
+  default void assertFunctionCall(String functionCallString, Object expectedOutputData, Object expectedOutputType) {
+    throw new UnsupportedOperationException();
+  };
 
   default void check(TestCase testCase) {
     assertFunctionCall(getSqlFunctionCallGenerator().getSqlFunctionCallString(testCase.getFunctionCall()),
