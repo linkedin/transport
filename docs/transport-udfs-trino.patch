@@ -1,24 +1,33 @@
+From 3e94c6d2a66784df9137f0a028b8a6525f7ee110 Mon Sep 17 00:00:00 2001
+From: Jing-Wei <jinlu@linkedin.com>
+Date: Sat, 25 Mar 2023 14:38:18 -0700
+Subject: [PATCH] TRINO-4650 Update PluginManager to load transport udf
+
+---
+ .../java/io/trino/server/PluginManager.java   | 39 ++++++++++++++++++-
+ 1 file changed, 38 insertions(+), 1 deletion(-)
+
 diff --git a/core/trino-main/src/main/java/io/trino/server/PluginManager.java b/core/trino-main/src/main/java/io/trino/server/PluginManager.java
-index 76cc04ca9d..483e609c86 100644
+index 6f8132cc47..8acc015a77 100644
 --- a/core/trino-main/src/main/java/io/trino/server/PluginManager.java
 +++ b/core/trino-main/src/main/java/io/trino/server/PluginManager.java
-@@ -23,6 +23,7 @@ import io.trino.connector.ConnectorManager;
- import io.trino.eventlistener.EventListenerManager;
- import io.trino.execution.resourcegroups.ResourceGroupManager;
- import io.trino.metadata.MetadataManager;
+@@ -24,6 +24,7 @@ import io.trino.metadata.GlobalFunctionCatalog;
+ import io.trino.metadata.HandleResolver;
+ import io.trino.metadata.InternalFunctionBundle;
+ import io.trino.metadata.InternalFunctionBundle.InternalFunctionBundleBuilder;
 +import io.trino.metadata.SqlScalarFunction;
+ import io.trino.metadata.TypeRegistry;
  import io.trino.security.AccessControlManager;
  import io.trino.security.GroupProviderManager;
- import io.trino.server.security.CertificateAuthenticatorManager;
-@@ -55,6 +56,7 @@ import java.util.ServiceLoader;
- import java.util.Set;
+@@ -58,6 +59,7 @@ import java.util.Set;
  import java.util.concurrent.atomic.AtomicBoolean;
+ import java.util.function.Function;
  import java.util.function.Supplier;
 +import java.util.stream.Collectors;
-
+ 
  import static com.google.common.base.Preconditions.checkState;
- import static io.trino.metadata.FunctionExtractor.extractFunctions;
-@@ -65,8 +67,27 @@ import static java.util.Objects.requireNonNull;
+ import static java.util.Arrays.asList;
+@@ -66,8 +68,27 @@ import static java.util.Objects.requireNonNull;
  @ThreadSafe
  public class PluginManager
  {
@@ -46,31 +55,36 @@ index 76cc04ca9d..483e609c86 100644
              .add("com.fasterxml.jackson.annotation.")
              .add("io.airlift.slice.")
              .add("org.openjdk.jol.")
-@@ -163,11 +184,26 @@ public class PluginManager
+@@ -161,12 +182,28 @@ public class PluginManager
      {
          ServiceLoader<Plugin> serviceLoader = ServiceLoader.load(Plugin.class, pluginClassLoader);
          List<Plugin> plugins = ImmutableList.copyOf(serviceLoader);
--        checkState(!plugins.isEmpty(), "No service providers of type %s", Plugin.class.getName());
+-        checkState(!plugins.isEmpty(), "No service providers of type %s in the classpath: %s", Plugin.class.getName(), asList(pluginClassLoader.getURLs()));
 +
-+        ServiceLoader<SqlScalarFunction> sqlScalarFunctionsServiceLoader = ServiceLoader.load(SqlScalarFunction.class,
-+                pluginClassLoader);
++        ServiceLoader<SqlScalarFunction> sqlScalarFunctionsServiceLoader = ServiceLoader.load(SqlScalarFunction.class, pluginClassLoader);
 +        List<SqlScalarFunction> sqlScalarFunctions = ImmutableList.copyOf(sqlScalarFunctionsServiceLoader);
 +
-+        checkState(!plugins.isEmpty() || !sqlScalarFunctions.isEmpty(), "No service providers of type %s or %s", Plugin.class.getName(), SqlScalarFunction.class.getName());
-+
++        checkState(!plugins.isEmpty() || !sqlScalarFunctions.isEmpty(),
++                "No service providers of type %s or %s in the classpath: %s", Plugin.class.getName(), SqlScalarFunction.class.getName(), asList(pluginClassLoader.getURLs()));
+ 
          for (Plugin plugin : plugins) {
              log.info("Installing %s", plugin.getClass().getName());
              installPlugin(plugin, pluginClassLoader::duplicate);
          }
 +
++        InternalFunctionBundleBuilder builder = InternalFunctionBundle.builder();
 +        for (SqlScalarFunction sqlScalarFunction : sqlScalarFunctions) {
 +            log.info("Registering function %s(%s)",
 +                    sqlScalarFunction.getFunctionMetadata().getSignature().getName(),
 +                    sqlScalarFunction.getFunctionMetadata().getSignature().getArgumentTypes().stream()
 +                            .map(e -> e.toString())
 +                            .collect(Collectors.joining(", ")));
-+            metadataManager.addFunctions(ImmutableList.of(sqlScalarFunction));
++            builder.function(sqlScalarFunction);
 +        }
++        globalFunctionCatalog.addFunctions(builder.build());
      }
+ 
+     public void installPlugin(Plugin plugin, Function<CatalogHandle, ClassLoader> duplicatePluginClassLoaderFactory)
+-- 
+2.37.1 (Apple Git-137.1)
 
-     public void installPlugin(Plugin plugin, Supplier<ClassLoader> duplicatePluginClassLoaderFactory)
