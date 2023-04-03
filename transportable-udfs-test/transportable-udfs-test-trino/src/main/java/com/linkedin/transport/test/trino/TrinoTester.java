@@ -7,13 +7,20 @@ package com.linkedin.transport.test.trino;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import com.linkedin.transport.test.spi.TestCase;
 import com.linkedin.transport.test.spi.types.TestType;
+import com.linkedin.transport.trino.StdUdfWrapper;
+import com.linkedin.transport.trino.TransportConnector;
+import com.linkedin.transport.trino.TransportConnectorFactory;
+import com.linkedin.transport.trino.TransportConnectorMetadata;
+import com.linkedin.transport.trino.TransportFunctionProvider;
 import io.trino.FeaturesConfig;
 import io.trino.Session;
-import io.trino.SessionTestUtils;
-import io.trino.metadata.InternalFunctionBundle;
-import io.trino.metadata.SqlFunction;
+import io.trino.client.ClientCapabilities;
+import io.trino.spi.connector.Connector;
+import io.trino.spi.connector.ConnectorFactory;
+import io.trino.spi.connector.ConnectorMetadata;
 import io.trino.spi.function.BoundSignature;
 import io.trino.metadata.FunctionBinding;
 import io.trino.spi.function.FunctionId;
@@ -24,13 +31,20 @@ import com.linkedin.transport.trino.TrinoFactory;
 import com.linkedin.transport.test.spi.SqlFunctionCallGenerator;
 import com.linkedin.transport.test.spi.SqlStdTester;
 import com.linkedin.transport.test.spi.ToPlatformTestOutputConverter;
+import io.trino.spi.function.FunctionProvider;
 import io.trino.spi.type.Type;
+import io.trino.sql.SqlPath;
 import io.trino.sql.query.QueryAssertions;
 import io.trino.testing.LocalQueryRunner;
+import io.trino.testing.TestingSession;
 import io.trino.type.InternalTypeManager;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static io.trino.type.UnknownType.UNKNOWN;
 import static org.assertj.core.api.Assertions.*;
@@ -50,7 +64,9 @@ public class TrinoTester implements SqlStdTester {
     _stdFactory = null;
     _sqlFunctionCallGenerator = new TrinoSqlFunctionCallGenerator();
     _toPlatformTestOutputConverter = new ToTrinoTestOutputConverter();
-    _session = SessionTestUtils.TEST_SESSION;
+    SqlPath sqlPath = new SqlPath("LINKEDIN.TRANSPORT");
+    _session = TestingSession.testSessionBuilder().setCatalog("LINKEDIN").setSchema("TRANSPORT").setPath(sqlPath).setClientCapabilities((Set) Arrays.stream(
+        ClientCapabilities.values()).map(Enum::toString).collect(ImmutableSet.toImmutableSet())).build();
     _featuresConfig = new FeaturesConfig();
     _runner = LocalQueryRunner.builder(_session).withFeaturesConfig(_featuresConfig).build();
     _queryAssertions = new QueryAssertions(_runner);
@@ -59,12 +75,19 @@ public class TrinoTester implements SqlStdTester {
   @Override
   public void setup(
       Map<Class<? extends TopLevelStdUDF>, List<Class<? extends StdUDF>>> topLevelStdUDFClassesAndImplementations) {
+    Map<FunctionId, StdUdfWrapper> functions = new HashMap<>();
     // Refresh Trino state during every setup call
     for (List<Class<? extends StdUDF>> stdUDFImplementations : topLevelStdUDFClassesAndImplementations.values()) {
       for (Class<? extends StdUDF> stdUDF : stdUDFImplementations) {
-        _runner.addFunctions(new InternalFunctionBundle(new SqlFunction[]{new TrinoTestStdUDFWrapper(stdUDF)}));
+        StdUdfWrapper function = new TrinoTestStdUDFWrapper(stdUDF);
+        functions.put(function.getFunctionMetadata().getFunctionId(), function);
       }
     }
+    FunctionProvider functionProvider = new TransportFunctionProvider(functions);
+    ConnectorMetadata connectorMetadata = new TransportConnectorMetadata(functions);
+    Connector connector = new TransportConnector(connectorMetadata, functionProvider);
+    ConnectorFactory connectorFactory = new TransportConnectorFactory(connector);
+    _runner.createCatalog("LINKEDIN", connectorFactory, Collections.emptyMap());
   }
 
   @Override
@@ -75,11 +98,7 @@ public class TrinoTester implements SqlStdTester {
           new BoundSignature("test", UNKNOWN, ImmutableList.of()),
           ImmutableMap.of(),
           ImmutableMap.of());
-      _stdFactory = new TrinoFactory(
-          functionBinding,
-          _runner.getMetadata(),
-          _runner.getFunctionManager(),
-          _session, InternalTypeManager.TESTING_TYPE_MANAGER);
+      _stdFactory = new TrinoFactory(functionBinding, _runner, InternalTypeManager.TESTING_TYPE_MANAGER);
     }
     return _stdFactory;
   }

@@ -30,11 +30,8 @@ import com.linkedin.transport.trino.data.TrinoMap;
 import com.linkedin.transport.trino.data.TrinoString;
 import com.linkedin.transport.trino.data.TrinoStruct;
 import io.airlift.slice.Slices;
-import io.trino.Session;
 import io.trino.metadata.FunctionBinding;
-import io.trino.metadata.FunctionManager;
 import io.trino.spi.function.FunctionDependencies;
-import io.trino.metadata.Metadata;
 import io.trino.metadata.OperatorNotFoundException;
 import io.trino.spi.function.InvocationConvention;
 import io.trino.spi.function.OperatorType;
@@ -44,6 +41,7 @@ import io.trino.spi.type.RowType;
 import io.trino.spi.type.Type;
 import io.trino.spi.type.TypeManager;
 import io.trino.spi.type.TypeSignature;
+import io.trino.testing.LocalQueryRunner;
 import java.lang.invoke.MethodHandle;
 import java.nio.ByteBuffer;
 import java.util.List;
@@ -58,28 +56,22 @@ public class TrinoFactory implements StdFactory {
 
   final FunctionBinding functionBinding;
   final FunctionDependencies functionDependencies;
-  final Metadata metadata;
   final TypeManager typeManager;
-  final FunctionManager functionManager;
-
-  final Session session;
+  final LocalQueryRunner queryRunner;
 
   public TrinoFactory(FunctionBinding functionBinding, FunctionDependencies functionDependencies) {
     this.functionBinding = functionBinding;
     this.functionDependencies = functionDependencies;
-    this.metadata = null;
     this.typeManager = null;
-    this.functionManager = null;
-    this.session = null;
+    this.queryRunner = null;
   }
 
-  public TrinoFactory(FunctionBinding functionBinding, Metadata metadata, FunctionManager functionManager, Session session, TypeManager typeManager) {
+  // for test only
+  public TrinoFactory(FunctionBinding functionBinding, LocalQueryRunner queryRunner, TypeManager typeManager) {
     this.functionBinding = functionBinding;
     this.functionDependencies = null;
-    this.metadata = metadata;
+    this.queryRunner = queryRunner;
     this.typeManager = typeManager;
-    this.functionManager = functionManager;
-    this.session = session;
   }
 
   @Override
@@ -163,8 +155,9 @@ public class TrinoFactory implements StdFactory {
       OperatorType operatorType,
       List<Type> argumentTypes,
       InvocationConvention invocationConvention) throws OperatorNotFoundException {
-    if (functionManager != null) {
-      return functionManager.getScalarFunctionImplementation(metadata.resolveOperator(session, operatorType, argumentTypes),
+    if (queryRunner != null && queryRunner.getFunctionManager() != null) {
+      return queryRunner.getFunctionManager()
+          .getScalarFunctionImplementation(queryRunner.getMetadata().resolveOperator(queryRunner.getDefaultSession(), operatorType, argumentTypes),
           invocationConvention).getMethodHandle();
     }
     return functionDependencies.getOperatorImplementation(operatorType, argumentTypes, invocationConvention).getMethodHandle();

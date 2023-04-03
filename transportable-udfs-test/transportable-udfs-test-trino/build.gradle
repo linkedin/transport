@@ -9,6 +9,7 @@ dependencies {
   implementation project(":transportable-udfs-test:transportable-udfs-test-api")
   implementation project(":transportable-udfs-test:transportable-udfs-test-spi")
   implementation project(":transportable-udfs-trino")
+  implementation project(":transportable-udfs-trino-plugin")
   implementation('com.google.guava:guava:24.1-jre')
   implementation(group:'io.trino', name: 'trino-main', version: project.ext.'trino-version') {
     exclude 'group': 'com.google.collections', 'module': 'google-collections'

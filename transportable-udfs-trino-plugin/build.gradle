@@ -1,0 +1,33 @@
+apply plugin: 'java'
+apply plugin: 'distribution'
+
+java {
+  toolchain.languageVersion.set(JavaLanguageVersion.of(17))
+}
+
+dependencies {
+  implementation project(':transportable-udfs-api')
+  implementation project(":transportable-udfs-trino")
+  implementation(group:'io.trino', name: 'trino-main', version: project.ext.'trino-version') {
+    exclude 'group': 'com.google.collections', 'module': 'google-collections'
+  }
+  implementation(group:'io.trino', name: 'trino-main', version: project.ext.'trino-version', classifier: 'tests') {
+    exclude 'group': 'com.google.collections', 'module': 'google-collections'
+  }
+  compileOnly(group:'io.trino', name: 'trino-spi', version: project.ext.'trino-version')
+}
+
+distributions {
+  main {
+    contents {
+      from jar
+      from project.configurations.runtimeClasspath
+    }
+  }
+}
+
+artifacts {
+  archives jar, distTar
+}
+
+build.dependsOn distTar
