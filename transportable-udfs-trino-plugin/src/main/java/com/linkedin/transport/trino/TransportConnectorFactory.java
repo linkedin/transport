@@ -5,37 +5,44 @@
  */
 package com.linkedin.transport.trino;
 
-import com.google.common.collect.ImmutableList;
 import com.google.inject.Module;
 import io.airlift.log.Logger;
 import io.trino.spi.connector.Connector;
 import io.trino.spi.connector.ConnectorContext;
 import io.trino.spi.connector.ConnectorFactory;
 import io.trino.spi.function.FunctionId;
+import java.io.File;
+import java.io.FileFilter;
+import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static java.util.Objects.*;
 
 
 public class TransportConnectorFactory implements ConnectorFactory {
 
-  private static final String UDF_JAR_PATH  =
-      "file:///Users/yiqding/workspace/trino/core/trino-server-main/plugin/transportable-udfs-trino-plugin-0.0.93/udf/";
+  private static final String TRANSPORT_UDF_CLASSES = "transport.udf.classes";
+  private static final String TRANSPORT_UDF_MP = "/transport-udf-mp";
   private static final Logger log = Logger.get(TransportConnectorFactory.class);
   private Connector connector;
   private final Class<? extends Module> module;
 
 
+  // test only
   public TransportConnectorFactory(Connector connector) {
     this.connector = connector;
     this.module = TransportModule.class;
   }
 
   public TransportConnectorFactory(Class<? extends Module> module) {
-    connector = null;
+    this.connector = null;
     this.module = module;
   }
 
@@ -48,43 +55,22 @@ public class TransportConnectorFactory implements ConnectorFactory {
   public Connector create(String catalogName, Map<String, String> config, ConnectorContext context) {
     requireNonNull(config, "config  is null");
     if (this.connector == null) {
-      ClassLoader classLoaderForUdfWrapper = StdUdfWrapper.class.getClassLoader();
-      log.info(classLoaderForUdfWrapper.toString());
-      ClassLoader classLoaderForFactory = TransportConnectorFactory.class.getClassLoader();
-      log.info(classLoaderForFactory.toString());
       try {
-        List<String> classPathList = ImmutableList.of("com.linkedin.transport.examples.trino.ArrayElementAtFunction",
-            "com.linkedin.transport.examples.trino.ArrayFillFunction",
-            "com.linkedin.transport.examples.trino.BinaryDuplicateFunction",
-            "com.linkedin.transport.examples.trino.BinaryObjectSizeFunction",
-            "com.linkedin.transport.examples.trino.FileLookupFunction",
-            "com.linkedin.transport.examples.trino.MapFromTwoArraysFunction",
-            "com.linkedin.transport.examples.trino.MapKeySetFunction",
-            "com.linkedin.transport.examples.trino.MapValuesFunction",
-            "com.linkedin.transport.examples.trino.NestedMapFromTwoArraysFunction",
-            "com.linkedin.transport.examples.trino.NumericAddDoubleFunction",
-            "com.linkedin.transport.examples.trino.NumericAddFloatFunction",
-            "com.linkedin.transport.examples.trino.NumericAddIntFunction",
-            "com.linkedin.transport.examples.trino.NumericAddLongFunction",
-            "com.linkedin.transport.examples.trino.StructCreateByIndexFunction",
-            "com.linkedin.transport.examples.trino.StructCreateByNameFunction");
+        ClassLoader classLoaderForFactory = TransportConnectorFactory.class.getClassLoader();
+        List<URL> allUrlList = getUDFJarUrls();
+        TransportUDFClassLoader classLoaderForUdf = new TransportUDFClassLoader(classLoaderForFactory, allUrlList);
 
-        List<URL> urlList = ImmutableList.of(new URL(UDF_JAR_PATH + "transportable-udfs-example-udfs.jar"),
-            new URL(UDF_JAR_PATH + "transportable-udfs-example-udfs-trino-dist-thin.jar"),
-            new URL(UDF_JAR_PATH + "transportable-udfs-api-0.0.93.jar"),
-            new URL(UDF_JAR_PATH + "transportable-udfs-trino-0.0.93.jar"),
-            new URL(UDF_JAR_PATH + "transportable-udfs-type-system-0.0.93.jar"),
-            new URL(UDF_JAR_PATH + "transportable-udfs-utils-0.0.93.jar"));
-
-        TransportUDFClassLoader classLoaderForUdf = new TransportUDFClassLoader(classLoaderForFactory, urlList);
         Map<FunctionId, StdUdfWrapper> functions = new HashMap<>();
-        for (String classPath : classPathList) {
-          Class<?> udfClass = classLoaderForUdf.loadClass(classPath, false);
-          Object udfObj = udfClass.getConstructor().newInstance();
-          log.info(udfObj.toString());
-          log.info("adding wrapper");
-          StdUdfWrapper wrapper = (StdUdfWrapper) udfObj;
-          functions.put(wrapper.getFunctionMetadata().getFunctionId(), wrapper);
+        if (config.containsKey(TRANSPORT_UDF_CLASSES)) {
+          String []udfClassPaths = config.get(TRANSPORT_UDF_CLASSES).split(",");
+          Set<String> udfClassPathSet = new HashSet<>(Arrays.asList(udfClassPaths));
+          for (String classPath : udfClassPathSet) {
+            Class<?> udfClass = classLoaderForUdf.loadClass(classPath, false);
+            Object udfObj = udfClass.getConstructor().newInstance();
+            log.info(udfObj.toString());
+            StdUdfWrapper wrapper = (StdUdfWrapper) udfObj;
+            functions.put(wrapper.getFunctionMetadata().getFunctionId(), wrapper);
+          }
         }
         this.connector = new TransportConnector(functions);
       } catch (Exception ex) {
@@ -93,5 +79,32 @@ public class TransportConnectorFactory implements ConnectorFactory {
       }
     }
     return this.connector;
+  }
+
+  private List<URL> getUDFJarUrls() {
+    String workingDir = System.getProperty("user.dir");
+    log.info(workingDir);
+    String udfDir = workingDir + TRANSPORT_UDF_MP;
+    File[] udfSubDirs = new File(udfDir).listFiles(File::isDirectory);
+    log.info(Arrays.toString(udfSubDirs));
+    List<URL> urlList = new ArrayList<>();
+    for (File subDirPath : udfSubDirs) {
+      getUDFJarUrlFromDir(subDirPath, urlList);
+    }
+    return urlList;
+  }
+
+  private void getUDFJarUrlFromDir(File path, List<URL> urlList) {
+    FileFilter fileFilter = (file) -> {
+      return file.isFile() && file.getName().endsWith(".jar") && !file.getName().startsWith("transportable-udfs");
+    };
+    File[] files = path.listFiles(fileFilter);
+    for (File file : files) {
+      try {
+        urlList.add(file.toURI().toURL());
+      } catch (MalformedURLException ex) {
+        throw new RuntimeException(ex);
+      }
+    }
   }
 }

@@ -32,7 +32,8 @@ public class TransportConnectorMetadata implements ConnectorMetadata {
 
   @Override
   public Collection<FunctionMetadata> getFunctions(ConnectorSession session, SchemaFunctionName name) {
-    return functions.values().stream().map(StdUdfWrapper::getFunctionMetadata).collect(Collectors.toList());
+    return functions.values().stream().filter(e -> e.getFunctionMetadata().getCanonicalName().equals(name.getFunctionName()))
+        .map(StdUdfWrapper::getFunctionMetadata).collect(Collectors.toList());
   }
 
   @Override
