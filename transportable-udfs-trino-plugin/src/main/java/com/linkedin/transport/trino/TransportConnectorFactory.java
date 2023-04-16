@@ -31,6 +31,11 @@ public class TransportConnectorFactory implements ConnectorFactory {
   private static final String TRANSPORT_UDF_CLASSES = "transport.udf.classes";
   private static final String TRANSPORT_UDF_MP = "/transport-udf-mp";
   private static final Logger log = Logger.get(TransportConnectorFactory.class);
+
+  private static final FileFilter TRANSPORT_UDF_JAR_FILTER = (file) -> {
+    return file.isFile() && file.getName().endsWith(".jar") && !file.getName().startsWith("transportable-udfs");
+  };
+
   private Connector connector;
   private final Class<? extends Module> module;
 
@@ -95,10 +100,7 @@ public class TransportConnectorFactory implements ConnectorFactory {
   }
 
   private void getUDFJarUrlFromDir(File path, List<URL> urlList) {
-    FileFilter fileFilter = (file) -> {
-      return file.isFile() && file.getName().endsWith(".jar") && !file.getName().startsWith("transportable-udfs");
-    };
-    File[] files = path.listFiles(fileFilter);
+    File[] files = path.listFiles(TRANSPORT_UDF_JAR_FILTER);
     for (File file : files) {
       try {
         urlList.add(file.toURI().toURL());
