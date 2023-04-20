@@ -6,9 +6,6 @@ subprojects {
   repositories {
     mavenCentral()
     jcenter()
-    maven {
-      url "https://conjars.org/repo"
-    }
   }
   project.ext.setProperty('trino-version', '406')
   project.ext.setProperty('airlift-slice-version', '0.44')

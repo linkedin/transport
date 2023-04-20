@@ -17,7 +17,6 @@ import java.io.FileFilter;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -28,7 +27,7 @@ import static java.util.Objects.*;
 
 public class TransportConnectorFactory implements ConnectorFactory {
 
-  private static final String TRANSPORT_UDF_MP = "/transport-udf-mp";
+  private static final String TRANSPORT_UDF_REPO = "/transport-udf-repo";
   private static final Logger log = Logger.get(TransportConnectorFactory.class);
 
   private static final FileFilter TRANSPORT_UDF_JAR_FILTER = (file) -> {
@@ -76,9 +75,8 @@ public class TransportConnectorFactory implements ConnectorFactory {
 
   private List<URL> getUDFJarUrls() {
     String workingDir = System.getProperty("user.dir");
-    String udfDir = workingDir + TRANSPORT_UDF_MP;
+    String udfDir = workingDir + TRANSPORT_UDF_REPO;
     File[] udfSubDirs = new File(udfDir).listFiles(File::isDirectory);
-    log.info(Arrays.toString(udfSubDirs));
     List<URL> urlList = new ArrayList<>();
     for (File subDirPath : udfSubDirs) {
       getUDFJarUrlFromDir(subDirPath, urlList);
