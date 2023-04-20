@@ -8,6 +8,7 @@ package com.linkedin.transport.test.trino;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import com.linkedin.transport.test.spi.Row;
 import com.linkedin.transport.test.spi.TestCase;
 import com.linkedin.transport.test.spi.types.TestType;
 import com.linkedin.transport.trino.StdUdfWrapper;
@@ -123,7 +124,11 @@ public class TrinoTester implements SqlStdTester {
       functionArguments.add(_sqlFunctionCallGenerator.getFunctionCallArgumentString(parameters.get(i), testTypes.get(i)));
     }
     Object expectedOutputType = getPlatformType(testCase.getExpectedOutputType());
+    Object expectedOutput = testCase.getExpectedOutput();
+    if (expectedOutput instanceof Row) {
+      expectedOutput = ((Row) expectedOutput).getFields();
+    }
     QueryAssertions.ExpressionAssertProvider expressionAssertProvider = _queryAssertions.function(functionName, functionArguments);
-    assertThat(expressionAssertProvider).hasType((Type) expectedOutputType).isEqualTo(testCase.getExpectedOutput());
+    assertThat(expressionAssertProvider).hasType((Type) expectedOutputType).isEqualTo(expectedOutput);
   }
 }

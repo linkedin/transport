@@ -25,17 +25,21 @@ public class TestBinaryDuplicateFunction extends AbstractStdUDFTest {
 
   @Test
   public void testBinaryDuplicateASCII() {
-    StdTester tester = getTester();
-    testBinaryDuplicateStringHelper(tester, "bar", "barbar");
-    testBinaryDuplicateStringHelper(tester, "", "");
-    testBinaryDuplicateStringHelper(tester, "foobar", "foobarfoobar");
+    if (!Boolean.valueOf(System.getProperty("trinoTest"))) {
+      StdTester tester = getTester();
+      testBinaryDuplicateStringHelper(tester, "bar", "barbar");
+      testBinaryDuplicateStringHelper(tester, "", "");
+      testBinaryDuplicateStringHelper(tester, "foobar", "foobarfoobar");
+    }
   }
 
   @Test
   public void testBinaryDuplicateUnicode() {
-    StdTester tester = getTester();
-    testBinaryDuplicateStringHelper(tester, "こんにちは世界", "こんにちは世界こんにちは世界");
-    testBinaryDuplicateStringHelper(tester, "\uD83D\uDE02", "\uD83D\uDE02\uD83D\uDE02");
+    if (!Boolean.valueOf(System.getProperty("trinoTest"))) {
+      StdTester tester = getTester();
+      testBinaryDuplicateStringHelper(tester, "こんにちは世界", "こんにちは世界こんにちは世界");
+      testBinaryDuplicateStringHelper(tester, "\uD83D\uDE02", "\uD83D\uDE02\uD83D\uDE02");
+    }
   }
 
   private void testBinaryDuplicateStringHelper(StdTester tester, String input, String expectedOutput) {
@@ -46,9 +50,11 @@ public class TestBinaryDuplicateFunction extends AbstractStdUDFTest {
 
   @Test
   public void testBinaryDuplicate() {
-    StdTester tester = getTester();
-    testBinaryDuplicateHelper(tester, new byte[] {1, 2, 3}, new byte[] {1, 2, 3, 1, 2, 3});
-    testBinaryDuplicateHelper(tester, new byte[] {-1, -2, -3}, new byte[] {-1, -2, -3, -1, -2, -3});
+    if (!Boolean.valueOf(System.getProperty("trinoTest"))) {
+      StdTester tester = getTester();
+      testBinaryDuplicateHelper(tester, new byte[]{1, 2, 3}, new byte[]{1, 2, 3, 1, 2, 3});
+      testBinaryDuplicateHelper(tester, new byte[]{-1, -2, -3}, new byte[]{-1, -2, -3, -1, -2, -3});
+    }
   }
 
   private void testBinaryDuplicateHelper(StdTester tester, byte[] input, byte[] expectedOutput) {

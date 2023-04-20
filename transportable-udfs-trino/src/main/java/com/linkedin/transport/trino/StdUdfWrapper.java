@@ -145,11 +145,12 @@ public abstract class StdUdfWrapper {
         - (new Random()).nextInt(initialJitterInt));
     boolean[] nullableArguments = stdUDF.getAndCheckNullableArguments();
 
-    return new ChoicesSpecializedSqlScalarFunction(
+    ScalarFunctionImplementation res = new ChoicesSpecializedSqlScalarFunction(
         boundSignature,
         NULLABLE_RETURN,
         getNullConventionForArguments(nullableArguments),
         getMethodHandle(stdUDF, boundSignature, nullableArguments, requiredFilesNextRefreshTime)).getScalarFunctionImplementation(invocationConvention);
+    return res;
   }
 
   private MethodHandle getMethodHandle(StdUDF stdUDF, BoundSignature boundSignature, boolean[] nullableArguments,

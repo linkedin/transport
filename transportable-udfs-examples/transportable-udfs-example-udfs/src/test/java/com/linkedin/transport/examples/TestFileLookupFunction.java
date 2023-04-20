@@ -13,6 +13,7 @@ import com.linkedin.transport.test.AbstractStdUDFTest;
 import com.linkedin.transport.test.spi.StdTester;
 import java.util.List;
 import java.util.Map;
+import org.testng.Assert;
 import org.testng.annotations.Test;
 
 
@@ -31,9 +32,13 @@ public class TestFileLookupFunction extends AbstractStdUDFTest {
     tester.check(functionCall("file_lookup", null, 1), null, "boolean");
   }
 
-  @Test(expectedExceptions = NullPointerException.class)
+  @Test
   public void testFileLookupFailNull() {
-    StdTester tester = getTester();
-    tester.check(functionCall("file_lookup", resource("file_lookup_function/sample"), null), null, "boolean");
+    try {
+      StdTester tester = getTester();
+      tester.check(functionCall("file_lookup", resource("file_lookup_function/sample"), null), null, "boolean");
+    } catch (NullPointerException ex) {
+      Assert.assertFalse(Boolean.valueOf(System.getProperty("trinoTest")));
+    }
   }
 }

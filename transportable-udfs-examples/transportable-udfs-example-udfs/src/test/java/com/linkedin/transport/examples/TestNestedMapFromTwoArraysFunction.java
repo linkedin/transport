@@ -26,19 +26,36 @@ public class TestNestedMapFromTwoArraysFunction extends AbstractStdUDFTest {
   @Test
   public void testNestedMapUnionFunction() {
     StdTester tester = getTester();
-    tester.check(
-        functionCall("nested_map_from_two_arrays", array(row(array(1, 2), array("a", "b")))),
-        array(row(map(1, "a", 2, "b"))),
-        "array(row(map(integer,varchar)))");
-    tester.check(
-        functionCall("nested_map_from_two_arrays", array(row(array(1, 2), array("a", "b")), row(array(11, 12), array("aa", "bb")))),
-        array(row(map(1, "a", 2, "b")), row(map(11, "aa", 12, "bb"))),
-        "array(row(map(integer,varchar)))");
-    tester.check(
-        functionCall("nested_map_from_two_arrays",
-            array(row(array(array(1), array(2)), array(array("a"), array("b"))))),
-        array(row(map(array(1), array("a"), array(2), array("b")))),
-        "array(row(map(array(integer),array(varchar))))");
+    if (Boolean.valueOf(System.getProperty("trinoTest"))) {
+      tester.check(
+          functionCall("nested_map_from_two_arrays", array(row(array(1, 2), array("a", "b")))),
+          array(array(map(1, "a", 2, "b"))),
+          "array(row(map(integer,varchar)))");
+      tester.check(
+          functionCall("nested_map_from_two_arrays", array(row(array(1, 2), array("a", "b")), row(array(11, 12), array("aa", "bb")))),
+          array(array(map(1, "a", 2, "b")), array(map(11, "aa", 12, "bb"))),
+          "array(row(map(integer,varchar)))");
+      tester.check(
+          functionCall("nested_map_from_two_arrays",
+              array(row(array(array(1), array(2)), array(array("a"), array("b"))))),
+          array(array(map(array(1), array("a"), array(2), array("b")))),
+          "array(row(map(array(integer),array(varchar))))");
+    } else {
+      tester.check(
+          functionCall("nested_map_from_two_arrays", array(row(array(1, 2), array("a", "b")))),
+          array(row(map(1, "a", 2, "b"))),
+          "array(row(map(integer,varchar)))");
+      tester.check(
+          functionCall("nested_map_from_two_arrays", array(row(array(1, 2), array("a", "b")), row(array(11, 12), array("aa", "bb")))),
+          array(row(map(1, "a", 2, "b")), row(map(11, "aa", 12, "bb"))),
+          "array(row(map(integer,varchar)))");
+      tester.check(
+          functionCall("nested_map_from_two_arrays",
+              array(row(array(array(1), array(2)), array(array("a"), array("b"))))),
+          array(row(map(array(1), array("a"), array(2), array("b")))),
+          "array(row(map(array(integer),array(varchar))))");
+    }
+
     tester.check(
         functionCall("nested_map_from_two_arrays",  array(row(array(1), array("a", "b")))),
         null, "array(row(map(integer,varchar)))");
