@@ -76,7 +76,6 @@ public class TransportConnectorFactory implements ConnectorFactory {
 
   private List<URL> getUDFJarUrls() {
     String workingDir = System.getProperty("user.dir");
-    log.info(workingDir);
     String udfDir = workingDir + TRANSPORT_UDF_MP;
     File[] udfSubDirs = new File(udfDir).listFiles(File::isDirectory);
     log.info(Arrays.toString(udfSubDirs));
@@ -93,6 +92,7 @@ public class TransportConnectorFactory implements ConnectorFactory {
       try {
         urlList.add(file.toURI().toURL());
       } catch (MalformedURLException ex) {
+        log.error("Fail to parsing the URL of the given jar file", ex.getMessage());
         throw new RuntimeException(ex);
       }
     }
