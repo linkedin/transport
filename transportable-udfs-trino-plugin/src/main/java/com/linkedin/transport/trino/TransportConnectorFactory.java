@@ -17,17 +17,20 @@ import java.io.FileFilter;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.ServiceLoader;
+import java.util.stream.Collectors;
 
 import static java.util.Objects.*;
 
 
 public class TransportConnectorFactory implements ConnectorFactory {
 
-  private static final String TRANSPORT_UDF_REPO = "/transport-udf-repo";
+  private static final String DEFAULT_TRANSPORT_UDF_REPO = "/transport-udf-repo";
+  private static final String TRANSPORT_UDF_REPO_CONFIG_NAME = "transport.udf.repo";
   private static final Logger log = Logger.get(TransportConnectorFactory.class);
 
   private static final FileFilter TRANSPORT_UDF_JAR_FILTER = (file) -> {
@@ -59,8 +62,8 @@ public class TransportConnectorFactory implements ConnectorFactory {
     requireNonNull(config, "config  is null");
     if (this.connector == null) {
       ClassLoader classLoaderForFactory = TransportConnectorFactory.class.getClassLoader();
-      List<URL> allUrlList = getUDFJarUrls();
-      TransportUDFClassLoader classLoaderForUdf = new TransportUDFClassLoader(classLoaderForFactory, allUrlList);
+      List<URL> jarUrlList = getUDFJarUrls(config);
+      TransportUDFClassLoader classLoaderForUdf = new TransportUDFClassLoader(classLoaderForFactory, jarUrlList);
       ServiceLoader<StdUdfWrapper> serviceLoader = ServiceLoader.load(StdUdfWrapper.class, classLoaderForUdf);
       List<StdUdfWrapper> stdUdfWrappers = ImmutableList.copyOf(serviceLoader);
       Map<FunctionId, StdUdfWrapper> functions = new HashMap<>();
@@ -73,18 +76,15 @@ public class TransportConnectorFactory implements ConnectorFactory {
     return this.connector;
   }
 
-  private List<URL> getUDFJarUrls() {
-    String workingDir = System.getProperty("user.dir");
-    String udfDir = workingDir + TRANSPORT_UDF_REPO;
-    File[] udfSubDirs = new File(udfDir).listFiles(File::isDirectory);
-    List<URL> urlList = new ArrayList<>();
-    for (File subDirPath : udfSubDirs) {
-      getUDFJarUrlFromDir(subDirPath, urlList);
-    }
-    return urlList;
+  private List<URL> getUDFJarUrls(Map<String, String> config) {
+    String udfDir = config.containsKey(TRANSPORT_UDF_REPO_CONFIG_NAME)
+        ? config.get(TRANSPORT_UDF_REPO_CONFIG_NAME) : DEFAULT_TRANSPORT_UDF_REPO;
+    File[] udfSubDirs = new File(System.getProperty("user.dir") + udfDir).listFiles(File::isDirectory);
+    return Arrays.stream(udfSubDirs).flatMap(e -> getUDFJarUrlFromDir(e).stream()).collect(Collectors.toList());
   }
 
-  private void getUDFJarUrlFromDir(File path, List<URL> urlList) {
+  private List<URL> getUDFJarUrlFromDir(File path) {
+    List<URL> urlList = new ArrayList<>();
     File[] files = path.listFiles(TRANSPORT_UDF_JAR_FILTER);
     for (File file : files) {
       try {
@@ -94,5 +94,6 @@ public class TransportConnectorFactory implements ConnectorFactory {
         throw new RuntimeException(ex);
       }
     }
+    return urlList;
   }
 }
