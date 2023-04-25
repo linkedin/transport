@@ -8,12 +8,8 @@ java {
 dependencies {
   implementation project(':transportable-udfs-api')
   implementation project(":transportable-udfs-trino")
-  implementation(group:'io.trino', name: 'trino-main', version: project.ext.'trino-version') {
-    exclude 'group': 'com.google.collections', 'module': 'google-collections'
-  }
-  implementation(group:'io.trino', name: 'trino-main', version: project.ext.'trino-version', classifier: 'tests') {
-    exclude 'group': 'com.google.collections', 'module': 'google-collections'
-  }
+  implementation (group:'io.trino', name: 'trino-plugin-toolkit', version: project.ext.'trino-version')
+  testImplementation(group:'io.trino', name: 'trino-main', version: project.ext.'trino-version')
   compileOnly(group:'io.trino', name: 'trino-spi', version: project.ext.'trino-version')
 }
 
