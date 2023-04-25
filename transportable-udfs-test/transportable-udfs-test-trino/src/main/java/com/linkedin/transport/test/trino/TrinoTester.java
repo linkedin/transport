@@ -13,13 +13,13 @@ import com.linkedin.transport.test.spi.TestCase;
 import com.linkedin.transport.test.spi.types.TestType;
 import com.linkedin.transport.trino.StdUdfWrapper;
 import com.linkedin.transport.trino.TransportConnector;
-import com.linkedin.transport.trino.TransportConnectorFactory;
 import com.linkedin.transport.trino.TransportConnectorMetadata;
 import com.linkedin.transport.trino.TransportFunctionProvider;
 import io.trino.FeaturesConfig;
 import io.trino.Session;
 import io.trino.client.ClientCapabilities;
 import io.trino.spi.connector.Connector;
+import io.trino.spi.connector.ConnectorContext;
 import io.trino.spi.connector.ConnectorFactory;
 import io.trino.spi.connector.ConnectorMetadata;
 import io.trino.spi.function.BoundSignature;
@@ -87,7 +87,16 @@ public class TrinoTester implements SqlStdTester {
     FunctionProvider functionProvider = new TransportFunctionProvider(functions);
     ConnectorMetadata connectorMetadata = new TransportConnectorMetadata(functions);
     Connector connector = new TransportConnector(connectorMetadata, functionProvider);
-    ConnectorFactory connectorFactory = new TransportConnectorFactory(connector);
+    ConnectorFactory connectorFactory = new ConnectorFactory() {
+      @Override
+      public String getName() {
+        return "TRANSPORT";
+      }
+      @Override
+      public Connector create(String catalogName, Map<String, String> config, ConnectorContext context) {
+        return connector;
+      }
+    };;
     _runner.createCatalog("LINKEDIN", connectorFactory, Collections.emptyMap());
   }
 

@@ -1,5 +1,5 @@
 /**
- * Copyright 2019 LinkedIn Corporation. All rights reserved.
+ * Copyright 2023 LinkedIn Corporation. All rights reserved.
  * Licensed under the BSD-2 Clause license.
  * See LICENSE in the project root for license information.
  */
@@ -32,8 +32,9 @@ public class TransportConnectorMetadata implements ConnectorMetadata {
 
   @Override
   public Collection<FunctionMetadata> getFunctions(ConnectorSession session, SchemaFunctionName name) {
-    return functions.values().stream().filter(e -> e.getFunctionMetadata().getCanonicalName().equals(name.getFunctionName()))
-        .map(StdUdfWrapper::getFunctionMetadata).collect(Collectors.toList());
+    return functions.values().stream().map(StdUdfWrapper::getFunctionMetadata)
+        .filter(e -> e.getCanonicalName().equals(name.getFunctionName()))
+        .collect(Collectors.toList());
   }
 
   @Override

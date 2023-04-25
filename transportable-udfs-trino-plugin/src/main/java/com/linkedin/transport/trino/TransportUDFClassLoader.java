@@ -1,5 +1,5 @@
 /**
- * Copyright 2019 LinkedIn Corporation. All rights reserved.
+ * Copyright 2023 LinkedIn Corporation. All rights reserved.
  * Licensed under the BSD-2 Clause license.
  * See LICENSE in the project root for license information.
  */
@@ -27,7 +27,8 @@ public class TransportUDFClassLoader extends URLClassLoader {
         return resolveClass(cachedClass, resolve);
       }
 
-      if (name.endsWith("StdUdfWrapper") || name.startsWith("com.linkedin.transport.api")) {
+      if (name.equals("com.linkedin.transport.trino.StdUdfWrapper")
+          || name.startsWith("com.linkedin.transport.api")) {
         return resolveClass(parent.loadClass(name), resolve);
       }
 

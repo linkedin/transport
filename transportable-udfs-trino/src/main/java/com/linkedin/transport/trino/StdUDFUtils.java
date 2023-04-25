@@ -32,10 +32,10 @@ public final class StdUDFUtils {
           "CURRENT_CATALOG", "CURRENT_DATE", "CURRENT_PATH", "CURRENT_ROLE", "CURRENT_SCHEMA", "CURRENT_TIME",
           "CURRENT_TIMESTAMP", "CURRENT_USER", "DEALLOCATE", "DELETE", "DESCRIBE", "DISTINCT", "DROP", "ELSE", "END",
           "ESCAPE", "EXCEPT", "EXECUTE", "EXISTS", "EXTRACT", "FALSE", "FOR", "FROM", "FULL", "GROUP", "GROUPING",
-          "HAVING", "IN", "INNER", "INSERT", "INTERSECT", "INTO", "IS", "JOIN", "LEFT", "LIKE", "LISTAGG", "LOCALTIME",
-          "LOCALTIMESTAMP", "NATURAL", "NORMALIZE", "NOT", "NULL", "ON", "OR", "ORDER", "OUTER", "PREPARE", "RECURSIVE",
-          "RIGHT", "ROLLUP", "SELECT", "SKIP", "TABLE", "THEN", "TRUE", "UESCAPE", "UNION", "UNNEST", "USING", "VALUES",
-          "WHEN", "WHERE", "WITH");
+          "HAVING", "IN", "INNER", "INSERT", "INTERSECT", "INTO", "IS", "JSON_ARRAY", "JSON_EXISTS", "JSON_OBJECT",
+          "JSON_QUERY", "JSON_VALUE", "JOIN", "LEFT", "LIKE", "LISTAGG", "LOCALTIME", "LOCALTIMESTAMP", "NATURAL", "NORMALIZE",
+          "NOT", "NULL", "ON", "OR", "ORDER", "OUTER", "PREPARE", "RECURSIVE",  "RIGHT", "ROLLUP", "SELECT", "SKIP",
+          "TABLE", "THEN", "TRIM", "TRUE", "UESCAPE", "UNION", "UNNEST", "USING", "VALUES", "WHEN", "WHERE", "WITH");
 
   /**
    * Quote the reserved keywords which might appear as field names in the type signatures
