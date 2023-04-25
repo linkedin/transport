@@ -5,6 +5,8 @@
  */
 package com.linkedin.transport.trino;
 
+import com.google.common.collect.ImmutableList;
+import io.airlift.log.Logger;
 import io.trino.spi.connector.Connector;
 import io.trino.spi.connector.ConnectorMetadata;
 import io.trino.spi.connector.ConnectorSession;
@@ -12,13 +14,33 @@ import io.trino.spi.connector.ConnectorTransactionHandle;
 import io.trino.spi.function.FunctionId;
 import io.trino.spi.function.FunctionProvider;
 import io.trino.spi.transaction.IsolationLevel;
+import java.io.File;
+import java.io.FileFilter;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.ServiceLoader;
+import java.util.stream.Collectors;
+import javax.inject.Inject;
+import org.apache.bval.util.StringUtils;
 
 import static java.util.Objects.*;
 
 
 public class TransportConnector implements Connector {
+
+  private static final Logger log = Logger.get(TransportConnector.class);
+  private static final String DEFAULT_TRANSPORT_UDF_REPO = "transport-udf-repo";
+  private static final FileFilter TRANSPORT_UDF_JAR_FILTER = (file) ->
+      file.isFile() && file.getName().endsWith(".jar") && !file.getName().startsWith("transportable-udfs");
+
   private final ConnectorMetadata connectorMetadata;
   private final FunctionProvider functionProvider;
 
@@ -27,8 +49,22 @@ public class TransportConnector implements Connector {
     this.functionProvider = requireNonNull(functionProvider, "function provider is null");
   }
 
-  public TransportConnector(Map<FunctionId, StdUdfWrapper> functions) {
-    this(new TransportConnectorMetadata(functions), new TransportFunctionProvider(functions));
+  @Inject
+  public TransportConnector(TransportConfig config) {
+    ClassLoader classLoaderForFactory = TransportConnectorFactory.class.getClassLoader();
+    List<URL> jarUrlList = getUDFJarUrls(config);
+    log.info("The URLs of Transport UDF jars: " + jarUrlList);
+    TransportUDFClassLoader classLoaderForUdf = new TransportUDFClassLoader(classLoaderForFactory, jarUrlList);
+    ServiceLoader<StdUdfWrapper> serviceLoader = ServiceLoader.load(StdUdfWrapper.class, classLoaderForUdf);
+    List<StdUdfWrapper> stdUdfWrappers = ImmutableList.copyOf(serviceLoader);
+    Map<FunctionId, StdUdfWrapper> functions = new HashMap<>();
+    for (StdUdfWrapper wrapper : stdUdfWrappers) {
+      log.info("Loading Transport UDF class: " + wrapper.getFunctionMetadata().getFunctionId().toString());
+      functions.put(wrapper.getFunctionMetadata().getFunctionId(), wrapper);
+    }
+
+    this.connectorMetadata = new TransportConnectorMetadata(functions);
+    this.functionProvider = new TransportFunctionProvider(functions);
   }
 
   @Override
@@ -45,5 +81,31 @@ public class TransportConnector implements Connector {
   public ConnectorTransactionHandle beginTransaction(IsolationLevel isolationLevel, boolean readOnly,
       boolean autoCommit) {
     return TransportTransactionHandle.INSTANCE;
+  }
+
+  private static List<URL> getUDFJarUrls(TransportConfig config) {
+    String udfDir = StringUtils.isBlank(config.getTransportUdfRepo()) ? DEFAULT_TRANSPORT_UDF_REPO : config.getTransportUdfRepo();
+    if (!Paths.get(udfDir).isAbsolute()) {
+      Path workingDirPath = Paths.get("").toAbsolutePath();
+      udfDir = Paths.get(workingDirPath.toString(), udfDir).toString();
+    }
+    File[] udfSubDirs = new File(udfDir).listFiles(File::isDirectory);
+    return Arrays.stream(udfSubDirs).flatMap(e -> getUDFJarUrlFromDir(e).stream()).collect(Collectors.toList());
+  }
+
+  private static List<URL> getUDFJarUrlFromDir(File path) {
+    List<URL> urlList = new ArrayList<>();
+    File[] files = path.listFiles(TRANSPORT_UDF_JAR_FILTER);
+    for (File file : files) {
+      try {
+        if (file != null) {
+          urlList.add(file.toURI().toURL());
+        }
+      } catch (MalformedURLException ex) {
+        log.error("Fail to parsing the URL of the given jar file ", ex);
+        throw new RuntimeException(ex);
+      }
+    }
+    return urlList;
   }
 }
