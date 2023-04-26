@@ -13,6 +13,7 @@ dependencies {
   compileOnly(group:'io.trino', name: 'trino-spi', version: project.ext.'trino-version')
 }
 
+// packaging as a shaded jar following the guideline from Trino plugin
 distributions {
   main {
     contents {
