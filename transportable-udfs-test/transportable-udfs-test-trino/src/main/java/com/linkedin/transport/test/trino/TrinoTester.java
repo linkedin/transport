@@ -66,7 +66,7 @@ public class TrinoTester implements SqlStdTester {
     _sqlFunctionCallGenerator = new TrinoSqlFunctionCallGenerator();
     _toPlatformTestOutputConverter = new ToTrinoTestOutputConverter();
     SqlPath sqlPath = new SqlPath("LINKEDIN.TRANSPORT");
-    _session = TestingSession.testSessionBuilder().setCatalog("LINKEDIN").setSchema("TRANSPORT").setPath(sqlPath).setClientCapabilities((Set) Arrays.stream(
+    _session = TestingSession.testSessionBuilder().setPath(sqlPath).setClientCapabilities((Set) Arrays.stream(
         ClientCapabilities.values()).map(Enum::toString).collect(ImmutableSet.toImmutableSet())).build();
     _featuresConfig = new FeaturesConfig();
     _runner = LocalQueryRunner.builder(_session).withFeaturesConfig(_featuresConfig).build();
@@ -108,7 +108,7 @@ public class TrinoTester implements SqlStdTester {
           new BoundSignature("test", UNKNOWN, ImmutableList.of()),
           ImmutableMap.of(),
           ImmutableMap.of());
-      _stdFactory = new TrinoFactory(functionBinding, _runner, InternalTypeManager.TESTING_TYPE_MANAGER);
+      _stdFactory = new TrinoFactory(functionBinding, new TrinoTestFunctionDependencies(InternalTypeManager.TESTING_TYPE_MANAGER, _runner));
     }
     return _stdFactory;
   }

@@ -39,9 +39,7 @@ import io.trino.spi.type.ArrayType;
 import io.trino.spi.type.MapType;
 import io.trino.spi.type.RowType;
 import io.trino.spi.type.Type;
-import io.trino.spi.type.TypeManager;
 import io.trino.spi.type.TypeSignature;
-import io.trino.testing.LocalQueryRunner;
 import java.lang.invoke.MethodHandle;
 import java.nio.ByteBuffer;
 import java.util.List;
@@ -56,22 +54,10 @@ public class TrinoFactory implements StdFactory {
 
   final FunctionBinding functionBinding;
   final FunctionDependencies functionDependencies;
-  final TypeManager typeManager;
-  final LocalQueryRunner queryRunner;
 
   public TrinoFactory(FunctionBinding functionBinding, FunctionDependencies functionDependencies) {
     this.functionBinding = functionBinding;
     this.functionDependencies = functionDependencies;
-    this.typeManager = null;
-    this.queryRunner = null;
-  }
-
-  // for test only
-  public TrinoFactory(FunctionBinding functionBinding, LocalQueryRunner queryRunner, TypeManager typeManager) {
-    this.functionBinding = functionBinding;
-    this.functionDependencies = null;
-    this.queryRunner = queryRunner;
-    this.typeManager = typeManager;
   }
 
   @Override
@@ -145,9 +131,6 @@ public class TrinoFactory implements StdFactory {
   @Override
   public StdType createStdType(String typeSignatureStr) {
     TypeSignature typeSignature = applyBoundVariables(parseTypeSignature(quoteReservedKeywords(typeSignatureStr), ImmutableSet.of()), functionBinding);
-    if (typeManager != null) {
-      return TrinoWrapper.createStdType(typeManager.getType(typeSignature));
-    }
     return TrinoWrapper.createStdType(functionDependencies.getType(typeSignature));
   }
 
@@ -155,11 +138,6 @@ public class TrinoFactory implements StdFactory {
       OperatorType operatorType,
       List<Type> argumentTypes,
       InvocationConvention invocationConvention) throws OperatorNotFoundException {
-    if (queryRunner != null && queryRunner.getFunctionManager() != null) {
-      return queryRunner.getFunctionManager()
-          .getScalarFunctionImplementation(queryRunner.getMetadata().resolveOperator(queryRunner.getDefaultSession(), operatorType, argumentTypes),
-          invocationConvention).getMethodHandle();
-    }
     return functionDependencies.getOperatorImplementation(operatorType, argumentTypes, invocationConvention).getMethodHandle();
   }
 }
