@@ -31,9 +31,6 @@ subprojects {
   }
   repositories {
     mavenCentral()
-    maven {
-      url "https://conjars.wensel.net/repo"
-    }
   }
 }
 
