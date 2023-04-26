@@ -16,7 +16,11 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-
+/**
+ * This class implements the interface of ConnectorMetadata from Trino SPI as a part of Trino plugin
+ * to load UDF classes in Trino server following the development guideline
+ * in https://trino.io/docs/current/develop/spi-overview.html
+ */
 public class TransportConnectorMetadata implements ConnectorMetadata {
   private final Map<FunctionId, StdUdfWrapper> functions;
 

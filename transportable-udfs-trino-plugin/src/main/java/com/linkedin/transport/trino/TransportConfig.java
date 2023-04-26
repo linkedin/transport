@@ -8,6 +8,10 @@ package com.linkedin.transport.trino;
 import io.airlift.configuration.Config;
 
 
+/**
+ * This class defines the configuration which is used by Trino plugin to load UDF classes in Trino server
+ * following the development guideline in https://trino.io/docs/current/develop/spi-overview.html
+ */
 public class TransportConfig {
   private String transportUdfRepo;
 

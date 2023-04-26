@@ -25,6 +25,7 @@ import org.testng.annotations.Test;
 // the input byte array in Slice with an initial 32 byes capacity, while the execution of the query without where clause does not trigger
 // the code of VariableWidthBlockBuilder.writeByte() and create the input byte array in Slice with the actual capacity of the content.
 // Therefore, the outputs from both queries are different.
+// TODO: https://github.com/linkedin/transport/issues/131
 public class TestBinaryObjectSizeFunction extends AbstractStdUDFTest {
   @Override
   protected Map<Class<? extends TopLevelStdUDF>, List<Class<? extends StdUDF>>> getTopLevelStdUDFClassesAndImplementations() {

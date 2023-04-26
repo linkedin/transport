@@ -34,6 +34,11 @@ import org.apache.bval.util.StringUtils;
 import static java.util.Objects.*;
 
 
+/**
+ * This class implements the interface of Connector from Trino SPI as a part of Trino plugin
+ * to load UDF classes in Trino server following the development guideline
+ * in https://trino.io/docs/current/develop/spi-overview.html
+ */
 public class TransportConnector implements Connector {
 
   private static final Logger log = Logger.get(TransportConnector.class);

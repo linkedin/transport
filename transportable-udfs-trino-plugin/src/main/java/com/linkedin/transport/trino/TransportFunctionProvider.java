@@ -15,7 +15,11 @@ import io.trino.spi.function.ScalarFunctionImplementation;
 import io.trino.spi.function.WindowFunctionSupplier;
 import java.util.Map;
 
-
+/**
+ * This class implements the interface of FunctionProvider from Trino SPI as a part of Trino plugin
+ * to load UDF classes in Trino server following the development guideline
+ * in https://trino.io/docs/current/develop/spi-overview.html
+ */
 public class TransportFunctionProvider implements FunctionProvider {
   private final Map<FunctionId, StdUdfWrapper> functions;
 
