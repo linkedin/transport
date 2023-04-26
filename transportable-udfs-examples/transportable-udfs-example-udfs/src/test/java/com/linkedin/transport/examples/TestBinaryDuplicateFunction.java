@@ -25,6 +25,7 @@ import org.testng.annotations.Test;
 // the input byte array in Slice with an initial 32 byes capacity, while the execution of the query without where clause does not trigger
 // the code of VariableWidthBlockBuilder.writeByte() and create the input byte array in Slice with the actual capacity of the content.
 // Therefore, the outputs from both queries are different.
+
 public class TestBinaryDuplicateFunction extends AbstractStdUDFTest {
   @Override
   protected Map<Class<? extends TopLevelStdUDF>, List<Class<? extends StdUDF>>> getTopLevelStdUDFClassesAndImplementations() {
@@ -33,7 +34,7 @@ public class TestBinaryDuplicateFunction extends AbstractStdUDFTest {
 
   @Test
   public void testBinaryDuplicateASCII() {
-    if (!Boolean.valueOf(System.getProperty("trinoTest"))) {
+    if (!isTrinoTest()) {
       StdTester tester = getTester();
       testBinaryDuplicateStringHelper(tester, "bar", "barbar");
       testBinaryDuplicateStringHelper(tester, "", "");
@@ -43,7 +44,7 @@ public class TestBinaryDuplicateFunction extends AbstractStdUDFTest {
 
   @Test
   public void testBinaryDuplicateUnicode() {
-    if (!Boolean.valueOf(System.getProperty("trinoTest"))) {
+    if (!isTrinoTest()) {
       StdTester tester = getTester();
       testBinaryDuplicateStringHelper(tester, "こんにちは世界", "こんにちは世界こんにちは世界");
       testBinaryDuplicateStringHelper(tester, "\uD83D\uDE02", "\uD83D\uDE02\uD83D\uDE02");
@@ -58,7 +59,7 @@ public class TestBinaryDuplicateFunction extends AbstractStdUDFTest {
 
   @Test
   public void testBinaryDuplicate() {
-    if (!Boolean.valueOf(System.getProperty("trinoTest"))) {
+    if (!isTrinoTest()) {
       StdTester tester = getTester();
       testBinaryDuplicateHelper(tester, new byte[]{1, 2, 3}, new byte[]{1, 2, 3, 1, 2, 3});
       testBinaryDuplicateHelper(tester, new byte[]{-1, -2, -3}, new byte[]{-1, -2, -3, -1, -2, -3});

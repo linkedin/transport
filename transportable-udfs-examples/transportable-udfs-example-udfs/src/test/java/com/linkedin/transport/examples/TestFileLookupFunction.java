@@ -36,9 +36,12 @@ public class TestFileLookupFunction extends AbstractStdUDFTest {
   public void testFileLookupFailNull() {
     try {
       StdTester tester = getTester();
+      // in case of Trino, the execution of a query with UDF to check a null value in a file
+      // does not result in a NullPointerException, but returns a null value
       tester.check(functionCall("file_lookup", resource("file_lookup_function/sample"), null), null, "boolean");
     } catch (NullPointerException ex) {
-      Assert.assertFalse(Boolean.valueOf(System.getProperty("trinoTest")));
+      // in case of Hive and Spark, the execution of a query with UDF to check a null value in a file results in a NullPointerException
+      Assert.assertFalse(isTrinoTest());
     }
   }
 }

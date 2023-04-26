@@ -39,7 +39,10 @@ public class TransportConnector implements Connector {
   private static final Logger log = Logger.get(TransportConnector.class);
   private static final String DEFAULT_TRANSPORT_UDF_REPO = "transport-udf-repo";
   private static final FileFilter TRANSPORT_UDF_JAR_FILTER = (file) ->
-      file.isFile() && file.getName().endsWith(".jar") && !file.getName().startsWith("transportable-udfs");
+      file.isFile() && file.getName().endsWith(".jar") && !file.getName().startsWith("transportable-udfs-api")
+      && !file.getName().startsWith("transportable-udfs-trino")
+      && !file.getName().startsWith("transportable-udfs-type-system")
+      && !file.getName().startsWith("transportable-udfs-utils");
 
   private final ConnectorMetadata connectorMetadata;
   private final FunctionProvider functionProvider;

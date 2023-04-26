@@ -33,7 +33,7 @@ public class TestBinaryObjectSizeFunction extends AbstractStdUDFTest {
 
   @Test
   public void tesBinaryObjectSize() {
-    if (!Boolean.valueOf(System.getProperty("trinoTest"))) {
+    if (!isTrinoTest()) {
       StdTester tester = getTester();
       ByteBuffer argTest1 = ByteBuffer.wrap("foo".getBytes());
       ByteBuffer argTest2 = ByteBuffer.wrap("".getBytes());
