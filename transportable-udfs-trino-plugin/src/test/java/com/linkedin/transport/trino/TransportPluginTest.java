@@ -13,14 +13,33 @@ import io.trino.sql.SqlPath;
 import io.trino.testing.LocalQueryRunner;
 import io.trino.testing.MaterializedResult;
 import io.trino.testing.TestingSession;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Set;
+import org.apache.commons.io.FileUtils;
 import org.testng.Assert;
+import org.testng.annotations.AfterTest;
+import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
 
 public class TransportPluginTest {
+  private static final String TRANSPORT_UDF_REPO_DIR =  "transport-udf-repo";
+
+  @BeforeTest
+  public void setup() throws IOException {
+    File source = new File(getClass().getClassLoader().getResource(TRANSPORT_UDF_REPO_DIR).getFile());
+    File destination = Paths.get(Paths.get("").toAbsolutePath().toString(), TRANSPORT_UDF_REPO_DIR).toFile();
+    FileUtils.copyDirectory(source, destination);
+  }
+
+  @AfterTest
+  void clean() throws IOException {
+    FileUtils.deleteDirectory(Paths.get(Paths.get("").toAbsolutePath().toString(), TRANSPORT_UDF_REPO_DIR).toFile());
+  }
 
   @Test
   public void testTransportPluginInitialization() {
@@ -36,5 +55,4 @@ public class TransportPluginTest {
     Assert.assertEquals(result.getRowCount(), 1);
     Assert.assertEquals(((int) result.getMaterializedRows().get(0).getField(0)), 3);
   }
-
 }

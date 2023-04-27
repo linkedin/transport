@@ -23,8 +23,10 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.ServiceLoader;
 import java.util.stream.Collectors;
@@ -60,18 +62,17 @@ public class TransportConnector implements Connector {
     ClassLoader classLoaderForFactory = TransportConnectorFactory.class.getClassLoader();
     List<List<URL>> allJarUrlList = getUDFJarUrls(config);
     log.info("The URLs of Transport UDF jars: " + allJarUrlList);
-    List<StdUdfWrapper> stdUdfWrappers = new ArrayList<>();
     // create one TransportUDFClassLoader to load jars for one sub directory under Transport UDF repo
+    ImmutableMap.Builder<FunctionId, StdUdfWrapper> functionIdStdUdfWrapperBuilder = ImmutableMap.builder();
     for (List<URL> jarUrlList : allJarUrlList) {
       TransportUDFClassLoader classLoaderForUdf = new TransportUDFClassLoader(classLoaderForFactory, jarUrlList);
       ServiceLoader<StdUdfWrapper> serviceLoader = ServiceLoader.load(StdUdfWrapper.class, classLoaderForUdf);
-      stdUdfWrappers.addAll(ImmutableList.copyOf(serviceLoader));
-    }
-
-    ImmutableMap.Builder<FunctionId, StdUdfWrapper> functionIdStdUdfWrapperBuilder = ImmutableMap.builder();
-    for (StdUdfWrapper wrapper : stdUdfWrappers) {
-      log.info("Loading Transport UDF class: " + wrapper.getFunctionMetadata().getFunctionId().toString());
-      functionIdStdUdfWrapperBuilder.put(wrapper.getFunctionMetadata().getFunctionId(), wrapper);
+      List<StdUdfWrapper> stdUdfWrapperLoaded = ImmutableList.copyOf(serviceLoader);
+      log.info(classLoaderForUdf + " loads UDF classes:");
+      for (StdUdfWrapper wrapper : stdUdfWrapperLoaded) {
+        log.info("---" + wrapper.getFunctionMetadata().getFunctionId().toString());
+        functionIdStdUdfWrapperBuilder.put(wrapper.getFunctionMetadata().getFunctionId(), wrapper);
+      }
     }
 
     Map<FunctionId, StdUdfWrapper> functions = functionIdStdUdfWrapperBuilder.build();
@@ -102,7 +103,13 @@ public class TransportConnector implements Connector {
       udfDir = Paths.get(workingDirPath.toString(), udfDir).toString();
     }
     File[] udfSubDirs = new File(udfDir).listFiles(File::isDirectory);
-    return Arrays.stream(udfSubDirs).map(e -> getUDFJarUrlFromDir(e)).collect(Collectors.toList());
+    if (udfSubDirs == null) {
+      log.error("No Transport UDF are found in ", udfDir);
+      return Collections.emptyList();
+    } else {
+      return Arrays.stream(udfSubDirs).filter(Objects::nonNull)
+          .map(e -> getUDFJarUrlFromDir(e)).collect(Collectors.toList());
+    }
   }
 
   private static List<URL> getUDFJarUrlFromDir(File path) {

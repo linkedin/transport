@@ -9,6 +9,7 @@ dependencies {
   implementation project(':transportable-udfs-api')
   implementation project(":transportable-udfs-trino")
   implementation (group: 'org.apache.commons', name: 'commons-lang3', version: '3.12.0')
+  implementation (group: 'org.apache.commons', name: 'commons-io', version: '1.3.2')
   implementation (group: 'io.airlift', name: 'bootstrap', version: '221')
   implementation (group:'io.airlift', name: 'log', version: '221')
   implementation (group:'com.google.guava', name: 'guava', version: '24.1-jre')
