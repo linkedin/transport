@@ -8,8 +8,14 @@ java {
 dependencies {
   implementation project(':transportable-udfs-api')
   implementation project(":transportable-udfs-trino")
-  implementation (group:'io.trino', name: 'trino-main', version: project.ext.'trino-version')
+  implementation (group: 'org.apache.commons', name: 'commons-lang3', version: '3.12.0')
+  implementation (group: 'io.airlift', name: 'bootstrap', version: '221')
+  implementation (group:'io.airlift', name: 'log', version: '221')
+  implementation (group:'com.google.guava', name: 'guava', version: '24.1-jre')
+  implementation (group:'io.trino', name: 'trino-plugin-toolkit', version: project.ext.'trino-version')
+  runtimeOnly (group:'io.trino', name: 'trino-main', version: project.ext.'trino-version')
   compileOnly(group:'io.trino', name: 'trino-spi', version: project.ext.'trino-version')
+  testImplementation (group:'io.trino', name: 'trino-main', version: project.ext.'trino-version')
 }
 
 // packaging as a shaded jar following the guideline from Trino plugin

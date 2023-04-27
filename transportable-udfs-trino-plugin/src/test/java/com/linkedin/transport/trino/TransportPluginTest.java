@@ -5,22 +5,36 @@
  */
 package com.linkedin.transport.trino;
 
-import io.trino.server.testing.TestingTrinoServer;
-import io.trino.spi.Plugin;
+import com.google.common.collect.ImmutableSet;
+import io.trino.FeaturesConfig;
+import io.trino.Session;
+import io.trino.client.ClientCapabilities;
+import io.trino.sql.SqlPath;
+import io.trino.testing.LocalQueryRunner;
+import io.trino.testing.MaterializedResult;
+import io.trino.testing.TestingSession;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Set;
 import org.testng.Assert;
 import org.testng.annotations.Test;
-
-import static com.google.common.collect.Iterables.getOnlyElement;
 
 
 public class TransportPluginTest {
 
   @Test
   public void testTransportPluginInitialization() {
-    TestingTrinoServer server = TestingTrinoServer.create();
-    Plugin plugin = new TransportPlugin();
-    server.installPlugin(plugin);
-    server.createCatalog("LINKEDIN", "TRANSPORT");
-    Assert.assertTrue(getOnlyElement(plugin.getConnectorFactories()) instanceof TransportConnectorFactory);
+    SqlPath sqlPath = new SqlPath("LINKEDIN.TRANSPORT");
+    FeaturesConfig featuresConfig = new FeaturesConfig();
+    Session session = TestingSession.testSessionBuilder().setPath(sqlPath).setClientCapabilities((Set) Arrays.stream(
+        ClientCapabilities.values()).map(Enum::toString).collect(ImmutableSet.toImmutableSet())).build();
+    LocalQueryRunner queryRunner = LocalQueryRunner.builder(session).withFeaturesConfig(featuresConfig).build();
+    queryRunner.installPlugin(new TransportPlugin());
+    queryRunner.createCatalog("LINKEDIN", "TRANSPORT", Collections.emptyMap());
+    String query = "SELECT array_element_at(array[1,2,3], 2)";
+    MaterializedResult result = queryRunner.execute(query);
+    Assert.assertEquals(result.getRowCount(), 1);
+    Assert.assertEquals(((int) result.getMaterializedRows().get(0).getField(0)), 3);
   }
+
 }
