@@ -110,6 +110,10 @@ public abstract class AbstractStdUDFTest {
     return filePath;
   }
 
+  protected boolean isTrinoTest() {
+    return Boolean.valueOf(System.getProperty("trinoTest"));
+  }
+
   private void validateTopLevelStdUDFClassesAndImplementations(
       Map<Class<? extends TopLevelStdUDF>, List<Class<? extends StdUDF>>> topLevelStdUDFClassesAndImplementations) {
     topLevelStdUDFClassesAndImplementations.forEach((topLevelStdUDFClass, stdUDFImplementationClasses) -> {

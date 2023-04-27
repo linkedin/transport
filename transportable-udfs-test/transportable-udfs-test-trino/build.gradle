@@ -9,6 +9,7 @@ dependencies {
   implementation project(":transportable-udfs-test:transportable-udfs-test-api")
   implementation project(":transportable-udfs-test:transportable-udfs-test-spi")
   implementation project(":transportable-udfs-trino")
+  implementation project(":transportable-udfs-trino-plugin")
   implementation('com.google.guava:guava:24.1-jre')
   implementation(group:'io.trino', name: 'trino-main', version: project.ext.'trino-version') {
     exclude 'group': 'com.google.collections', 'module': 'google-collections'
@@ -16,8 +17,9 @@ dependencies {
   implementation(group:'io.trino', name: 'trino-main', version: project.ext.'trino-version', classifier: 'tests') {
     exclude 'group': 'com.google.collections', 'module': 'google-collections'
   }
-  implementation('io.airlift:testing:202')
+  implementation group: 'io.airlift', name: 'testing', version: '221'
   // The io.airlift.slice dependency below has to match its counterpart in trino-root's pom.xml file
   // If not specified, an older version is picked up transitively from another dependency
   implementation(group: 'io.airlift', name: 'slice', version: project.ext.'airlift-slice-version')
+  implementation(group: 'org.assertj', name: 'assertj-core', version: '3.24.2')
 }

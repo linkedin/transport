@@ -25,7 +25,7 @@ public class TrinoWrapperGenerator implements WrapperGenerator {
   private static final String GET_STD_UDF_METHOD = "getStdUDF";
   private static final ClassName TRINO_STD_UDF_WRAPPER_CLASS_NAME =
       ClassName.bestGuess("com.linkedin.transport.trino.StdUdfWrapper");
-  private static final String SERVICE_FILE = "META-INF/services/io.trino.metadata.SqlScalarFunction";
+  private static final String SERVICE_FILE = "META-INF/services/com.linkedin.transport.trino.StdUdfWrapper";
 
   @Override
   public void generateWrappers(WrapperGeneratorContext context) {

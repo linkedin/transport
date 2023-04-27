@@ -7,11 +7,24 @@ package com.linkedin.transport.test.trino;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import io.trino.metadata.BoundSignature;
+import com.google.common.collect.ImmutableSet;
+import com.linkedin.transport.test.spi.Row;
+import com.linkedin.transport.test.spi.TestCase;
+import com.linkedin.transport.test.spi.types.TestType;
+import com.linkedin.transport.trino.StdUdfWrapper;
+import com.linkedin.transport.trino.TransportConnector;
+import com.linkedin.transport.trino.TransportConnectorMetadata;
+import com.linkedin.transport.trino.TransportFunctionProvider;
+import io.trino.FeaturesConfig;
+import io.trino.Session;
+import io.trino.client.ClientCapabilities;
+import io.trino.spi.connector.Connector;
+import io.trino.spi.connector.ConnectorContext;
+import io.trino.spi.connector.ConnectorFactory;
+import io.trino.spi.connector.ConnectorMetadata;
+import io.trino.spi.function.BoundSignature;
 import io.trino.metadata.FunctionBinding;
-import io.trino.metadata.FunctionId;
-import io.trino.operator.scalar.AbstractTestFunctions;
-import io.trino.spi.type.Type;
+import io.trino.spi.function.FunctionId;
 import com.linkedin.transport.api.StdFactory;
 import com.linkedin.transport.api.udf.StdUDF;
 import com.linkedin.transport.api.udf.TopLevelStdUDF;
@@ -19,34 +32,72 @@ import com.linkedin.transport.trino.TrinoFactory;
 import com.linkedin.transport.test.spi.SqlFunctionCallGenerator;
 import com.linkedin.transport.test.spi.SqlStdTester;
 import com.linkedin.transport.test.spi.ToPlatformTestOutputConverter;
+import io.trino.spi.function.FunctionProvider;
+import io.trino.spi.type.Type;
+import io.trino.sql.SqlPath;
+import io.trino.sql.query.QueryAssertions;
+import io.trino.testing.LocalQueryRunner;
+import io.trino.testing.TestingSession;
+import io.trino.type.InternalTypeManager;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static io.trino.type.UnknownType.UNKNOWN;
+import static org.assertj.core.api.Assertions.*;
 
 
-public class TrinoTester extends AbstractTestFunctions implements SqlStdTester {
+public class TrinoTester implements SqlStdTester {
 
   private StdFactory _stdFactory;
   private SqlFunctionCallGenerator _sqlFunctionCallGenerator;
   private ToPlatformTestOutputConverter _toPlatformTestOutputConverter;
+  private Session _session;
+  private FeaturesConfig  _featuresConfig;
+  private LocalQueryRunner _runner;
+  private QueryAssertions _queryAssertions;
 
   public TrinoTester() {
     _stdFactory = null;
     _sqlFunctionCallGenerator = new TrinoSqlFunctionCallGenerator();
     _toPlatformTestOutputConverter = new ToTrinoTestOutputConverter();
+    SqlPath sqlPath = new SqlPath("LINKEDIN.TRANSPORT");
+    _session = TestingSession.testSessionBuilder().setPath(sqlPath).setClientCapabilities((Set) Arrays.stream(
+        ClientCapabilities.values()).map(Enum::toString).collect(ImmutableSet.toImmutableSet())).build();
+    _featuresConfig = new FeaturesConfig();
+    _runner = LocalQueryRunner.builder(_session).withFeaturesConfig(_featuresConfig).build();
+    _queryAssertions = new QueryAssertions(_runner);
   }
 
   @Override
   public void setup(
       Map<Class<? extends TopLevelStdUDF>, List<Class<? extends StdUDF>>> topLevelStdUDFClassesAndImplementations) {
+    Map<FunctionId, StdUdfWrapper> functions = new HashMap<>();
     // Refresh Trino state during every setup call
-    initTestFunctions();
     for (List<Class<? extends StdUDF>> stdUDFImplementations : topLevelStdUDFClassesAndImplementations.values()) {
       for (Class<? extends StdUDF> stdUDF : stdUDFImplementations) {
-        registerScalarFunction(new TrinoTestStdUDFWrapper(stdUDF));
+        StdUdfWrapper function = new TrinoTestStdUDFWrapper(stdUDF);
+        functions.put(function.getFunctionMetadata().getFunctionId(), function);
       }
     }
+    FunctionProvider functionProvider = new TransportFunctionProvider(functions);
+    ConnectorMetadata connectorMetadata = new TransportConnectorMetadata(functions);
+    Connector connector = new TransportConnector(connectorMetadata, functionProvider);
+    ConnectorFactory connectorFactory = new ConnectorFactory() {
+      @Override
+      public String getName() {
+        return "TRANSPORT";
+      }
+      @Override
+      public Connector create(String catalogName, Map<String, String> config, ConnectorContext context) {
+        return connector;
+      }
+    };;
+    _runner.createCatalog("LINKEDIN", connectorFactory, Collections.emptyMap());
   }
 
   @Override
@@ -57,9 +108,7 @@ public class TrinoTester extends AbstractTestFunctions implements SqlStdTester {
           new BoundSignature("test", UNKNOWN, ImmutableList.of()),
           ImmutableMap.of(),
           ImmutableMap.of());
-      _stdFactory = new TrinoFactory(
-          functionBinding,
-          this.functionAssertions.getMetadata());
+      _stdFactory = new TrinoFactory(functionBinding, new TrinoTestFunctionDependencies(InternalTypeManager.TESTING_TYPE_MANAGER, _runner));
     }
     return _stdFactory;
   }
@@ -75,7 +124,20 @@ public class TrinoTester extends AbstractTestFunctions implements SqlStdTester {
   }
 
   @Override
-  public void assertFunctionCall(String functionCallString, Object expectedOutputData, Object expectedOutputType) {
-    assertFunction(functionCallString, (Type) expectedOutputType, expectedOutputData);
+  public void check(TestCase testCase) {
+    String functionName = testCase.getFunctionCall().getFunctionName();
+    List<Object> parameters = testCase.getFunctionCall().getParameters();
+    List<TestType> testTypes = testCase.getFunctionCall().getInferredParameterTypes();
+    List<String> functionArguments = new ArrayList<>();
+    for (int i = 0; i < parameters.size(); ++i) {
+      functionArguments.add(_sqlFunctionCallGenerator.getFunctionCallArgumentString(parameters.get(i), testTypes.get(i)));
+    }
+    Object expectedOutputType = getPlatformType(testCase.getExpectedOutputType());
+    Object expectedOutput = testCase.getExpectedOutput();
+    if (expectedOutput instanceof Row) {
+      expectedOutput = ((Row) expectedOutput).getFields();
+    }
+    QueryAssertions.ExpressionAssertProvider expressionAssertProvider = _queryAssertions.function(functionName, functionArguments);
+    assertThat(expressionAssertProvider).hasType((Type) expectedOutputType).isEqualTo(expectedOutput);
   }
 }
