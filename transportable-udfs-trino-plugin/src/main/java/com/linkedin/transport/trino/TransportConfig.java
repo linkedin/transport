@@ -6,6 +6,8 @@
 package com.linkedin.transport.trino;
 
 import io.airlift.configuration.Config;
+import org.apache.commons.lang3.StringUtils;
+
 
 
 /**
@@ -13,10 +15,11 @@ import io.airlift.configuration.Config;
  * following the development guideline in https://trino.io/docs/current/develop/spi-overview.html
  */
 public class TransportConfig {
+  private static final String DEFAULT_TRANSPORT_UDF_REPO = "transport-udf-repo";
   private String transportUdfRepo;
 
   public String getTransportUdfRepo() {
-    return transportUdfRepo;
+    return StringUtils.isBlank(transportUdfRepo) ? DEFAULT_TRANSPORT_UDF_REPO : transportUdfRepo;
   }
 
   @Config("transport.udf.repo")

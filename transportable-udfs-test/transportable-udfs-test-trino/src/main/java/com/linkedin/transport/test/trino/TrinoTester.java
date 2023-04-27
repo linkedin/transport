@@ -96,7 +96,7 @@ public class TrinoTester implements SqlStdTester {
       public Connector create(String catalogName, Map<String, String> config, ConnectorContext context) {
         return connector;
       }
-    };;
+    };
     _runner.createCatalog("LINKEDIN", connectorFactory, Collections.emptyMap());
   }
 
