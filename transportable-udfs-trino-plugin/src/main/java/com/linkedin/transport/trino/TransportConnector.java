@@ -6,6 +6,7 @@
 package com.linkedin.transport.trino;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import io.airlift.log.Logger;
 import io.trino.spi.connector.Connector;
 import io.trino.spi.connector.ConnectorMetadata;
@@ -22,7 +23,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -65,12 +65,13 @@ public class TransportConnector implements Connector {
     TransportUDFClassLoader classLoaderForUdf = new TransportUDFClassLoader(classLoaderForFactory, jarUrlList);
     ServiceLoader<StdUdfWrapper> serviceLoader = ServiceLoader.load(StdUdfWrapper.class, classLoaderForUdf);
     List<StdUdfWrapper> stdUdfWrappers = ImmutableList.copyOf(serviceLoader);
-    Map<FunctionId, StdUdfWrapper> functions = new HashMap<>();
+    ImmutableMap.Builder<FunctionId, StdUdfWrapper> functionIdStdUdfWrapperBuilder = ImmutableMap.builder();
     for (StdUdfWrapper wrapper : stdUdfWrappers) {
       log.info("Loading Transport UDF class: " + wrapper.getFunctionMetadata().getFunctionId().toString());
-      functions.put(wrapper.getFunctionMetadata().getFunctionId(), wrapper);
+      functionIdStdUdfWrapperBuilder.put(wrapper.getFunctionMetadata().getFunctionId(), wrapper);
     }
 
+    Map<FunctionId, StdUdfWrapper> functions = functionIdStdUdfWrapperBuilder.build();
     this.connectorMetadata = new TransportConnectorMetadata(functions);
     this.functionProvider = new TransportFunctionProvider(functions);
   }
