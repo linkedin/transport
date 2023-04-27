@@ -105,7 +105,7 @@ public class TransportConnector implements Connector {
     return Arrays.stream(udfSubDirs).map(e -> getUDFJarUrlFromDir(e)).collect(Collectors.toList());
   }
 
-  protected static List<URL> getUDFJarUrlFromDir(File path) {
+  private static List<URL> getUDFJarUrlFromDir(File path) {
     List<URL> urlList = new ArrayList<>();
     File[] files = path.listFiles(TRANSPORT_UDF_JAR_FILTER);
     for (File file : files) {
