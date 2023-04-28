@@ -104,11 +104,11 @@ public class TransportConnector implements Connector {
     }
     File[] udfSubDirs = new File(udfDir).listFiles(File::isDirectory);
     if (udfSubDirs == null) {
-      log.error("No Transport UDF are found in ", udfDir);
+      log.error("No Transport UDF are found in " + udfDir);
       return Collections.emptyList();
     } else {
       return Arrays.stream(udfSubDirs).filter(Objects::nonNull)
-          .map(e -> getUDFJarUrlFromDir(e)).collect(Collectors.toList());
+          .map(TransportConnector::getUDFJarUrlFromDir).collect(Collectors.toList());
     }
   }
 
