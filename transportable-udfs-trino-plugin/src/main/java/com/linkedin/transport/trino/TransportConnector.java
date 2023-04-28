@@ -23,13 +23,14 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.ServiceLoader;
 import java.util.stream.Collectors;
 import javax.inject.Inject;
-import org.apache.bval.util.StringUtils;
 
 import static java.util.Objects.*;
 
@@ -42,7 +43,6 @@ import static java.util.Objects.*;
 public class TransportConnector implements Connector {
 
   private static final Logger log = Logger.get(TransportConnector.class);
-  private static final String DEFAULT_TRANSPORT_UDF_REPO = "transport-udf-repo";
   private static final FileFilter TRANSPORT_UDF_JAR_FILTER = (file) ->
       file.isFile() && file.getName().endsWith(".jar") && !file.getName().startsWith("transportable-udfs-api")
       && !file.getName().startsWith("transportable-udfs-trino")
@@ -60,15 +60,19 @@ public class TransportConnector implements Connector {
   @Inject
   public TransportConnector(TransportConfig config) {
     ClassLoader classLoaderForFactory = TransportConnectorFactory.class.getClassLoader();
-    List<URL> jarUrlList = getUDFJarUrls(config);
-    log.info("The URLs of Transport UDF jars: " + jarUrlList);
-    TransportUDFClassLoader classLoaderForUdf = new TransportUDFClassLoader(classLoaderForFactory, jarUrlList);
-    ServiceLoader<StdUdfWrapper> serviceLoader = ServiceLoader.load(StdUdfWrapper.class, classLoaderForUdf);
-    List<StdUdfWrapper> stdUdfWrappers = ImmutableList.copyOf(serviceLoader);
+    List<List<URL>> allJarUrlList = getUDFJarUrls(config);
+    log.info("The URLs of Transport UDF jars: " + allJarUrlList);
+    // create one TransportUDFClassLoader to load jars for one sub directory under Transport UDF repo
     ImmutableMap.Builder<FunctionId, StdUdfWrapper> functionIdStdUdfWrapperBuilder = ImmutableMap.builder();
-    for (StdUdfWrapper wrapper : stdUdfWrappers) {
-      log.info("Loading Transport UDF class: " + wrapper.getFunctionMetadata().getFunctionId().toString());
-      functionIdStdUdfWrapperBuilder.put(wrapper.getFunctionMetadata().getFunctionId(), wrapper);
+    for (List<URL> jarUrlList : allJarUrlList) {
+      TransportUDFClassLoader classLoaderForUdf = new TransportUDFClassLoader(classLoaderForFactory, jarUrlList);
+      ServiceLoader<StdUdfWrapper> serviceLoader = ServiceLoader.load(StdUdfWrapper.class, classLoaderForUdf);
+      List<StdUdfWrapper> stdUdfWrapperLoaded = ImmutableList.copyOf(serviceLoader);
+      log.info(classLoaderForUdf + " loads UDF classes:");
+      for (StdUdfWrapper wrapper : stdUdfWrapperLoaded) {
+        log.info("---" + wrapper.getFunctionMetadata().getFunctionId().toString());
+        functionIdStdUdfWrapperBuilder.put(wrapper.getFunctionMetadata().getFunctionId(), wrapper);
+      }
     }
 
     Map<FunctionId, StdUdfWrapper> functions = functionIdStdUdfWrapperBuilder.build();
@@ -92,14 +96,20 @@ public class TransportConnector implements Connector {
     return TransportTransactionHandle.INSTANCE;
   }
 
-  private static List<URL> getUDFJarUrls(TransportConfig config) {
-    String udfDir = StringUtils.isBlank(config.getTransportUdfRepo()) ? DEFAULT_TRANSPORT_UDF_REPO : config.getTransportUdfRepo();
+  private static List<List<URL>> getUDFJarUrls(TransportConfig config) {
+    String udfDir =  config.getTransportUdfRepo();
     if (!Paths.get(udfDir).isAbsolute()) {
       Path workingDirPath = Paths.get("").toAbsolutePath();
       udfDir = Paths.get(workingDirPath.toString(), udfDir).toString();
     }
     File[] udfSubDirs = new File(udfDir).listFiles(File::isDirectory);
-    return Arrays.stream(udfSubDirs).flatMap(e -> getUDFJarUrlFromDir(e).stream()).collect(Collectors.toList());
+    if (udfSubDirs == null) {
+      log.error("No Transport UDF are found in " + udfDir);
+      return Collections.emptyList();
+    } else {
+      return Arrays.stream(udfSubDirs).filter(Objects::nonNull)
+          .map(TransportConnector::getUDFJarUrlFromDir).collect(Collectors.toList());
+    }
   }
 
   private static List<URL> getUDFJarUrlFromDir(File path) {

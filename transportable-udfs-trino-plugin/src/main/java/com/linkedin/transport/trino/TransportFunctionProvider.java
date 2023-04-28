@@ -5,6 +5,7 @@
  */
 package com.linkedin.transport.trino;
 
+import com.google.common.annotations.VisibleForTesting;
 import io.trino.spi.function.AggregationImplementation;
 import io.trino.spi.function.BoundSignature;
 import io.trino.spi.function.FunctionDependencies;
@@ -44,5 +45,10 @@ public class TransportFunctionProvider implements FunctionProvider {
   public WindowFunctionSupplier getWindowFunctionSupplier(FunctionId functionId, BoundSignature boundSignature,
       FunctionDependencies functionDependencies) {
     return null;
+  }
+
+  @VisibleForTesting
+  protected Map<FunctionId, StdUdfWrapper> getFunctions() {
+    return this.functions;
   }
 }
