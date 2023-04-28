@@ -31,8 +31,7 @@ import com.linkedin.transport.trino.data.TrinoString;
 import com.linkedin.transport.trino.data.TrinoStruct;
 import io.airlift.slice.Slices;
 import io.trino.metadata.FunctionBinding;
-import io.trino.metadata.FunctionDependencies;
-import io.trino.metadata.Metadata;
+import io.trino.spi.function.FunctionDependencies;
 import io.trino.metadata.OperatorNotFoundException;
 import io.trino.spi.function.InvocationConvention;
 import io.trino.spi.function.OperatorType;
@@ -40,6 +39,7 @@ import io.trino.spi.type.ArrayType;
 import io.trino.spi.type.MapType;
 import io.trino.spi.type.RowType;
 import io.trino.spi.type.Type;
+import io.trino.spi.type.TypeSignature;
 import java.lang.invoke.MethodHandle;
 import java.nio.ByteBuffer;
 import java.util.List;
@@ -54,18 +54,10 @@ public class TrinoFactory implements StdFactory {
 
   final FunctionBinding functionBinding;
   final FunctionDependencies functionDependencies;
-  final Metadata metadata;
 
   public TrinoFactory(FunctionBinding functionBinding, FunctionDependencies functionDependencies) {
     this.functionBinding = functionBinding;
     this.functionDependencies = functionDependencies;
-    this.metadata = null;
-  }
-
-  public TrinoFactory(FunctionBinding functionBinding, Metadata metadata) {
-    this.functionBinding = functionBinding;
-    this.functionDependencies = null;
-    this.metadata = metadata;
   }
 
   @Override
@@ -137,25 +129,15 @@ public class TrinoFactory implements StdFactory {
   }
 
   @Override
-  public StdType createStdType(String typeSignature) {
-    if (metadata != null) {
-      return TrinoWrapper.createStdType(metadata.getType(applyBoundVariables(
-          parseTypeSignature(quoteReservedKeywords(typeSignature), ImmutableSet.of()),
-          functionBinding)));
-    }
-    return TrinoWrapper.createStdType(functionDependencies.getType(
-        applyBoundVariables(parseTypeSignature(quoteReservedKeywords(typeSignature), ImmutableSet.of()),
-            functionBinding)));
+  public StdType createStdType(String typeSignatureStr) {
+    TypeSignature typeSignature = applyBoundVariables(parseTypeSignature(quoteReservedKeywords(typeSignatureStr), ImmutableSet.of()), functionBinding);
+    return TrinoWrapper.createStdType(functionDependencies.getType(typeSignature));
   }
 
   public MethodHandle getOperatorHandle(
       OperatorType operatorType,
       List<Type> argumentTypes,
       InvocationConvention invocationConvention) throws OperatorNotFoundException {
-    if (metadata != null) {
-      return metadata.getScalarFunctionInvoker(metadata.resolveOperator(operatorType, argumentTypes),
-          invocationConvention).getMethodHandle();
-    }
-    return functionDependencies.getOperatorInvoker(operatorType, argumentTypes, invocationConvention).getMethodHandle();
+    return functionDependencies.getOperatorImplementation(operatorType, argumentTypes, invocationConvention).getMethodHandle();
   }
 }

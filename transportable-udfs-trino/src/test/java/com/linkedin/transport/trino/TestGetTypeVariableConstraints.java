@@ -7,12 +7,12 @@ package com.linkedin.transport.trino;
 
 import com.google.common.collect.ImmutableList;
 import com.linkedin.transport.api.udf.StdUDF;
-import io.trino.metadata.TypeVariableConstraint;
+import io.trino.spi.function.TypeVariableConstraint;
 import java.util.List;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import static io.trino.metadata.Signature.*;
+import static io.trino.spi.function.TypeVariableConstraint.*;
 
 
 public class TestGetTypeVariableConstraints {

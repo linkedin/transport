@@ -1,8 +1,9 @@
-apply plugin: 'java'
+apply plugin: 'java-library'
 
 dependencies {
-  compile project(":transportable-udfs-api")
-  compile project(":transportable-udfs-test:transportable-udfs-test-spi")
-  compile ('com.google.guava:guava:24.1-jre')
-  compile ('org.testng:testng:6.11')
+  api project(":transportable-udfs-test:transportable-udfs-test-spi")
+  implementation project(":transportable-udfs-api")
+
+  api 'org.testng:testng:6.11'
+  implementation 'com.google.guava:guava:24.1-jre'
 }

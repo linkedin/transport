@@ -1,0 +1,36 @@
+apply plugin: 'java'
+apply plugin: 'distribution'
+
+java {
+  toolchain.languageVersion.set(JavaLanguageVersion.of(17))
+}
+
+dependencies {
+  implementation project(':transportable-udfs-api')
+  implementation project(":transportable-udfs-trino")
+  implementation (group: 'org.apache.commons', name: 'commons-lang3', version: '3.12.0')
+  implementation (group: 'org.apache.commons', name: 'commons-io', version: '1.3.2')
+  implementation (group: 'io.airlift', name: 'bootstrap', version: '221')
+  implementation (group:'io.airlift', name: 'log', version: '221')
+  implementation (group:'com.google.guava', name: 'guava', version: '24.1-jre')
+  implementation (group:'io.trino', name: 'trino-plugin-toolkit', version: project.ext.'trino-version')
+  runtimeOnly (group:'io.trino', name: 'trino-main', version: project.ext.'trino-version')
+  compileOnly(group:'io.trino', name: 'trino-spi', version: project.ext.'trino-version')
+  testImplementation (group:'io.trino', name: 'trino-main', version: project.ext.'trino-version')
+}
+
+// packaging as a shaded jar following the guideline from Trino plugin
+distributions {
+  main {
+    contents {
+      from jar
+      from project.configurations.runtimeClasspath
+    }
+  }
+}
+
+artifacts {
+  archives jar, distTar
+}
+
+build.dependsOn distTar

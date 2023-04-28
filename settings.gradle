@@ -15,6 +15,7 @@ def modules = [
     'transportable-udfs-spark_2.11',
     'transportable-udfs-spark_2.12',
     'transportable-udfs-trino',
+    'transportable-udfs-trino-plugin',
     'transportable-udfs-test:transportable-udfs-test-api',
     'transportable-udfs-test:transportable-udfs-test-generic',
     'transportable-udfs-test:transportable-udfs-test-hive',

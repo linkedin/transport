@@ -5,12 +5,12 @@ plugins {
 }
 
 dependencies {
-  compile project(':transportable-udfs-api')
-  compile project(':transportable-udfs-codegen')
-  compile ('com.google.guava:guava:24.1-jre')
-  compile ('com.google.code.gson:gson:2.8.5')
-  compile ('com.github.jengelman.gradle.plugins:shadow:5.0.0')
-  testCompile('org.spockframework:spock-core:1.1-groovy-2.4') {
+  implementation project(':transportable-udfs-api')
+  implementation project(':transportable-udfs-codegen')
+  implementation ('com.google.guava:guava:24.1-jre')
+  implementation ('com.google.code.gson:gson:2.8.5')
+  implementation ('com.github.jengelman.gradle.plugins:shadow:5.2.0')
+  testImplementation('org.spockframework:spock-core:1.1-groovy-2.4') {
     exclude group: 'org.codehaus.groovy'
   }
 }
@@ -19,7 +19,7 @@ def writeVersionInfo = { file ->
   ant.propertyfile(file: file) {
     entry(key: "transport-version", value: version)
     entry(key: "hive-version", value: '1.2.2')
-    entry(key: "trino-version", value: '352')
+    entry(key: "trino-version", value: '406')
     entry(key: "spark_2.11-version", value: '2.3.0')
     entry(key: "spark_2.12-version", value: '3.1.1')
     entry(key: "scala-version", value: '2.11.8')
