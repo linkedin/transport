@@ -16,6 +16,8 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static com.google.common.collect.ImmutableSet.toImmutableSet;
+
 /**
  * This class implements the interface of ConnectorMetadata from Trino SPI as a part of Trino plugin
  * to load UDF classes in Trino server following the development guideline
@@ -44,5 +46,10 @@ public class TransportConnectorMetadata implements ConnectorMetadata {
   @Override
   public FunctionMetadata getFunctionMetadata(ConnectorSession session, FunctionId functionId) {
     return functions.get(functionId).getFunctionMetadata();
+  }
+
+  @Override
+  public Collection<FunctionMetadata> listFunctions(ConnectorSession session, String schemaName) {
+    return functions.values().stream().map(StdUdfWrapper::getFunctionMetadata).collect(toImmutableSet());
   }
 }
