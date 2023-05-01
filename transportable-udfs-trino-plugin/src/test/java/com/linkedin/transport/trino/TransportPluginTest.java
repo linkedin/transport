@@ -51,6 +51,11 @@ public class TransportPluginTest {
     MaterializedResult result = queryRunner.execute(query);
     Assert.assertEquals(result.getRowCount(), 1);
     Assert.assertEquals(((int) result.getMaterializedRows().get(0).getField(0)), 3);
+
+    String camelCaseQuery = "SELECT Array_Element_At(array[1,2,3], 2)";
+    MaterializedResult camelCaseResult = queryRunner.execute(camelCaseQuery);
+    Assert.assertEquals(camelCaseResult.getRowCount(), 1);
+    Assert.assertEquals(((int) camelCaseResult.getMaterializedRows().get(0).getField(0)), 3);
   }
 
   @Test

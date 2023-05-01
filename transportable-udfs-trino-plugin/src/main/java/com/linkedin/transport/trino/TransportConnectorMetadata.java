@@ -19,6 +19,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import static com.google.common.collect.ImmutableSet.toImmutableSet;
+import static java.util.Locale.ENGLISH;
 
 /**
  * This class implements the interface of ConnectorMetadata from Trino SPI as a part of Trino plugin
@@ -41,7 +42,8 @@ public class TransportConnectorMetadata implements ConnectorMetadata {
   @Override
   public Collection<FunctionMetadata> getFunctions(ConnectorSession session, SchemaFunctionName name) {
     return functions.values().stream().map(StdUdfWrapper::getFunctionMetadata)
-        .filter(e -> e.getCanonicalName().equals(name.getFunctionName()))
+        // Function are expected to be called case agnostic
+        .filter(e -> e.getCanonicalName().toLowerCase(ENGLISH).equals(name.getFunctionName()))
         .collect(Collectors.toList());
   }
 
