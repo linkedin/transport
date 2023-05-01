@@ -31,13 +31,13 @@ public class TransportPluginTest {
 
   @BeforeClass
   public void setUp() {
-    SqlPath sqlPath = new SqlPath("LINKEDIN.TRANSPORT");
+    SqlPath sqlPath = new SqlPath("LINKEDIN.transport");
     FeaturesConfig featuresConfig = new FeaturesConfig();
     Session session = TestingSession.testSessionBuilder().setPath(sqlPath).setClientCapabilities((Set) Arrays.stream(
         ClientCapabilities.values()).map(Enum::toString).collect(ImmutableSet.toImmutableSet())).build();
     queryRunner = LocalQueryRunner.builder(session).withFeaturesConfig(featuresConfig).build();
     queryRunner.installPlugin(new TransportPlugin());
-    queryRunner.createCatalog("LINKEDIN", "TRANSPORT", ImmutableMap.of("transport.udf.repo", udfRepoDir));
+    queryRunner.createCatalog("LINKEDIN", "transport", ImmutableMap.of("transport.udf.repo", udfRepoDir));
   }
 
   @AfterClass

@@ -5,6 +5,7 @@
  */
 package com.linkedin.transport.trino;
 
+import com.google.common.collect.ImmutableList;
 import io.trino.spi.connector.ConnectorMetadata;
 import io.trino.spi.connector.ConnectorSession;
 import io.trino.spi.function.BoundSignature;
@@ -13,6 +14,7 @@ import io.trino.spi.function.FunctionId;
 import io.trino.spi.function.FunctionMetadata;
 import io.trino.spi.function.SchemaFunctionName;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -51,5 +53,10 @@ public class TransportConnectorMetadata implements ConnectorMetadata {
   @Override
   public Collection<FunctionMetadata> listFunctions(ConnectorSession session, String schemaName) {
     return functions.values().stream().map(StdUdfWrapper::getFunctionMetadata).collect(toImmutableSet());
+  }
+
+  @Override
+  public List<String> listSchemaNames(ConnectorSession session) {
+    return ImmutableList.of("transport");
   }
 }
