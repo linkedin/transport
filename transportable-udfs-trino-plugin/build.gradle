@@ -1,5 +1,6 @@
 apply plugin: 'java'
 apply plugin: 'distribution'
+apply plugin: 'maven-publish'
 
 java {
   toolchain.languageVersion.set(JavaLanguageVersion.of(17))
@@ -29,6 +30,14 @@ distributions {
     contents {
       from jar
       from project.configurations.runtimeClasspath
+    }
+  }
+}
+
+publishing {
+  publications {
+    maven(MavenPublication) {
+      artifact(tasks.distTar)
     }
   }
 }
