@@ -36,8 +36,8 @@ distributions {
 
 publishing {
   publications {
-    maven(MavenPublication) {
-      artifact(tasks.distTar)
+    javaLibrary(MavenPublication) {
+      artifact distTar
     }
   }
 }
