@@ -13,7 +13,6 @@ import io.trino.spi.connector.ConnectorContext;
 import io.trino.spi.connector.ConnectorFactory;
 import java.util.Map;
 
-import static io.trino.plugin.base.Versions.*;
 import static java.util.Objects.*;
 
 /**
@@ -30,7 +29,6 @@ public class TransportConnectorFactory implements ConnectorFactory {
   @Override
   public Connector create(String catalogName, Map<String, String> config, ConnectorContext context) {
     requireNonNull(config, "config  is null");
-    checkSpiVersion(context, this);
 
     // A plugin is not required to use Guice; it is just very convenient
     Bootstrap app = new Bootstrap(
