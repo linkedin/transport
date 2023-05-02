@@ -65,7 +65,7 @@ public class TrinoTester implements SqlStdTester {
     _stdFactory = null;
     _sqlFunctionCallGenerator = new TrinoSqlFunctionCallGenerator();
     _toPlatformTestOutputConverter = new ToTrinoTestOutputConverter();
-    SqlPath sqlPath = new SqlPath("LINKEDIN.TRANSPORT");
+    SqlPath sqlPath = new SqlPath("LINKEDIN.transport");
     _session = TestingSession.testSessionBuilder().setPath(sqlPath).setClientCapabilities((Set) Arrays.stream(
         ClientCapabilities.values()).map(Enum::toString).collect(ImmutableSet.toImmutableSet())).build();
     _featuresConfig = new FeaturesConfig();
@@ -90,7 +90,7 @@ public class TrinoTester implements SqlStdTester {
     ConnectorFactory connectorFactory = new ConnectorFactory() {
       @Override
       public String getName() {
-        return "TRANSPORT";
+        return "transport";
       }
       @Override
       public Connector create(String catalogName, Map<String, String> config, ConnectorContext context) {
