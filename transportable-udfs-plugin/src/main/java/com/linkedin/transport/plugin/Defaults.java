@@ -78,13 +78,13 @@ class Defaults {
           JavaLanguageVersion.of(17),
           ImmutableList.of(
               DependencyConfiguration.builder(IMPLEMENTATION, "com.linkedin.transport:transportable-udfs-trino", TRANSPORT_VERSION).build(),
-              DependencyConfiguration.builder(COMPILE_ONLY, "io.trino:trino-main", TRINO_VERSION).build()
+              DependencyConfiguration.builder(COMPILE_ONLY, "io.trino:trino-main", TRINO_VERSION).exclude("com.nimbusds").build()
           ),
           ImmutableList.of(
               DependencyConfiguration.builder(RUNTIME_ONLY, "com.linkedin.transport:transportable-udfs-test-trino", TRANSPORT_VERSION).build(),
               // trino-main:tests is a transitive dependency of transportable-udfs-test-trino, but some POM -> IVY
               // converters drop dependencies with classifiers, so we apply this dependency explicitly
-              DependencyConfiguration.builder(RUNTIME_ONLY, "io.trino:trino-main", TRINO_VERSION).classifier("tests").build()
+              DependencyConfiguration.builder(RUNTIME_ONLY, "io.trino:trino-main", TRINO_VERSION).exclude("com.nimbusds").classifier("tests").build()
           ),
           ImmutableList.of(new ThinJarPackaging(), new DistributionPackaging())),
       new Platform(HIVE,

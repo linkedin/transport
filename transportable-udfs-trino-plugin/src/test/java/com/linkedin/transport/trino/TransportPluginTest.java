@@ -18,33 +18,56 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import static org.testng.Assert.*;
 
 
 public class TransportPluginTest {
-  private static final String TRANSPORT_UDF_REPO_DIR =  "transport-udf-repo";
+  private final String udfRepoDir = getClass().getClassLoader().getResource("transport-udf-repo").getPath();
+  private LocalQueryRunner queryRunner;
 
-  @Test
-  public void testTransportPluginInitialization() {
-    String udfRepoDir = getClass().getClassLoader().getResource(TRANSPORT_UDF_REPO_DIR).getPath();
-    SqlPath sqlPath = new SqlPath("LINKEDIN.TRANSPORT");
+  @BeforeClass
+  public void setUp() {
+    SqlPath sqlPath = new SqlPath("LINKEDIN.transport");
     FeaturesConfig featuresConfig = new FeaturesConfig();
     Session session = TestingSession.testSessionBuilder().setPath(sqlPath).setClientCapabilities((Set) Arrays.stream(
         ClientCapabilities.values()).map(Enum::toString).collect(ImmutableSet.toImmutableSet())).build();
-    LocalQueryRunner queryRunner = LocalQueryRunner.builder(session).withFeaturesConfig(featuresConfig).build();
+    queryRunner = LocalQueryRunner.builder(session).withFeaturesConfig(featuresConfig).build();
     queryRunner.installPlugin(new TransportPlugin());
-    queryRunner.createCatalog("LINKEDIN", "TRANSPORT", ImmutableMap.of("transport.udf.repo", udfRepoDir));
+    queryRunner.createCatalog("LINKEDIN", "transport", ImmutableMap.of("transport.udf.repo", udfRepoDir));
+  }
+
+  @AfterClass
+  public void tearDown() {
+    queryRunner.close();
+  }
+
+  @Test
+  public void testTransportUdfIsAccessible() {
     String query = "SELECT array_element_at(array[1,2,3], 2)";
     MaterializedResult result = queryRunner.execute(query);
     Assert.assertEquals(result.getRowCount(), 1);
     Assert.assertEquals(((int) result.getMaterializedRows().get(0).getField(0)), 3);
+
+    String camelCaseQuery = "SELECT Array_Element_At(array[1,2,3], 2)";
+    MaterializedResult camelCaseResult = queryRunner.execute(camelCaseQuery);
+    Assert.assertEquals(camelCaseResult.getRowCount(), 1);
+    Assert.assertEquals(((int) camelCaseResult.getMaterializedRows().get(0).getField(0)), 3);
+  }
+
+  @Test
+  public void testTransportUdfInShowFunctions() {
+    String showFunctionQuery = "SHOW FUNCTIONS LIKE 'array_element_at'";
+    MaterializedResult showFunctionResult = queryRunner.execute(showFunctionQuery);
+    Assert.assertEquals(showFunctionResult.getRowCount(), 1);
+    Assert.assertEquals(((String) showFunctionResult.getMaterializedRows().get(0).getField(0)), "array_element_at");
   }
 
   @Test
   public void testTransportUDFClassLoader() {
-    String udfRepoDir = getClass().getClassLoader().getResource(TRANSPORT_UDF_REPO_DIR).getPath();
     TransportConfig config = new TransportConfig();
     config.setTransportUdfRepo(udfRepoDir);
     TransportConnector connector = new TransportConnector(config);

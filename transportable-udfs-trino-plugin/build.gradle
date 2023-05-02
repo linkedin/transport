@@ -1,5 +1,6 @@
 apply plugin: 'java'
 apply plugin: 'distribution'
+apply plugin: 'maven-publish'
 
 java {
   toolchain.languageVersion.set(JavaLanguageVersion.of(17))
@@ -14,9 +15,13 @@ dependencies {
   implementation (group:'io.airlift', name: 'log', version: '221')
   implementation (group:'com.google.guava', name: 'guava', version: '24.1-jre')
   implementation (group:'io.trino', name: 'trino-plugin-toolkit', version: project.ext.'trino-version')
-  runtimeOnly (group:'io.trino', name: 'trino-main', version: project.ext.'trino-version')
+  runtimeOnly (group:'io.trino', name: 'trino-main', version: project.ext.'trino-version') {
+    exclude 'group': 'com.nimbusds'
+  }
   compileOnly(group:'io.trino', name: 'trino-spi', version: project.ext.'trino-version')
-  testImplementation (group:'io.trino', name: 'trino-main', version: project.ext.'trino-version')
+  testImplementation (group:'io.trino', name: 'trino-main', version: project.ext.'trino-version') {
+    exclude 'group': 'com.nimbusds'
+  }
 }
 
 // packaging as a shaded jar following the guideline from Trino plugin
@@ -25,6 +30,14 @@ distributions {
     contents {
       from jar
       from project.configurations.runtimeClasspath
+    }
+  }
+}
+
+publishing {
+  publications {
+    maven(MavenPublication) {
+      artifact(tasks.distTar)
     }
   }
 }

@@ -24,7 +24,7 @@ import static java.util.Objects.*;
 public class TransportConnectorFactory implements ConnectorFactory {
   @Override
   public String getName() {
-    return "TRANSPORT";
+    return "transport";
   }
 
   @Override
