@@ -62,6 +62,11 @@ subprojects {
       //    library, but not any SLF4J-binding or any underlying logging system."
       // Our dependencies (e.g. hadoop-common) do bring in slf4j-log4j12 in their dependency graph so we exclude them
       exclude group: 'org.slf4j', module: 'slf4j-log4j12'
+
+      resolutionStrategy.dependencySubstitution {
+        substitute module('com.nimbusds:nimbus-jose-jwt:9.14') using module('com.nimbusds:nimbus-jose-jwt:9.31')
+        substitute module('org.slf4j:slf4j-api') using module ('org.slf4j:slf4j-api:1.7.25')
+      }
     }
   }
 
