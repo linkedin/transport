@@ -181,8 +181,11 @@ public class TestAvroWrapper {
     StdType stdStructType = AvroWrapper.createStdType(structSchema);
     assertTrue(stdStructType instanceof AvroStructType);
     assertEquals(structSchema, stdStructType.underlyingType());
-    assertEquals(field1, ((AvroStructType) stdStructType).fieldTypes().get(0).underlyingType());
-    assertEquals(field2, ((AvroStructType) stdStructType).fieldTypes().get(1).underlyingType());
+
+    AvroStructType avroStructType = (AvroStructType) stdStructType;
+    assertEquals(field1, avroStructType.fieldTypes().get(0).underlyingType());
+    assertEquals(field2, avroStructType.fieldTypes().get(1).underlyingType());
+    assertEquals(avroStructType.fieldNames(), ImmutableList.of("field1", "field2"));
 
     GenericRecord value = new GenericData.Record(structSchema);
     value.put("field1", 1);
