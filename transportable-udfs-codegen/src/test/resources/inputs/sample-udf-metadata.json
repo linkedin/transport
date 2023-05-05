@@ -1,17 +1,17 @@
 {
-  "udfs": [
-    {
-      "topLevelClass": "udfs.OverloadedUDF",
-      "stdUDFImplementations": [
-        "udfs.OverloadedUDFInt",
-        "udfs.OverloadedUDFString"
-      ]
-    },
-    {
-      "topLevelClass": "udfs.SimpleUDF",
-      "stdUDFImplementations": [
-        "udfs.SimpleUDF"
-      ]
-    }
-  ]
+  "udfs": {
+    "udfs.OverloadedUDF": [
+      "udfs.OverloadedUDFInt",
+      "udfs.OverloadedUDFString"
+    ],
+    "udfs.SimpleUDF": [
+      "udfs.SimpleUDF"
+    ]
+  },
+  "classToNumberOfTypeParameters": {
+    "udfs.OverloadedUDFString": 0,
+    "udfs.OverloadedUDF": 0,
+    "udfs.OverloadedUDFInt": 0,
+    "udfs.SimpleUDF": 0
+  }
 }

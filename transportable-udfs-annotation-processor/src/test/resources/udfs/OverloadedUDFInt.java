@@ -6,12 +6,11 @@
 package udfs;
 
 import com.google.common.collect.ImmutableList;
-import com.linkedin.transport.api.data.StdInteger;
 import com.linkedin.transport.api.udf.StdUDF0;
 import java.util.List;
 
 
-public class OverloadedUDFInt extends StdUDF0<StdInteger> implements OverloadedUDF1 {
+public class OverloadedUDFInt extends StdUDF0<Integer> implements OverloadedUDF1 {
 
   @Override
   public List<String> getInputParameterSignatures() {
@@ -24,7 +23,7 @@ public class OverloadedUDFInt extends StdUDF0<StdInteger> implements OverloadedU
   }
 
   @Override
-  public StdInteger eval() {
+  public Integer eval() {
     return null;
   }
 }

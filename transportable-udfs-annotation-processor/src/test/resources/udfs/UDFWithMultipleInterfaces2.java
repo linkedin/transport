@@ -6,7 +6,6 @@
 package udfs;
 
 import com.google.common.collect.ImmutableList;
-import com.linkedin.transport.api.data.StdString;
 import java.util.List;
 
 
@@ -33,7 +32,7 @@ public class UDFWithMultipleInterfaces2 extends AbstractUDFImplementingInterface
   }
 
   @Override
-  public StdString eval() {
+  public String eval() {
     return null;
   }
 }

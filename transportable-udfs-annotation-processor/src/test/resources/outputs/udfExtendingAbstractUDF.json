@@ -1,10 +1,10 @@
 {
-  "udfs": [
-    {
-      "topLevelClass": "udfs.UDFExtendingAbstractUDF",
-      "stdUDFImplementations": [
-        "udfs.UDFExtendingAbstractUDF"
-      ]
-    }
-  ]
+  "udfs": {
+    "udfs.UDFExtendingAbstractUDF": [
+      "udfs.UDFExtendingAbstractUDF"
+    ]
+  },
+  "classToNumberOfTypeParameters": {
+    "udfs.UDFExtendingAbstractUDF": 0
+  }
 }

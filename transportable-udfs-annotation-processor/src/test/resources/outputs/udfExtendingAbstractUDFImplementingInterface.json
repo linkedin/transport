@@ -1,10 +1,11 @@
 {
-  "udfs": [
-    {
-      "topLevelClass": "udfs.AbstractUDFImplementingInterface",
-      "stdUDFImplementations": [
-        "udfs.UDFExtendingAbstractUDFImplementingInterface"
-      ]
-    }
-  ]
+  "udfs": {
+    "udfs.AbstractUDFImplementingInterface": [
+      "udfs.UDFExtendingAbstractUDFImplementingInterface"
+    ]
+  },
+  "classToNumberOfTypeParameters": {
+    "udfs.UDFExtendingAbstractUDFImplementingInterface": 0,
+    "udfs.AbstractUDFImplementingInterface": 0
+  }
 }
