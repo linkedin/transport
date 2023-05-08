@@ -8,7 +8,7 @@ package com.linkedin.transport.trino.data;
 import com.linkedin.transport.api.data.StdFloat;
 import io.trino.spi.block.BlockBuilder;
 
-import static java.lang.Float.*;
+import static java.lang.Float.floatToIntBits;
 
 
 public class TrinoFloat extends TrinoData implements StdFloat {

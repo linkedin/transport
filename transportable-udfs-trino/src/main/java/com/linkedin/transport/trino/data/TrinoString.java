@@ -9,7 +9,7 @@ import com.linkedin.transport.api.data.StdString;
 import io.airlift.slice.Slice;
 import io.trino.spi.block.BlockBuilder;
 
-import static io.trino.spi.type.VarcharType.*;
+import static io.trino.spi.type.VarcharType.VARCHAR;
 
 
 public class TrinoString extends TrinoData implements StdString {

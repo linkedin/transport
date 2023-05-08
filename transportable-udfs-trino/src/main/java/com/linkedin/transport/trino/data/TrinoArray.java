@@ -16,7 +16,7 @@ import io.trino.spi.type.ArrayType;
 import io.trino.spi.type.Type;
 import java.util.Iterator;
 
-import static io.trino.spi.type.TypeUtils.*;
+import static io.trino.spi.type.TypeUtils.readNativeValue;
 
 public class TrinoArray extends TrinoData implements StdArray {
 

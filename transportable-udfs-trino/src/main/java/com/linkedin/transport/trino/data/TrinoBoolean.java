@@ -8,7 +8,7 @@ package com.linkedin.transport.trino.data;
 import com.linkedin.transport.api.data.StdBoolean;
 import io.trino.spi.block.BlockBuilder;
 
-import static io.trino.spi.type.BooleanType.*;
+import static io.trino.spi.type.BooleanType.BOOLEAN;
 
 
 public class TrinoBoolean extends TrinoData implements StdBoolean {

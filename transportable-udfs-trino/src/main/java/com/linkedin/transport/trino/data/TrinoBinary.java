@@ -10,7 +10,7 @@ import io.airlift.slice.Slice;
 import io.trino.spi.block.BlockBuilder;
 import java.nio.ByteBuffer;
 
-import static io.trino.spi.type.VarbinaryType.*;
+import static io.trino.spi.type.VarbinaryType.VARBINARY;
 
 public class TrinoBinary extends TrinoData implements StdBinary {
 
