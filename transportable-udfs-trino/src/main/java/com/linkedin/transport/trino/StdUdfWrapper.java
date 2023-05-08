@@ -23,8 +23,6 @@ import com.linkedin.transport.api.udf.StdUDF7;
 import com.linkedin.transport.api.udf.StdUDF8;
 import com.linkedin.transport.api.udf.TopLevelStdUDF;
 import com.linkedin.transport.typesystem.GenericTypeSignatureElement;
-import io.trino.metadata.FunctionBinding;
-import io.trino.metadata.SignatureBinder;
 import io.trino.spi.function.BoundSignature;
 import io.trino.spi.function.FunctionDependencies;
 import io.trino.spi.function.FunctionDependencyDeclaration;
@@ -55,12 +53,13 @@ import java.util.stream.IntStream;
 import org.apache.commons.lang3.ClassUtils;
 
 import static com.linkedin.transport.trino.StdUDFUtils.quoteReservedKeywords;
-import static io.trino.spi.function.InvocationConvention.InvocationArgumentConvention.*;
+import static io.trino.spi.function.InvocationConvention.InvocationArgumentConvention.BOXED_NULLABLE;
+import static io.trino.spi.function.InvocationConvention.InvocationArgumentConvention.NEVER_NULL;
 import static io.trino.spi.function.InvocationConvention.InvocationReturnConvention.NULLABLE_RETURN;
-import static io.trino.spi.function.OperatorType.*;
-import static io.trino.spi.function.TypeVariableConstraint.*;
+import static io.trino.spi.function.OperatorType.EQUAL;
+import static io.trino.spi.function.TypeVariableConstraint.typeVariable;
 import static io.trino.sql.analyzer.TypeSignatureTranslator.parseTypeSignature;
-import static io.trino.util.Reflection.*;
+import static io.trino.util.Reflection.methodHandle;
 
 // Suppressing argument naming convention for the evalInternal methods
 @SuppressWarnings({"checkstyle:regexpsinglelinejava"})
@@ -133,8 +132,7 @@ public abstract class StdUdfWrapper {
 
   public ScalarFunctionImplementation getScalarFunctionImplementation(BoundSignature boundSignature,
       FunctionDependencies functionDependencies, InvocationConvention invocationConvention) {
-    FunctionBinding functionBinding = SignatureBinder.bindFunction(functionMetadata.getFunctionId(), functionMetadata.getSignature(), boundSignature);
-    StdFactory stdFactory = new TrinoFactory(functionBinding, functionDependencies);
+    StdFactory stdFactory = new TrinoFactory(boundSignature, functionDependencies);
     StdUDF stdUDF = getStdUDF();
     stdUDF.init(stdFactory);
     // Subtract a small jitter value so that refresh is triggered on first call

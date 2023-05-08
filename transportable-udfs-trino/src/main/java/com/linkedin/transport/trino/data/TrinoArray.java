@@ -18,7 +18,6 @@ import java.util.Iterator;
 
 import static io.trino.spi.type.TypeUtils.*;
 
-
 public class TrinoArray extends TrinoData implements StdArray {
 
   private final StdFactory _stdFactory;
