@@ -54,13 +54,13 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import org.apache.commons.lang3.ClassUtils;
 
+import static com.linkedin.transport.trino.StdUDFUtils.methodHandle;
 import static com.linkedin.transport.trino.StdUDFUtils.quoteReservedKeywords;
 import static io.trino.spi.function.InvocationConvention.InvocationArgumentConvention.*;
 import static io.trino.spi.function.InvocationConvention.InvocationReturnConvention.NULLABLE_RETURN;
 import static io.trino.spi.function.OperatorType.*;
 import static io.trino.spi.function.TypeVariableConstraint.*;
 import static io.trino.sql.analyzer.TypeSignatureTranslator.parseTypeSignature;
-import static io.trino.util.Reflection.*;
 
 // Suppressing argument naming convention for the evalInternal methods
 @SuppressWarnings({"checkstyle:regexpsinglelinejava"})

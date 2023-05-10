@@ -8,6 +8,9 @@ package com.linkedin.transport.trino;
 import com.google.common.collect.ImmutableSet;
 import com.linkedin.transport.typesystem.TypeSignature;
 import com.linkedin.transport.typesystem.TypeSignatureElement;
+import io.trino.spi.TrinoException;
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -15,6 +18,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.linkedin.transport.typesystem.ConcreteTypeSignatureElement.*;
+import static io.trino.spi.StandardErrorCode.GENERIC_INTERNAL_ERROR;
 
 
 /**
@@ -47,6 +51,14 @@ public final class StdUDFUtils {
    */
   static String quoteReservedKeywords(String signature) {
     return toTrinoTypeSignatureString(TypeSignature.parse(signature));
+  }
+
+  public static MethodHandle methodHandle(Class<?> clazz, String name, Class<?>... parameterTypes) {
+    try {
+      return MethodHandles.lookup().unreflect(clazz.getMethod(name, parameterTypes));
+    } catch (IllegalAccessException | NoSuchMethodException e) {
+      throw new TrinoException(GENERIC_INTERNAL_ERROR, e);
+    }
   }
 
   private static String toTrinoTypeSignatureString(TypeSignature typeSignature) {
