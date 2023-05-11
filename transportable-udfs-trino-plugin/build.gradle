@@ -15,7 +15,9 @@ dependencies {
   implementation (group:'io.airlift', name: 'log', version: '221')
   implementation (group:'com.google.guava', name: 'guava', version: '24.1-jre')
   implementation (group:'io.trino', name: 'trino-plugin-toolkit', version: project.ext.'trino-version')
-  runtimeOnly (group:'io.trino', name: 'trino-main', version: project.ext.'trino-version')
+  runtimeOnly (group:'io.trino', name: 'trino-main', version: project.ext.'trino-version') {
+    exclude 'group': 'io.trino', 'module': 'trino-spi'
+  }
   compileOnly(group:'io.trino', name: 'trino-spi', version: project.ext.'trino-version')
   testImplementation (group:'io.trino', name: 'trino-main', version: project.ext.'trino-version')
 }

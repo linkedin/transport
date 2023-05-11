@@ -14,6 +14,7 @@ import com.linkedin.transport.plugin.tasks.ShadeTask;
 import java.util.List;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
+import org.gradle.api.component.AdhocComponentWithVariants;
 import org.gradle.api.tasks.SourceSet;
 import org.gradle.api.tasks.TaskProvider;
 import org.gradle.api.tasks.bundling.Jar;
@@ -78,8 +79,10 @@ public class ShadedJarPackaging implements Packaging {
           task.exclude("META-INF/INDEX.LIST", "META-INF/*.SF", "META-INF/*.DSA", "META-INF/*.RSA");
         });
 
-    // TODO: Figure out why this artifact is generated but not being published in Maven
-    project.getArtifacts().add(ShadowBasePlugin.getCONFIGURATION_NAME(), shadeTask);
+    String configuration = ShadowBasePlugin.getCONFIGURATION_NAME();
+    project.getArtifacts().add(configuration, shadeTask);
+    AdhocComponentWithVariants java = project.getComponents().withType(AdhocComponentWithVariants.class).getByName("java");
+    java.addVariantsFromConfiguration(project.getConfigurations().getByName(configuration), v -> v.mapToOptional());
     return shadeTask;
   }
 }
