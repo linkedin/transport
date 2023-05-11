@@ -30,10 +30,10 @@ import io.trino.spi.function.FunctionDependencies;
 import io.trino.spi.function.FunctionDependencyDeclaration;
 import io.trino.spi.function.FunctionKind;
 import io.trino.spi.function.FunctionMetadata;
+import io.trino.spi.function.ScalarFunctionAdapter;
 import io.trino.spi.function.ScalarFunctionImplementation;
 import io.trino.spi.function.Signature;
 import io.trino.spi.function.TypeVariableConstraint;
-import io.trino.operator.scalar.ChoicesSpecializedSqlScalarFunction;
 import io.trino.spi.classloader.ThreadContextClassLoader;
 import io.trino.spi.function.InvocationConvention;
 import io.trino.spi.type.ArrayType;
@@ -58,6 +58,7 @@ import static com.linkedin.transport.trino.StdUDFUtils.methodHandle;
 import static com.linkedin.transport.trino.StdUDFUtils.quoteReservedKeywords;
 import static io.trino.spi.function.InvocationConvention.InvocationArgumentConvention.*;
 import static io.trino.spi.function.InvocationConvention.InvocationReturnConvention.NULLABLE_RETURN;
+import static io.trino.spi.function.ScalarFunctionAdapter.NullAdaptationPolicy.RETURN_NULL_ON_NULL;
 import static io.trino.spi.function.OperatorType.*;
 import static io.trino.spi.function.TypeVariableConstraint.*;
 import static io.trino.sql.analyzer.TypeSignatureTranslator.parseTypeSignature;
@@ -70,6 +71,7 @@ public abstract class StdUdfWrapper {
   private static final int JITTER_FACTOR = 50;  // to calculate jitter from delay
 
   private final FunctionMetadata functionMetadata;
+  private final ScalarFunctionAdapter functionAdapter = new ScalarFunctionAdapter(RETURN_NULL_ON_NULL);
 
   public StdUdfWrapper(StdUDF stdUDF) {
     this.functionMetadata = FunctionMetadata.builder(FunctionKind.SCALAR)
@@ -145,12 +147,25 @@ public abstract class StdUdfWrapper {
         - (new Random()).nextInt(initialJitterInt));
     boolean[] nullableArguments = stdUDF.getAndCheckNullableArguments();
 
-    ScalarFunctionImplementation res = new ChoicesSpecializedSqlScalarFunction(
+    return internalGetScalarFunctionImplementation(
         boundSignature,
-        NULLABLE_RETURN,
+        getMethodHandle(stdUDF, boundSignature, nullableArguments, requiredFilesNextRefreshTime),
         getNullConventionForArguments(nullableArguments),
-        getMethodHandle(stdUDF, boundSignature, nullableArguments, requiredFilesNextRefreshTime)).getScalarFunctionImplementation(invocationConvention);
-    return res;
+        invocationConvention
+    );
+  }
+
+  private ScalarFunctionImplementation internalGetScalarFunctionImplementation(BoundSignature boundSignature, MethodHandle methodHandle,
+      List<InvocationConvention.InvocationArgumentConvention> nullableArguments, InvocationConvention invocationConvention) {
+    InvocationConvention actualConvention = new InvocationConvention(nullableArguments, NULLABLE_RETURN, false, false);
+    MethodHandle internalMethodHandle = functionAdapter.adapt(
+        methodHandle,
+        boundSignature.getArgumentTypes(),
+        actualConvention,
+        invocationConvention
+    );
+    return ScalarFunctionImplementation.builder().methodHandle(internalMethodHandle)
+        .lambdaInterfaces(ImmutableList.of()).build();
   }
 
   private MethodHandle getMethodHandle(StdUDF stdUDF, BoundSignature boundSignature, boolean[] nullableArguments,
