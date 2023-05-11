@@ -7,9 +7,9 @@ package com.linkedin.transport.spark
 
 import java.nio.ByteBuffer
 import java.nio.charset.Charset
-
 import com.linkedin.transport.api.data.PlatformData
-import com.linkedin.transport.spark.typesystem.{SparkBoundVariables, SparkTypeFactory}
+import com.linkedin.transport.api.types.StdStructType
+import com.linkedin.transport.spark.typesystem.SparkBoundVariables
 import org.apache.spark.sql.catalyst.InternalRow
 import org.apache.spark.sql.catalyst.util.{ArrayBasedMapData, GenericArrayData}
 import org.apache.spark.sql.types._
@@ -20,7 +20,6 @@ import scala.collection.JavaConverters._
 
 class TestSparkFactory {
 
-  val typeFactory: SparkTypeFactory = new SparkTypeFactory
   val stdFactory = new SparkFactory(new SparkBoundVariables)
 
   @Test
@@ -65,9 +64,11 @@ class TestSparkFactory {
       "bytesField", "arrField")
     val fieldTypes = Array("varchar", "integer", "bigint", "boolean", "real", "double", "varbinary", "array(integer)")
 
-    val stdStruct = stdFactory.createStruct(stdFactory.createStdType(fieldNames.zip(fieldTypes).map(x => x._1 + " " + x._2).mkString("row(", ", ", ")")))
+    val stdStructType = stdFactory.createStdType(fieldNames.zip(fieldTypes).map(x => x._1 + " " + x._2).mkString("row(", ", ", ")"));
+    val stdStruct = stdFactory.createStruct(stdStructType)
     val internalRow = stdStruct.asInstanceOf[PlatformData].getUnderlyingData.asInstanceOf[InternalRow]
     assertEquals(internalRow.numFields, fieldTypes.length)
+    assertEquals(stdStructType.asInstanceOf[StdStructType].fieldNames().toArray, fieldNames)
     (0 until 8).foreach(idx => {
       assertEquals(internalRow.get(idx, stdFactory.createStdType(fieldTypes(idx)).underlyingType().asInstanceOf[DataType]), null)
     })

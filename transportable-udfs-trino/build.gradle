@@ -24,4 +24,5 @@ dependencies {
   // The io.airlift.slice dependency below has to match its counterpart  in trino-root's pom.xml file
   // If not specified, an older version is picked up transitively from another dependency
   testImplementation(group: 'io.airlift', name: 'slice', version: project.ext.'airlift-slice-version')
+  testImplementation project(path: ':transportable-udfs-type-system', configuration: 'tests')
 }

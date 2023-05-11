@@ -26,6 +26,11 @@ public class AvroStructType implements StdStructType {
   }
 
   @Override
+  public List<String> fieldNames() {
+    return _schema.getFields().stream().map(Schema.Field::name).collect(Collectors.toList());
+  }
+
+  @Override
   public List<? extends StdType> fieldTypes() {
     return _schema.getFields().stream().map(f -> AvroWrapper.createStdType(f.schema())).collect(Collectors.toList());
   }

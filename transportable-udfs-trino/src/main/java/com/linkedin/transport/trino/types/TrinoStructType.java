@@ -22,6 +22,12 @@ public class TrinoStructType implements StdStructType {
   }
 
   @Override
+  public List<String> fieldNames() {
+    return rowType.getFields().stream()
+        .map(field -> field.getName().orElse(null)).collect(Collectors.toList());
+  }
+
+  @Override
   public List<? extends StdType> fieldTypes() {
     return rowType.getFields().stream().map(f -> TrinoWrapper.createStdType(f.getType())).collect(Collectors.toList());
   }

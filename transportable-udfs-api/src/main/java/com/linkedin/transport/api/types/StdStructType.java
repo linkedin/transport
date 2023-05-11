@@ -11,6 +11,9 @@ import java.util.List;
 /** A {@link StdType} representing a struct type. */
 public interface StdStructType extends StdType {
 
+  /** Returns a {@link List} of the names of all the struct fields. */
+  List<String> fieldNames();
+
   /** Returns a {@link List} of the types of all the struct fields. */
   List<? extends StdType> fieldTypes();
 }

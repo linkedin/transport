@@ -74,6 +74,10 @@ case class SparkStructType(structType: StructType) extends StdStructType {
 
   override def underlyingType(): DataType = structType
 
+  override def fieldNames(): JavaList[String] = {
+    structType.fields.map(_.name).toSeq.asJava
+  }
+
   override def fieldTypes(): JavaList[_ <: StdType] = {
     structType.fields.map(f => SparkWrapper.createStdType(f.dataType)).toSeq.asJava
   }

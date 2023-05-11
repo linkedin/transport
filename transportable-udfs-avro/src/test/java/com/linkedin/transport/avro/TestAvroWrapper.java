@@ -171,29 +171,32 @@ public class TestAvroWrapper {
 
   @Test
   public void testRecordType() {
-    Schema field1 = createSchema("field1", "\"int\"");
-    Schema field2 = createSchema("field2", "\"double\"");
+    Schema field1 = createSchema("fieldOne", "\"int\"");
+    Schema field2 = createSchema("fieldTwo", "\"double\"");
     Schema structSchema = Schema.createRecord(ImmutableList.of(
-        new Schema.Field("field1", field1, null, null),
-        new Schema.Field("field2", field2, null, null)
+        new Schema.Field("fieldOne", field1, null, null),
+        new Schema.Field("fieldTwo", field2, null, null)
     ));
 
     StdType stdStructType = AvroWrapper.createStdType(structSchema);
     assertTrue(stdStructType instanceof AvroStructType);
     assertEquals(structSchema, stdStructType.underlyingType());
-    assertEquals(field1, ((AvroStructType) stdStructType).fieldTypes().get(0).underlyingType());
-    assertEquals(field2, ((AvroStructType) stdStructType).fieldTypes().get(1).underlyingType());
+
+    AvroStructType avroStructType = (AvroStructType) stdStructType;
+    assertEquals(field1, avroStructType.fieldTypes().get(0).underlyingType());
+    assertEquals(field2, avroStructType.fieldTypes().get(1).underlyingType());
+    assertEquals(avroStructType.fieldNames(), ImmutableList.of("fieldOne", "fieldTwo"));
 
     GenericRecord value = new GenericData.Record(structSchema);
-    value.put("field1", 1);
-    value.put("field2", 2.0);
+    value.put("fieldOne", 1);
+    value.put("fieldTwo", 2.0);
     StdData stdStructData = AvroWrapper.createStdData(value, structSchema);
     assertTrue(stdStructData instanceof AvroStruct);
     AvroStruct avroStruct = (AvroStruct) stdStructData;
     assertEquals(2, avroStruct.fields().size());
     assertEquals(value, avroStruct.getUnderlyingData());
-    assertEquals(1, ((PlatformData) avroStruct.getField("field1")).getUnderlyingData());
-    assertEquals(2.0, ((PlatformData) avroStruct.getField("field2")).getUnderlyingData());
+    assertEquals(1, ((PlatformData) avroStruct.getField("fieldOne")).getUnderlyingData());
+    assertEquals(2.0, ((PlatformData) avroStruct.getField("fieldTwo")).getUnderlyingData());
   }
 
   @Test
