@@ -32,7 +32,6 @@ import com.linkedin.transport.trino.data.TrinoStruct;
 import io.airlift.slice.Slices;
 import io.trino.metadata.FunctionBinding;
 import io.trino.spi.function.FunctionDependencies;
-import io.trino.metadata.OperatorNotFoundException;
 import io.trino.spi.function.InvocationConvention;
 import io.trino.spi.function.OperatorType;
 import io.trino.spi.type.ArrayType;
@@ -137,7 +136,7 @@ public class TrinoFactory implements StdFactory {
   public MethodHandle getOperatorHandle(
       OperatorType operatorType,
       List<Type> argumentTypes,
-      InvocationConvention invocationConvention) throws OperatorNotFoundException {
+      InvocationConvention invocationConvention) {
     return functionDependencies.getOperatorImplementation(operatorType, argumentTypes, invocationConvention).getMethodHandle();
   }
 }
