@@ -27,11 +27,11 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.Set;
 
-import static io.trino.spi.StandardErrorCode.*;
+import static io.trino.spi.StandardErrorCode.GENERIC_INTERNAL_ERROR;
 import static io.trino.spi.function.InvocationConvention.simpleConvention;
 import static io.trino.spi.function.InvocationConvention.InvocationArgumentConvention.NEVER_NULL;
 import static io.trino.spi.function.InvocationConvention.InvocationReturnConvention.NULLABLE_RETURN;
-import static io.trino.spi.type.TypeUtils.*;
+import static io.trino.spi.type.TypeUtils.readNativeValue;
 
 
 public class TrinoMap extends TrinoData implements StdMap {

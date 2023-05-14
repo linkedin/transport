@@ -6,7 +6,6 @@
 package com.linkedin.transport.test.trino;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.linkedin.transport.test.spi.Row;
 import com.linkedin.transport.test.spi.TestCase;
@@ -23,7 +22,6 @@ import io.trino.spi.connector.ConnectorContext;
 import io.trino.spi.connector.ConnectorFactory;
 import io.trino.spi.connector.ConnectorMetadata;
 import io.trino.spi.function.BoundSignature;
-import io.trino.metadata.FunctionBinding;
 import io.trino.spi.function.FunctionId;
 import com.linkedin.transport.api.StdFactory;
 import com.linkedin.transport.api.udf.StdUDF;
@@ -103,12 +101,9 @@ public class TrinoTester implements SqlStdTester {
   @Override
   public StdFactory getStdFactory() {
     if (_stdFactory == null) {
-      FunctionBinding functionBinding = new FunctionBinding(
-          new FunctionId("test"),
+      _stdFactory = new TrinoFactory(
           new BoundSignature("test", UNKNOWN, ImmutableList.of()),
-          ImmutableMap.of(),
-          ImmutableMap.of());
-      _stdFactory = new TrinoFactory(functionBinding, new TrinoTestFunctionDependencies(InternalTypeManager.TESTING_TYPE_MANAGER, _runner));
+          new TrinoTestFunctionDependencies(InternalTypeManager.TESTING_TYPE_MANAGER, _runner));
     }
     return _stdFactory;
   }

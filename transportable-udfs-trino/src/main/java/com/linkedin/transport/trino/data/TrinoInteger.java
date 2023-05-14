@@ -8,7 +8,7 @@ package com.linkedin.transport.trino.data;
 import com.linkedin.transport.api.data.StdInteger;
 import io.trino.spi.block.BlockBuilder;
 
-import static io.trino.spi.type.IntegerType.*;
+import static io.trino.spi.type.IntegerType.INTEGER;
 
 
 public class TrinoInteger extends TrinoData implements StdInteger {

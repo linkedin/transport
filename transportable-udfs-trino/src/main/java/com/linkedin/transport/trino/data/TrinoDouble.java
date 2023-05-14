@@ -8,7 +8,7 @@ package com.linkedin.transport.trino.data;
 import com.linkedin.transport.api.data.StdDouble;
 import io.trino.spi.block.BlockBuilder;
 
-import static io.trino.spi.type.DoubleType.*;
+import static io.trino.spi.type.DoubleType.DOUBLE;
 
 
 public class TrinoDouble extends TrinoData implements StdDouble {

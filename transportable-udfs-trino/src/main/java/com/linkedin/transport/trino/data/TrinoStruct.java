@@ -21,7 +21,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import static io.trino.spi.type.TypeUtils.*;
+import static io.trino.spi.type.TypeUtils.readNativeValue;
 
 
 public class TrinoStruct extends TrinoData implements StdStruct {

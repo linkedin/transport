@@ -6,7 +6,6 @@
 package com.linkedin.transport.trino;
 
 import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableSet;
 import com.linkedin.transport.api.StdFactory;
 import com.linkedin.transport.api.data.StdArray;
 import com.linkedin.transport.api.data.StdBoolean;
@@ -30,7 +29,7 @@ import com.linkedin.transport.trino.data.TrinoMap;
 import com.linkedin.transport.trino.data.TrinoString;
 import com.linkedin.transport.trino.data.TrinoStruct;
 import io.airlift.slice.Slices;
-import io.trino.metadata.FunctionBinding;
+import io.trino.spi.function.BoundSignature;
 import io.trino.spi.function.FunctionDependencies;
 import io.trino.metadata.OperatorNotFoundException;
 import io.trino.spi.function.InvocationConvention;
@@ -39,24 +38,19 @@ import io.trino.spi.type.ArrayType;
 import io.trino.spi.type.MapType;
 import io.trino.spi.type.RowType;
 import io.trino.spi.type.Type;
-import io.trino.spi.type.TypeSignature;
 import java.lang.invoke.MethodHandle;
 import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.linkedin.transport.trino.StdUDFUtils.quoteReservedKeywords;
-import static io.trino.metadata.SignatureBinder.*;
-import static io.trino.sql.analyzer.TypeSignatureTranslator.*;
-
 
 public class TrinoFactory implements StdFactory {
 
-  final FunctionBinding functionBinding;
+  final BoundSignature boundSignature;
   final FunctionDependencies functionDependencies;
 
-  public TrinoFactory(FunctionBinding functionBinding, FunctionDependencies functionDependencies) {
-    this.functionBinding = functionBinding;
+  public TrinoFactory(BoundSignature boundSignature, FunctionDependencies functionDependencies) {
+    this.boundSignature = boundSignature;
     this.functionDependencies = functionDependencies;
   }
 
@@ -130,8 +124,7 @@ public class TrinoFactory implements StdFactory {
 
   @Override
   public StdType createStdType(String typeSignatureStr) {
-    TypeSignature typeSignature = applyBoundVariables(parseTypeSignature(quoteReservedKeywords(typeSignatureStr), ImmutableSet.of()), functionBinding);
-    return TrinoWrapper.createStdType(functionDependencies.getType(typeSignature));
+    return TrinoWrapper.createStdType(boundSignature.getReturnType());
   }
 
   public MethodHandle getOperatorHandle(
