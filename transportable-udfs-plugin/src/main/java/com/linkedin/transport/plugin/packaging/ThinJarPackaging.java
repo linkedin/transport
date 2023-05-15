@@ -5,12 +5,13 @@
  */
 package com.linkedin.transport.plugin.packaging;
 
+import com.github.jengelman.gradle.plugins.shadow.ShadowBasePlugin;
 import com.google.common.collect.ImmutableList;
 import com.linkedin.transport.plugin.Platform;
 import java.util.List;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
-import org.gradle.api.artifacts.Dependency;
+import org.gradle.api.component.AdhocComponentWithVariants;
 import org.gradle.api.tasks.SourceSet;
 import org.gradle.api.tasks.TaskProvider;
 import org.gradle.api.tasks.bundling.Jar;
@@ -42,7 +43,11 @@ public class ThinJarPackaging implements Packaging {
           task.from(platformSourceSet.getResources());
         });
 
-    project.getArtifacts().add(Dependency.ARCHIVES_CONFIGURATION, thinJarTask);
+    String configuration = ShadowBasePlugin.getCONFIGURATION_NAME();
+    project.getArtifacts().add(configuration, thinJarTask);
+    AdhocComponentWithVariants java = project.getComponents().withType(AdhocComponentWithVariants.class).getByName("java");
+    java.addVariantsFromConfiguration(project.getConfigurations().getByName(configuration), v -> v.mapToOptional());
+
     return ImmutableList.of(thinJarTask);
   }
 }

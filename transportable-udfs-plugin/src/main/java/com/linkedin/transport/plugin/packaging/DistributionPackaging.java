@@ -5,11 +5,13 @@
  */
 package com.linkedin.transport.plugin.packaging;
 
+import com.github.jengelman.gradle.plugins.shadow.ShadowBasePlugin;
 import com.google.common.collect.ImmutableList;
 import com.linkedin.transport.plugin.Platform;
 import java.util.List;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
+import org.gradle.api.component.AdhocComponentWithVariants;
 import org.gradle.api.distribution.DistributionContainer;
 import org.gradle.api.tasks.SourceSet;
 import org.gradle.api.tasks.TaskProvider;
@@ -73,7 +75,7 @@ public class DistributionPackaging implements Packaging {
         }
       */
 
-    return project.getTasks().register(sourceSet.getTaskName(null, "distThinJar"), Jar.class, task -> {
+    TaskProvider<Jar> thinJarTask = project.getTasks().register(sourceSet.getTaskName(null, "distThinJar"), Jar.class, task -> {
       task.dependsOn(project.getTasks().named(sourceSet.getClassesTaskName()));
       task.setDescription("Assembles a thin jar archive containing the " + platformName
           + " classes to be included in the distribution");
@@ -81,5 +83,12 @@ public class DistributionPackaging implements Packaging {
       task.from(sourceSet.getOutput());
       task.from(sourceSet.getResources());
     });
+
+    String configuration = ShadowBasePlugin.getCONFIGURATION_NAME();
+    project.getArtifacts().add(configuration, thinJarTask);
+    AdhocComponentWithVariants java = project.getComponents().withType(AdhocComponentWithVariants.class).getByName("java");
+    java.addVariantsFromConfiguration(project.getConfigurations().getByName(configuration), v -> v.mapToOptional());
+
+    return thinJarTask;
   }
 }
