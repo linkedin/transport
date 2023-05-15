@@ -7,7 +7,7 @@ rootProject.name = 'transportable-udfs-examples'
 includeBuild('../')
 
 def modules = [
-    'transportable-udfs-example-udfs'
+	'transport-udf-1'
 ]
 
 modules.each { module ->

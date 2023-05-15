@@ -1,0 +1,982 @@
+recruiter|.* recruit.*
+recruiter|.* talent sourc.*
+recruiter|.* talent search.*
+recruiter|.* talent acquisition.*
+recruiter|.* staffing.*
+recruiter|.* search consultant.*
+recruiter|.* headhunter.*
+recruiter|.* executive search.*
+recruiter|.* head-hunt.*
+recruiter|.* headhunt.*
+recruiter|.* sourcer.*
+recruiter|.* recruiter .*
+recruiter|.* resourcer .*
+recruiter|.* recruiting .*
+recruiter|.* resourcing .*
+recruiter|.* talent strategy .*
+recruiter|.* hiring .*
+recruiter|.* direct sourcing .*
+// Chinese start //
+recruiter|.*猎头.*
+recruiter|.*招聘.*
+recruiter|.*人才搜索.*
+recruiter|.*人力资源主管.*
+recruiter|.*招聘主管.*
+recruiter|.*雇主品牌.*
+recruiter|.*人才管理.*
+recruiter|.*人力资源总监.*
+// Japanese start //
+recruiter|.* 人材検索 .*
+recruiter|.* 人材獲得 .*
+recruiter|.* スタッフィング .*
+recruiter|.* エグゼクティブサーチ .*
+recruiter|.* ヘッドハンター .*
+recruiter|.* 採用 .*
+// Italian starts //
+recruiter|.* direttore della selezione del personale .*
+recruiter|.* responsabile selezione del personale .*
+recruiter|.* direttore della selezione .*
+recruiter|.* agente di ricerca del personale .*
+recruiter|.* cacciatore di teste .*
+recruiter|.* selezionatore personale .*
+recruiter|.* selezionatrice personale .*
+recruiter|.* selezione del personale .*
+recruiter|.* strategia per la selezione .*
+recruiter|.* assunzioni .*
+recruiter|.* selezione diretta .*
+recruiter|.* selezionatore .*
+recruiter|.* ricerca .*
+recruiter|.* fonte .*
+// Finnish starts //
+recruiter|.* rekrytoija .*
+recruiter|.* rekrytointikonsultti .*
+recruiter|.* rekrytointivastaava .*
+recruiter|.* rekrytointi .*
+// Norwegian starts //
+recruiter|.* rekrutteringssjef .*
+recruiter|.* rekrutteringskonsulent .*
+recruiter|.* rekrutteringsspesialist .*
+recruiter|.* rekrutterer .*
+recruiter|.* bemanningssjef .*
+recruiter|.* bemanningskonsulent .*
+recruiter|.* bemanningskoordinator .*
+recruiter|.* bemanningsrådgiver .*
+recruiter|.* rekrutter .*
+recruiter|.* rekruttere .*
+recruiter|.* bemanningsbyrå .*
+recruiter|.* bemanningsledelse .*
+recruiter|.* headhunte .*
+recruiter|.* headhunt .*
+recruiter|.* søk .*
+recruiter|.* søke .*
+recruiter|.* søker .*
+recruiter|.* søkt .*
+// Danish starts //
+recruiter|.* talentsøgning .*
+recruiter|.* erhvervelse af talent .*
+recruiter|.* anskaffelse af talent .*
+recruiter|.* bemanding .*
+recruiter|.* executive search .*
+recruiter|.* rekvisition .*
+// Swedish starts //
+recruiter|.* rekryteringskonsult .*
+recruiter|.* rekryterare .*
+recruiter|.* searchkonsult .*
+recruiter|.* sökkonsult .*
+recruiter|.* rekryter .*
+recruiter|.* talangjakt .*
+recruiter|.* rekrytering .*
+recruiter|.* bemanning .*
+recruiter|.* anställning .*
+recruiter|.* head hunt .*
+recruiter|.* headhunter .*
+recruiter|.* sourcer .*
+recruiter|.* bemanna .*
+recruiter|.* bemanningschef .*
+recruiter|.* anställningschef .*
+recruiter|.* anställningsansvarig .*
+// Benelux starts //
+recruiter|.* werving .*
+recruiter|.* personeelsfunctionaris .*
+recruiter|.* adviseur p&o .*
+// Spanish starts//
+recruiter|.* selección de personal .*
+recruiter|.* seleccionar personal .*
+recruiter|.* reclutar .*
+recruiter|.* adquisición de personal .*
+recruiter|.* contratación de personal .*
+recruiter|.* buscatalentos .*
+recruiter|.* cazador de talentos .*
+recruiter|.* búsqueda de talentos .*
+recruiter|.* búsqueda de personal .*
+recruiter|.* pedido .*
+recruiter|.* requerimiento .*
+recruiter|.* búsqueda de talento .*
+recruiter|.* buscar talento .*
+recruiter|.* adquisión de talento .*
+recruiter|.* dotación de personal .*
+recruiter|.* búsqueda de ejecutivos .*
+recruiter|.* head-hunt .*
+recruiter|.* cazatalentos .*
+recruiter|.* buscar .*
+recruiter|.* búsqueda .*
+// Portuguese starts //
+recruiter|.* recrutar .*
+recruiter|.* selecionar .*
+recruiter|.* seleção de pessoal .*
+recruiter|.* seleção e recrutamento .*
+recruiter|.* recrutamento .*
+recruiter|.* seleção .*
+recruiter|.* solução de recrutamento .*
+recruiter|.* busca de currículo .*
+recruiter|.* recrutamento e seleção .*
+recruiter|.* procura por profissionais qualificados .*
+recruiter|.* procura por talento .*
+recruiter|.* pesquisa por talento .*
+recruiter|.* pesquisa por profissionais qualificados .*
+recruiter|.* profissionais qualificados .*
+recruiter|.* pesquisa de talento .*
+recruiter|.* busca de profissionais qualificados .*
+recruiter|.* bosca por profissionais qualificados .*
+recruiter|.* busca por talento .*
+recruiter|.* busca de talento .*
+recruiter|.* busca por profissionais qualificados .*
+recruiter|.* seleção de profissional qualificado .*
+recruiter|.* seleção de talento .*
+recruiter|.* seleção de profissional de talento .*
+recruiter|.* contratação de pessoal .*
+recruiter|.* contratação de profissional qualificado .*
+recruiter|.* contratação de talento .*
+recruiter|.* contratação de profissional de talento .*
+recruiter|.* recrutamento de pessoal .*
+recruiter|.* recrutamento de profissional qualificado .*
+recruiter|.* recrutamento de talento .*
+recruiter|.* recrutamento de profissional de talento .*
+recruiter|.* solução de recrutamento e seleção .*
+recruiter|.* solução em recrutamento .*
+recruiter|.* pessoal .*
+recruiter|.* consultoria de recrutamento .*
+recruiter|.* consultoria de recrutamento e Seleção .*
+recruiter|.* empresa de staffing .*
+recruiter|.* recursos humanos .*
+recruiter|.* pesquisa de executivos .*
+recruiter|.* cargos executivos .*
+recruiter|.* seleção de executivos .*
+recruiter|.* head-hunter .*
+recruiter|.* head-hunting .*
+recruiter|.* head hunter .*
+recruiter|.* headhunting .*
+recruiter|.* head hunting .*
+recruiter|.* recrutador .*
+recruiter|.* agencia de pessoal .*
+recruiter|.* agência de pessoal .*
+recruiter|.* agencia de recrutamento .*
+recruiter|.* agência de recrutamento .*
+recruiter|.* agencia de recursos humanos .*
+recruiter|.* agência de recursos humanos .*
+recruiter|.* agencia de temporários .*
+recruiter|.* agência de temporários .*
+recruiter|.* agencia de terceirização .*
+recruiter|.* agência de terceirização .*
+recruiter|.* aquisição de talentos .*
+recruiter|.* atração de pessoas .*
+recruiter|.* atração de profissionais .*
+recruiter|.* atração de talentos .*
+recruiter|.* busca de executivos .*
+recruiter|.* hunting .*
+recruiter|.* recrut .*
+recruiter|.* recrutamento & seleção .*
+recruiter|.* selecionador .*
+// German starts //
+recruiter|.* einstellen .*
+recruiter|.* anstellen .*
+recruiter|.* talent sourcing .*
+recruiter|.* talent akquisition .*
+recruiter|.* kandidatensuche .*
+recruiter|.* talent acquisition .*
+recruiter|.* mitarbeitersuche .*
+recruiter|.* personalbeschaffung .*
+recruiter|.* personalsachbearbeiter .*
+recruiter|.* bearbeiterin .*
+recruiter|.* personalabteilung .*
+recruiter|.* vermittlung von führungskräften .*
+recruiter|.* direktsuche .*
+recruiter|.* abwerben .*
+recruiter|.* personalvermittler .*
+recruiter|.* suche .*
+recruiter|.* personalanforderung .*
+recruiter|.* personalplanung .*
+recruiter|.* personalverantwortlicher .*
+recruiter|.* personalwirtschaft .*
+// French starts //
+recruiter|.* recruteur .*
+recruiter|.* recherche de talent .*
+recruiter|.* acquisition de talent .*
+recruiter|.* agence de recrutement .*
+recruiter|.* agence d'interim .*
+recruiter|.* cabinet de chasseur de tetes .*
+recruiter|.* cabinet de recrutement .*
+recruiter|.* cabinet de chasse .*
+recruiter|.* chasseur de tete .*
+recruiter|.* chargé de recrutement .*
+recruiter|.* chargée de recrutement .*
+recruiter|.* responsable recrutement .*
+recruiter|.* approche directe .*
+recruiter|.* identification de talent .*
+// Dutch starts //
+recruiter|.* werf .*
+recruiter|.* talent werving .*
+recruiter|.* searcher .*
+recruiter|.* zoeken .*
+recruiter|.* vorderen .*
+recruiter|.* p&o .*
+recruiter|.* arbeidsbemiddeling .*
+recruiter|.* personeel & organisatie .*
+recruiter|.* talent search .*
+recruiter|.* خبراء توظيف .*
+recruiter|.* خبير توظيف .*
+recruiter|.* تحديد المواهب .*
+recruiter|.* البحث عن المواهب .*
+recruiter|.* الموارد البشرية .*
+recruiter|.* التوظيف .*
+recruiter|.* توظيف .*
+recruiter|.* البحث التنفيذي .*
+recruiter|.* المواهب .*
+recruiter|.* العثور علي المواهب .*
+recruiter|.* مورِد .*
+recruiter|.* طلب تعيين .*
+recruiter|.* προσλαμβάνω .*
+recruiter|.* Πηγή ταλέντων .*
+recruiter|.* Αναζήτηση ταλέντων .*
+recruiter|.* Προσωπικό,Στελέχοι .*
+recruiter|.* Αναζήτηση ανώτατων .*
+recruiter|.* στελεχών .*
+recruiter|.* ταλέντων .*
+recruiter|.* Aπαίτηση για δυναμικό .*
+recruiter|.* προσωπικό .*
+recruiter|.* toborzó .*
+recruiter|.* tehetség forrás .*
+recruiter|.* tehetségkutató .*
+recruiter|.* tehetség .*
+recruiter|.* megszerzése .*
+recruiter|.* munkaerő .*
+recruiter|.* Tehetség Stratégia .*
+recruiter|.* fej vadászat .*
+recruiter|.* Közvetlen Beszerzés .*
+recruiter|.* beszerző .*
+recruiter|.* igénybevétel .*
+recruiter|.* rekruter .*
+recruiter|.* wyszukiwanie talentów .*
+recruiter|.* pozyskiwanie talentów .*
+recruiter|.* zatrudnienie .*
+recruiter|.* rekrutacja bezpośrednia .*
+recruiter|.* zapotrzebowanie .*
+recruiter|.* recrutare .*
+recruiter|.* recrutarea talentelor .*
+recruiter|.* recrutare de talentati .*
+recruiter|.* recrutare si selectie .*
+recruiter|.* recrutare candidati .*
+recruiter|.* recrutare talente .*
+recruiter|.* recrutare de talent .*
+recruiter|.* recrutare executiva .*
+recruiter|.* rechiziţie .*
+recruiter|.* рекрут .*
+recruiter|.* подбор .*
+recruiter|.* персонала .*
+recruiter|.* Поиск талантов .*
+recruiter|.* подбор персонала .*
+recruiter|.* кадровый подбор .*
+recruiter|.* подбор руководителей .*
+recruiter|.* талантов .*
+recruiter|.* кадров .*
+recruiter|.* кандидатов .*
+recruiter|.* прям  поиск специалистов .*
+recruiter|.* по работе с персоналом .*
+recruiter|.* náborový pracovník .*
+recruiter|.* nábor .*
+recruiter|.* İşe Alım Uzmanı .*
+recruiter|.* yetenek kazanımı .*
+recruiter|.* seçme ve yerleştirme .*
+recruiter|.* üst düzey işe alım .*
+recruiter|.* işe alım uzmanı .*
+recruiter|.* рекрут.*
+recruiter|.* пошук кадрiв .*
+recruiter|.* пiдбiр персоналу .*
+recruiter|.* наймання .*
+recruiter|.* Пошук талантiв .*
+recruiter|.* Пошук кадрiв .*
+recruiter|.* Укомплектування штату .*
+recruiter|.* Замiщення посад у штатному розкладi .*
+recruiter|.* Пошук працiвникiв .*
+recruiter|.* Працiвник вiддiлу кадрiв .*
+recruiter|.* perekrut .*
+recruiter|.* cari bakat .*
+recruiter|.* pencari bakat .*
+recruiter|.* cari eksekutif .*
+recruiter|.* agensi kakitangan .*
+recruiter|.* sumber perekrutan .*
+recruiter|.* pengambilan kakitangan .*
+recruiter|.* akuisasi talent .*
+recruiter|.* eksekutif search .*
+recruiter|.* sumber bakat .*
+recruiter|.* perolehan bakat .*
+recruiter|.* carian bakat .*
+recruiter|.*채용 담당자.*
+recruiter|.*인재인수.*
+recruiter|.*헤드헌터.*
+recruiter|.* Estratehiyang Talento .*
+recruiter|.* Ehekutibong Paghahanap .*
+genTp|.* hr .*
+genTp|.* staffing .*
+genTp|.* requisition .*
+genTp|.* human resourc .*
+genTp|.* des ressources humaines .*
+genTp|.* personalentwicklung .*
+genTp|.* personalabteilung .*
+genTp|.* personalbereich .*
+genTp|.* recursos humanos .*
+genTp|.* mänskliga resurser .*
+genTp|.* henkilöresurssien .*
+genTp|.* delle risorse umane .*
+genTp|.*人力资源.*
+genTp|.*人材.*
+genTp|.*인사.*
+genTp|.* empresa de rh .*
+genTp|.* empresa de recursos humanos .*
+genTp|.* rh .*
+genTp|.* hr-päällikkö .*
+genTp|.* human resourc.*
+genTp|.* human resources .*
+genTp|.* gente & gestão .*
+genTp|.* gente e gestão .*
+genTp|.* pessoas .*
+genTp|.* gestão de pessoas .*
+genTp|.* gestão de talentos .*
+//Finnish
+genTp|.* henkilöstöosasto .*
+genTp|.* henkilöstöhallinto .*
+genTp|.* hr-ammattilainen .*
+//Hungarian
+genTp|.* emberi erőforrás .*
+genTp|.* HR-generalista .*
+//Arabic
+genTp|.* موارد بشرية .*
+//Polish
+genTp|.* specjalista hr .*
+// Romanian
+genTp|.* resurse umane .*
+// Turkish
+genTp|.* insan kaynakları .*
+// Ukrainian
+genTp|.* подбор персоналу .*
+// Malay
+genTp|.* sumber manusia .*
+// Bahasa Indonesia
+genTp|.* sumber daya manusia .*
+genTp|.* rrhh .*
+genTp|.* personalansvarig .*
+genTp|.* personalchef .*
+genTp|.* personaleafdeling .*
+genTp|.* hr-leder .*
+genTp|.* personalressurser .*
+genTp|.* personaladministrasjon .*
+genTp|.* direttore della selezione del personale .*
+genTp|.* responsabile selezione del personale .*
+genTp|.* direttore della selezione .*
+genTp|.* hr specialist .*
+genTp|.* impiegata ufficio risorse umane .*
+genTp|.* assistente ufficio risorse umane .*
+genTp|.* risorse umane .*
+manager|.* project manager .*
+manager|.* director .*
+manager|.* manager .*
+manager|.* vice president .*
+manager|.* vp .*
+manager|.* managing director .*
+manager|.* executive director .*
+manager|.* regional manager .*
+manager|.* national manager .*
+manager|.* regional director .*
+manager|.* owner .*
+manager|.* partner .*
+manager|.* principal .*
+manager|.* branch manager .*
+manager|.* assistant branch manager .*
+manager|.* case manager .*
+manager|.* district manager .*
+manager|.* consulting manager .*
+manager|.* general manager .*
+manager|.* senior manager .*
+manager|.* assistant manager .*
+manager|.* executive search .*
+manager|.* head of research .*
+manager|.* resource manager .*
+manager|.* marketing manager .*
+manager|.* marketing director .*
+manager|.* operations director .*
+manager|.* social media manager .*
+manager|.* ceo .*
+manager|.* associate director .*
+manager|.* senior partner .*
+manager|.* founder .*
+// Spanish starts //
+manager|.* gerente de proyectos .*
+manager|.* director
+manager|.* directora
+manager|.* manager
+manager|.* gerente
+manager|.* jefe
+manager|.* jefa
+manager|.* responsable
+manager|.* vicepresidente .*
+manager|.* vicepresidenta .*
+manager|.* directora .*
+manager|.* director general .*
+manager|.* directora general .*
+manager|.* director ejecutivo .*
+manager|.* directora ejecutiva .*
+manager|.* jefe regional .*
+manager|.* jefa territorial .*
+manager|.* responsable territorial .*
+manager|.* responsable regional .*
+manager|.* jefe nacional .*
+manager|.* director regional .*
+manager|.* directora regional .*
+manager|.* director territorial .*
+manager|.* directora territorial .*
+manager|.* dueño .*
+manager|.* dueña .*
+manager|.* socio .*
+manager|.* socia .*
+manager|.* jefe .*
+manager|.* jefa .*
+manager|.* gerente de división .*
+manager|.* jefe de división .*
+manager|.* gerente de sucursal .*
+manager|.* jefe de sucursal .*
+manager|.* asistente del gerente de sucursal .*
+manager|.* asistente de jefe de sucursal .*
+manager|.* asistente de jefe de división .*
+manager|.* asistente de gerente de división .*
+manager|.* asesor .*
+manager|.* asesora .*
+manager|.* jefe de distrito .*
+manager|.* jefa de distrito .*
+manager|.* gerente de distrito .*
+manager|.* representatnte regional .*
+manager|.* gerente de consultoría .*
+manager|.* jefe de consultoría .*
+manager|.* manager de consultoría .*
+manager|.* gerente general .*
+manager|.* supervisor .*
+manager|.* subgerente .*
+manager|.* asistente de dirección .*
+// Portuguese starts//
+manager|.* gerente de projeto .*
+manager|.* gerente de projetos .*
+manager|.* diretor .*
+manager|.* gerente .*
+manager|.* vice-presidente .*
+manager|.* diretor geral .*
+manager|.* diretor-presidente .*
+manager|.* diretor executivo .*
+manager|.* gerente regional .*
+manager|.* gerente nacional .*
+manager|.* diretor regional .*
+manager|.* diretora regional .*
+manager|.* dir regional .*
+manager|.* dir\. regional .*
+manager|.* proprietária .*
+manager|.* proprietário .*
+manager|.* dono .*
+manager|.* fundador .*
+manager|.* fundadora .*
+manager|.* sócio .*
+manager|.* sócia .*
+manager|.* gerente de filial .*
+manager|.* ger filial .*
+manager|.* ger\. filial .*
+manager|.* assistente de gerente de filial .*
+manager|.* assistente de ger filial .*
+manager|.* assistente de ger\. filial .*
+manager|.* gerente de consultoria .*
+manager|.* ger\. consultoria .*
+manager|.* ger consultoria .*
+manager|.* gerente geral .*
+manager|.* gerente senior .*
+manager|.* gerente sênior .*
+manager|.* ger senior .*
+manager|.* ger sênior .*
+manager|.* ger\. sênior .*
+manager|.* ger\. senior .*
+manager|.* assistente do gerente .*
+manager|.* assist do gerente .*
+manager|.* assistente do ger .*
+manager|.* coordenadora .*
+manager|.* coordenador .*
+manager|.* coord\. .*
+manager|.* coord .*
+manager|.* líder .*
+manager|.* lider .*
+// German starts //
+manager|.* projektmanager .*
+manager|.* direktor .*
+manager|.* geschäftsführer .*
+manager|.* geschäftsleiter .*
+manager|.* geschäftsführender direktor .*
+manager|.* gebietsleiter .*
+manager|.* regionalmanager .*
+manager|.* landesmanager .*
+manager|.* gebietsdirektor .*
+manager|.* regionaldirektor .*
+manager|.* vize-präsident .*
+manager|.* inhaber .*
+manager|.* filialleiter .*
+manager|.* stellv. filialleiter .*
+manager|.* fallmanager .*
+manager|.* bereichsleiter .*
+manager|.* berater .*
+manager|.* generaldirektor .*
+manager|.* assistenz-manager .*
+// French starts //
+manager|.* chef de projet .*
+manager|.* directeur .*
+manager|.* directrice .*
+manager|.* directeur general .*
+manager|.* dg .*
+manager|.* pdg .*
+manager|.* president directeur general .*
+manager|.* manager regional .*
+manager|.* manager national .*
+manager|.* directeur regional .*
+manager|.* directeur de region .*
+manager|.* directeur France .*
+manager|.* country manager .*
+manager|.* responsable de zone .*
+manager|.* directeur adjoint or directrice adjointe .*
+manager|.* fondateur or gérant .*
+manager|.* associé .*
+manager|.* directeur d'exploitation .*
+// COO in french
+manager|.* responsable filiale .*
+manager|.* directeur de succursale .*
+manager|.* assistant directeur d'exploitation .*
+manager|.* responsable conseil .*
+manager|.* directeur général .*
+manager|.* responsable senior .*
+manager|.* responsable adjoint .*
+// Dutch starts //
+manager|.* projectmanager .*
+manager|.* adjunct directeur .*
+manager|.* algemeen directeur .*
+manager|.* regio manager .*
+manager|.* nationaal manager .*
+manager|.* regio directeur .*
+manager|.* eigenaar .*
+manager|.* zelfde/bedrijfsleider .*
+manager|.* asst bedrijfsleider .*
+manager|.* projektledare .*
+manager|.* direktör .*
+manager|.* chef .*
+manager|.* vd .*
+manager|.* verksamhetschef .*
+manager|.* avdel .*
+manager|.* exekutiv chef .*
+manager|.* regionschef .*
+manager|.* landschef .*
+manager|.* regionsansvarig .*
+manager|.* ägare .*
+manager|.* delägare .*
+manager|.* kontorschef .*
+manager|.* filialchef .*
+manager|.* divisionschef .*
+manager|.* projektchef .*
+manager|.* distriktschef .*
+manager|.* chefskonsult .*
+manager|.* ansvarig .*
+manager|.* huvudansvarig .*
+manager|.* avdelningschef .*
+manager|.* projektleder .*
+manager|.* direktør .*
+manager|.* leder .*
+manager|.* vicedirektør .*
+manager|.* administrerende direktør .*
+manager|.* områdechef .*
+manager|.* chef for .*
+manager|.* regionaldirektør .*
+manager|.* ejer .*
+manager|.* skoleleder .*
+manager|.* forstander .*
+manager|.* rektor .*
+manager|.* afdelingsleder .*
+manager|.* assisterende afdelingsleder .*
+manager|.* rådgivningschef .*
+manager|.* funktionschef .*
+manager|.* assisterende chef .*
+manager|.* prosjektleder .*
+manager|.* prosjektansvarlig .*
+manager|.* daglig leder .*
+manager|.* sjef .*
+manager|.* visedirektør .*
+manager|.* visepresident .*
+manager|.* adm\. direktør .*
+manager|.* adm\. dir .*
+manager|.* regionssjef .*
+manager|.* regionsjef .*
+manager|.* områdeleder .*
+manager|.* sjef for .*
+manager|.* regionsdirektør .*
+manager|.* eier .*
+manager|.* avdelingsleder .*
+manager|.* assisterende avdelingsleder .*
+manager|.* distriktsjef .*
+manager|.* rådgivningssjef .*
+manager|.* funksjonssjef .*
+manager|.* assisterende sjef .*
+manager|.* amministratore di progetto .*
+manager|.* direttore .*
+manager|.* direttore svilluppo delle risorse umane .*
+manager|.* vice presidente risorse umane .*
+manager|.* direttore generale .*
+manager|.* direttore esecutivo .*
+manager|.* amministratore regionale .*
+manager|.* responsabile hr area .*
+manager|.* proprietario .*
+manager|.* manager di sezione .*
+manager|.* responsabile di figliale .*
+manager|.* assistente amministratore di sezione .*
+manager|.*项目经理.*
+manager|.*总监.*
+manager|.*经理.*
+manager|.*副总裁.*
+manager|.*执行董事.*
+manager|.*行政总监.*
+manager|.*区域经理.*
+manager|.*全国总经理.*
+manager|.*区域总监.*
+manager|.*董事长.*
+manager|.*合伙人.*
+manager|.*办事处经理.*
+manager|.*副办事处经理.*
+manager|.*地区经理.*
+manager|.*咨询经理.*
+manager|.*总经理.*
+manager|.*高级经理.*
+manager|.*副经理.*
+// Arabic starts //
+manager|.* مدير .*
+manager|.* مدير مشروع .*
+manager|.* نائب رئيس .*
+manager|.* مدير إداري .*
+manager|.* مدير تنفيذي .*
+manager|.* مدير إقليمي .*
+manager|.* مالك .*
+manager|.* شريك .*
+manager|.* مدير فرع .*
+manager|.* مساعد مدير فرع .*
+manager|.* مدير قطاع .*
+manager|.* مدير استشاري .*
+manager|.* مدير عام .*
+manager|.* مدير مساعد .*
+// Hungarian starts //
+manager|.* projektmenedzser* .*
+manager|.* igazgató .*
+manager|.* menedzser .*
+manager|.* országos vezető .*
+manager|.* tulajdonos .*
+manager|.* fő .*
+manager|.* fióktelep vezető .*
+manager|.* ügy vezető .*
+manager|.* kerület vezető .*
+manager|.* tanácsadás vezetője .*
+manager|.* vezérigazgató .*
+manager|.* felső vezető .*
+manager|.* igazgatóhelyettes .*
+// Polish starts //
+manager|.* menadżer .*
+manager|.* dyrektor .*
+manager|.* właściciel .*
+manager|.* przełożony .*
+manager|.* zastępca menedżera oddziału .*
+// Slovak starts //
+manager|.* manažér .*
+manager|.* riaditeľ .*
+manager|.* prezident .*
+manager|.* vlastník .*
+manager|.* spoločník .*
+manager|.* vedúci pobočky .*
+manager|.* zástupca vedúceho pobočky .*
+// Turkish starts //
+manager|.* yöneticisi .*
+manager|.* genel müdür yardımcısı .*
+manager|.* gmy .*
+manager|.* müdürü .*
+manager|.* yönetici .*
+manager|.* şirket sahibi .*
+manager|.* ortak .*
+manager|.* kıdemli .*
+manager|.* şube müdür yardımcısı .*
+manager|.* yönetici danışman .*
+manager|.* müdür .*
+// Russian starts //
+manager|.* директор .*
+manager|.* менеджер .*
+manager|.* руководител .*
+manager|.* начальник .*
+manager|.* вице-президент .*
+manager|.* президента .*
+manager|.* управляющ .*
+manager|.* партнер .*
+manager|.* главн .*
+// Greek starts //
+manager|.* διευθυντής .*
+manager|.* Aντιπρόεδρος .*
+manager|.* διευθύνων σύμβουλος .*
+manager|.* περιφερειακός διευθυντής .*
+manager|.* Εθνικός διευθυντής .*
+manager|.* Ιδιοκτήτης .*
+manager|.* συνέταιρος .*
+manager|.* βοηθός διευθυντή του υποκαταστήματος .*
+manager|.* διευθυντής του υποκαταστήματος .*
+manager|.* γενικός διευθυντής .*
+manager|.* υποδιευθυντής .*
+manager|.*プロジェクトマネージャー.*
+manager|.*ディレクター.*
+manager|.*マネージャー.*
+manager|.*本部長.*
+manager|.*副社長.*
+manager|.*代表取締役.*
+manager|.*執行役員.*
+manager|.*地域統括マネージャー.*
+manager|.*地域統括部長.*
+manager|.*オーナー.*
+manager|.*経営者.*
+manager|.*パートナー.*
+manager|.*原理.*
+manager|.*支店長.*
+manager|.*副支店長.*
+manager|.*ケースマネージャー.*
+manager|.*コンサルティングマネージャー.*
+manager|.*部長.*
+manager|.*シニアマネージャー.*
+manager|.*副部長.*
+manager|.* менеджер проектiв .*
+manager|.* вiце-президент .*
+manager|.* управляючий керiвник .*
+manager|.* регiональний менеджер .*
+manager|.*매니저.*
+manager|.*관리자.*
+manager|.*이사.*
+manager|.*과장.*
+manager|.*부사장.*
+manager|.*전무.*
+manager|.*차장.*
+manager|.*사장.*
+manager|.*지점장.*
+manager|.*부지점장.*
+manager|.* pengurus projek .*
+manager|.* pengarah .*
+manager|.* pengurus .*
+manager|.* naib presiden .*
+manager|.* pengarah urusan .*
+manager|.* pengarah eksekutif .*
+manager|.* pengurus serantau .*
+manager|.* pengurus nasional .*
+manager|.* pemilik .*
+manager|.* rakan kongsi .*
+manager|.* prinsipal .*
+manager|.* pengurus cawangan .*
+manager|.* penolong pengurus cawangan .*
+manager|.* pengurus kes .*
+manager|.* pengurus kawasan .*
+manager|.* pengurus konsultan .*
+manager|.* pengurus besar .*
+manager|.* pengurus kanan .*
+manager|.* penolong Pengurus cawangan .*
+manager|.* direktur *
+manager|.* direktur utama .*
+manager|.* tagapamahala ng proyekto .*
+manager|.* tagapamahala .*
+manager|.* bise-presidente .*
+manager|.* tagapamahalang direktor .*
+manager|.* tagapamahalang rehiyunal .*
+manager|.* tagapamahala ng bansa .*
+manager|.* direktor ng rehiyun .*
+manager|.* may-ari .*
+manager|.* kasosyo .*
+manager|.* tagapamahala ng distrikto .*
+manager|.* tagapamahalang heneral .*
+manager|.* tagapamahalang sinyor  .*
+manager|.* tagapamahalang kawani .*
+staffer|.* consultant .*
+staffer|.* hr consultant .*
+staffer|.* human resources consultant .*
+staffer|.* career consultant .*
+staffer|.* licensed consultant .*
+staffer|.* international consultant .*
+staffer|.* sr\. consultant .*
+staffer|.* sr consultant .*
+staffer|.* senior consultant .*
+staffer|.* jr\. consultant .*
+staffer|.* jr consultant .*
+staffer|.* junior consultant .*
+staffer|.* account manager .*
+// Portuguese & Spanish start //
+staffer|.* consultor .*
+staffer|.* consultora .*
+staffer|.* consultora de rh .*
+staffer|.* consultor de rh .*
+staffer|.* consult de rh .*
+staffer|.* consultor de recrutamento .*
+staffer|.* consultor de recrutamento e seleção .*
+staffer|.* consultor de carrera .*
+staffer|.* consultora de carrera .*
+staffer|.* consult\. de rh .*
+staffer|.* consultora de recursos humanos .*
+staffer|.* consultor de recursos humanos .*
+staffer|.* consult de recursos humanos .*
+staffer|.* consult\. de recursos humanos .*
+staffer|.* consultora de carreiras .*
+staffer|.* consultor de carreiras .*
+staffer|.* consultora licenciada .*
+staffer|.* consultor licenciado .*
+staffer|.* consultora internacional .*
+staffer|.* consultor internacional .*
+staffer|.* consultor sr\. .*
+staffer|.* consultora sr\. .*
+staffer|.* consultor sr .*
+staffer|.* consultora sr .*
+staffer|.* consultora senior .*
+staffer|.* consultora sênior .*
+staffer|.* consultor senior .*
+staffer|.* consultor sênior .*
+staffer|.* consultora jr\. .*
+staffer|.* consultor jr\. .*
+staffer|.* consultora jr .*
+staffer|.* consultor jr .*
+staffer|.* consultora junior .*
+staffer|.* consultor junior .*
+staffer|.* gerente de contas .*
+staffer|.* ger de contas .*
+staffer|.* ger contas .*
+staffer|.* ger\. de contas .*
+staffer|.* ger\. contas .*
+staffer|.* analista .*
+staffer|.* anal\. .*
+staffer|.* anal .*
+staffer|.* consultor de rrhh .*
+staffer|.* consultora de rrhh .*
+staffer|.* consultor profesional .*
+staffer|.* consultora profesional .*
+staffer|.* consultor autorizado .*
+staffer|.* consultora autorizada .*
+staffer|.* consultor acreditado .*
+staffer|.* consultora acreditada .*
+staffer|.* consultor con licencia .*
+staffer|.* consultora con licencia .*
+staffer|.* gerente de administración .*
+// German starts //
+staffer|.* personalberater
+staffer|.* berater
+staffer|.* consultant
+staffer|.* hr berater .*
+staffer|.* human resources berater .*
+staffer|.* karriere berater .*
+staffer|.* internationaler berater .*
+staffer|.* sr berater .*
+staffer|.* sr\. berater .*
+staffer|.* senior berater .*
+staffer|.* jr\. berater .*
+staffer|.* jr berater .*
+staffer|.* junior-berater .*
+staffer|.* kundenbetreuer .*
+// French starts //
+staffer|.* consultant rh .*
+staffer|.* consultant ressources humaines .*
+staffer|.* consultant gestion de carrière .*
+staffer|.* consultant certifié .*
+staffer|.* consultant international .*
+staffer|.* consultant senior .*
+staffer|.* consultant junior .*
+staffer|.* responsable de compte .*
+// Dutch starts//
+staffer|.* adviseur
+staffer|.* adviseur .*
+staffer|.* hr adviseur .*
+staffer|.* adviseur human resources .*
+staffer|.* carriere coach .*
+staffer|.* gecertificeerd consultant .*
+staffer|.* global consultant .*
+staffer|.* konsult .*
+staffer|.* hr-konsult .*
+staffer|.* personalkonsult .*
+staffer|.* bemmaningskonsult .*
+staffer|.* karriärkonsult .*
+staffer|.* diplomerad konsult .*
+staffer|.* internationell konsult .*
+staffer|.* huvudkonsult .*
+staffer|.* ansvarig konsult .*
+staffer|.* rådgivare .*
+staffer|.* biträdande konsult .*
+staffer|.* biträdande rådgivare .*
+staffer|.* juniorkonsult .*
+staffer|.* kundansvarig .*
+staffer|.* konsulent .*
+staffer|.* hr-konsulent .*
+staffer|.* karrierevejleder .*
+staffer|.* licenseret konsulent .*
+staffer|.* international konsulent .*
+staffer|.* chefkonsulent .*
+staffer|.* kundechef .*
+staffer|.* karriereveileder .*
+staffer|.* lisensiert konsulent .*
+staffer|.* internasjonal konsulent .*
+staffer|.* sr\. konsulent .*
+staffer|.* sr konsulent .*
+staffer|.* seniorkonsulent .*
+staffer|.* jr\. konsulent .*
+staffer|.* jr konsulent .*
+staffer|.* juniorkonsulent .*
+staffer|.* kontofører .*
+staffer|.* kontoadministrator .*
+staffer|.* kundekontakt .*
+staffer|.* consulente del lavoro .*
+staffer|.* consulente di risorse umane .*
+staffer|.* consulente per le carriere .*
+staffer|.* consulente internazionale .*
+staffer|.* senior consulente .*
+staffer|.* junior consulente .*
+staffer|.*顾问.*
+staffer|.*招聘顾问.*
+staffer|.*人力资源顾问.*
+staffer|.*高级顾问.*
+staffer|.*客户经理.*
+// Russian starts //
+staffer|.* консультант .*
+staffer|.* hr-консультант .*
+staffer|.* консультант по работе с персоналом .*
+staffer|.* по работе с кадрами .*
+// Slovak starts //
+staffer|.* knozultant .*
+staffer|.* konzultant personalného oddelenia .*
+// Turkish starts //
+staffer|.* danışman .*
+staffer|.* danışmanı .*
+staffer|.* sr berater.*
+// Arabic  starts //
+staffer|.* مستشار .*
+staffer|.* مستشار موارد بشرية .*
+// Greek starts //
+staffer|.* σύμβουλος .*
+staffer|.* σύμβουλος ανθρώπινου δυναμικού .*
+staffer|.* σύμβουλος καριέρας .*
+staffer|.* hr konsultan .*
+staffer|.* karir konsultan .*
+staffer|.* konsultan .*
+staffer|.* konsultan sumber manusia .*
+staffer|.* konsultan kerjaya .*
+staffer|.* konsultan lesen .*
+staffer|.* konsultan antarabangsa .*
+staffer|.* konsultan pengurus akaun .*
+staffer|.*컨설턴트.*
+staffer|.*헤드헌터.*
