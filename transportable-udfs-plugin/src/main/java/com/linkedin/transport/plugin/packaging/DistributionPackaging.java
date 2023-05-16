@@ -11,7 +11,6 @@ import com.linkedin.transport.plugin.Platform;
 import java.util.List;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
-import org.gradle.api.component.AdhocComponentWithVariants;
 import org.gradle.api.distribution.DistributionContainer;
 import org.gradle.api.tasks.SourceSet;
 import org.gradle.api.tasks.TaskProvider;
