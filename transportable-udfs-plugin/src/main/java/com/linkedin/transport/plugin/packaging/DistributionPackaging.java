@@ -11,7 +11,6 @@ import com.linkedin.transport.plugin.Platform;
 import java.util.List;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
-import org.gradle.api.component.AdhocComponentWithVariants;
 import org.gradle.api.distribution.DistributionContainer;
 import org.gradle.api.tasks.SourceSet;
 import org.gradle.api.tasks.TaskProvider;
@@ -58,7 +57,9 @@ public class DistributionPackaging implements Packaging {
     // Explicitly set classifiers for the created distributions or else leads to Maven packaging issues due to multiple
     // artifacts with the same classifier
     project.getTasks().named(platform.getName() + "DistTar", Tar.class, tar -> tar.setClassifier(platform.getName()));
+    project.getArtifacts().add(ShadowBasePlugin.getCONFIGURATION_NAME(), project.getTasks().named(platform.getName() + "DistTar", Tar.class));
     project.getTasks().named(platform.getName() + "DistZip", Zip.class, zip -> zip.setClassifier(platform.getName()));
+    project.getArtifacts().add(ShadowBasePlugin.getCONFIGURATION_NAME(), project.getTasks().named(platform.getName() + "DistZip", Zip.class));
     return ImmutableList.of(project.getTasks().named(platform.getName() + "DistTar", Tar.class),
         project.getTasks().named(platform.getName() + "DistZip", Zip.class));
   }
@@ -83,11 +84,6 @@ public class DistributionPackaging implements Packaging {
       task.from(sourceSet.getOutput());
       task.from(sourceSet.getResources());
     });
-
-    String configuration = ShadowBasePlugin.getCONFIGURATION_NAME();
-    project.getArtifacts().add(configuration, thinJarTask);
-    AdhocComponentWithVariants java = project.getComponents().withType(AdhocComponentWithVariants.class).getByName("java");
-    java.addVariantsFromConfiguration(project.getConfigurations().getByName(configuration), v -> v.mapToOptional());
 
     return thinJarTask;
   }
