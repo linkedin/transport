@@ -138,6 +138,6 @@ public class TrinoTester implements SqlStdTester {
       expectedOutput = ((Row) expectedOutput).getFields();
     }
     QueryAssertions.ExpressionAssertProvider expressionAssertProvider = _queryAssertions.function(functionName, functionArguments);
-    assertThat(expressionAssertProvider).hasType((Type) expectedOutputType).isEqualTo(expectedOutput);
+    expressionAssertProvider.assertThat().hasType((Type) expectedOutputType).isEqualTo(expectedOutput);
   }
 }
