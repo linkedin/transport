@@ -54,6 +54,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import org.apache.commons.lang3.ClassUtils;
 
+import static com.google.common.collect.ImmutableList.toImmutableList;
 import static com.linkedin.transport.trino.StdUDFUtils.quoteReservedKeywords;
 import static io.trino.spi.function.InvocationConvention.InvocationArgumentConvention.*;
 import static io.trino.spi.function.InvocationConvention.InvocationReturnConvention.NULLABLE_RETURN;
@@ -76,6 +77,7 @@ public abstract class StdUdfWrapper {
         .nullable()
         .nondeterministic()
         .description(((TopLevelStdUDF) stdUDF).getFunctionDescription())
+        .argumentNullability(getArgumentNullabilityObjects(stdUDF.getNullableArguments()))
         .signature(Signature.builder()
             .name(((TopLevelStdUDF) stdUDF).getFunctionName())
             .typeVariableConstraints(getTypeVariableConstraintsForStdUdf(stdUDF))
@@ -172,6 +174,12 @@ public abstract class StdUdfWrapper {
     MethodHandle specificMethodHandle = MethodHandles.explicitCastArguments(genericMethodHandle, specificMethodType);
     return MethodHandles.insertArguments(specificMethodHandle, 0, stdUDF, inputTypes,
         outputType instanceof IntegerType, requiredFilesNextRefreshTime);
+  }
+
+  private List<Boolean> getArgumentNullabilityObjects(boolean[] argumentsNullability) {
+    return IntStream.range(0, argumentsNullability.length)
+        .mapToObj(idx -> argumentsNullability[idx] ? Boolean.TRUE : Boolean.FALSE)
+        .collect(toImmutableList());
   }
 
   private List<InvocationConvention.InvocationArgumentConvention> getNullConventionForArguments(
