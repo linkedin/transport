@@ -7,4 +7,8 @@ dependencies {
   implementation project(":transportable-udfs-test:transportable-udfs-test-api")
   implementation project(":transportable-udfs-test:transportable-udfs-test-spi")
   implementation 'org.testng:testng:6.11'
+  compileOnly 'org.apache.hadoop:hadoop-common:2.7.4'
+  compileOnly 'org.apache.hadoop:hadoop-mapreduce-client-core:2.7.4'
+  testImplementation 'org.apache.hadoop:hadoop-common:2.7.4'
+  testImplementation 'org.apache.hadoop:hadoop-mapreduce-client-core:2.7.4'
 }

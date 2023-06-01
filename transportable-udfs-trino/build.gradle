@@ -18,8 +18,8 @@ dependencies {
     exclude 'group': 'com.google.collections', 'module': 'google-collections'
   }
   compileOnly(group:'io.trino', name: 'trino-spi', version: project.ext.'trino-version')
-  implementation('org.apache.hadoop:hadoop-hdfs:2.7.4')
-  implementation('org.apache.hadoop:hadoop-common:2.7.4')
+  compileOnly('org.apache.hadoop:hadoop-hdfs:2.7.4')
+  compileOnly('org.apache.hadoop:hadoop-common:2.7.4')
   testImplementation group: 'io.airlift', name: 'testing', version: '221'
   // The io.airlift.slice dependency below has to match its counterpart  in trino-root's pom.xml file
   // If not specified, an older version is picked up transitively from another dependency
