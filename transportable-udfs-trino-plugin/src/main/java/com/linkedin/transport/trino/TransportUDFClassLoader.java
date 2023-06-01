@@ -38,10 +38,8 @@ public class TransportUDFClassLoader extends URLClassLoader {
         return resolveClass(cachedClass, resolve);
       }
 
-      if (name.startsWith("com.linkedin.transport.trino")
-          || name.startsWith("com.linkedin.transport.api")
-          || name.startsWith("com.linkedin.transport.typesystem")
-          || name.startsWith("com.linkedin.transport.utils")) {
+      if (name.equals("com.linkedin.transport.trino.StdUdfWrapper")
+          || name.startsWith("com.linkedin.transport.api")) {
         return resolveClass(parent.loadClass(name), resolve);
       }
 
