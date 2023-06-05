@@ -1,6 +1,8 @@
 apply plugin: 'java-library'
 
 dependencies {
-  api 'org.apache.hadoop:hadoop-common:2.7.4'
-  implementation 'org.apache.hadoop:hadoop-mapreduce-client-core:2.7.4'
+  compileOnly 'org.apache.hadoop:hadoop-common:2.7.4'
+  compileOnly 'org.apache.hadoop:hadoop-mapreduce-client-core:2.7.4'
+  testImplementation 'org.apache.hadoop:hadoop-common:2.7.4'
+  testImplementation 'org.apache.hadoop:hadoop-mapreduce-client-core:2.7.4'
 }
