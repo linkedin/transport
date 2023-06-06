@@ -13,4 +13,6 @@ dependencies {
   implementation ('org.apache.hive:hive-service:1.2.2') {
     exclude group: 'org.apache.hive', module: 'hive-exec'
   }
+  runtimeOnly 'org.apache.hadoop:hadoop-common:2.7.4'
+  runtimeOnly 'org.apache.hadoop:hadoop-mapreduce-client-core:2.7.4'
 }
