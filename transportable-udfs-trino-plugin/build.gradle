@@ -18,8 +18,10 @@ dependencies {
   runtimeOnly (group:'io.trino', name: 'trino-main', version: project.ext.'trino-version') {
     exclude 'group': 'io.trino', 'module': 'trino-spi'
   }
-  compileOnly(group:'io.trino', name: 'trino-spi', version: project.ext.'trino-version')
+  compileOnly (group:'io.trino', name: 'trino-spi', version: project.ext.'trino-version')
   testImplementation (group:'io.trino', name: 'trino-main', version: project.ext.'trino-version')
+  testImplementation ('org.apache.hadoop:hadoop-common:2.7.4')
+  testImplementation ('org.apache.hadoop:hadoop-mapreduce-client-core:2.7.4')
 }
 
 // packaging as a shaded jar following the guideline from Trino plugin
