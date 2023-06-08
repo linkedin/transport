@@ -22,4 +22,6 @@ dependencies {
   // If not specified, an older version is picked up transitively from another dependency
   implementation(group: 'io.airlift', name: 'slice', version: project.ext.'airlift-slice-version')
   implementation(group: 'org.assertj', name: 'assertj-core', version: '3.24.2')
+  runtimeOnly 'org.apache.hadoop:hadoop-common:2.7.4'
+  runtimeOnly 'org.apache.hadoop:hadoop-mapreduce-client-core:2.7.4'
 }
