@@ -57,9 +57,9 @@ public class DistributionPackaging implements Packaging {
     // Explicitly set classifiers for the created distributions or else leads to Maven packaging issues due to multiple
     // artifacts with the same classifier
     project.getTasks().named(platform.getName() + "DistTar", Tar.class, tar -> tar.setClassifier(platform.getName()));
-    project.getArtifacts().add(ShadowBasePlugin.getCONFIGURATION_NAME(), project.getTasks().named(platform.getName() + "DistTar", Tar.class));
+    project.getArtifacts().add(ShadowBasePlugin.CONFIGURATION_NAME, project.getTasks().named(platform.getName() + "DistTar", Tar.class));
     project.getTasks().named(platform.getName() + "DistZip", Zip.class, zip -> zip.setClassifier(platform.getName()));
-    project.getArtifacts().add(ShadowBasePlugin.getCONFIGURATION_NAME(), project.getTasks().named(platform.getName() + "DistZip", Zip.class));
+    project.getArtifacts().add(ShadowBasePlugin.CONFIGURATION_NAME, project.getTasks().named(platform.getName() + "DistZip", Zip.class));
     return ImmutableList.of(project.getTasks().named(platform.getName() + "DistTar", Tar.class),
         project.getTasks().named(platform.getName() + "DistZip", Zip.class));
   }

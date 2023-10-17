@@ -69,7 +69,7 @@ public class ShadedJarPackaging implements Packaging {
       SourceSet mainSourceSet) {
     TaskProvider<ShadeTask> shadeTask =
         project.getTasks().register(sourceSet.getTaskName("shade", "Jar"), ShadeTask.class, task -> {
-          task.setGroup(ShadowJavaPlugin.getSHADOW_GROUP());
+          task.setGroup(ShadowJavaPlugin.SHADOW_GROUP);
           task.setDescription("Create a combined JAR of " + platform.getName() + " output and runtime dependencies");
           task.setClassifier(platform.getName());
           task.getManifest()
@@ -79,7 +79,7 @@ public class ShadedJarPackaging implements Packaging {
           task.exclude("META-INF/INDEX.LIST", "META-INF/*.SF", "META-INF/*.DSA", "META-INF/*.RSA");
         });
 
-    String configuration = ShadowBasePlugin.getCONFIGURATION_NAME();
+    String configuration = ShadowBasePlugin.CONFIGURATION_NAME;
     project.getArtifacts().add(configuration, shadeTask);
     AdhocComponentWithVariants java = project.getComponents().withType(AdhocComponentWithVariants.class).getByName("java");
     java.addVariantsFromConfiguration(project.getConfigurations().getByName(configuration), v -> v.mapToOptional());

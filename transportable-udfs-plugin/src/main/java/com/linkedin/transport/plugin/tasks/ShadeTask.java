@@ -5,8 +5,6 @@
  */
 package com.linkedin.transport.plugin.tasks;
 
-import com.github.jengelman.gradle.plugins.shadow.relocation.RelocateClassContext;
-import com.github.jengelman.gradle.plugins.shadow.relocation.RelocatePathContext;
 import com.github.jengelman.gradle.plugins.shadow.relocation.SimpleRelocator;
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar;
 import com.google.common.collect.ImmutableList;
@@ -107,7 +105,7 @@ public class ShadeTask extends ShadowJar {
     Set<String> classPathsToShade = new HashSet<>();
 
     List<Configuration> configurations =
-        getConfigurations().stream().map(this::setupConfiguration).collect(Collectors.toList());
+        getConfigurations().stream().map(files -> this.setupConfiguration((Configuration) files)).collect(Collectors.toList());
 
     // Collect all classes which need to be shaded
     configurations.forEach(configuration -> classPathsToShade.addAll(classesInConfiguration(configuration)));
@@ -119,21 +117,24 @@ public class ShadeTask extends ShadowJar {
     Set<String> classNamesToShade =
         classPathsToShade.stream().map(path -> path.replace('/', '.')).collect(Collectors.toSet());
     // Pass the new updated conf to _shadowJar
-    setConfigurations(configurations);
+    setConfigurations(ImmutableList.copyOf(configurations));
     // Exclude source files
     exclude("**/*.java");
     // Do not shade classes we have excluded
     _doNotShade = ImmutableList.<String>builder().addAll(_doNotShade).addAll(getExcludes()).build();
     // Relocate base on the above restrictions
     super.relocate(new SimpleRelocator(null, _shadePrefix + '/', ImmutableList.of("**"), _doNotShade) {
-      public boolean canRelocatePath(RelocatePathContext context) {
+      @Override
+      public boolean canRelocatePath(String path) {
         // Only relocate those classes present in source project and dependency jars
-        return classPathsToShade.contains(context.getPath()) && super.canRelocatePath(context);
+        return classPathsToShade.contains(path) && super.canRelocatePath(path);
       }
 
-      public boolean canRelocateClass(RelocateClassContext context) {
+      @Override
+
+      public boolean canRelocateClass(String className) {
         // Only relocate those classes present in source project and dependency jars
-        return classNamesToShade.contains(context.getClassName()) && super.canRelocateClass(context);
+        return classNamesToShade.contains(className) && super.canRelocateClass(className);
       }
     });
     super.copy();
