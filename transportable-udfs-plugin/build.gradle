@@ -4,12 +4,16 @@ plugins {
   id 'signing'
 }
 
+repositories { 
+  gradlePluginPortal()
+}
+
 dependencies {
   implementation project(':transportable-udfs-api')
   implementation project(':transportable-udfs-codegen')
   implementation ('com.google.guava:guava:24.1-jre')
   implementation ('com.google.code.gson:gson:2.8.5')
-  implementation ('com.github.jengelman.gradle.plugins:shadow:5.2.0')
+  implementation ('com.github.johnrengelman.shadow:com.github.johnrengelman.shadow.gradle.plugin:7.1.2')
   testImplementation('org.spockframework:spock-core:1.1-groovy-2.4') {
     exclude group: 'org.codehaus.groovy'
   }

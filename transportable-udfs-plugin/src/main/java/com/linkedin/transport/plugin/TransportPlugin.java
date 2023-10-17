@@ -57,7 +57,7 @@ public class TransportPlugin implements Plugin<Project> {
     project.getPlugins().withType(JavaPlugin.class, (javaPlugin) -> {
       project.getPlugins().apply(ScalaPlugin.class);
       project.getPlugins().apply(DistributionPlugin.class);
-      project.getConfigurations().create(ShadowBasePlugin.getCONFIGURATION_NAME());
+      project.getConfigurations().create(ShadowBasePlugin.CONFIGURATION_NAME);
 
       JavaPluginConvention javaConvention = project.getConvention().getPlugin(JavaPluginConvention.class);
       SourceSet mainSourceSet = javaConvention.getSourceSets().getByName(extension.mainSourceSetName);

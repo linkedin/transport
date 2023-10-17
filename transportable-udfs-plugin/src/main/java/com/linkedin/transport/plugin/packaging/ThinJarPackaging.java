@@ -42,11 +42,10 @@ public class ThinJarPackaging implements Packaging {
           task.from(platformSourceSet.getOutput());
           task.from(platformSourceSet.getResources());
         });
-
-    String configuration = ShadowBasePlugin.getCONFIGURATION_NAME();
-    project.getArtifacts().add(configuration, thinJarTask);
+    
+    project.getArtifacts().add(ShadowBasePlugin.CONFIGURATION_NAME, thinJarTask);
     AdhocComponentWithVariants java = project.getComponents().withType(AdhocComponentWithVariants.class).getByName("java");
-    java.addVariantsFromConfiguration(project.getConfigurations().getByName(configuration), v -> v.mapToOptional());
+    java.addVariantsFromConfiguration(project.getConfigurations().getByName(ShadowBasePlugin.CONFIGURATION_NAME), v -> v.mapToOptional());
 
     return ImmutableList.of(thinJarTask);
   }
