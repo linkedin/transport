@@ -26,7 +26,7 @@ public class TrinoMapType implements StdMapType {
 
   @Override
   public StdType valueType() {
-    return TrinoWrapper.createStdType(mapType.getKeyType());
+    return TrinoWrapper.createStdType(mapType.getValueType());
   }
 
   @Override
