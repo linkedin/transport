@@ -96,6 +96,14 @@ public abstract class AbstractStdUDFTest {
   }
 
   /**
+   * Creates a row from the provided elements with the corresponding field names
+   * to pass to the test framework
+   */
+  protected static Row rowWithFieldNames(List<String> fieldNames, List<Object> args) {
+    return new Row(fieldNames, args);
+  }
+
+  /**
    * Creates a string containing the absolute path from the provided relative path of the resource to pass to the
    * test framework
    */

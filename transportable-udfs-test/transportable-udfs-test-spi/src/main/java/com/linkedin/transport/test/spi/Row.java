@@ -12,13 +12,23 @@ import java.util.Objects;
 public class Row {
 
   private final List<Object> _fields;
+  private List<String> _fieldNames;
 
   public Row(List<Object> fields) {
     _fields = fields;
   }
 
+  public Row(List<String> fieldNames, List<Object> fields) {
+    _fieldNames = fieldNames;
+    _fields = fields;
+  }
+
   public List<Object> getFields() {
     return _fields;
+  }
+
+  public List<String> getFieldNames() {
+    return _fieldNames;
   }
 
   @Override

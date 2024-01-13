@@ -43,8 +43,14 @@ public class TestTypeUtils {
       return TestTypeFactory.map(inferCollectionTypeFromData(map.keySet(), "map keys"),
           inferCollectionTypeFromData(map.values(), "map values"));
     } else if (data instanceof Row) {
+      Row row = (Row) data;
+      if (row.getFieldNames() == null) {
+        return TestTypeFactory.struct(
+            row.getFields().stream().map(TestTypeUtils::inferTypeFromData).collect(Collectors.toList()));
+      }
       return TestTypeFactory.struct(
-          ((Row) data).getFields().stream().map(TestTypeUtils::inferTypeFromData).collect(Collectors.toList()));
+          row.getFieldNames(),
+          row.getFields().stream().map(TestTypeUtils::inferTypeFromData).collect(Collectors.toList()));
     } else if (data instanceof FunctionCall) {
       return TestTypeFactory.UNKNOWN_TEST_TYPE;
     } else {
