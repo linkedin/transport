@@ -11,8 +11,7 @@ import com.linkedin.transport.api.data.StdStruct;
 import com.linkedin.transport.trino.TrinoWrapper;
 import io.trino.spi.block.Block;
 import io.trino.spi.block.BlockBuilder;
-import io.trino.spi.block.BlockBuilderStatus;
-import io.trino.spi.block.PageBuilderStatus;
+import io.trino.spi.block.RowBlock;
 import io.trino.spi.type.RowType;
 import io.trino.spi.type.Type;
 import java.util.ArrayList;
@@ -86,47 +85,63 @@ public class TrinoStruct extends TrinoData implements StdStruct {
 
   @Override
   public void setField(int index, StdData value) {
-    // TODO: This is not the right way to get this object. The status should be passed in from the invocation of the
-    // function and propagated to here. See PRESTO-1359 for more details.
-    BlockBuilderStatus blockBuilderStatus = new PageBuilderStatus().createBlockBuilderStatus();
-    BlockBuilder mutable = _rowType.createBlockBuilder(blockBuilderStatus, 1);
-    BlockBuilder rowBlockBuilder = mutable.beginBlockEntry();
-    int i = 0;
-    for (RowType.Field field : _rowType.getFields()) {
+    int fieldCount = _rowType.getFields().size();
+    List<Type> fieldTypes = _rowType.getTypeParameters();
+
+    Block[] fieldBlocks = new Block[fieldCount];
+
+    for (int i = 0; i < fieldCount; i++) {
+      Type fieldType = fieldTypes.get(i);
+      BlockBuilder fieldBuilder = fieldType.createBlockBuilder(null, 1);
+
       if (i == index) {
-        ((TrinoData) value).writeToBlock(rowBlockBuilder);
+        ((TrinoData) value).writeToBlock(fieldBuilder);
       } else {
         if (_block == null) {
-          rowBlockBuilder.appendNull();
+          fieldBuilder.appendNull();
         } else {
-          field.getType().appendTo(_block, i, rowBlockBuilder);
+          fieldType.appendTo(_block, i, fieldBuilder);
         }
       }
-      i++;
+
+      fieldBlocks[i] = fieldBuilder.build();
     }
-    mutable.closeEntry();
-    _block = _rowType.getObject(mutable.build(), 0);
+
+    Block rowBlock = RowBlock.fromFieldBlocks(1, fieldBlocks);
+    BlockBuilder parentBuilder = _rowType.createBlockBuilder(null, 1);
+    _rowType.writeObject(parentBuilder, rowBlock);
+    _block = parentBuilder.build();
   }
 
   @Override
   public void setField(String name, StdData value) {
-    BlockBuilder mutable = _rowType.createBlockBuilder(new PageBuilderStatus().createBlockBuilderStatus(), 1);
-    BlockBuilder rowBlockBuilder = mutable.beginBlockEntry();
+    int fieldCount = _rowType.getFields().size();
+    List<Type> fieldTypes = _rowType.getTypeParameters();
+    Block[] fieldBlocks = new Block[fieldCount];
+
     int i = 0;
     for (RowType.Field field : _rowType.getFields()) {
+      Type fieldType = fieldTypes.get(i);
+      BlockBuilder fieldBuilder = fieldType.createBlockBuilder(null, 1);
+
       if (field.getName().isPresent() && name.equals(field.getName().get())) {
-        ((TrinoData) value).writeToBlock(rowBlockBuilder);
+        ((TrinoData) value).writeToBlock(fieldBuilder);
       } else {
         if (_block == null) {
-          rowBlockBuilder.appendNull();
+          fieldBuilder.appendNull();
         } else {
-          field.getType().appendTo(_block, i, rowBlockBuilder);
+          fieldType.appendTo(_block, i, fieldBuilder);
         }
       }
+
+      fieldBlocks[i] = fieldBuilder.build();
       i++;
     }
-    mutable.closeEntry();
-    _block = _rowType.getObject(mutable.build(), 0);
+
+    Block rowBlock = RowBlock.fromFieldBlocks(1, fieldBlocks);
+    BlockBuilder parentBuilder = _rowType.createBlockBuilder(null, 1);
+    _rowType.writeObject(parentBuilder, rowBlock);
+    _block = parentBuilder.build();
   }
 
   @Override

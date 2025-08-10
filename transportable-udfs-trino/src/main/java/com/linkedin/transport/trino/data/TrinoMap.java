@@ -16,7 +16,7 @@ import com.linkedin.transport.trino.TrinoWrapper;
 import io.trino.spi.TrinoException;
 import io.trino.spi.block.Block;
 import io.trino.spi.block.BlockBuilder;
-import io.trino.spi.block.PageBuilderStatus;
+import io.trino.spi.block.MapBlock;
 import io.trino.spi.function.OperatorType;
 import io.trino.spi.type.MapType;
 import io.trino.spi.type.Type;
@@ -25,6 +25,7 @@ import java.util.AbstractCollection;
 import java.util.AbstractSet;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.Optional;
 import java.util.Set;
 
 import static io.trino.spi.StandardErrorCode.*;
@@ -44,18 +45,35 @@ public class TrinoMap extends TrinoData implements StdMap {
   Block _block;
 
   public TrinoMap(Type mapType, StdFactory stdFactory) {
-    BlockBuilder mutable = mapType.createBlockBuilder(new PageBuilderStatus().createBlockBuilderStatus(), 1);
-    mutable.beginBlockEntry();
-    mutable.closeEntry();
-    _block = ((MapType) mapType).getObject(mutable.build(), 0);
+    MapType typedMap = (MapType) mapType;
 
-    _keyType = ((MapType) mapType).getKeyType();
-    _valueType = ((MapType) mapType).getValueType();
-    _mapType = mapType;
+    // Create empty key/value blocks
+    Block emptyKeyBlock = typedMap.getKeyType().createBlockBuilder(null, 0).build();
+    Block emptyValueBlock = typedMap.getValueType().createBlockBuilder(null, 0).build();
+    int[] offsets = new int[] {0, 0};  // 1 map entry, 0 elements
+
+    Block emptyMapBlock = MapBlock.fromKeyValueBlock(
+        Optional.empty(),
+        offsets,
+        emptyKeyBlock,
+        emptyValueBlock,
+        typedMap
+    );
+
+    BlockBuilder mutable = mapType.createBlockBuilder(null, 1);
+    typedMap.writeObject(mutable, emptyMapBlock);
+    _block = mutable.build();
+
+    _keyType = typedMap.getKeyType();
+    _valueType = typedMap.getValueType();
+    _mapType = typedMap;
 
     _stdFactory = stdFactory;
     _keyEqualsMethod = ((TrinoFactory) stdFactory).getOperatorHandle(
-        OperatorType.EQUAL, ImmutableList.of(_keyType, _keyType), simpleConvention(NULLABLE_RETURN, NEVER_NULL, NEVER_NULL));
+        OperatorType.EQUAL,
+        ImmutableList.of(_keyType, _keyType),
+        simpleConvention(NULLABLE_RETURN, NEVER_NULL, NEVER_NULL)
+    );
   }
 
   public TrinoMap(Block block, Type mapType, StdFactory stdFactory) {
@@ -85,29 +103,40 @@ public class TrinoMap extends TrinoData implements StdMap {
   // types, we can skip copying.
   @Override
   public void put(StdData key, StdData value) {
-    BlockBuilder mutable = _mapType.createBlockBuilder(new PageBuilderStatus().createBlockBuilderStatus(), 1);
-    BlockBuilder entryBuilder = mutable.beginBlockEntry();
     Object trinoKey = ((PlatformData) key).getUnderlyingData();
     int valuePosition = seekKey(trinoKey);
+
+    int entryCount = _block.getPositionCount() / 2;
+    BlockBuilder keyBuilder = _keyType.createBlockBuilder(null, entryCount + 1);
+    BlockBuilder valueBuilder = _valueType.createBlockBuilder(null, entryCount + 1);
+
     for (int i = 0; i < _block.getPositionCount(); i += 2) {
-      // Write the current key to the map
-      _keyType.appendTo(_block, i, entryBuilder);
-      // Find out if we need to change the corresponding value
+      _keyType.appendTo(_block, i, keyBuilder);
+
       if (i == valuePosition - 1) {
-        // Use the user-supplied value
-        ((TrinoData) value).writeToBlock(entryBuilder);
+        ((TrinoData) value).writeToBlock(valueBuilder);
       } else {
-        // Use the existing value in original _block
-        _valueType.appendTo(_block, i + 1, entryBuilder);
+        _valueType.appendTo(_block, i + 1, valueBuilder);
       }
     }
+
     if (valuePosition == -1) {
-      ((TrinoData) key).writeToBlock(entryBuilder);
-      ((TrinoData) value).writeToBlock(entryBuilder);
+      ((TrinoData) key).writeToBlock(keyBuilder);
+      ((TrinoData) value).writeToBlock(valueBuilder);
     }
 
-    mutable.closeEntry();
-    _block = ((MapType) _mapType).getObject(mutable.build(), 0);
+    int[] offsets = new int[] {0, keyBuilder.getPositionCount()};
+    Block mapBlock = MapBlock.fromKeyValueBlock(
+        Optional.empty(),
+        offsets,
+        keyBuilder.build(),
+        valueBuilder.build(),
+        (MapType) _mapType
+    );
+
+    BlockBuilder parent = _mapType.createBlockBuilder(null, 1);
+    _mapType.writeObject(parent, mapBlock);
+    _block = parent.build();
   }
 
   public Set<StdData> keySet() {
