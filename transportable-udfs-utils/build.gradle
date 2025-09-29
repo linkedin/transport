@@ -1,5 +1,16 @@
 apply plugin: 'java-library'
 
+java {
+  toolchain {
+    languageVersion = JavaLanguageVersion.of(21)
+  }
+  sourceCompatibility = JavaVersion.VERSION_1_8
+  targetCompatibility = JavaVersion.VERSION_1_8
+}
+tasks.withType(JavaCompile).configureEach {
+  options.release.set(8)
+}
+
 dependencies {
   compileOnly 'org.apache.hadoop:hadoop-common:2.7.4'
   compileOnly 'org.apache.hadoop:hadoop-mapreduce-client-core:2.7.4'

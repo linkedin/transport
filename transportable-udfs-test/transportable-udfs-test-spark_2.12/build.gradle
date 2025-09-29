@@ -1,6 +1,10 @@
 apply plugin: 'scala'
 apply plugin: 'com.github.alisiikh.scalastyle'
 
+java {
+  toolchain.languageVersion.set(JavaLanguageVersion.of(8))
+}
+
 sourceSets {
   main {
     scala {
