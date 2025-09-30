@@ -1,10 +1,6 @@
 apply plugin: 'scala'
 apply plugin: 'com.github.alisiikh.scalastyle'
 
-java {
-  toolchain.languageVersion.set(JavaLanguageVersion.of(8))
-}
-
 dependencies {
   implementation project(":transportable-udfs-api")
   implementation project(":transportable-udfs-spark_2.11")
