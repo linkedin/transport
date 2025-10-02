@@ -66,7 +66,7 @@ public class TrinoTester implements SqlStdTester {
     _stdFactory = null;
     _sqlFunctionCallGenerator = new TrinoSqlFunctionCallGenerator();
     _toPlatformTestOutputConverter = new ToTrinoTestOutputConverter();
-    SqlPath sqlPath = new SqlPath(List.of(new CatalogSchemaName("LINKEDIN", "TRANSPORT")), "LINKEDIN.TRANSPORT");
+    SqlPath sqlPath = new SqlPath(List.of(new CatalogSchemaName("linkedin", "transport")), "linkedin_transport");
     _session = TestingSession.testSessionBuilder().setPath(sqlPath).setClientCapabilities((Set) Arrays.stream(
         ClientCapabilities.values()).map(Enum::toString).collect(ImmutableSet.toImmutableSet())).build();
     _runner = DistributedQueryRunner.builder(_session).build();
@@ -90,7 +90,7 @@ public class TrinoTester implements SqlStdTester {
     ConnectorFactory connectorFactory = new ConnectorFactory() {
       @Override
       public String getName() {
-        return "TRANSPORT";
+        return "transport";
       }
       @Override
       public Connector create(String catalogName, Map<String, String> config, ConnectorContext context) {
@@ -104,7 +104,7 @@ public class TrinoTester implements SqlStdTester {
         return ImmutableList.of(connectorFactory);
       }
     });
-    _runner.createCatalog("LINKEDIN", "TRANSPORT", Collections.emptyMap());
+    _runner.createCatalog("linkedin", "transport", Collections.emptyMap());
   }
 
   @Override
@@ -112,7 +112,7 @@ public class TrinoTester implements SqlStdTester {
     if (_stdFactory == null) {
       FunctionBinding functionBinding = new FunctionBinding(
           new FunctionId("test"),
-          new BoundSignature(new CatalogSchemaFunctionName("LINKEDIN", "TRANSPORT", "test"), UNKNOWN, ImmutableList.of()),
+          new BoundSignature(new CatalogSchemaFunctionName("linkedin", "transport", "test"), UNKNOWN, ImmutableList.of()),
           ImmutableMap.of(),
           ImmutableMap.of());
       _stdFactory = new TrinoFactory(functionBinding, new TrinoTestFunctionDependencies(InternalTypeManager.TESTING_TYPE_MANAGER, _runner));
