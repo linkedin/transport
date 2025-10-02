@@ -8,165 +8,143 @@ package com.linkedin.transport.test.trino;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import com.linkedin.transport.api.StdFactory;
-import com.linkedin.transport.api.udf.StdUDF;
-import com.linkedin.transport.api.udf.TopLevelStdUDF;
 import com.linkedin.transport.test.spi.Row;
-import com.linkedin.transport.test.spi.SqlFunctionCallGenerator;
-import com.linkedin.transport.test.spi.SqlStdTester;
 import com.linkedin.transport.test.spi.TestCase;
-import com.linkedin.transport.test.spi.ToPlatformTestOutputConverter;
 import com.linkedin.transport.test.spi.types.TestType;
 import com.linkedin.transport.trino.StdUdfWrapper;
-import com.linkedin.transport.trino.TrinoFactory;
 import com.linkedin.transport.trino.TransportConnector;
 import com.linkedin.transport.trino.TransportConnectorMetadata;
 import com.linkedin.transport.trino.TransportFunctionProvider;
+import io.trino.Session;
 import io.trino.client.ClientCapabilities;
-import io.trino.metadata.FunctionBinding;
+import io.trino.spi.Plugin;
 import io.trino.spi.connector.CatalogSchemaName;
 import io.trino.spi.connector.Connector;
 import io.trino.spi.connector.ConnectorContext;
 import io.trino.spi.connector.ConnectorFactory;
 import io.trino.spi.connector.ConnectorMetadata;
 import io.trino.spi.function.BoundSignature;
+import io.trino.metadata.FunctionBinding;
 import io.trino.spi.function.CatalogSchemaFunctionName;
 import io.trino.spi.function.FunctionId;
+import com.linkedin.transport.api.StdFactory;
+import com.linkedin.transport.api.udf.StdUDF;
+import com.linkedin.transport.api.udf.TopLevelStdUDF;
+import com.linkedin.transport.trino.TrinoFactory;
+import com.linkedin.transport.test.spi.SqlFunctionCallGenerator;
+import com.linkedin.transport.test.spi.SqlStdTester;
+import com.linkedin.transport.test.spi.ToPlatformTestOutputConverter;
 import io.trino.spi.function.FunctionProvider;
 import io.trino.spi.type.Type;
 import io.trino.sql.SqlPath;
+import io.trino.sql.query.QueryAssertions;
 import io.trino.testing.DistributedQueryRunner;
-import io.trino.testing.MaterializedResult;
 import io.trino.testing.TestingSession;
 import io.trino.type.InternalTypeManager;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import org.assertj.core.api.Assertions;
 
 import static io.trino.type.UnknownType.UNKNOWN;
+import static org.assertj.core.api.Assertions.*;
 
-public class TrinoTester implements SqlStdTester, AutoCloseable {
-  private final DistributedQueryRunner queryRunner;
 
-  private final io.trino.Session session;
+public class TrinoTester implements SqlStdTester {
 
-  private StdFactory stdFactory;
-
-  private final SqlFunctionCallGenerator sqlFunctionCallGenerator;
-  private final ToPlatformTestOutputConverter toPlatformTestOutputConverter;
+  private StdFactory _stdFactory;
+  private SqlFunctionCallGenerator _sqlFunctionCallGenerator;
+  private ToPlatformTestOutputConverter _toPlatformTestOutputConverter;
+  private Session _session;
+  private DistributedQueryRunner _runner;
+  private QueryAssertions _queryAssertions;
 
   public TrinoTester() throws Exception {
-    sqlFunctionCallGenerator = new TrinoSqlFunctionCallGenerator();
-    toPlatformTestOutputConverter = new ToTrinoTestOutputConverter();
-
-    SqlPath sqlPath = new SqlPath(List.of(new CatalogSchemaName("LINKEDIN", "TRANSPORT")), "LINKEDIN_TRANSPORT");
-    Set<String> caps = Arrays.stream(ClientCapabilities.values())
-        .map(Enum::toString)
-        .collect(ImmutableSet.toImmutableSet());
-
-    session = TestingSession.testSessionBuilder()
-        .setPath(sqlPath)
-        .setClientCapabilities(caps)
-        .build();
-
-    queryRunner = DistributedQueryRunner.builder(session).build();
+    _stdFactory = null;
+    _sqlFunctionCallGenerator = new TrinoSqlFunctionCallGenerator();
+    _toPlatformTestOutputConverter = new ToTrinoTestOutputConverter();
+    SqlPath sqlPath = new SqlPath(List.of(new CatalogSchemaName("LINKEDIN", "TRANSPORT")), "LINKEDIN.TRANSPORT");
+    _session = TestingSession.testSessionBuilder().setPath(sqlPath).setClientCapabilities((Set) Arrays.stream(
+        ClientCapabilities.values()).map(Enum::toString).collect(ImmutableSet.toImmutableSet())).build();
+    _runner = DistributedQueryRunner.builder(_session).build();
+    _queryAssertions = new QueryAssertions(_runner);
   }
 
   @Override
-  public void setup(Map<Class<? extends TopLevelStdUDF>, List<Class<? extends StdUDF>>> udfMap) {
-    Map<FunctionId, StdUdfWrapper> wrappers = new HashMap<>();
-    for (List<Class<? extends StdUDF>> impls : udfMap.values()) {
-      for (Class<? extends StdUDF> impl : impls) {
-        StdUdfWrapper wrapper = new TrinoTestStdUDFWrapper(impl);
-        wrappers.put(wrapper.getFunctionMetadata().getFunctionId(), wrapper);
+  public void setup(
+      Map<Class<? extends TopLevelStdUDF>, List<Class<? extends StdUDF>>> topLevelStdUDFClassesAndImplementations) {
+    Map<FunctionId, StdUdfWrapper> functions = new HashMap<>();
+    // Refresh Trino state during every setup call
+    for (List<Class<? extends StdUDF>> stdUDFImplementations : topLevelStdUDFClassesAndImplementations.values()) {
+      for (Class<? extends StdUDF> stdUDF : stdUDFImplementations) {
+        StdUdfWrapper function = new TrinoTestStdUDFWrapper(stdUDF);
+        functions.put(function.getFunctionMetadata().getFunctionId(), function);
       }
     }
-
-    FunctionProvider fp = new TransportFunctionProvider(wrappers);
-    ConnectorMetadata cm = new TransportConnectorMetadata(wrappers);
-    Connector connector = new TransportConnector(cm, fp);
-
-    ConnectorFactory factory = new ConnectorFactory() {
-      @Override public String getName() {
-        return "transport";
+    FunctionProvider functionProvider = new TransportFunctionProvider(functions);
+    ConnectorMetadata connectorMetadata = new TransportConnectorMetadata(functions);
+    Connector connector = new TransportConnector(connectorMetadata, functionProvider);
+    ConnectorFactory connectorFactory = new ConnectorFactory() {
+      @Override
+      public String getName() {
+        return "TRANSPORT";
       }
-      @Override public Connector create(String catalog, Map<String, String> cfg, ConnectorContext ctx) {
+      @Override
+      public Connector create(String catalogName, Map<String, String> config, ConnectorContext context) {
         return connector;
       }
     };
 
-    queryRunner.createCatalog(
-        "LINKEDIN",
-        "transport",
-        ImmutableMap.of("connector.name", "transport",
-            "transport.udf.repo", Path.of(".").toUri().toString()));
+    _runner.installPlugin(new Plugin() {
+      @Override
+      public Iterable<ConnectorFactory> getConnectorFactories() {
+        return ImmutableList.of(connectorFactory);
+      }
+    });
+    _runner.createCatalog("LINKEDIN", "TRANSPORT", Collections.emptyMap());
   }
 
   @Override
   public StdFactory getStdFactory() {
-    if (stdFactory == null) {
-      FunctionBinding binding = new FunctionBinding(
+    if (_stdFactory == null) {
+      FunctionBinding functionBinding = new FunctionBinding(
           new FunctionId("test"),
-          new BoundSignature(
-              new CatalogSchemaFunctionName("linkedin", "transport", "test"),
-              UNKNOWN,
-              ImmutableList.of()),
+          new BoundSignature(new CatalogSchemaFunctionName("LINKEDIN", "TRANSPORT", "test"), UNKNOWN, ImmutableList.of()),
           ImmutableMap.of(),
           ImmutableMap.of());
-
-      stdFactory = new TrinoFactory(
-          binding,
-          new TrinoTestFunctionDependencies(InternalTypeManager.TESTING_TYPE_MANAGER, queryRunner));
+      _stdFactory = new TrinoFactory(functionBinding, new TrinoTestFunctionDependencies(InternalTypeManager.TESTING_TYPE_MANAGER, _runner));
     }
-    return stdFactory;
+    return _stdFactory;
   }
 
-  @Override public SqlFunctionCallGenerator getSqlFunctionCallGenerator() {
-    return sqlFunctionCallGenerator;
+  @Override
+  public SqlFunctionCallGenerator getSqlFunctionCallGenerator() {
+    return _sqlFunctionCallGenerator;
   }
-  @Override public ToPlatformTestOutputConverter getToPlatformTestOutputConverter() {
-    return toPlatformTestOutputConverter;
+
+  @Override
+  public ToPlatformTestOutputConverter getToPlatformTestOutputConverter() {
+    return _toPlatformTestOutputConverter;
   }
 
   @Override
   public void check(TestCase testCase) {
-    String fnName = testCase.getFunctionCall().getFunctionName();
-    List<Object> params = testCase.getFunctionCall().getParameters();
-    List<TestType> paramTypes = testCase.getFunctionCall().getInferredParameterTypes();
-
-    List<String> argSql = new ArrayList<>();
-    for (int i = 0; i < params.size(); i++) {
-      argSql.add(sqlFunctionCallGenerator.getFunctionCallArgumentString(params.get(i), paramTypes.get(i)));
+    String functionName = testCase.getFunctionCall().getFunctionName();
+    List<Object> parameters = testCase.getFunctionCall().getParameters();
+    List<TestType> testTypes = testCase.getFunctionCall().getInferredParameterTypes();
+    List<String> functionArguments = new ArrayList<>();
+    for (int i = 0; i < parameters.size(); ++i) {
+      functionArguments.add(_sqlFunctionCallGenerator.getFunctionCallArgumentString(parameters.get(i), testTypes.get(i)));
     }
-
-    String querySql = "SELECT linkedin.transport." + fnName + "(" + String.join(", ", argSql) + ")";
-    MaterializedResult result = queryRunner.execute(session, querySql);
-
+    Object expectedOutputType = getPlatformType(testCase.getExpectedOutputType());
     Object expectedOutput = testCase.getExpectedOutput();
     if (expectedOutput instanceof Row) {
       expectedOutput = ((Row) expectedOutput).getFields();
     }
-    Type expectedType = (Type) getPlatformType(testCase.getExpectedOutputType());
-
-    Assertions.assertThat(result.getRowCount()).isEqualTo(1);
-    Assertions.assertThat(result.getTypes().get(0)).isEqualTo(expectedType);
-    Assertions.assertThat(result.getOnlyValue()).isEqualTo(expectedOutput);
-  }
-
-  @Override
-  public void close() throws Exception {
-    if (queryRunner != null) {
-      queryRunner.close();
-    }
-  }
-
-  static {
-    Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-    }));
+    QueryAssertions.ExpressionAssertProvider expressionAssertProvider = _queryAssertions.function(functionName, functionArguments);
+    assertThat(expressionAssertProvider).hasType((Type) expectedOutputType).isEqualTo(expectedOutput);
   }
 }
