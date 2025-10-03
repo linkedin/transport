@@ -40,3 +40,27 @@ plugins.withId('com.github.hierynomus.license') {
 
 // TODO: Add a debugPlatform flag to allow debugging specific test methods in IntelliJ
 // for a particular platform other than default
+
+def genTrinoRes  = layout.buildDirectory.dir("generatedWrappers/trino/resources")
+def genTrinoJava = layout.buildDirectory.dir("generatedWrappers/trino/java")
+
+tasks.named("generateTrinoWrappers") {
+  outputs.dir(genTrinoRes)
+  outputs.dir(genTrinoJava)
+}
+
+sourceSets {
+  trino {
+    resources.srcDir(genTrinoRes)
+    java.srcDir(genTrinoJava)
+  }
+}
+
+// Ensure ordering/dependency for Gradle 8 validation
+tasks.named("processTrinoResources") {
+  duplicatesStrategy = DuplicatesStrategy.INCLUDE
+  dependsOn(tasks.named("generateTrinoWrappers"))
+}
+tasks.named("compileTrinoJava") {
+  dependsOn(tasks.named("generateTrinoWrappers"))
+}
