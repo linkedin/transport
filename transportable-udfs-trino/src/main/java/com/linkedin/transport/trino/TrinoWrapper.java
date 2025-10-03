@@ -32,6 +32,8 @@ import com.linkedin.transport.trino.types.TrinoUnknownType;
 import io.airlift.slice.Slice;
 import io.trino.spi.TrinoException;
 import io.trino.spi.block.Block;
+import io.trino.spi.block.SqlMap;
+import io.trino.spi.block.SqlRow;
 import io.trino.spi.type.ArrayType;
 import io.trino.spi.type.BigintType;
 import io.trino.spi.type.BooleanType;
@@ -91,9 +93,9 @@ public final class TrinoWrapper {
     } else if (trinoType instanceof ArrayType) {
       return new TrinoArray((Block) trinoData, (ArrayType) trinoType, stdFactory);
     } else if (trinoType instanceof MapType) {
-      return new TrinoMap((Block) trinoData, trinoType, stdFactory);
+      return new TrinoMap((SqlMap) trinoData, (MapType) trinoType, stdFactory);
     } else if (trinoType instanceof RowType) {
-      return new TrinoStruct((Block) trinoData, trinoType, stdFactory);
+      return new TrinoStruct((SqlRow) trinoData, trinoType, stdFactory);
     }
     assert false : "Unrecognized Trino Type: " + trinoType.getClass();
     return null;

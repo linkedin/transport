@@ -71,7 +71,7 @@ public class ShadedJarPackaging implements Packaging {
         project.getTasks().register(sourceSet.getTaskName("shade", "Jar"), ShadeTask.class, task -> {
           task.setGroup(ShadowJavaPlugin.SHADOW_GROUP);
           task.setDescription("Create a combined JAR of " + platform.getName() + " output and runtime dependencies");
-          task.setClassifier(platform.getName());
+          task.getArchiveClassifier().set(platform.getName());
           task.getManifest()
               .inheritFrom(project.getTasks().named(mainSourceSet.getJarTaskName(), Jar.class).get().getManifest());
           task.from(sourceSet.getOutput());

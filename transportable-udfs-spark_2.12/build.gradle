@@ -39,7 +39,7 @@ dependencies {
 }
 
 task jarTests(type: Jar, dependsOn: testClasses) {
-  classifier = 'tests'
+  archiveClassifier.set('tests')
   from sourceSets.test.output
 }
 
