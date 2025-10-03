@@ -14,7 +14,7 @@ import com.linkedin.transport.test.spi.types.TestType;
 import java.util.AbstractSet;
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -33,7 +33,7 @@ public class GenericMap implements StdMap, PlatformData {
   }
 
   public GenericMap(TestType type) {
-    this(new LinkedHashMap<>(), type);
+    this(new HashMap<>(), type);
   }
 
   @Override

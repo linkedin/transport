@@ -35,20 +35,26 @@ import com.linkedin.transport.test.spi.SqlFunctionCallGenerator;
 import com.linkedin.transport.test.spi.SqlStdTester;
 import com.linkedin.transport.test.spi.ToPlatformTestOutputConverter;
 import io.trino.spi.function.FunctionProvider;
+import io.trino.spi.type.ArrayType;
+import io.trino.spi.type.MapType;
+import io.trino.spi.type.RowType;
 import io.trino.spi.type.Type;
 import io.trino.sql.SqlPath;
 import io.trino.sql.query.QueryAssertions;
 import io.trino.testing.DistributedQueryRunner;
+import io.trino.testing.MaterializedRow;
 import io.trino.testing.TestingSession;
 import io.trino.type.InternalTypeManager;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static io.trino.testing.MaterializedResult.*;
 import static io.trino.type.UnknownType.UNKNOWN;
 import static org.assertj.core.api.Assertions.*;
 
@@ -66,11 +72,10 @@ public class TrinoTester implements SqlStdTester {
     _stdFactory = null;
     _sqlFunctionCallGenerator = new TrinoSqlFunctionCallGenerator();
     _toPlatformTestOutputConverter = new ToTrinoTestOutputConverter();
-    SqlPath sqlPath = new SqlPath(List.of(new CatalogSchemaName("linkedin", "transport")), "linkedin_transport");
+    SqlPath sqlPath = new SqlPath(List.of(new CatalogSchemaName("linkedin", "transport")), "linkedin.transport");
     _session = TestingSession.testSessionBuilder().setPath(sqlPath).setClientCapabilities((Set) Arrays.stream(
         ClientCapabilities.values()).map(Enum::toString).collect(ImmutableSet.toImmutableSet())).build();
     _runner = DistributedQueryRunner.builder(_session).build();
-    _queryAssertions = new QueryAssertions(_runner);
   }
 
   @Override
@@ -105,6 +110,7 @@ public class TrinoTester implements SqlStdTester {
       }
     });
     _runner.createCatalog("linkedin", "transport", Collections.emptyMap());
+    _queryAssertions = new QueryAssertions(_runner);
   }
 
   @Override
@@ -141,10 +147,68 @@ public class TrinoTester implements SqlStdTester {
     }
     Object expectedOutputType = getPlatformType(testCase.getExpectedOutputType());
     Object expectedOutput = testCase.getExpectedOutput();
-    if (expectedOutput instanceof Row) {
-      expectedOutput = ((Row) expectedOutput).getFields();
-    }
+    expectedOutput = normalizeExpected(expectedOutput, (Type) expectedOutputType);
+
     QueryAssertions.ExpressionAssertProvider expressionAssertProvider = _queryAssertions.function(functionName, functionArguments);
-    assertThat(expressionAssertProvider).hasType((Type) expectedOutputType).isEqualTo(expectedOutput);
+    QueryAssertions.ExpressionAssert expressionAssert = assertThat(expressionAssertProvider).hasType((Type) expectedOutputType);
+    expressionAssert.isEqualTo(expectedOutput);
+  }
+
+  private Object normalizeExpected(Object expected, Type expectedType) {
+    if (expected == null) {
+      return null;
+    }
+
+    if (expectedType instanceof RowType) {
+      RowType rowType = (RowType) expectedType;
+      if (expected instanceof MaterializedRow) {
+        return expected;
+      }
+
+      final List<?> fields;
+      if (expected instanceof Row) {
+        Row r = (Row) expected;
+        fields = r.getFields();
+      } else if (expected instanceof List<?>) {
+        List<?> l = (List<?>) expected;
+        fields = l;
+      } else {
+        throw new IllegalArgumentException(
+            "Expected value for RowType must be Row, List, or MaterializedRow; got " + expected.getClass());
+      }
+
+      List<RowType.Field> trinoFields = rowType.getFields();
+      List<Object> normalized = new ArrayList<>(trinoFields.size());
+      for (int i = 0; i < trinoFields.size(); i++) {
+        Type fType = trinoFields.get(i).getType();
+        Object fVal = (i < fields.size()) ? fields.get(i) : null;
+        normalized.add(normalizeExpected(fVal, fType)); // recurse for nested rows/arrays/maps
+      }
+      return new MaterializedRow(DEFAULT_PRECISION, normalized);
+    }
+
+    if (expectedType instanceof ArrayType) {
+      ArrayType arrayType = (ArrayType) expectedType;
+      List<?> list = (List<?>) expected;
+      List<Object> out = new ArrayList<>(list.size());
+      for (Object elem : list) {
+        out.add(normalizeExpected(elem, arrayType.getElementType())); // recurse
+      }
+      return out;
+    }
+
+    if (expectedType instanceof MapType) {
+      MapType mapType = (MapType) expectedType;
+      Map<?, ?> map = (Map<?, ?>) expected;
+      Map<Object, Object> out = new LinkedHashMap<>();
+      for (Map.Entry<?, ?> e : map.entrySet()) {
+        Object key = normalizeExpected(e.getKey(), mapType.getKeyType());
+        Object val = normalizeExpected(e.getValue(), mapType.getValueType());
+        out.put(key, val);
+      }
+      return out;
+    }
+
+    return expected;
   }
 }
