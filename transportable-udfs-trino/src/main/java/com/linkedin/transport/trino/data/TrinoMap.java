@@ -1,7 +1,6 @@
-/**
- * Copyright 2018 LinkedIn Corporation. All rights reserved.
+/*
+ * Copyright 2018 LinkedIn Corporation.
  * Licensed under the BSD-2 Clause license.
- * See LICENSE in the project root for license information.
  */
 package com.linkedin.transport.trino.data;
 
@@ -16,98 +15,105 @@ import com.linkedin.transport.trino.TrinoWrapper;
 import io.trino.spi.TrinoException;
 import io.trino.spi.block.Block;
 import io.trino.spi.block.BlockBuilder;
-import io.trino.spi.block.PageBuilderStatus;
+import io.trino.spi.block.MapHashTables.HashBuildMode;
+import io.trino.spi.block.SqlMap;
 import io.trino.spi.function.OperatorType;
 import io.trino.spi.type.MapType;
 import io.trino.spi.type.Type;
+
 import java.lang.invoke.MethodHandle;
+import java.lang.reflect.Method;
 import java.util.AbstractCollection;
 import java.util.AbstractSet;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Set;
 
-import static io.trino.spi.StandardErrorCode.*;
-import static io.trino.spi.function.InvocationConvention.simpleConvention;
+import static io.trino.spi.StandardErrorCode.GENERIC_INTERNAL_ERROR;
 import static io.trino.spi.function.InvocationConvention.InvocationArgumentConvention.NEVER_NULL;
 import static io.trino.spi.function.InvocationConvention.InvocationReturnConvention.NULLABLE_RETURN;
-import static io.trino.spi.type.TypeUtils.*;
-
+import static io.trino.spi.function.InvocationConvention.simpleConvention;
+import static io.trino.spi.type.TypeUtils.readNativeValue;
 
 public class TrinoMap extends TrinoData implements StdMap {
+  private final Type _keyType;
+  private final Type _valueType;
+  private final MapType _mapType;
+  private final MethodHandle _keyEqualsMethod;
+  private final StdFactory _stdFactory;
 
-  final Type _keyType;
-  final Type _valueType;
-  final Type _mapType;
-  final MethodHandle _keyEqualsMethod;
-  final StdFactory _stdFactory;
-  Block _block;
+  private SqlMap _map;
 
-  public TrinoMap(Type mapType, StdFactory stdFactory) {
-    BlockBuilder mutable = mapType.createBlockBuilder(new PageBuilderStatus().createBlockBuilderStatus(), 1);
-    mutable.beginBlockEntry();
-    mutable.closeEntry();
-    _block = ((MapType) mapType).getObject(mutable.build(), 0);
-
-    _keyType = ((MapType) mapType).getKeyType();
-    _valueType = ((MapType) mapType).getValueType();
+  public TrinoMap(MapType mapType, StdFactory stdFactory) {
     _mapType = mapType;
-
+    _keyType = mapType.getKeyType();
+    _valueType = mapType.getValueType();
     _stdFactory = stdFactory;
     _keyEqualsMethod = ((TrinoFactory) stdFactory).getOperatorHandle(
-        OperatorType.EQUAL, ImmutableList.of(_keyType, _keyType), simpleConvention(NULLABLE_RETURN, NEVER_NULL, NEVER_NULL));
+        OperatorType.EQUAL,
+        ImmutableList.of(_keyType, _keyType),
+        simpleConvention(NULLABLE_RETURN, NEVER_NULL, NEVER_NULL));
+
+    // Start with an empty SqlMap
+    Block emptyKeys = _keyType.createBlockBuilder(null, 0).build();
+    Block emptyValues = _valueType.createBlockBuilder(null, 0).build();
+    _map = new SqlMap(mapType, HashBuildMode.STRICT_EQUALS, emptyKeys, emptyValues);
   }
 
-  public TrinoMap(Block block, Type mapType, StdFactory stdFactory) {
+  public TrinoMap(SqlMap map, MapType mapType, StdFactory stdFactory) {
     this(mapType, stdFactory);
-    _block = block;
+    _map = map;
   }
 
   @Override
   public int size() {
-    return _block.getPositionCount() / 2;
+    return keyBlock().getPositionCount();
   }
 
   @Override
   public StdData get(StdData key) {
     Object trinoKey = ((PlatformData) key).getUnderlyingData();
-    int i = seekKey(trinoKey);
-    if (i != -1) {
-      Object value = readNativeValue(_valueType, _block, i);
-      StdData stdValue = TrinoWrapper.createStdData(value, _valueType, _stdFactory);
-      return stdValue;
-    } else {
+    int idx = seekKeyIndex(trinoKey);
+    if (idx == -1) {
       return null;
     }
+    Object value = readNativeValue(_valueType, valueBlock(), idx);
+    return TrinoWrapper.createStdData(value, _valueType, _stdFactory);
   }
 
-  // TODO: Do not copy the _mutable BlockBuilder on every update. As long as updates are append-only or for fixed-size
-  // types, we can skip copying.
   @Override
   public void put(StdData key, StdData value) {
-    BlockBuilder mutable = _mapType.createBlockBuilder(new PageBuilderStatus().createBlockBuilderStatus(), 1);
-    BlockBuilder entryBuilder = mutable.beginBlockEntry();
     Object trinoKey = ((PlatformData) key).getUnderlyingData();
-    int valuePosition = seekKey(trinoKey);
-    for (int i = 0; i < _block.getPositionCount(); i += 2) {
-      // Write the current key to the map
-      _keyType.appendTo(_block, i, entryBuilder);
-      // Find out if we need to change the corresponding value
-      if (i == valuePosition - 1) {
-        // Use the user-supplied value
-        ((TrinoData) value).writeToBlock(entryBuilder);
+    int existingIndex = seekKeyIndex(trinoKey);
+
+    int n = size();
+    int newSize = (existingIndex == -1) ? n + 1 : n;
+
+    BlockBuilder keyBuilder = _keyType.createBlockBuilder(null, newSize);
+    BlockBuilder valueBuilder = _valueType.createBlockBuilder(null, newSize);
+
+    // copy existing entries, replacing value if key matches
+    for (int i = 0; i < n; i++) {
+      _keyType.appendTo(keyBlock(), i, keyBuilder);
+      if (i == existingIndex) {
+        ((TrinoData) value).writeToBlock(valueBuilder);
       } else {
-        // Use the existing value in original _block
-        _valueType.appendTo(_block, i + 1, entryBuilder);
+        _valueType.appendTo(valueBlock(), i, valueBuilder);
       }
     }
-    if (valuePosition == -1) {
-      ((TrinoData) key).writeToBlock(entryBuilder);
-      ((TrinoData) value).writeToBlock(entryBuilder);
+
+    // append new entry if key not present
+    if (existingIndex == -1) {
+      ((TrinoData) key).writeToBlock(keyBuilder);
+      ((TrinoData) value).writeToBlock(valueBuilder);
     }
 
-    mutable.closeEntry();
-    _block = ((MapType) _mapType).getObject(mutable.build(), 0);
+    _map = new SqlMap(_mapType, HashBuildMode.STRICT_EQUALS, keyBuilder.build(), valueBuilder.build());
+  }
+
+  @Override
+  public boolean containsKey(StdData key) {
+    return get(key) != null;
   }
 
   public Set<StdData> keySet() {
@@ -115,21 +121,17 @@ public class TrinoMap extends TrinoData implements StdMap {
       @Override
       public Iterator<StdData> iterator() {
         return new Iterator<StdData>() {
-          int i = -2;
-
-          @Override
-          public boolean hasNext() {
-            return !(i + 2 == size() * 2);
+          int i = -1;
+          @Override public boolean hasNext() {
+            return i + 1 < size();
           }
-
-          @Override
-          public StdData next() {
-            i += 2;
-            return TrinoWrapper.createStdData(readNativeValue(_keyType, _block, i), _keyType, _stdFactory);
+          @Override public StdData next() {
+            i++;
+            Object k = readNativeValue(_keyType, keyBlock(), i);
+            return TrinoWrapper.createStdData(k, _keyType, _stdFactory);
           }
         };
       }
-
       @Override
       public int size() {
         return TrinoMap.this.size();
@@ -140,25 +142,20 @@ public class TrinoMap extends TrinoData implements StdMap {
   @Override
   public Collection<StdData> values() {
     return new AbstractCollection<StdData>() {
-
       @Override
       public Iterator<StdData> iterator() {
         return new Iterator<StdData>() {
-          int i = -2;
-
-          @Override
-          public boolean hasNext() {
-            return !(i + 2 == size() * 2);
+          int i = -1;
+          @Override public boolean hasNext() {
+            return i + 1 < size();
           }
-
-          @Override
-          public StdData next() {
-            i += 2;
-            return TrinoWrapper.createStdData(readNativeValue(_valueType, _block, i + 1), _valueType, _stdFactory);
+          @Override public StdData next() {
+            i++;
+            Object v = readNativeValue(_valueType, valueBlock(), i);
+            return TrinoWrapper.createStdData(v, _valueType, _stdFactory);
           }
         };
       }
-
       @Override
       public int size() {
         return TrinoMap.this.size();
@@ -167,25 +164,26 @@ public class TrinoMap extends TrinoData implements StdMap {
   }
 
   @Override
-  public boolean containsKey(StdData key) {
-    return get(key) != null;
-  }
-
-  @Override
   public Object getUnderlyingData() {
-    return _block;
+    return _map;
   }
 
   @Override
   public void setUnderlyingData(Object value) {
-    _block = (Block) value;
+    _map = (SqlMap) value;
   }
 
-  private int seekKey(Object key) {
-    for (int i = 0; i < _block.getPositionCount(); i += 2) {
+  @Override
+  public void writeToBlock(BlockBuilder blockBuilder) {
+    _mapType.writeObject(blockBuilder, _map);
+  }
+
+  private int seekKeyIndex(Object key) {
+    Block keys = keyBlock();
+    for (int i = 0; i < keys.getPositionCount(); i++) {
       try {
-        if ((boolean) _keyEqualsMethod.invoke(readNativeValue(_keyType, _block, i), key)) {
-          return i + 1;
+        if ((boolean) _keyEqualsMethod.invoke(readNativeValue(_keyType, keys, i), key)) {
+          return i;
         }
       } catch (Throwable t) {
         Throwables.propagateIfInstanceOf(t, Error.class);
@@ -196,8 +194,29 @@ public class TrinoMap extends TrinoData implements StdMap {
     return -1;
   }
 
-  @Override
-  public void writeToBlock(BlockBuilder blockBuilder) {
-    _mapType.writeObject(blockBuilder, _block);
+  private Block keyBlock() {
+    return getBlock(_map, /*key=*/true);
+  }
+
+  private Block valueBlock() {
+    return getBlock(_map, /*key=*/false);
+  }
+
+  /**
+   * SqlMap getters differ slightly across Trino versions (getKeyBlock()/getValueBlock() vs keyBlock()/valueBlock()).
+   * Use a tiny reflective shim so this class compiles against either.
+   */
+  private static Block getBlock(SqlMap map, boolean key) {
+    try {
+      Method m;
+      try {
+        m = SqlMap.class.getMethod(key ? "getRawKeyBlock" : "getRawValueBlock");
+      } catch (NoSuchMethodException e) {
+        m = SqlMap.class.getMethod(key ? "keyBlock" : "valueBlock");
+      }
+      return (Block) m.invoke(map);
+    } catch (ReflectiveOperationException e) {
+      throw new RuntimeException("Unable to access SqlMap blocks", e);
+    }
   }
 }

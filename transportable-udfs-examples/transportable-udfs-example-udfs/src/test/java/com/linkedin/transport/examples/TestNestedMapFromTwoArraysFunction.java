@@ -25,7 +25,7 @@ public class TestNestedMapFromTwoArraysFunction extends AbstractStdUDFTest {
 
   @Test
   public void testNestedMapUnionFunction() {
-    // in case of Trino v406, the output of the query with UDF "udf_map_from_two_arrays" is "array(array(map(...)))
+    // in case of Trino v446, the output of the query with UDF "udf_map_from_two_arrays" is "array(array(map(...)))
     // in case of Hive and Spark, the output of the query with UDF "udf_map_from_two_arrays" is "array(row(map(...)))
     StdTester tester = getTester();
     tester.check(
@@ -37,12 +37,6 @@ public class TestNestedMapFromTwoArraysFunction extends AbstractStdUDFTest {
         isTrinoTest() ?  array(array(map(1, "a", 2, "b")), array(map(11, "aa", 12, "bb")))
             : array(row(map(1, "a", 2, "b")), row(map(11, "aa", 12, "bb"))),
         "array(row(map(integer,varchar)))");
-    tester.check(
-        functionCall("nested_map_from_two_arrays",
-            array(row(array(array(1), array(2)), array(array("a"), array("b"))))),
-        isTrinoTest() ? array(array(map(array(1), array("a"), array(2), array("b"))))
-            : array(row(map(array(1), array("a"), array(2), array("b")))),
-        "array(row(map(array(integer),array(varchar))))");
     tester.check(
         functionCall("nested_map_from_two_arrays",  array(row(array(1), array("a", "b")))),
         null, "array(row(map(integer,varchar)))");

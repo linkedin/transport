@@ -3,7 +3,7 @@ apply plugin: 'distribution'
 apply plugin: 'maven-publish'
 
 java {
-  toolchain.languageVersion.set(JavaLanguageVersion.of(17))
+  toolchain.languageVersion.set(JavaLanguageVersion.of(21))
 }
 
 dependencies {
@@ -20,6 +20,8 @@ dependencies {
   }
   compileOnly(group:'io.trino', name: 'trino-spi', version: project.ext.'trino-version')
   testImplementation (group:'io.trino', name: 'trino-main', version: project.ext.'trino-version')
+  testImplementation (group:'io.trino', name: 'trino-testing', version: project.ext.'trino-version')
+  testImplementation (group:'io.trino', name: 'trino-tpch', version: project.ext.'trino-version')
 }
 
 // packaging as a shaded jar following the guideline from Trino plugin

@@ -50,7 +50,7 @@ public class TrinoArray extends TrinoData implements StdArray {
 
   @Override
   public StdData get(int idx) {
-    Block sourceBlock = _mutable == null ? _block : _mutable;
+    Block sourceBlock = _mutable == null ? _block : _mutable.build();
     int position = TrinoWrapper.checkedIndexToBlockPosition(sourceBlock, idx);
     Object element = readNativeValue(_elementType, sourceBlock, position);
     return TrinoWrapper.createStdData(element, _elementType, _stdFactory);
@@ -77,7 +77,7 @@ public class TrinoArray extends TrinoData implements StdArray {
   @Override
   public Iterator<StdData> iterator() {
     return new Iterator<StdData>() {
-      Block sourceBlock = _mutable == null ? _block : _mutable;
+      Block sourceBlock = _mutable == null ? _block : _mutable.build();
       int size = TrinoArray.this.size();
       int position = 0;
 

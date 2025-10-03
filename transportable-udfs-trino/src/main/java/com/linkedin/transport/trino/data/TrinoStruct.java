@@ -11,147 +11,184 @@ import com.linkedin.transport.api.data.StdStruct;
 import com.linkedin.transport.trino.TrinoWrapper;
 import io.trino.spi.block.Block;
 import io.trino.spi.block.BlockBuilder;
-import io.trino.spi.block.BlockBuilderStatus;
-import io.trino.spi.block.PageBuilderStatus;
+import io.trino.spi.block.SqlRow;
 import io.trino.spi.type.RowType;
 import io.trino.spi.type.Type;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import static io.trino.spi.type.TypeUtils.*;
-
+import static io.trino.spi.type.TypeUtils.readNativeValue;
 
 public class TrinoStruct extends TrinoData implements StdStruct {
 
-  final RowType _rowType;
-  final StdFactory _stdFactory;
-  Block _block;
+  private final RowType rowType;
+  private final StdFactory stdFactory;
+
+  // Trino v446+: ROW values are represented as SqlRow
+  private SqlRow rowData;
 
   public TrinoStruct(Type rowType, StdFactory stdFactory) {
-    _rowType = (RowType) rowType;
-    _stdFactory = stdFactory;
+    this.rowType = (RowType) rowType;
+    this.stdFactory = stdFactory;
   }
 
-  public TrinoStruct(Block block, Type rowType, StdFactory stdFactory) {
+  /** Prefer using this ctor if you already have a SqlRow from Trino. */
+  public TrinoStruct(SqlRow sqlRow, Type rowType, StdFactory stdFactory) {
     this(rowType, stdFactory);
-    _block = block;
+    this.rowData = sqlRow;
   }
 
   public TrinoStruct(List<Type> fieldTypes, StdFactory stdFactory) {
-    _stdFactory = stdFactory;
-    _rowType = RowType.anonymous(fieldTypes);
+    this.stdFactory = stdFactory;
+    this.rowType = RowType.anonymous(fieldTypes);
   }
 
   public TrinoStruct(List<String> fieldNames, List<Type> fieldTypes, StdFactory stdFactory) {
-    _stdFactory = stdFactory;
+    this.stdFactory = stdFactory;
     List<RowType.Field> fields = IntStream.range(0, fieldNames.size())
         .mapToObj(i -> new RowType.Field(Optional.ofNullable(fieldNames.get(i)), fieldTypes.get(i)))
         .collect(Collectors.toList());
-    _rowType = RowType.from(fields);
+    this.rowType = RowType.from(fields);
   }
 
   @Override
   public StdData getField(int index) {
-    int position = TrinoWrapper.checkedIndexToBlockPosition(_block, index);
-    if (position == -1) {
+    if (rowData == null) {
       return null;
     }
-    Type elementType = _rowType.getFields().get(position).getType();
-    Object element = readNativeValue(elementType, _block, position);
-    return TrinoWrapper.createStdData(element, elementType, _stdFactory);
+    int offset = rowData.getRawIndex();
+    Type fieldType = rowType.getFields().get(index).getType();
+    Block fieldBlock = rowData.getRawFieldBlock(index);
+    Object element = readNativeValue(fieldType, fieldBlock, offset);
+    return TrinoWrapper.createStdData(element, fieldType, stdFactory);
   }
 
   @Override
   public StdData getField(String name) {
-    int index = -1;
-    Type elementType = null;
-    int i = 0;
-    for (RowType.Field field : _rowType.getFields()) {
-      if (field.getName().isPresent() && name.equals(field.getName().get())) {
-        index = i;
-        elementType = field.getType();
-        break;
-      }
-      i++;
-    }
-    if (index == -1) {
+    if (rowData == null) {
       return null;
     }
-    Object element = readNativeValue(elementType, _block, index);
-    return TrinoWrapper.createStdData(element, elementType, _stdFactory);
+    int idx = -1;
+    Type t = null;
+    for (int i = 0; i < rowType.getFields().size(); i++) {
+      var f = rowType.getFields().get(i);
+      if (f.getName().isPresent() && name.equals(f.getName().get())) {
+        idx = i;
+        t = f.getType();
+        break;
+      }
+    }
+    if (idx == -1) {
+      return null;
+    }
+    int offset = rowData.getRawIndex();
+    Block fieldBlock = rowData.getRawFieldBlock(idx);
+    Object element = readNativeValue(t, fieldBlock, offset);
+    return TrinoWrapper.createStdData(element, t, stdFactory);
   }
 
   @Override
   public void setField(int index, StdData value) {
-    // TODO: This is not the right way to get this object. The status should be passed in from the invocation of the
-    // function and propagated to here. See PRESTO-1359 for more details.
-    BlockBuilderStatus blockBuilderStatus = new PageBuilderStatus().createBlockBuilderStatus();
-    BlockBuilder mutable = _rowType.createBlockBuilder(blockBuilderStatus, 1);
-    BlockBuilder rowBlockBuilder = mutable.beginBlockEntry();
-    int i = 0;
-    for (RowType.Field field : _rowType.getFields()) {
+    int fieldCount = rowType.getFields().size();
+    List<Type> fieldTypes = rowType.getTypeParameters();
+    Block[] fieldBlocks = new Block[fieldCount];
+
+    int existingOffset = (rowData == null) ? 0 : rowData.getRawIndex();
+
+    for (int i = 0; i < fieldCount; i++) {
+      Type ft = fieldTypes.get(i);
+      BlockBuilder bb = ft.createBlockBuilder(null, 1);
+
       if (i == index) {
-        ((TrinoData) value).writeToBlock(rowBlockBuilder);
+        ((TrinoData) value).writeToBlock(bb);
       } else {
-        if (_block == null) {
-          rowBlockBuilder.appendNull();
+        if (rowData == null) {
+          bb.appendNull();
         } else {
-          field.getType().appendTo(_block, i, rowBlockBuilder);
+          // copy existing value at this row's offset
+          ft.appendTo(rowData.getRawFieldBlock(i), existingOffset, bb);
         }
       }
-      i++;
+      fieldBlocks[i] = bb.build();
     }
-    mutable.closeEntry();
-    _block = _rowType.getObject(mutable.build(), 0);
+
+    // Build a single-row SqlRow at offset 0
+    this.rowData = new SqlRow(0, fieldBlocks);
   }
 
   @Override
   public void setField(String name, StdData value) {
-    BlockBuilder mutable = _rowType.createBlockBuilder(new PageBuilderStatus().createBlockBuilderStatus(), 1);
-    BlockBuilder rowBlockBuilder = mutable.beginBlockEntry();
-    int i = 0;
-    for (RowType.Field field : _rowType.getFields()) {
-      if (field.getName().isPresent() && name.equals(field.getName().get())) {
-        ((TrinoData) value).writeToBlock(rowBlockBuilder);
+    int fieldCount = rowType.getFields().size();
+    List<Type> fieldTypes = rowType.getTypeParameters();
+    Block[] fieldBlocks = new Block[fieldCount];
+
+    int targetIndex = -1;
+    for (int i = 0; i < fieldCount; i++) {
+      var f = rowType.getFields().get(i);
+      if (f.getName().isPresent() && name.equals(f.getName().get())) {
+        targetIndex = i;
+        break;
+      }
+    }
+    if (targetIndex == -1) {
+      // Unknown field name; treat as no-op
+      return;
+    }
+
+    int existingOffset = (rowData == null) ? 0 : rowData.getRawIndex();
+
+    for (int i = 0; i < fieldCount; i++) {
+      Type ft = fieldTypes.get(i);
+      BlockBuilder bb = ft.createBlockBuilder(null, 1);
+
+      if (i == targetIndex) {
+        ((TrinoData) value).writeToBlock(bb);
       } else {
-        if (_block == null) {
-          rowBlockBuilder.appendNull();
+        if (rowData == null) {
+          bb.appendNull();
         } else {
-          field.getType().appendTo(_block, i, rowBlockBuilder);
+          ft.appendTo(rowData.getRawFieldBlock(i), existingOffset, bb);
         }
       }
-      i++;
+      fieldBlocks[i] = bb.build();
     }
-    mutable.closeEntry();
-    _block = _rowType.getObject(mutable.build(), 0);
+
+    this.rowData = new SqlRow(0, fieldBlocks);
   }
 
   @Override
   public List<StdData> fields() {
-    ArrayList<StdData> fields = new ArrayList<>();
-    for (int i = 0; i < _block.getPositionCount(); i++) {
-      Type elementType = _rowType.getFields().get(i).getType();
-      Object element = readNativeValue(elementType, _block, i);
-      fields.add(TrinoWrapper.createStdData(element, elementType, _stdFactory));
+    ArrayList<StdData> out = new ArrayList<>();
+    if (rowData == null) {
+      return out;
     }
-    return fields;
+    int offset = rowData.getRawIndex();
+    int count = rowType.getFields().size();
+    for (int i = 0; i < count; i++) {
+      Type t = rowType.getFields().get(i).getType();
+      Block fieldBlock = rowData.getRawFieldBlock(i);
+      Object element = readNativeValue(t, fieldBlock, offset);
+      out.add(TrinoWrapper.createStdData(element, t, stdFactory));
+    }
+    return out;
   }
 
   @Override
   public Object getUnderlyingData() {
-    return _block;
+    return rowData;
   }
 
   @Override
   public void setUnderlyingData(Object value) {
-    _block = (Block) value;
+    this.rowData = (SqlRow) value;
   }
 
   @Override
   public void writeToBlock(BlockBuilder blockBuilder) {
-    _rowType.writeObject(blockBuilder, getUnderlyingData());
+    rowType.writeObject(blockBuilder, rowData);
   }
 }

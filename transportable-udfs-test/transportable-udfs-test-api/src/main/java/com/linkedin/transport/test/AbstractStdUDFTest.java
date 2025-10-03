@@ -17,7 +17,7 @@ import com.linkedin.transport.test.spi.TestCase;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Arrays;
-import java.util.LinkedHashMap;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -81,7 +81,7 @@ public abstract class AbstractStdUDFTest {
   protected static Map<Object, Object> map(Object... args) {
     Preconditions.checkArgument(args.length % 2 == 0,
         "Total number of keys + values is expected to be an even number. Received: " + args.length);
-    Map<Object, Object> dataMap = new LinkedHashMap<>();
+    Map<Object, Object> dataMap = new HashMap<>();
     for (int i = 0; i < args.length; i += 2) {
       dataMap.put(args[i], args[i + 1]);
     }

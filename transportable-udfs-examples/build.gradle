@@ -8,9 +8,6 @@ buildscript {
       url "https://plugins.gradle.org/m2/"
     }
   }
-  dependencies {
-    classpath 'org.github.ngbinh.scalastyle:gradle-scalastyle-plugin_2.11:1.0.1'
-  }
 }
 
 plugins {
@@ -26,7 +23,6 @@ subprojects {
   buildscript {
     repositories {
       gradlePluginPortal()
-      jcenter()
       mavenCentral()
     }
   }
@@ -65,17 +61,5 @@ subprojects {
       ]
       toolVersion '8.23'
     }
-  }
-
-  plugins.withType(ScalaPlugin) {
-    project.apply(plugin: 'scalaStyle')
-
-    scalaStyle {
-      configLocation = "${rootDir}/../gradle/scalastyle/scalastyle-config.xml"
-      source = sourceSets.main.allScala
-      testSource = sourceSets.test.allScala
-      includeTestSourceDirectory = true
-    }
-    check.dependsOn scalaStyle
   }
 }

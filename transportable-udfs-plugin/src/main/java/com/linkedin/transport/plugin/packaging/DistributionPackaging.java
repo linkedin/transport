@@ -56,9 +56,9 @@ public class DistributionPackaging implements Packaging {
 
     // Explicitly set classifiers for the created distributions or else leads to Maven packaging issues due to multiple
     // artifacts with the same classifier
-    project.getTasks().named(platform.getName() + "DistTar", Tar.class, tar -> tar.setClassifier(platform.getName()));
+    project.getTasks().named(platform.getName() + "DistTar", Tar.class, tar -> tar.getArchiveClassifier().set(platform.getName()));
     project.getArtifacts().add(ShadowBasePlugin.CONFIGURATION_NAME, project.getTasks().named(platform.getName() + "DistTar", Tar.class));
-    project.getTasks().named(platform.getName() + "DistZip", Zip.class, zip -> zip.setClassifier(platform.getName()));
+    project.getTasks().named(platform.getName() + "DistZip", Zip.class, zip -> zip.getArchiveClassifier().set(platform.getName()));
     project.getArtifacts().add(ShadowBasePlugin.CONFIGURATION_NAME, project.getTasks().named(platform.getName() + "DistZip", Zip.class));
     return ImmutableList.of(project.getTasks().named(platform.getName() + "DistTar", Tar.class),
         project.getTasks().named(platform.getName() + "DistZip", Zip.class));
@@ -80,7 +80,7 @@ public class DistributionPackaging implements Packaging {
       task.dependsOn(project.getTasks().named(sourceSet.getClassesTaskName()));
       task.setDescription("Assembles a thin jar archive containing the " + platformName
           + " classes to be included in the distribution");
-      task.setClassifier(platformName + "-dist-thin");
+      task.getArchiveClassifier().set(platformName + "-dist-thin");
       task.from(sourceSet.getOutput());
       task.from(sourceSet.getResources());
     });

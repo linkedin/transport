@@ -22,7 +22,7 @@ import com.linkedin.transport.test.spi.types.TestTypeFactory;
 import com.linkedin.transport.test.spi.types.TestTypeUtils;
 import com.linkedin.transport.test.spi.types.UnknownTestType;
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.IntStream;
@@ -102,7 +102,7 @@ class GenericQueryExecutor {
   private Pair<TestType, Object> resolveMap(Map<Object, Object> map, TestType keyType, TestType valueType) {
     List<TestType> resolvedKeyTypes = new ArrayList<>();
     List<TestType> resolvedValueTypes = new ArrayList<>();
-    Map<Object, Object> resolvedMap = new LinkedHashMap<>();
+    Map<Object, Object> resolvedMap = new HashMap<>();
     map.forEach((key, value) -> {
       Pair<TestType, Object> resolvedKey = resolveParameter(key, keyType);
       Pair<TestType, Object> resolvedValue = resolveParameter(value, valueType);
