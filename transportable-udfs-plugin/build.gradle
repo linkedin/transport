@@ -127,6 +127,13 @@ publishing {
   repositories { maven { url = "$rootProject.buildDir/repo" } }
 }
 
-tasks.named("publishPluginMavenPublicationToSonatypeRepository").configure {
-  dependsOn(tasks.named("signSimplePluginPluginMarkerMavenPublication"))
+import org.gradle.api.publish.maven.tasks.PublishToMavenRepository
+
+if (providers.environmentVariable("PGP_KEY").isPresent()) {
+  tasks.withType(PublishToMavenRepository).configureEach { pubTask ->
+    if (pubTask.name.startsWith("publishPluginMavenPublicationTo")) {
+      dependsOn(tasks.named("signSimplePluginPluginMarkerMavenPublication"))
+    }
+  }
 }
+
