@@ -53,18 +53,14 @@ jobs:
           PGP_KEY: ${{secrets.PGP_KEY}}
           PGP_PWD: ${{secrets.PGP_PWD}}
 
-      - name: 5. Derive version for hotfix
-        if: github.ref == 'refs/heads/1.0.1-hotfix'
-        run: echo "DERIVED_VERSION=1.0.1-hotfix" >> $GITHUB_ENV
-
-      - name: 6. Perform release for hotfix branch if commit is this branch
+      - name: 5. Perform release for hotfix branch if commit is this branch
         # Release job, only for pushes to the main development branch
         if: github.event_name == 'push'
           && github.ref == 'refs/heads/1.0.1-hotfix'
           && github.repository == 'linkedin/transport'
           && !contains(toJSON(github.event.commits.*.message), '[skip release]')
 
-        run: ./gradlew githubRelease publishToSonatype closeAndReleaseStagingRepository -Pversion="${{ env.DERIVED_VERSION }}"
+        run: ./gradlew githubRelease publishToSonatype closeAndReleaseStagingRepository
         env:
           GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
           SONATYPE_TOKEN_USERNAME: ${{secrets.SONATYPE_TOKEN_USERNAME}}
