@@ -81,7 +81,7 @@ publishing {
   // creates its publications in an afterEvaluate callback
   afterEvaluate {
     publications {
-      withType(MavenPublication) {
+      named("pluginMaven", MavenPublication) {
         artifact sourcesJar
         artifact javadocJar
 
@@ -125,15 +125,5 @@ publishing {
 
   //useful for testing - running "publish" will create artifacts/pom in a local dir
   repositories { maven { url = "$rootProject.buildDir/repo" } }
-}
-
-import org.gradle.api.publish.maven.tasks.PublishToMavenRepository
-
-if (providers.environmentVariable("PGP_KEY").isPresent()) {
-  tasks.withType(PublishToMavenRepository).configureEach { pubTask ->
-    if (pubTask.name.startsWith("publishPluginMavenPublicationTo")) {
-      dependsOn(tasks.named("signSimplePluginPluginMarkerMavenPublication"))
-    }
-  }
 }
 
