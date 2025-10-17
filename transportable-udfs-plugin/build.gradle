@@ -120,6 +120,30 @@ publishing {
           }
         }
       }
+
+      named("simplePluginPluginMarkerMaven", MavenPublication) {
+        pom {
+          name = "Transport Gradle Plugin (Marker)"
+          description = "Marker artifact for the 'com.linkedin.transport.plugin' Gradle plugin"
+          url = "https://github.com/linkedin/transport"
+          licenses {
+            license {
+              name = "BSD 2-CLAUSE LICENSE"
+              url = "https://github.com/linkedin/transport/blob/master/LICENSE"
+              distribution = "repo"
+            }
+          }
+          developers {
+            developer { id = "wmoustafa"; name = "Walaa Eldin Moustafa" }
+            developer { id = "shardulm94"; name = "Shardul Mahadik" }
+          }
+          scm {
+            connection = "scm:git:https://github.com/linkedin/transport.git"
+            developerConnection = "scm:git:ssh://git@github.com/linkedin/transport.git"
+            url = "https://github.com/linkedin/transport"
+          }
+        }
+      }
     }
   }
 
