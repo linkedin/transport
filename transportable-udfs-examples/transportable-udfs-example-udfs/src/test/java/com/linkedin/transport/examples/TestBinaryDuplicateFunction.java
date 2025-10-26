@@ -12,9 +12,10 @@ import com.linkedin.transport.api.udf.TopLevelStdUDF;
 import com.linkedin.transport.test.AbstractStdUDFTest;
 import com.linkedin.transport.test.spi.StdTester;
 import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 // Temporarily disable the tests for Trino. As the test infrastructure from Trino named QueryAssertions is used to
 // run these test for Trino, QueryAssertions mandatory execute the function with the query in two formats: one with
@@ -52,9 +53,9 @@ public class TestBinaryDuplicateFunction extends AbstractStdUDFTest {
   }
 
   private void testBinaryDuplicateStringHelper(StdTester tester, String input, String expectedOutput) {
-    ByteBuffer inputBuffer = ByteBuffer.wrap(input.getBytes());
-    ByteBuffer expected = ByteBuffer.wrap(expectedOutput.getBytes());
-    tester.check(functionCall("binary_duplicate", inputBuffer), expected, "varbinary");
+    byte[] inputBytes = input.getBytes(StandardCharsets.UTF_8);
+    byte[] expectedBytes = expectedOutput.getBytes(StandardCharsets.UTF_8);
+    tester.check(functionCall("binary_duplicate", ByteBuffer.wrap(inputBytes)), expectedBytes, "varbinary");
   }
 
   @Test
@@ -67,8 +68,6 @@ public class TestBinaryDuplicateFunction extends AbstractStdUDFTest {
   }
 
   private void testBinaryDuplicateHelper(StdTester tester, byte[] input, byte[] expectedOutput) {
-    ByteBuffer inputBuffer = ByteBuffer.wrap(input);
-    ByteBuffer expected = ByteBuffer.wrap(expectedOutput);
-    tester.check(functionCall("binary_duplicate", inputBuffer), expected, "varbinary");
+    tester.check(functionCall("binary_duplicate", ByteBuffer.wrap(input)), expectedOutput, "varbinary");
   }
 }
