@@ -4,6 +4,8 @@ dependencies {
   api project(":transportable-udfs-test:transportable-udfs-test-spi")
   implementation project(":transportable-udfs-api")
 
-  api 'org.testng:testng:6.11'
+  api 'org.junit.jupiter:junit-jupiter-api:5.10.2'
+  api 'org.junit.jupiter:junit-jupiter-engine:5.10.2'
+  api 'org.junit.jupiter:junit-jupiter-params:5.10.2'
   implementation 'com.google.guava:guava:24.1-jre'
 }
