@@ -19,8 +19,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.lang3.tuple.Pair;
-import org.testng.Assert;
 
+import static org.junit.jupiter.api.Assertions.*;
 
 public class GenericTester implements StdTester {
 
@@ -50,14 +50,14 @@ public class GenericTester implements StdTester {
   @Override
   public void check(TestCase testCase) {
     Pair<TestType, Object> result = _executor.executeQuery(testCase.getFunctionCall());
-    Assert.assertEquals(result.getLeft(),
+    assertEquals(result.getLeft(),
         _typeFactory.createType(TypeSignature.parse(testCase.getExpectedOutputType()), _boundVariables));
     if (testCase.getExpectedOutput() instanceof ByteBuffer) {
       byte[] expected = ((ByteBuffer) testCase.getExpectedOutput()).array();
       byte[] actual = ((ByteBuffer) result.getRight()).array();
-      Assert.assertEquals(actual, expected);
+      assertEquals(actual, expected);
     } else {
-      Assert.assertEquals(result.getRight(), testCase.getExpectedOutput());
+      assertEquals(result.getRight(), testCase.getExpectedOutput());
     }
   }
 }

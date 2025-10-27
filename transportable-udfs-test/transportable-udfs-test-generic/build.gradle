@@ -6,7 +6,9 @@ dependencies {
   implementation project(':transportable-udfs-utils')
   implementation project(":transportable-udfs-test:transportable-udfs-test-api")
   implementation project(":transportable-udfs-test:transportable-udfs-test-spi")
-  implementation 'org.testng:testng:6.11'
+  implementation 'org.junit.jupiter:junit-jupiter-api:5.10.2'
+  implementation 'org.junit.jupiter:junit-jupiter-engine:5.10.2'
+  implementation 'org.junit.jupiter:junit-jupiter-params:5.10.2'
   compileOnly 'org.apache.hadoop:hadoop-common:2.7.4'
   compileOnly 'org.apache.hadoop:hadoop-mapreduce-client-core:2.7.4'
   runtimeOnly 'org.apache.hadoop:hadoop-common:2.7.4'
