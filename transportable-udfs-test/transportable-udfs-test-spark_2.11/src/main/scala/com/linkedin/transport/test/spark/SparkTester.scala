@@ -15,7 +15,7 @@ import com.linkedin.transport.test.spi.{SqlFunctionCallGenerator, SqlStdTester, 
 import org.apache.spark.SparkException
 import org.apache.spark.sql.types._
 import org.apache.spark.sql.{SparkSession, StdUDFTestUtils}
-import org.testng.Assert
+import org.junit.jupiter.api.Assertions._
 
 import scala.collection.JavaConversions._
 
@@ -41,8 +41,8 @@ class SparkTester extends SqlStdTester {
       } catch {
         case e: SparkException => throw e.getCause()
       }
-    Assert.assertEquals(result.get(0), expectedOutputData)
-    Assert.assertEquals(getModifiedResultType(result.schema.head.dataType), expectedOutputType)
+    assertEquals(result.get(0), expectedOutputData)
+    assertEquals(getModifiedResultType(result.schema.head.dataType), expectedOutputType)
   }
 
   override def setup(topLevelStdUDFClassesAndImplementations: util.Map[Class[_ <: TopLevelStdUDF],

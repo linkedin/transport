@@ -35,7 +35,8 @@ import org.apache.hive.service.cli.OperationHandle;
 import org.apache.hive.service.cli.RowSet;
 import org.apache.hive.service.cli.SessionHandle;
 import org.apache.hive.service.server.HiveServer2;
-import org.testng.Assert;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 
 public class HiveTester implements SqlStdTester {
@@ -129,10 +130,10 @@ public class HiveTester implements SqlStdTester {
         Object[] row = rowSet.iterator().next();
         Object result = row[0];
 
-        Assert.assertEquals(result, expectedOutputData, "UDF output does not match");
+        assertEquals(result, expectedOutputData, "UDF output does not match");
         // Get the output data type and convert them to TypeInfo to compare
         ColumnDescriptor outputColumnDescriptor = _client.getResultSetMetadata(handle).getColumnDescriptors().get(0);
-        Assert.assertEquals(TypeInfoUtils.getTypeInfoFromTypeString(outputColumnDescriptor.getTypeName().toLowerCase()),
+        assertEquals(TypeInfoUtils.getTypeInfoFromTypeString(outputColumnDescriptor.getTypeName().toLowerCase()),
             TypeInfoUtils.getTypeInfoFromObjectInspector((ObjectInspector) expectedOutputType),
             "UDF output type does not match");
       } else {
