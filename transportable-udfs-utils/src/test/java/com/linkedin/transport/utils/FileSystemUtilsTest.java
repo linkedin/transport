@@ -17,18 +17,26 @@ public class FileSystemUtilsTest {
 
   @Test
   public void testResolveLatest() throws IOException, URISyntaxException {
-    String resourcePath = "file://" + getPathForResource("root");
+    // Use proper file URI format: file:/// for local files
+    String resourcePath = java.nio.file.Paths.get(getPathForResource("root")).toUri().toString().replaceAll("/$", "");
 
     // Test cases to resolve #LATEST
+    // Normalize paths for cross-platform compatibility by replacing backslashes with forward slashes
     String filePath = FileSystemUtils.resolveLatest(resourcePath + "/2018/11/02.dat");
     Assert.assertTrue(
-        FileSystemUtils.resolveLatest(resourcePath + "/2018/11/02.dat").endsWith("/root/2018/11/02.dat"));
+        normalizePath(FileSystemUtils.resolveLatest(resourcePath + "/2018/11/02.dat")).endsWith("/root/2018/11/02.dat"),
+        "Expected path to end with /root/2018/11/02.dat but was: " + normalizePath(FileSystemUtils.resolveLatest(resourcePath + "/2018/11/02.dat")));
     Assert.assertTrue(
-        FileSystemUtils.resolveLatest(resourcePath + "/#LATEST/11/#LATEST").endsWith("/root/2019/11/02.dat"));
+        normalizePath(FileSystemUtils.resolveLatest(resourcePath + "/#LATEST/11/#LATEST")).endsWith("/root/2019/11/02.dat"));
     Assert.assertTrue(
-        FileSystemUtils.resolveLatest(resourcePath + "/#LATEST/#LATEST/#LATEST").endsWith("/root/2019/12/02.dat"));
+        normalizePath(FileSystemUtils.resolveLatest(resourcePath + "/#LATEST/#LATEST/#LATEST")).endsWith("/root/2019/12/02.dat"));
     Assert.assertTrue(
-        FileSystemUtils.resolveLatest(resourcePath + "/#LATEST/#LATEST").endsWith("/root/2019/13.dat"));
+        normalizePath(FileSystemUtils.resolveLatest(resourcePath + "/#LATEST/#LATEST")).endsWith("/root/2019/13.dat"));
+  }
+
+  private String normalizePath(String path) {
+    // Replace backslashes with forward slashes for consistent path comparison
+    return path.replace('\\', '/');
   }
 
   private String getPathForResource(String resource) throws URISyntaxException {

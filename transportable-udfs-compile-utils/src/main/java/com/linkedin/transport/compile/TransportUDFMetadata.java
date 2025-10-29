@@ -51,8 +51,11 @@ public class TransportUDFMetadata {
     return _udfs.get(topLevelClass);
   }
 
-  public void toJson(Writer writer) {
-    GSON.toJson(TransportUDFMetadataSerDe.fromUDFMetadata(this), writer);
+  public void toJson(Writer writer) throws IOException {
+    String json = GSON.toJson(TransportUDFMetadataSerDe.fromUDFMetadata(this));
+    // Gson uses \n for newlines, but on Windows we need \r\n to match test expectations
+    String jsonWithSystemLineSeparator = json.replace("\n", System.lineSeparator());
+    writer.write(jsonWithSystemLineSeparator);
   }
 
   public static TransportUDFMetadata fromJsonFile(File jsonFile) {

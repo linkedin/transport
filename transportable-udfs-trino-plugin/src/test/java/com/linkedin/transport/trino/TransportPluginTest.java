@@ -26,8 +26,16 @@ import static org.testng.Assert.*;
 
 
 public class TransportPluginTest {
-  private final String udfRepoDir = getClass().getClassLoader().getResource("transport-udf-repo").getPath();
+  private final String udfRepoDir;
   private LocalQueryRunner queryRunner;
+
+  public TransportPluginTest() {
+    try {
+      udfRepoDir = java.nio.file.Paths.get(getClass().getClassLoader().getResource("transport-udf-repo").toURI()).toString();
+    } catch (Exception e) {
+      throw new RuntimeException("Failed to resolve transport-udf-repo path", e);
+    }
+  }
 
   @BeforeClass
   public void setUp() {
