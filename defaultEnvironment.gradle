@@ -10,6 +10,6 @@ subprojects {
   project.ext.setProperty('trino-version', '446')
   project.ext.setProperty('airlift-slice-version', '0.44')
   project.ext.setProperty('spark-group', 'org.apache.spark')
-  project.ext.setProperty('spark2-version', '2.3.0')
+  project.ext.setProperty('spark2-version', '2.4.6')
   project.ext.setProperty('spark3-version', '3.1.1')
 }
