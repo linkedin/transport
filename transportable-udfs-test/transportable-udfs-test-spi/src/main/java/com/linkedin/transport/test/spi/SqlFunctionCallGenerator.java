@@ -134,7 +134,21 @@ public interface SqlFunctionCallGenerator {
    * Returns a SQL string of the format {@code STRUCT(f1, f2, f3, ...)} representing a struct literal
    */
   default String getStructArgumentString(Row struct, List<TestType> structFieldTypes) {
+    List<String> structFieldNames = struct.getFieldNames();
     List<Object> structFields = struct.getFields();
+    if (structFieldNames != null) {
+      StringBuilder argStr = new StringBuilder();
+      argStr.append("NAMED_STRUCT(");
+      for (int idx = 0; idx < structFields.size(); idx++) {
+        argStr.append(getStringArgumentString(structFieldNames.get(idx)));
+        argStr.append(",");
+        argStr.append(getFunctionCallArgumentString(structFields.get(idx), structFieldTypes.get(idx)));
+        argStr.append(",");
+      }
+      argStr.deleteCharAt(argStr.length() - 1);
+      argStr.append(")");
+      return argStr.toString();
+    }
     return "STRUCT" + "(" + IntStream.range(0, structFields.size())
         .mapToObj(idx -> getFunctionCallArgumentString(structFields.get(idx), structFieldTypes.get(idx)))
         .collect(Collectors.joining(", ")) + ")";

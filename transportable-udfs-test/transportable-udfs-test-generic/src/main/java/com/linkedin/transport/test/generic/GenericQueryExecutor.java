@@ -116,12 +116,19 @@ class GenericQueryExecutor {
 
   private Pair<TestType, Object> resolveStruct(Row struct, List<TestType> fieldTypes) {
     List<TestType> resolvedFieldTypes = new ArrayList<>();
+    List<String> resolvedFieldNames = new ArrayList<>();
     List<Object> resolvedFields = new ArrayList<>();
     IntStream.range(0, fieldTypes.size()).forEach(idx -> {
       Pair<TestType, Object> resolvedField = resolveParameter(struct.getFields().get(idx), fieldTypes.get(idx));
+      if (struct.getFieldNames() != null) {
+        resolvedFieldNames.add(struct.getFieldNames().get(idx));
+      }
       resolvedFieldTypes.add(resolvedField.getLeft());
       resolvedFields.add(resolvedField.getRight());
     });
-    return Pair.of(TestTypeFactory.struct(resolvedFieldTypes), new Row(resolvedFields));
+    if (resolvedFieldNames.isEmpty()) {
+      return Pair.of(TestTypeFactory.struct(resolvedFieldTypes), new Row(resolvedFields));
+    }
+    return Pair.of(TestTypeFactory.struct(resolvedFieldNames, resolvedFieldTypes), new Row(resolvedFieldNames, resolvedFields));
   }
 }
