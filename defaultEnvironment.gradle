@@ -7,7 +7,7 @@ subprojects {
     mavenCentral()
     jcenter()
   }
-  project.ext.setProperty('trino-version', '406')
+  project.ext.setProperty('trino-version', '414')
   project.ext.setProperty('airlift-slice-version', '0.44')
   project.ext.setProperty('spark-group', 'org.apache.spark')
   project.ext.setProperty('spark2-version', '2.3.0')
