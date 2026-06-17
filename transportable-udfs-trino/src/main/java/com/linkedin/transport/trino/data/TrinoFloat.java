@@ -8,6 +8,7 @@ package com.linkedin.transport.trino.data;
 import com.linkedin.transport.api.data.StdFloat;
 import io.trino.spi.block.BlockBuilder;
 
+import static io.trino.spi.type.IntegerType.INTEGER;
 import static java.lang.Float.*;
 
 
@@ -36,6 +37,6 @@ public class TrinoFloat extends TrinoData implements StdFloat {
 
   @Override
   public void writeToBlock(BlockBuilder blockBuilder) {
-    blockBuilder.writeInt(floatToIntBits(_float));
+    INTEGER.writeInt(blockBuilder, floatToIntBits(_float));
   }
 }

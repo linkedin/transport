@@ -5,24 +5,25 @@
  */
 package com.linkedin.transport.test.trino;
 
+import io.trino.spi.function.CatalogSchemaFunctionName;
 import io.trino.spi.function.FunctionDependencies;
 import io.trino.spi.function.FunctionNullability;
 import io.trino.spi.function.InvocationConvention;
 import io.trino.spi.function.OperatorType;
-import io.trino.spi.function.QualifiedFunctionName;
+import io.trino.metadata.ResolvedFunction;
 import io.trino.spi.function.ScalarFunctionImplementation;
 import io.trino.spi.type.Type;
 import io.trino.spi.type.TypeManager;
 import io.trino.spi.type.TypeSignature;
-import io.trino.testing.LocalQueryRunner;
+import io.trino.testing.DistributedQueryRunner;
 import java.util.List;
 
 
 public class TrinoTestFunctionDependencies implements FunctionDependencies {
   private final TypeManager typeManager;
-  private final LocalQueryRunner queryRunner;
+  private final DistributedQueryRunner queryRunner;
 
-  public TrinoTestFunctionDependencies(TypeManager typeManager, LocalQueryRunner queryRunner) {
+  public TrinoTestFunctionDependencies(TypeManager typeManager, DistributedQueryRunner queryRunner) {
     this.typeManager = typeManager;
     this.queryRunner = queryRunner;
   }
@@ -33,7 +34,7 @@ public class TrinoTestFunctionDependencies implements FunctionDependencies {
   }
 
   @Override
-  public FunctionNullability getFunctionNullability(QualifiedFunctionName name, List<Type> parameterTypes) {
+  public FunctionNullability getFunctionNullability(CatalogSchemaFunctionName name, List<Type> parameterTypes) {
     return null;
   }
 
@@ -48,13 +49,13 @@ public class TrinoTestFunctionDependencies implements FunctionDependencies {
   }
 
   @Override
-  public ScalarFunctionImplementation getScalarFunctionImplementation(QualifiedFunctionName name,
+  public ScalarFunctionImplementation getScalarFunctionImplementation(CatalogSchemaFunctionName name,
       List<Type> parameterTypes, InvocationConvention invocationConvention) {
     return null;
   }
 
   @Override
-  public ScalarFunctionImplementation getScalarFunctionImplementationSignature(QualifiedFunctionName name,
+  public ScalarFunctionImplementation getScalarFunctionImplementationSignature(CatalogSchemaFunctionName name,
       List<TypeSignature> parameterTypes, InvocationConvention invocationConvention) {
     return null;
   }
@@ -62,9 +63,12 @@ public class TrinoTestFunctionDependencies implements FunctionDependencies {
   @Override
   public ScalarFunctionImplementation getOperatorImplementation(OperatorType operatorType, List<Type> parameterTypes,
       InvocationConvention invocationConvention) {
-    return queryRunner.getFunctionManager()
-        .getScalarFunctionImplementation(queryRunner.getMetadata().resolveOperator(queryRunner.getDefaultSession(), operatorType, parameterTypes),
-            invocationConvention);
+    var planner   = queryRunner.getCoordinator().getPlannerContext();
+    var metadata  = planner.getMetadata();
+
+    ResolvedFunction resolved = metadata.resolveOperator(operatorType, parameterTypes);
+    return planner.getFunctionManager()
+        .getScalarFunctionImplementation(resolved, invocationConvention);
   }
 
   @Override

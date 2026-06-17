@@ -7,15 +7,16 @@ package com.linkedin.transport.trino;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import io.trino.FeaturesConfig;
 import io.trino.Session;
 import io.trino.client.ClientCapabilities;
+import io.trino.spi.connector.CatalogSchemaName;
 import io.trino.sql.SqlPath;
-import io.trino.testing.LocalQueryRunner;
+import io.trino.testing.DistributedQueryRunner;
 import io.trino.testing.MaterializedResult;
 import io.trino.testing.TestingSession;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -25,34 +26,38 @@ import org.testng.annotations.Test;
 import static org.testng.Assert.*;
 
 
-public class TransportPluginTest {
-  private final String udfRepoDir = getClass().getClassLoader().getResource("transport-udf-repo").getPath();
-  private LocalQueryRunner queryRunner;
+public class TestTransportPlugin {
+  private final String udfRepoDir = TestTransportPlugin.class.getClassLoader()
+      .getResource("transport-udf-repo")
+      .getPath();
+  private DistributedQueryRunner queryRunner;
 
   @BeforeClass
-  public void setUp() {
-    SqlPath sqlPath = new SqlPath("LINKEDIN.transport");
-    FeaturesConfig featuresConfig = new FeaturesConfig();
+  public void setUp() throws Exception {
+    SqlPath sqlPath = new SqlPath(List.of(new CatalogSchemaName("linkedin", "transport")), "linkedin_transport");
     Session session = TestingSession.testSessionBuilder().setPath(sqlPath).setClientCapabilities((Set) Arrays.stream(
         ClientCapabilities.values()).map(Enum::toString).collect(ImmutableSet.toImmutableSet())).build();
-    queryRunner = LocalQueryRunner.builder(session).withFeaturesConfig(featuresConfig).build();
+    queryRunner = DistributedQueryRunner.builder(session).build();
     queryRunner.installPlugin(new TransportPlugin());
-    queryRunner.createCatalog("LINKEDIN", "transport", ImmutableMap.of("transport.udf.repo", udfRepoDir));
+    queryRunner.createCatalog("linkedin", "transport", ImmutableMap.of("transport.udf.repo", udfRepoDir));
   }
 
-  @AfterClass
-  public void tearDown() {
-    queryRunner.close();
+  @AfterClass(alwaysRun = true)
+  public void tearDown() throws Exception {
+    if (queryRunner != null) {
+      queryRunner.close();
+      queryRunner = null;
+    }
   }
 
   @Test
   public void testTransportUdfIsAccessible() {
-    String query = "SELECT array_element_at(array[1,2,3], 2)";
+    String query = "SELECT linkedin.transport.array_element_at(array[1,2,3], 2)";
     MaterializedResult result = queryRunner.execute(query);
     Assert.assertEquals(result.getRowCount(), 1);
     Assert.assertEquals(((int) result.getMaterializedRows().get(0).getField(0)), 3);
 
-    String camelCaseQuery = "SELECT Array_Element_At(array[1,2,3], 2)";
+    String camelCaseQuery = "SELECT linkedin.transport.Array_Element_At(array[1,2,3], 2)";
     MaterializedResult camelCaseResult = queryRunner.execute(camelCaseQuery);
     Assert.assertEquals(camelCaseResult.getRowCount(), 1);
     Assert.assertEquals(((int) camelCaseResult.getMaterializedRows().get(0).getField(0)), 3);
@@ -60,7 +65,7 @@ public class TransportPluginTest {
 
   @Test
   public void testTransportUdfInShowFunctions() {
-    String showFunctionQuery = "SHOW FUNCTIONS LIKE 'array_element_at'";
+    String showFunctionQuery = "SHOW FUNCTIONS FROM linkedin.transport LIKE 'array_element_at'";
     MaterializedResult showFunctionResult = queryRunner.execute(showFunctionQuery);
     Assert.assertEquals(showFunctionResult.getRowCount(), 1);
     Assert.assertEquals(((String) showFunctionResult.getMaterializedRows().get(0).getField(0)), "array_element_at");

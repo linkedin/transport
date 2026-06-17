@@ -23,7 +23,6 @@ subprojects {
   buildscript {
     repositories {
       gradlePluginPortal()
-      jcenter()
       mavenCentral()
     }
   }

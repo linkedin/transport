@@ -3,15 +3,15 @@ def licenseSpec = copySpec {
     include "LICENSE"
 }
 
-task sourcesJar(type: Jar, dependsOn: classes) {
-    classifier 'sources'
-    from sourceSets.main.allSource
+tasks.register('sourcesJar', Jar) {
+    from sourceSets.main.allJava
+    archiveClassifier.set('sources')
     with licenseSpec
 }
 
-task javadocJar(type: Jar, dependsOn: javadoc) {
-    classifier 'javadoc'
-    from tasks.javadoc
+tasks.register('javadocJar', Jar) {
+    from sourceSets.main.allJava
+    archiveClassifier.set('javadoc')
     with licenseSpec
 }
 

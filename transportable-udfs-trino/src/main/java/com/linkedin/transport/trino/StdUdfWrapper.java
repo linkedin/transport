@@ -73,13 +73,14 @@ public abstract class StdUdfWrapper {
   private final FunctionMetadata functionMetadata;
 
   public StdUdfWrapper(StdUDF stdUDF) {
-    this.functionMetadata = FunctionMetadata.builder(FunctionKind.SCALAR)
+    String functionName = ((TopLevelStdUDF) stdUDF).getFunctionName();
+
+    this.functionMetadata = FunctionMetadata.builder(functionName, FunctionKind.SCALAR)
         .nullable()
         .nondeterministic()
         .description(((TopLevelStdUDF) stdUDF).getFunctionDescription())
         .argumentNullability(getArgumentNullabilityObjects(stdUDF.getNullableArguments()))
         .signature(Signature.builder()
-            .name(((TopLevelStdUDF) stdUDF).getFunctionName())
             .typeVariableConstraints(getTypeVariableConstraintsForStdUdf(stdUDF))
             .returnType(parseTypeSignature(quoteReservedKeywords(stdUDF.getOutputParameterSignature()), ImmutableSet.of()))
             .argumentTypes(stdUDF.getInputParameterSignatures().stream()

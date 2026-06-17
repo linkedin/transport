@@ -38,11 +38,11 @@ public class ThinJarPackaging implements Packaging {
           task.dependsOn(project.getTasks().named(platformSourceSet.getClassesTaskName()));
           task.setDescription("Assembles a thin jar archive containing the " + platform.getName()
               + " classes to be included in the distribution");
-          task.setClassifier(platform.getName() + "-thin");
+          task.getArchiveClassifier().set(platform.getName() + "-thin");
           task.from(platformSourceSet.getOutput());
           task.from(platformSourceSet.getResources());
         });
-    
+
     project.getArtifacts().add(ShadowBasePlugin.CONFIGURATION_NAME, thinJarTask);
     AdhocComponentWithVariants java = project.getComponents().withType(AdhocComponentWithVariants.class).getByName("java");
     java.addVariantsFromConfiguration(project.getConfigurations().getByName(ShadowBasePlugin.CONFIGURATION_NAME), v -> v.mapToOptional());

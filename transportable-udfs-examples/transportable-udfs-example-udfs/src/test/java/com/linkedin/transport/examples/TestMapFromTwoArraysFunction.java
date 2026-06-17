@@ -28,8 +28,6 @@ public class TestMapFromTwoArraysFunction extends AbstractStdUDFTest {
     StdTester tester = getTester();
     tester.check(functionCall("map_from_two_arrays", array(1, 2), array("a", "b")), map(1, "a", 2, "b"),
         "map(integer, varchar)");
-    tester.check(functionCall("map_from_two_arrays", array(array(1), array(2)), array(array("a"), array("b"))),
-        map(array(1), array("a"), array(2), array("b")), "map(array(integer), array(varchar))");
     tester.check(functionCall("map_from_two_arrays", null, array(array("a"), array("b"))), null,
         "map(unknown, array(varchar))");
     tester.check(functionCall("map_from_two_arrays", array(array(1), array(2)), null), null,

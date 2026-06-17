@@ -75,7 +75,7 @@ class Defaults {
       new Platform(TRINO,
           Language.JAVA,
           TrinoWrapperGenerator.class,
-          JavaLanguageVersion.of(17),
+          JavaLanguageVersion.of(21),
           ImmutableList.of(
               DependencyConfiguration.builder(IMPLEMENTATION, "com.linkedin.transport:transportable-udfs-trino", TRANSPORT_VERSION).build(),
               DependencyConfiguration.builder(COMPILE_ONLY, "io.trino:trino-main", TRINO_VERSION).exclude("org.slf4j", "slf4j-api").build()
