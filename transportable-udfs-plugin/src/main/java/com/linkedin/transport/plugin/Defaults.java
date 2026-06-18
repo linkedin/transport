@@ -90,10 +90,11 @@ class Defaults {
       new Platform(HIVE,
           Language.JAVA,
           HiveWrapperGenerator.class,
-          JavaLanguageVersion.of(8),
+          JavaLanguageVersion.of(17),
           ImmutableList.of(
               DependencyConfiguration.builder(IMPLEMENTATION, "com.linkedin.transport:transportable-udfs-hive", TRANSPORT_VERSION).build(),
-              DependencyConfiguration.builder(COMPILE_ONLY, "org.apache.hive:hive-exec", HIVE_VERSION).exclude("org.apache.calcite").build()
+              DependencyConfiguration.builder(COMPILE_ONLY, "org.apache.hive:hive-exec", HIVE_VERSION)
+                  .exclude("org.apache.calcite").exclude("org.pentaho").build()
           ),
           ImmutableList.of(
               DependencyConfiguration.builder(RUNTIME_ONLY, "com.linkedin.transport:transportable-udfs-test-hive", TRANSPORT_VERSION).build()

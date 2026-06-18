@@ -57,7 +57,10 @@ public class HiveTester implements SqlStdTester {
 
   private void createHiveServer() {
     HiveServer2 server = new HiveServer2();
-    server.init(new HiveConf());
+    HiveConf conf = new HiveConf();
+    conf.setBoolVar(HiveConf.ConfVars.METASTORE_SCHEMA_VERIFICATION, false);
+    conf.set("datanucleus.schema.autoCreateAll", "true");
+    server.init(conf);
     for (Service service : server.getServices()) {
       if (service instanceof CLIService) {
         _client = (CLIService) service;
@@ -91,7 +94,7 @@ public class HiveTester implements SqlStdTester {
         String functionName =
             ((TopLevelStdUDF) stdUDFImplementations.get(0).getConstructor().newInstance()).getFunctionName();
         _functionRegistryAddFunctionMethod.invoke(_functionRegistry, functionName,
-            new FunctionInfo(false, functionName, wrapper));
+            new FunctionInfo(FunctionInfo.FunctionType.PERSISTENT, functionName, wrapper));
       } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException | InstantiationException e) {
         throw new RuntimeException("Error registering UDF " + topLevelStdUDF.getName() + " with Hive Server", e);
       }
