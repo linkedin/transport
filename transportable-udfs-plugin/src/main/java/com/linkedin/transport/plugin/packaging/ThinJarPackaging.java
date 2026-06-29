@@ -38,7 +38,7 @@ public class ThinJarPackaging implements Packaging {
           task.dependsOn(project.getTasks().named(platformSourceSet.getClassesTaskName()));
           task.setDescription("Assembles a thin jar archive containing the " + platform.getName()
               + " classes to be included in the distribution");
-          task.setClassifier(platform.getName() + "-thin");
+          task.getArchiveClassifier().set(platform.getName() + "-thin");
           task.from(platformSourceSet.getOutput());
           task.from(platformSourceSet.getResources());
         });

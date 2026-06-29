@@ -7,11 +7,15 @@ dependencies {
   implementation ('org.apache.calcite:calcite-core:1.2.0-incubating') {
     exclude group: 'org.pentaho', module: 'pentaho-aggdesigner-algorithm'
   }
-  implementation ('org.apache.hive:hive-exec:1.2.2') {
+  implementation ('org.apache.hive:hive-exec:2.3.9') {
     exclude group: 'org.apache.calcite'
+    exclude group: 'org.pentaho'
   }
-  implementation ('org.apache.hive:hive-service:1.2.2') {
+  implementation ('org.apache.hive:hive-service:2.3.9') {
     exclude group: 'org.apache.hive', module: 'hive-exec'
+    exclude group: 'org.pentaho'
+    exclude group: 'org.apache.twill'
+    exclude group: 'co.cask.tephra'
   }
   runtimeOnly 'org.apache.hadoop:hadoop-common:2.7.4'
   runtimeOnly 'org.apache.hadoop:hadoop-mapreduce-client-core:2.7.4'
