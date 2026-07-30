@@ -13,10 +13,13 @@ dependencies {
   }
   implementation ('org.apache.hive:hive-service:2.3.9') {
     exclude group: 'org.apache.hive', module: 'hive-exec'
+    exclude group: 'org.jamon', module: 'jamon-runtime'
     exclude group: 'org.pentaho'
     exclude group: 'org.apache.twill'
     exclude group: 'co.cask.tephra'
   }
+  // Hive 2.3.9 pins jamon-runtime 2.3.1, whose published POM is malformed.
+  implementation 'org.jamon:jamon-runtime:2.4.1'
   runtimeOnly 'org.apache.hadoop:hadoop-common:2.7.4'
   runtimeOnly 'org.apache.hadoop:hadoop-mapreduce-client-core:2.7.4'
 }
