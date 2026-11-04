@@ -8,6 +8,7 @@ package com.linkedin.transport.hive;
 import com.linkedin.transport.api.StdFactory;
 import com.linkedin.transport.api.data.PlatformData;
 import com.linkedin.transport.api.data.StdData;
+import com.linkedin.transport.hive.data.HiveData;
 import com.linkedin.transport.api.udf.StdUDF;
 import com.linkedin.transport.api.udf.StdUDF0;
 import com.linkedin.transport.api.udf.StdUDF1;
@@ -50,6 +51,7 @@ public abstract class StdUdfWrapper extends GenericUDF {
   private boolean[] _nullableArguments;
   private String[] _distributedCacheFiles;
   private StdData[] _args;
+  private ObjectInspector _outputObjectInspector;
 
   /**
    * Given input object inspectors, this method matches them to the expected type signatures, and finds bindings to the
@@ -70,7 +72,8 @@ public abstract class StdUdfWrapper extends GenericUDF {
     _stdUdf.init(_stdFactory);
     _requiredFilesProcessed = false;
     createStdData();
-    return hiveTypeInference.getOutputDataType();
+    _outputObjectInspector = hiveTypeInference.getOutputDataType();
+    return _outputObjectInspector;
   }
 
   @Override
@@ -86,6 +89,7 @@ public abstract class StdUdfWrapper extends GenericUDF {
     newWrapper._nullableArguments = _stdUdf.getAndCheckNullableArguments();
     newWrapper._stdUdf.init(_stdFactory);
     newWrapper._requiredFilesProcessed = false;
+    newWrapper._outputObjectInspector = _outputObjectInspector;
     newWrapper.createStdData();
   }
 
@@ -185,7 +189,13 @@ public abstract class StdUdfWrapper extends GenericUDF {
       default:
         throw new UnsupportedOperationException("eval not yet supported for StdUDF" + args.length);
     }
-    return result == null ? null : ((PlatformData) result).getUnderlyingData();
+    if (result == null) {
+      return null;
+    }
+    if (result instanceof HiveData && _outputObjectInspector != null) {
+      return ((HiveData) result).getUnderlyingDataForObjectInspector(_outputObjectInspector);
+    }
+    return ((PlatformData) result).getUnderlyingData();
   }
 
   @Override

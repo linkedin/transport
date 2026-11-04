@@ -50,9 +50,16 @@ public class HiveStruct extends HiveData implements StdStruct {
   public void setField(int index, StdData value) {
     if (_structObjectInspector instanceof SettableStructObjectInspector) {
       StructField field = _structObjectInspector.getAllStructFieldRefs().get(index);
-      ((SettableStructObjectInspector) _structObjectInspector).setStructFieldData(_object,
-          field, ((HiveData) value).getUnderlyingDataForObjectInspector(field.getFieldObjectInspector())
-      );
+      Object val = ((HiveData) value).getUnderlyingDataForObjectInspector(field.getFieldObjectInspector());
+      if (_object instanceof Object[]) {
+        ((Object[]) _object)[index] = val;
+      } else if (_object instanceof List) {
+        ((List) _object).set(index, val);
+      } else {
+        ((SettableStructObjectInspector) _structObjectInspector).setStructFieldData(_object,
+            field, val
+        );
+      }
       _isObjectModified = true;
     } else {
       throw new RuntimeException("Attempt to modify an immutable Hive object of type: "
@@ -64,8 +71,16 @@ public class HiveStruct extends HiveData implements StdStruct {
   public void setField(String name, StdData value) {
     if (_structObjectInspector instanceof SettableStructObjectInspector) {
       StructField field = _structObjectInspector.getStructFieldRef(name);
-      ((SettableStructObjectInspector) _structObjectInspector).setStructFieldData(_object,
-          field, ((HiveData) value).getUnderlyingDataForObjectInspector(field.getFieldObjectInspector()));
+      int index = _structObjectInspector.getAllStructFieldRefs().indexOf(field);
+      Object val = ((HiveData) value).getUnderlyingDataForObjectInspector(field.getFieldObjectInspector());
+      if (_object instanceof Object[] && index >= 0) {
+        ((Object[]) _object)[index] = val;
+      } else if (_object instanceof List && index >= 0) {
+        ((List) _object).set(index, val);
+      } else {
+        ((SettableStructObjectInspector) _structObjectInspector).setStructFieldData(_object,
+            field, val);
+      }
       _isObjectModified = true;
     } else {
       throw new RuntimeException("Attempt to modify an immutable Hive object of type: "
